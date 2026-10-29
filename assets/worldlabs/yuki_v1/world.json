@@ -1,0 +1,49 @@
+{
+  "world_id": "e3734242-02f1-420f-aab9-15fb6c04d699",
+  "display_name": "yuki_v1",
+  "tags": null,
+  "assets": {
+    "mesh": {
+      "collider_mesh_url": "https://cdn.marble.worldlabs.ai/e3734242-02f1-420f-aab9-15fb6c04d699/3f207299.glb",
+      "hq_mesh_url": null,
+      "full_res_mesh_url": null
+    },
+    "imagery": {
+      "pano_url": "https://cdn.marble.worldlabs.ai/e3734242-02f1-420f-aab9-15fb6c04d699/d4c5df21-445d-43d7-afd3-6a4668c1db0a_panos/rgb_0.png"
+    },
+    "splats": {
+      "spz_urls": {
+        "500k": "https://cdn.marble.worldlabs.ai/e3734242-02f1-420f-aab9-15fb6c04d699/6f60d2bd-c2a8-4132-a2e3-fac2129b6d9f_ceramic_500k.spz",
+        "100k": "https://cdn.marble.worldlabs.ai/e3734242-02f1-420f-aab9-15fb6c04d699/e5666958-2706-4a39-b801-fbcf50be0dd8_dust_100k.spz",
+        "150k": "https://cdn.marble.worldlabs.ai/e3734242-02f1-420f-aab9-15fb6c04d699/e99d07cd-2ace-48cd-88f6-f0748b07f20d_ceramic_150k.spz",
+        "full_res": "https://cdn.marble.worldlabs.ai/e3734242-02f1-420f-aab9-15fb6c04d699/07639a90-5820-441d-8f5c-7b0424398fcb_ceramic.spz"
+      },
+      "semantics_metadata": {
+        "metric_scale_factor": 1.081140160560608,
+        "ground_plane_offset": 1.0063748359680176
+      }
+    },
+    "thumbnail_url": "https://cdn.marble.worldlabs.ai/e3734242-02f1-420f-aab9-15fb6c04d699/b3127057-3cbf-4f1d-8002-3da3a2faee1e_sand_mpi/thumbnail.webp",
+    "caption": "The scene is an interior of an abandoned traditional Japanese room, depicted in an illustrative, painterly style with a somewhat melancholic and aged tone. The room features tatami mat flooring, which is worn and stained in various places, suggesting prolonged disuse and neglect. The walls are constructed with traditional paper panels, many of which are torn and decaying, revealing darker, textured material beneath, possibly older plaster or wood. Intricate patterns, resembling stylized clouds and floral motifs, adorn the upper sections of the walls and the wooden beams that crisscross the ceiling, which is dark and made of wood panels. To the right, a wooden chest of drawers, dark in color with metal accents, stands against the wall, with a smaller chest placed on top of it, and a purple garment with a white floral pattern draped over its side. A small vase containing dried flowers rests on the upper chest. On either side of the room, open doorways reveal a long, narrow corridor extending into the distance, lined with numerous hanging red lanterns and decorative screens featuring vibrant purple and orange patterns. The corridor walls appear to be made of similar paper panels with colorful designs, and the floor is a light-colored pathway bordered by a teal-colored trim. The doorways themselves are framed with dark wood and ornate golden brackets, reflecting the architectural style of the room. A large, shuttered window is centered on the back wall, its wooden slats closed, blocking any view of the outside. The tatami mats cover the entire floor, sectioned into individual rectangular units. The corridor extends directly away from the room through the open doorways on both the left and right sides. The wooden chests and the draped garment are positioned against the wall to the right of the central back window. The torn paper panels are distributed across all visible walls, particularly prominent on the left side of the room. "
+  },
+  "created_at": "2026-10-27T10:42:26Z",
+  "updated_at": "2026-10-27T10:47:13Z",
+  "permission": {
+    "public": false,
+    "allowed_readers": [],
+    "allowed_writers": [],
+    "allow_id_access": false
+  },
+  "world_prompt": {
+    "text_prompt": "The scene is an interior of an abandoned traditional Japanese room, depicted in an illustrative, painterly style with a somewhat melancholic and aged tone. The room features tatami mat flooring, which is worn and stained in various places, suggesting prolonged disuse and neglect. The walls are constructed with traditional paper panels, many of which are torn and decaying, revealing darker, textured material beneath, possibly older plaster or wood. Intricate patterns, resembling stylized clouds and floral motifs, adorn the upper sections of the walls and the wooden beams that crisscross the ceiling, which is dark and made of wood panels. To the right, a wooden chest of drawers, dark in color with metal accents, stands against the wall, with a smaller chest placed on top of it, and a purple garment with a white floral pattern draped over its side. A small vase containing dried flowers rests on the upper chest. On either side of the room, open doorways reveal a long, narrow corridor extending into the distance, lined with numerous hanging red lanterns and decorative screens featuring vibrant purple and orange patterns. The corridor walls appear to be made of similar paper panels with colorful designs, and the floor is a light-colored pathway bordered by a teal-colored trim. The doorways themselves are framed with dark wood and ornate golden brackets, reflecting the architectural style of the room. A large, shuttered window is centered on the back wall, its wooden slats closed, blocking any view of the outside. The tatami mats cover the entire floor, sectioned into individual rectangular units. The corridor extends directly away from the room through the open doorways on both the left and right sides. The wooden chests and the draped garment are positioned against the wall to the right of the central back window. The torn paper panels are distributed across all visible walls, particularly prominent on the left side of the room. The 360 scene is faultless.",
+    "type": "image",
+    "image_prompt": {
+      "uri": "https://cdn.marble.worldlabs.ai/api/media-assets/J2t4mOw5xNb4CUv1q9goAIJKbqy2/efd734ed-bfb2-48e7-84b6-d8abf2c558d0/scene.jpg",
+      "data_base64": null,
+      "extension": "jpg"
+    },
+    "is_pano": true
+  },
+  "world_marble_url": "https://marble.worldlabs.ai/world/e3734242-02f1-420f-aab9-15fb6c04d699",
+  "model": "marble-1.1"
+}

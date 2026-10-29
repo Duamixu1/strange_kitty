@@ -1,0 +1,70 @@
+{
+  "world_id": "34193d69-efc0-4fc4-b6c6-a27a6435ddb1",
+  "display_name": "corridor_v2",
+  "tags": null,
+  "assets": {
+    "mesh": {
+      "collider_mesh_url": "https://cdn.marble.worldlabs.ai/34193d69-efc0-4fc4-b6c6-a27a6435ddb1/816cd410.glb",
+      "hq_mesh_url": null,
+      "full_res_mesh_url": null
+    },
+    "imagery": {
+      "pano_url": "https://cdn.marble.worldlabs.ai/34193d69-efc0-4fc4-b6c6-a27a6435ddb1/9af3036d-f146-417d-ab7f-567e561737d4_panos/rgb_0.png"
+    },
+    "splats": {
+      "spz_urls": {
+        "500k": "https://cdn.marble.worldlabs.ai/34193d69-efc0-4fc4-b6c6-a27a6435ddb1/d51fddd7-eedb-48fb-b8b1-c77a7dcd9656_ceramic_500k.spz",
+        "100k": "https://cdn.marble.worldlabs.ai/34193d69-efc0-4fc4-b6c6-a27a6435ddb1/92a4aa6a-15e3-4a5d-9059-0ecc398cb450_dust_100k.spz",
+        "150k": "https://cdn.marble.worldlabs.ai/34193d69-efc0-4fc4-b6c6-a27a6435ddb1/10f0b380-168c-4bb6-b5c7-940826eccb03_ceramic_150k.spz",
+        "full_res": "https://cdn.marble.worldlabs.ai/34193d69-efc0-4fc4-b6c6-a27a6435ddb1/cab9e496-d919-4f23-bebc-65844e0e11ba_ceramic.spz"
+      },
+      "semantics_metadata": {
+        "metric_scale_factor": 0.7646249532699585,
+        "ground_plane_offset": 0.43503257632255554
+      }
+    },
+    "thumbnail_url": "https://cdn.marble.worldlabs.ai/34193d69-efc0-4fc4-b6c6-a27a6435ddb1/7c154e08-68c5-477c-ac06-3693d8596e82_sand_mpi/thumbnail.webp",
+    "caption": "The scene is a long, straight indoor palace corridor, rendered in a Japanese ukiyo-e flat-color anime style with a noticeable washi paper texture, creating a visually vibrant and traditional atmosphere. The overall tone is regal and serene, reminiscent of ancient Japanese artistry. The floor is a pale green, traversed by a continuous coral-red carpet runner adorned with delicate floral patterns. Along both sides, the walls are covered with giant ukiyo-e murals depicting stylized faces, kimonos, and fans, rendered in bold colors. Purple cloth sashes, decorated with white floral patterns, are draped elegantly from the eaves, creating soft swags between the structural elements. Rows of crimson paper lanterns hang overhead, providing a warm, inviting glow, while teal lattice standing lanterns are symmetrically placed along both sides of the carpet runner, casting intricate shadows. The ceiling is intricately strung with numerous small, colorful ornaments, creating a festive canopy. At the far end of the corridor, a large, glowing red and white fan serves as a focal point, positioned above a tall, dark wooden double door featuring ornate hardware. The entire corridor is empty, devoid of any occupants. "
+  },
+  "created_at": "2026-10-23T07:34:09Z",
+  "updated_at": "2026-10-23T07:39:26Z",
+  "permission": {
+    "public": false,
+    "allowed_readers": [],
+    "allowed_writers": [],
+    "allow_id_access": false
+  },
+  "world_prompt": {
+    "text_prompt": "The scene is a long, straight indoor palace corridor, rendered in a Japanese ukiyo-e flat-color anime style with a noticeable washi paper texture, creating a visually vibrant and traditional atmosphere. The overall tone is regal and serene, reminiscent of ancient Japanese artistry. The floor is a pale green, traversed by a continuous coral-red carpet runner adorned with delicate floral patterns. Along both sides, the walls are covered with giant ukiyo-e murals depicting stylized faces, kimonos, and fans, rendered in bold colors. Purple cloth sashes, decorated with white floral patterns, are draped elegantly from the eaves, creating soft swags between the structural elements. Rows of crimson paper lanterns hang overhead, providing a warm, inviting glow, while teal lattice standing lanterns are symmetrically placed along both sides of the carpet runner, casting intricate shadows. The ceiling is intricately strung with numerous small, colorful ornaments, creating a festive canopy. At the far end of the corridor, a large, glowing red and white fan serves as a focal point, positioned above a tall, dark wooden double door featuring ornate hardware. The entire corridor is empty, devoid of any occupants. The 360 scene is faultless.",
+    "type": "multi-image",
+    "multi_image_prompt": [
+      {
+        "uri": "gs://wlt-training-gsc-marble-assets-prod/api/media-assets/J2t4mOw5xNb4CUv1q9goAIJKbqy2/3273b992-d825-4e98-8e94-9dafd7b3c066/scene.jpg",
+        "data_base64": null,
+        "extension": "jpg",
+        "azimuth": 0.0
+      },
+      {
+        "uri": "gs://wlt-training-gsc-marble-assets-prod/api/media-assets/J2t4mOw5xNb4CUv1q9goAIJKbqy2/306908af-9428-43b0-bfa2-25ce7f469416/scene.jpg",
+        "data_base64": null,
+        "extension": "jpg",
+        "azimuth": 90.0
+      },
+      {
+        "uri": "gs://wlt-training-gsc-marble-assets-prod/api/media-assets/J2t4mOw5xNb4CUv1q9goAIJKbqy2/08a73930-f5dc-45fa-81b2-1b41b4ed7efe/scene.jpg",
+        "data_base64": null,
+        "extension": "jpg",
+        "azimuth": 180.0
+      },
+      {
+        "uri": "gs://wlt-training-gsc-marble-assets-prod/api/media-assets/J2t4mOw5xNb4CUv1q9goAIJKbqy2/034bfb60-8790-4177-ab66-102bb2221208/scene.jpg",
+        "data_base64": null,
+        "extension": "jpg",
+        "azimuth": 270.0
+      }
+    ],
+    "reconstruct_images": false
+  },
+  "world_marble_url": "https://marble.worldlabs.ai/world/34193d69-efc0-4fc4-b6c6-a27a6435ddb1",
+  "model": "marble-1.1"
+}

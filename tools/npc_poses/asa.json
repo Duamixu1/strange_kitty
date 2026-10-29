@@ -1,0 +1,121 @@
+{
+  "_说明": "asa 待机姿势（配角与物怪线）。写法同 tools/poses/kusuriuri_v2.json：角度单位度、角色坐标系；朝下的骨头 pitch 负值 = 往前抬；roll 正值 = 远端往角色左边倒。bind_fix 把各自 A 字绑定姿势的手臂放下。前臂 local Y 扭 ±70° 让大袖下垂。改姿势直接改这里。",
+  "bind_fix": {
+    "L_Upperarm": {
+      "roll": -42
+    },
+    "R_Upperarm": {
+      "roll": 44
+    }
+  },
+  "poses": {
+    "stand": {
+      "Spine01": {
+        "pitch": -1
+      },
+      "Spine02": {
+        "pitch": -1
+      },
+      "Head": {
+        "pitch": 4
+      },
+      "L_Upperarm": {
+        "pitch": -10,
+        "roll": -6
+      },
+      "R_Upperarm": {
+        "pitch": -10,
+        "roll": 6
+      },
+      "L_Forearm": {
+        "pitch": -55,
+        "yaw": -40,
+        "local": [
+          0,
+          70,
+          0
+        ]
+      },
+      "R_Forearm": {
+        "pitch": -55,
+        "yaw": 40,
+        "local": [
+          0,
+          -70,
+          0
+        ]
+      }
+    },
+    "breathe": {
+      "base": "stand",
+      "Spine02": {
+        "pitch": -2.2
+      },
+      "L_Clavicle": {
+        "roll": -1
+      },
+      "R_Clavicle": {
+        "roll": 1
+      },
+      "Head": {
+        "pitch": 4.8
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.003
+        ]
+      }
+    },
+    "glance": {
+      "base": "breathe",
+      "Head": {
+        "pitch": 3,
+        "yaw": 10
+      },
+      "NeckTwist02": {
+        "yaw": 4
+      }
+    }
+  },
+  "animations": {
+    "idle_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "stand",
+          0
+        ],
+        [
+          "breathe",
+          54
+        ],
+        [
+          "stand",
+          108
+        ],
+        [
+          "breathe",
+          150
+        ],
+        [
+          "glance",
+          168
+        ],
+        [
+          "glance",
+          210
+        ],
+        [
+          "breathe",
+          228
+        ],
+        [
+          "stand",
+          264
+        ]
+      ]
+    }
+  }
+}

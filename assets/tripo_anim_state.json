@@ -1,0 +1,13 @@
+{
+  "kusuriuri_v1": {
+    "import_task": "271536eb-5754-4f73-99d3-ae3da9b60345",
+    "normalize_scale": null,
+    "rigcheck_task": "50e41449-53d0-4003-8899-0ba996258fbf",
+    "riggable": true,
+    "rig_type": "biped",
+    "rig_task": "6fe3b2c9-e81a-4c74-9bec-3843dbad81c3",
+    "rig_file": "assets/tripo_raw/anims/kusuriuri_v1_rigged.glb",
+    "retarget_idle+walk+turn+look_around+slash": "7f1ed646-d445-4857-8bf0-c210f3fd0442",
+    "retarget_idle+walk+turn+look_around+slash_file": "assets/tripo_raw/anims/kusuriuri_v1_anim_idle+walk+turn+look_around+slash.glb"
+  }
+}

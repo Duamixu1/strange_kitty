@@ -1,0 +1,88 @@
+{
+  "_说明": "弹簧骨参数。骨链按名字分组：chain_hem_* 下摆、chain_sleeve_* 大袖、chain_hair_* 长发（由 tools/blender_layers.py 生成）。stiffness 回到绑定形状的力，gravity 重力（米/秒），drag 阻尼 0~1，hit 骨链关节的碰撞半径（米），colliders 用哪些碰撞体。碰撞体是两根骨头头部之间的胶囊，r 是半径（米）；加载时会在绑定姿势下自动缩小到不碰任何骨链，免得下摆一开始就被撑鼓。 碰撞体还可以是盒子：{type:'box', node:挂点或骨头名, min, max}，min/max 是那个节点自己坐标里的范围（模型单位，身高 1.0），药箱就是这样挂在 socket_Spine02 上的；盒子也按关节校准，静止时贴着的关节只把最近的那一面让开。",
+  "groups": {
+    "hem": {
+      "stiffness": 1.6,
+      "gravity": 0.6,
+      "drag": 0.45,
+      "hit": 0.012,
+      "colliders": [
+        "thigh_L",
+        "thigh_R",
+        "calf_L",
+        "calf_R",
+        "hips"
+      ]
+    },
+    "sleeve": {
+      "stiffness": 0.5,
+      "gravity": 1.6,
+      "drag": 0.5,
+      "hit": 0.03,
+      "colliders": [
+        "hips",
+        "torso",
+        "thigh_L",
+        "thigh_R",
+        "chest"
+      ]
+    },
+    "hair": {
+      "stiffness": 2.2,
+      "gravity": 0.5,
+      "drag": 0.55,
+      "hit": 0.02,
+      "colliders": [
+        "torso",
+        "hips",
+        "chest"
+      ]
+    }
+  },
+  "colliders": {
+    "thigh_L": {
+      "from": "L_Thigh",
+      "to": "L_Calf",
+      "r": 0.11
+    },
+    "thigh_R": {
+      "from": "R_Thigh",
+      "to": "R_Calf",
+      "r": 0.11
+    },
+    "calf_L": {
+      "from": "L_Calf",
+      "to": "L_Foot",
+      "r": 0.12
+    },
+    "calf_R": {
+      "from": "R_Calf",
+      "to": "R_Foot",
+      "r": 0.12
+    },
+    "hips": {
+      "from": "Pelvis",
+      "to": "Spine01",
+      "r": 0.16
+    },
+    "torso": {
+      "from": "Spine01",
+      "to": "NeckTwist01",
+      "r": 0.16
+    },
+    "chest": {
+      "type": "box",
+      "node": "socket_Spine02",
+      "min": [
+        -0.144,
+        -0.191,
+        -0.205
+      ],
+      "max": [
+        0.143,
+        0.191,
+        0.016
+      ]
+    }
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "_说明": "主参考图清单。refs 顺序对应提示词里的 image[1]、image[2]…；每张图自动接 canon 和 style_suffix，总长不超 1800 字符。用法：uv run tools/tripo_scene.py --only 13_书生三视图。01~12 是怪化猫版（上游参考，2026-10-23 转向后不再重出），13 起是唐风志异版。",
+  "style_suffix": "Style: Japanese ukiyo-e anime, 2D cel illustration, entirely flat colours with no gradients and no realistic lighting, every surface shows a visible crumpled washi paper texture, thin dark-indigo coloured outlines (never pure black), bold traditional patterns. No text, no logos, no watermark.",
+  "canon": "Consistency rules: use only the 12 colours of the palette image (paper cream, coral red, crimson, ochre gold, green, teal, indigo blue, wisteria purple, navy, pale lavender, pink, ink outline).",
+  "scenes": [
+    {
+      "id": "01_药贩子三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/ref/ref_93s_药贩子_脸和手.jpg",
+        "assets/concept/ref/ref_29s_药贩子_眼睛特写.jpg",
+        "assets/concept/ref/ref_70s_药贩子_持剑手.jpg",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Character design turnaround sheet of the Medicine Seller, whose face, make-up, hair and hat must match image[1] and image[2] exactly. Full body, three views side by side on one sheet: front view, side profile, back view, neutral standing pose, same scale, feet on one baseline. Tall slim figure. Tall flat-topped navy cap; long pale lavender hair with pink tips down to the waist; pointed ears; pale lavender skin; narrow gold eyes; thick indigo-blue brow bars each with a red dot; red and blue dotted markings around the eyes; a red vertical line under the lower lip; black fingernails. Layered kimono: teal collar, large coral-red and ochre-gold panels, wisteria-purple sash, covered in hemp-leaf, checker and wave patterns. A big wooden medicine chest with gold fittings on his back, an ornate winged balance scale at his waist, and in his right hand the sword from image[3]. Plain cream washi paper background, no scene. Palette: image[4].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "02_走廊全景",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/ref/ref_04s_走廊_大奥主廊.jpg",
+        "assets/concept/ref/ref_76s_走廊_尽头.jpg",
+        "assets/concept/ref/ref_81s_走廊_外廊.jpg",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Establishing shot of the inner-palace corridor, recreating the layout and look of image[1] exactly: a dead-straight one-point-perspective corridor; pale green floor with a pink and gold flower pattern and a coral-red carpet runner down the centre edged with thin green and red stripes; both walls covered by giant ukiyo-e murals of faces and kimono in cream, red and ochre gold; wisteria-purple cloth sashes draped diagonally from the eaves to the floor; rows of crimson paper lanterns under the eaves; a ceiling strung with small colourful ornaments; teal diamond-lattice standing lanterns on purple stands spaced along both sides; the far end glowing with a red and white fan shape as in image[2]. Completely empty, no people. Match the washi texture of image[3]. Palette: image[4].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "03_走廊_左墙",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/ref/ref_04s_走廊_大奥主廊.jpg",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Same corridor as image[1], same washi paper look, same colours, same standing point in the middle of the corridor at eye level, camera held level. The camera is turned 90 degrees to the LEFT, looking straight at the left wall from about 3 metres away, so the wall fills the frame and runs parallel to the picture plane. The wall is one giant ukiyo-e mural of a woman's face and kimono in cream, red and ochre gold exactly like the left wall of image[1]; a wisteria-purple cloth sash with white flowers drapes diagonally across it from the eaves to the floor; one teal diamond-lattice standing lantern on a purple stand sits at its base; a row of crimson paper lanterns hangs under the eaves at the top; the pale green floor strip and the red edge stripe of the carpet run along the bottom. No people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "04_走廊_右墙",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/ref/ref_04s_走廊_大奥主廊.jpg",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Same corridor as image[1], same washi paper look, same colours, same standing point in the middle of the corridor at eye level, camera held level. The camera is turned 90 degrees to the RIGHT, looking straight at the right wall from about 3 metres away, so the wall fills the frame and runs parallel to the picture plane. The wall is one giant ukiyo-e mural of kimono sleeves, fans and butterflies in cream, coral red and ochre gold exactly like the right wall of image[1]; a wisteria-purple cloth sash with white flowers drapes diagonally across it; one teal diamond-lattice standing lantern on a purple stand sits at its base; a row of crimson paper lanterns hangs under the eaves at the top; the pale green floor strip and the red edge stripe of the carpet run along the bottom. No people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "05_走廊_回头",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/ref/ref_04s_走廊_大奥主廊.jpg",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Same corridor as image[1], same washi paper look, same colours, same standing point in the middle of the corridor at eye level, camera held level. The camera is turned 180 degrees, looking BACK down the same corridor towards the entrance: identical one-point perspective, same floor with the coral-red carpet runner, same mural walls, purple sashes, crimson lanterns, teal standing lanterns and ornament-strung ceiling, but the far end is a tall closed double door of dark wood with gold fittings framed by two red pillars, instead of the fan. No people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "06_走廊_360全景",
+      "size": "3840x1920",
+      "refs": [
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/scenes/03_走廊_左墙.png",
+        "assets/concept/scenes/04_走廊_右墙.png",
+        "assets/concept/scenes/05_走廊_回头.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A seamless 360-degree equirectangular panorama (2:1, full sphere) of the corridor in image[1], taken from one point standing in the exact centre of the corridor at eye level, camera level. Horizontal centre of the panorama = looking down the corridor to the glowing red and white fan at the far end exactly as image[1]. One quarter from the left edge = the left wall, the giant face mural with purple sash and teal standing lantern as image[2], seen from 4 metres away with floor and eaves visible. Three quarters = the right wall, fans and butterflies mural as image[3]. Both outer edges = looking back down the corridor to the tall dark wooden double door as image[4]; the left and right edges must wrap and join perfectly. Top strip = the ceiling strung with small colourful ornaments. Bottom strip = the floor directly underfoot: pale green floor with the coral-red carpet runner passing right under the camera, running front to back. Rows of crimson lanterns under the eaves all around. Empty, no people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "07_手鞠_本体",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/01_药贩子三视图.png",
+        "assets/concept/ref/ref_30s_唐伞_红伞.jpg"
+      ],
+      "prompt": "Concept sheet of a temari (Japanese hand-wound thread ball) mononoke, two views side by side on one sheet, same outline style as the character sheet in image[2]. Left: the temari as a plain object, a sphere about 12 cm, wrapped entirely in coloured thread forming geometric temari patterns (chrysanthemum stars, interlocking diamonds, wave bands) in coral red, ochre gold, teal and wisteria purple, one loose thread trailing from it. Right: the same temari as a mononoke, slightly larger, glowing faintly from inside, the threads loosened so that a single pale lavender eye-like mark shows between them, a long coloured thread snaking away along the floor. Plain cream washi paper background, no scene. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "08_手鞠_散线",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/01_药贩子三视图.png",
+        "assets/concept/ref/ref_79s_药贩子_妖化脸.jpg",
+        "assets/concept/scenes/02_走廊全景.png"
+      ],
+      "prompt": "The temari mononoke in its unravelled form, at night in the corridor of image[4] with the lanterns dimmed. At the centre a half-unwound thread ball with a glowing hollow inside; dozens of coloured threads in coral red, ochre gold, teal and wisteria purple stream out of it in swirling flame-like curls that fill the frame, drawn exactly like the flowing hair in image[3]; the ends of the longest threads become tiny pale lavender hands reaching toward the viewer. No people. Cinematic 2.39:1 composition, outline style of image[2]. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "09_退魔之剑",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/01_药贩子三视图.png",
+        "assets/concept/ref/ref_70s_药贩子_持剑手.jpg"
+      ],
+      "prompt": "Prop design sheet of the Medicine Seller's exorcism sword, same outline style as image[2]. Three views on one sheet, large and horizontal: top, the sword sheathed in its scabbard; middle, the sword drawn beside the empty scabbard; bottom, a close-up of the hilt. The hilt and guard are carved as a stylised human face with closed eyes and a wide grinning mouth, in pale lavender with navy and crimson paint; a short red tassel hangs from the pommel; the scabbard is lacquered navy with ochre-gold and teal hemp-leaf and wave patterns and a wisteria-purple cord. The blade is plain pale steel. Plain cream washi paper background, no hands, no character. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "10_药箱与天秤",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/01_药贩子三视图.png",
+        "assets/concept/ref/ref_93s_药贩子_脸和手.jpg"
+      ],
+      "prompt": "Prop design sheet, same outline style as image[2]. Left half: the Medicine Seller's medicine chest exactly as on the back view of image[2], front view and three-quarter view: a tall wooden box with many small drawers, navy and dark brown lacquer, ochre-gold metal fittings and corner guards, a wisteria-purple carrying strap. Right half: the ornate winged balance scale from his waist, front view and side view, large: a teal and ochre-gold butterfly-wing shaped frame with a small round pan hanging under each wing, crimson and navy enamel patterns, a tiny bell. Plain cream washi paper background, no character. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "11_药贩子_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/01_药贩子三视图.png",
+        "assets/concept/ref/ref_93s_药贩子_脸和手.jpg"
+      ],
+      "prompt": "Modelling turnaround sheet of the exact same character as image[2], same face, make-up, hat and costume, same colours and patterns. Three views side by side: front, side profile, back, feet on one baseline, same scale. Pose for 3D modelling: standing A-pose, both arms raised about 40 degrees away from the body, both wide kimono sleeves fully spread so their full shape is visible, hands open, legs slightly apart; the long hair and the hem hang freely and do not cling to the body. Empty hands: no sword, no medicine chest on the back, no scale at the waist. The cap has no ribbon or tie at the back. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "12_证物图标",
+      "size": "2048x1024",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/07_手鞠_本体.png",
+        "assets/concept/scenes/10_药箱与天秤.png"
+      ],
+      "prompt": "Item icon sheet for a game inventory: exactly 8 square cells in a grid of 4 columns and 2 rows, evenly spaced, each cell framed by a thin dark-indigo line, all cells the same size, filling the whole image edge to edge with equal margins. One object centred in each cell, drawn large, same outline style as image[2] and image[3], plain cream washi background inside every cell. Row 1 left to right: (1) a short length of coral-red and ochre-gold thread, curled; (2) a small rubbing on paper showing a girl with two hair buns kicking a temari ball; (3) a torn half sheet of a handwritten letter, water-stained, Japanese handwriting lines suggested; (4) a thick ledger book bound in navy cloth, closed, with a label strip. Row 2 left to right: (5) the temari ball from image[2], waterlogged and dull, dripping; (6) a small wooden thread spool with a little dyed thread left; (7) an unfinished letter on a sheet with a brush lying across it; (8) the winged balance scale from image[3]. No text, no numbers. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "13_女中房_360全景",
+      "size": "3840x1920",
+      "refs": [
+        "assets/concept/scenes/06_走廊_360全景.png",
+        "assets/concept/ref/ref_07s_房间_成排女中.jpg",
+        "assets/concept/ref/ref_74s_大广间_成排女中.jpg",
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A seamless 360-degree equirectangular panorama (2:1, full sphere, same format as image[1]) of a small maids' room in the inner palace, taken from one point standing in the exact centre of the room at eye level, camera level. The room is about 6 metres deep and 4 metres wide, in the same painted style and colours as image[2], image[3] and image[4]. Horizontal centre = the far wall 3 metres away: painted sliding panels with butterflies and peony patterns in crimson, ochre gold and wisteria purple, a round paper window in the middle glowing softly. One quarter from the left edge = the left wall: two low lacquer tables with trays and a teal standing lantern in front of painted panels. Three quarters = the right wall: a folded futon, a navy lacquer chest with gold fittings, a purple cloth drape. Both outer edges = looking back at the open sliding door to the corridor, through which purple sashes and red lanterns of the corridor are visible; the left and right edges must wrap and join perfectly. Top strip = dark wooden lattice ceiling with red beams. Bottom strip = tatami floor directly underfoot with a small coral-red rug under the camera. Empty, no people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "14_歌山房_360全景",
+      "size": "3840x1920",
+      "refs": [
+        "assets/concept/scenes/13_女中房_360全景.png",
+        "assets/concept/scenes/06_走廊_360全景.png",
+        "assets/concept/00_色板.png",
+        "assets/concept/ref/ref_07s_房间_成排女中.jpg"
+      ],
+      "prompt": "A seamless 360-degree equirectangular panorama (2:1, full sphere, same format and painted style as image[1]) of the stern office room of the senior lady-in-waiting Utayama in the inner palace, taken from one point standing in the exact centre of the room at eye level, camera level. The room is about 6 metres deep and 4 metres wide, more austere than image[1]: navy, crimson and ochre gold, fewer flowers. Horizontal centre = the far wall 3 metres away: a tall six-panel folding screen painted with pine trees and cranes in ochre gold on navy; in front of it a low black lacquer writing desk with a thick navy ledger book, a brush stand and an ink stone, a flat cushion behind the desk. One quarter from the left edge = the left wall: staggered shelves holding scroll boxes and a small bronze incense burner, a teal standing lantern. Three quarters = the right wall: painted sliding panels with a geometric hemp-leaf pattern, a brazier with a kettle, a stack of ledgers. Both outer edges = looking back at the open sliding door to the corridor with purple sashes and red lanterns beyond; the left and right edges must wrap and join perfectly. Top strip = dark coffered wooden ceiling. Bottom strip = tatami floor directly underfoot with a plain navy mat under the camera. Empty, no people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "15_阿雪空房_360全景",
+      "size": "3840x1920",
+      "refs": [
+        "assets/concept/scenes/13_女中房_360全景.png",
+        "assets/concept/scenes/06_走廊_360全景.png",
+        "assets/concept/00_色板.png",
+        "assets/concept/ref/ref_76s_走廊_尽头.jpg"
+      ],
+      "prompt": "A seamless 360-degree equirectangular panorama (2:1, full sphere, same format and painted style as image[1]) of a small abandoned maid's room in the inner palace, taken from one point standing in the exact centre of the room at eye level, camera level. The room is about 6 metres deep and 4 metres wide, dim and empty, colours muted: pale lavender shadows, faded cream walls, dusty tatami. Horizontal centre = the far wall 3 metres away: closed wooden shutters with thin light leaking through the slats, a faded painted panel with a single wilted plum branch. One quarter from the left edge = the left wall: bare, a torn paper screen, a small wooden thread spool lying on the floor in the corner with a little coral-red thread. Three quarters = the right wall: a low navy drawer chest with one drawer half open, a dusty folded purple drape hanging from a hook, a dead moth on the sill. Both outer edges = looking back at the half-open sliding door to the corridor, through which the bright purple sashes and red lanterns of the corridor contrast with the dim room; the left and right edges must wrap and join perfectly. Top strip = dark wooden lattice ceiling with a cobweb in one corner. Bottom strip = worn tatami directly underfoot, no rug. Empty, no people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "16_阿浅_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/official_阿浅.png",
+        "assets/concept/ref/crop_07s_阿浅_背影.jpg"
+      ],
+      "prompt": "Modelling turnaround sheet of Asa, a young maid of the inner palace, drawn in exactly the same style, line quality, flat colouring and sheet layout as image[2], but she is a different person: do not copy his face, make-up, hair, hat or costume. Her face, hair and costume follow image[3] (front) and image[4] (back). Three views side by side: front, side profile facing the same way as in image[2], back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, both kimono sleeves fully spread, hands open and empty, feet slightly apart; the kimono hangs loosely and does not cling to the body, every hem ends at the ankles with no trailing train. Asa: about 17, slim, composed and sharp, steady eyes, small calm mouth. Wavy ochre-gold hair pinned up in two loose buns with a long wisteria hair stick, a few curls by the cheeks. Kimono: pale lavender with wisteria-purple sleeves and shoulders, pink obi with a crossed pattern and a long sash end hanging in front, a large flat bow on the back, hem edged in pink and wisteria. White tabi socks and zori sandals. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "17_阿龟_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/official_阿龟.png",
+        "assets/concept/ref/crop_07s_阿龟_背影.jpg"
+      ],
+      "prompt": "Modelling turnaround sheet of Kame, a young maid of the inner palace, Asa's friend, drawn in exactly the same style, line quality, flat colouring and sheet layout as image[2], but she is a different person: do not copy his face, make-up, hair, hat or costume. Her face, hair and costume follow image[3] (front) and image[4] (back). Three views side by side: front, side profile facing the same way as in image[2], back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, both kimono sleeves fully spread, hands open and empty, feet slightly apart; the kimono hangs loosely and does not cling to the body, every hem ends at the ankles with no trailing train. Kame: about 16, soft round face, gentle eyes, a shy warm smile. Long navy-black hair, the top tied up with a gold hair stick, two long straight locks hanging down to the waist. Kimono: pale teal body, pink collar and upper bodice, pale green obi with a pink crossed pattern and a long sash end in front, a large flat pink bow on the back, hem edged in pink and teal. White tabi socks and zori sandals. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "18_歌山_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/official_歌山.png"
+      ],
+      "prompt": "Modelling turnaround sheet of Utayama, the most senior lady-in-waiting who rules the inner palace, drawn in exactly the same style, line quality, flat colouring and sheet layout as image[2], but she is a different person: do not copy his face, make-up, hair, hat or costume. Her face, hair and costume follow image[3]. Three views side by side: front, side profile facing the same way as in image[2], back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, both kimono sleeves fully spread, hands open and empty, feet slightly apart; the kimono hangs loosely and does not cling to the body, every hem ends at the ankles with no trailing train. Utayama: about 50, tall, imposing and cold, sharp narrow eyes, thin lips. Navy hair in a tall formal style with a small gold and crimson crown ornament and a long wisteria hair stick; a stiff pale teal collar fanned up behind the neck. Wide wisteria-purple outer robe worn open, edged in navy, over a crimson kimono with round crest medallions; navy obi in front with a crimson crest; long navy cords at her side; white under-layers at the hem. White tabi socks and zori sandals. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "16_中庭_360全景",
+      "size": "3840x1920",
+      "refs": [
+        "assets/concept/scenes/13_女中房_360全景.png",
+        "assets/concept/scenes/06_走廊_360全景.png",
+        "assets/concept/ref/ref_41s_中庭_水池.jpg",
+        "assets/concept/ref/ref_81s_走廊_外廊.jpg",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A seamless 360-degree equirectangular panorama (2:1, full sphere, same format and painted style as image[1] and image[2]) of a small inner courtyard of the inner palace, taken from one point standing in the middle of the courtyard at eye level, camera level, open sky above. The courtyard is about 8 metres square, paved with pale grey-green flagstones, moss patches and a bent pine in one corner as image[3]. Horizontal centre = directly ahead, about 3 metres away, an old stone well with a low square stone rim and a small wooden roof frame over it, a wooden bucket and rope on the rim. Beyond the well, a covered wooden veranda with a red railing and a row of closed painted sliding doors. One quarter from the left edge = the left side: the same veranda with red pillars and a stone lantern. Three quarters = the right side: veranda with sliding doors, one door half open showing a dim room. Both outer edges = looking back at the way in: an open wooden gate in the veranda through which the corridor's purple sashes and red lanterns are visible, like image[4]; the left and right edges must wrap and join perfectly. Top strip = pale pink and ochre swirling cloud sky in the style of image[4]. Bottom strip = flagstones directly underfoot. Empty, no people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "19_壁画_踢鞠童女",
+      "size": "3360x2352",
+      "refs": [
+        "web/public/icons/E2.png",
+        "assets/concept/ref/ref_04s_走廊_大奥主廊.jpg",
+        "assets/concept/scenes/07_手鞠_本体.png",
+        "assets/concept/scenes/03_走廊_左墙.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A flat, straight-on view of one section of painted palace wall mural, filling the whole frame edge to edge, no perspective, no frame, no wall edges visible, as a texture. The mural shows exactly the scene of image[1], painted large in the giant ukiyo-e mural style of the corridor walls in image[2] and image[4]: a little girl with two round hair buns tied with ribbons, eyes closed, smiling, in a red kimono with white cherry blossoms and a navy sash, kicking a temari ball high with one leg raised; the temari ball has the chrysanthemum-star pattern of the left ball in image[3]; indigo seigaiha waves and pale cherry blossoms below her feet, a plain cream background. The paint is old but the colours are still bright, with fine crackle in the cream ground and a few flaked spots at the corners. Girl centred, taking about two thirds of the height.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    }
+  ],
+  "model_suffix": "Style: 2D cel sheet for 3D modelling reference: entirely flat colours, no gradients, no lighting, no cast shadows, NO paper texture, clean thin reddish-brown outlines, plain flat cream background. No text, no logos, no watermark."
+}

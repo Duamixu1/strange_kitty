@@ -1,0 +1,49 @@
+{
+  "world_id": "b1c9f1e5-9b5c-4990-b244-525187058f94",
+  "display_name": "courtyard_v1",
+  "tags": null,
+  "assets": {
+    "mesh": {
+      "collider_mesh_url": "https://cdn.marble.worldlabs.ai/b1c9f1e5-9b5c-4990-b244-525187058f94/15d6e5b0.glb",
+      "hq_mesh_url": null,
+      "full_res_mesh_url": null
+    },
+    "imagery": {
+      "pano_url": "https://cdn.marble.worldlabs.ai/b1c9f1e5-9b5c-4990-b244-525187058f94/86b96a09-1725-41e3-b942-557053e73278_panos/rgb_0.png"
+    },
+    "splats": {
+      "spz_urls": {
+        "500k": "https://cdn.marble.worldlabs.ai/b1c9f1e5-9b5c-4990-b244-525187058f94/ca812f61-9370-423d-930e-5ed8925f8083_ceramic_500k.spz",
+        "100k": "https://cdn.marble.worldlabs.ai/b1c9f1e5-9b5c-4990-b244-525187058f94/30c094d7-66d0-4d4e-a0c9-11c1df8f7355_dust_100k.spz",
+        "150k": "https://cdn.marble.worldlabs.ai/b1c9f1e5-9b5c-4990-b244-525187058f94/bb4040d5-7e9f-441c-b60e-0902da1f293b_ceramic_150k.spz",
+        "full_res": "https://cdn.marble.worldlabs.ai/b1c9f1e5-9b5c-4990-b244-525187058f94/a1befd25-b237-4bcd-8424-d44889073d5f_ceramic.spz"
+      },
+      "semantics_metadata": {
+        "metric_scale_factor": 2.020925760269165,
+        "ground_plane_offset": 1.3568484783172607
+      }
+    },
+    "thumbnail_url": "https://cdn.marble.worldlabs.ai/b1c9f1e5-9b5c-4990-b244-525187058f94/bac40e24-a5a8-418a-bc0c-140b09f1c9b6_sand_mpi/thumbnail.webp",
+    "caption": "The scene is a serene and meticulously illustrated traditional Japanese courtyard, rendered in a detailed painting style that evokes a tranquil and elegant atmosphere. The courtyard is paved with large, irregularly shaped flagstones, with moss and grass growing between the cracks, indicating age and natural integration. In the center of the courtyard stands an ornate stone well, covered by a small, dark-tiled roof supported by red wooden columns. The well itself is constructed from rough-hewn stone, adorned with intricate carvings and topped with a traditional wooden bucket and rope mechanism. Surrounding the well, on a slightly elevated area, is a small, carefully sculpted garden featuring a gracefully gnarled pine tree with dark green needles, its trunk winding upwards in an artistic S-shape. Alongside the tree, a stone lantern, characteristic of Japanese gardens, stands tall, its soft glow emanating from within. The courtyard is enclosed by traditional Japanese buildings with prominent red wooden railings and dark tiled roofs. The walls of these buildings are adorned with vibrant, delicate floral patterns on light-colored panels, interspersed with sliding screen doors that offer glimpses into dimly lit interiors. Purple banners with white circular crests hang uniformly from the eaves, adding a touch of ceremonial grandeur. To the left and right, the corridors of the buildings extend further, lined with red hanging lanterns that cast a warm glow, suggesting a longer path or gallery that wraps around the entire courtyard space. The architecture maintains a consistent style, with dark wooden beams contrasting with light walls and vibrant red accents throughout the entire enclosure. The sky above is a painterly canvas of soft pink and orange clouds, reminiscent of a peaceful dawn or dusk. The flagstones extend continuously around the entire courtyard, forming a complete circuit. The buildings with their detailed murals and purple banners fully encircle the central garden and well, forming a seamless architectural perimeter. The red hanging lanterns continue down the extended corridors, creating a harmonious and consistent visual flow. "
+  },
+  "created_at": "2026-10-28T11:43:17Z",
+  "updated_at": "2026-10-28T11:53:29Z",
+  "permission": {
+    "public": false,
+    "allowed_readers": [],
+    "allowed_writers": [],
+    "allow_id_access": false
+  },
+  "world_prompt": {
+    "text_prompt": "The scene is a serene and meticulously illustrated traditional Japanese courtyard, rendered in a detailed painting style that evokes a tranquil and elegant atmosphere. The courtyard is paved with large, irregularly shaped flagstones, with moss and grass growing between the cracks, indicating age and natural integration. In the center of the courtyard stands an ornate stone well, covered by a small, dark-tiled roof supported by red wooden columns. The well itself is constructed from rough-hewn stone, adorned with intricate carvings and topped with a traditional wooden bucket and rope mechanism. Surrounding the well, on a slightly elevated area, is a small, carefully sculpted garden featuring a gracefully gnarled pine tree with dark green needles, its trunk winding upwards in an artistic S-shape. Alongside the tree, a stone lantern, characteristic of Japanese gardens, stands tall, its soft glow emanating from within. The courtyard is enclosed by traditional Japanese buildings with prominent red wooden railings and dark tiled roofs. The walls of these buildings are adorned with vibrant, delicate floral patterns on light-colored panels, interspersed with sliding screen doors that offer glimpses into dimly lit interiors. Purple banners with white circular crests hang uniformly from the eaves, adding a touch of ceremonial grandeur. To the left and right, the corridors of the buildings extend further, lined with red hanging lanterns that cast a warm glow, suggesting a longer path or gallery that wraps around the entire courtyard space. The architecture maintains a consistent style, with dark wooden beams contrasting with light walls and vibrant red accents throughout the entire enclosure. The sky above is a painterly canvas of soft pink and orange clouds, reminiscent of a peaceful dawn or dusk. The flagstones extend continuously around the entire courtyard, forming a complete circuit. The buildings with their detailed murals and purple banners fully encircle the central garden and well, forming a seamless architectural perimeter. The red hanging lanterns continue down the extended corridors, creating a harmonious and consistent visual flow. The 360 scene is faultless.",
+    "type": "image",
+    "image_prompt": {
+      "uri": "https://cdn.marble.worldlabs.ai/api/media-assets/tTx9CIP0TLZjRrzATVATIlcioFL2/8865fdbe-8907-4f88-9b5a-562b0357a126/scene.jpg",
+      "data_base64": null,
+      "extension": "jpg"
+    },
+    "is_pano": true
+  },
+  "world_marble_url": "https://marble.worldlabs.ai/world/b1c9f1e5-9b5c-4990-b244-525187058f94",
+  "model": "marble-1.1"
+}

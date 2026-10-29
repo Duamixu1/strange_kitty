@@ -1,0 +1,1111 @@
+{
+  "_说明": "药贩子姿势库 v2 版（A 字姿势、空手的 v2 模型）。角度单位度，角色坐标系。pitch 绕左右轴：朝上的骨头（脊柱、头）正值 = 往前低；朝下的骨头（手臂、腿）正值 = 往后摆，负值 = 往前抬（2026-10-27 实测纠正，之前写反了）。yaw 绕上下轴：正值 = 往角色左边转。roll 绕前后轴：正值 = 远端往角色左边倒。move = [左, 前, 上]，模型单位（全身高 1.0）。bind_fix 把 v2 的绑定姿势扳成 v1 的基准（A 字手臂放下、右前臂端平）。姿势里的 aim = {socket, dir:[左,前,上]}：其他骨头摆完后先绕前臂自转、再弯手腕，让剑身指向 dir（瞄准烘进姿势）。sockets 定义挂点，props 定义哪个道具挂哪个挂点、在哪些姿势里显示（查看器按动作名显示）。 手指：骨头 {L,R}_Fingers_0/1（blender_layers.py 加的，四指一体），用 local:[X,0,0] 弯，正值往掌心收；站姿两手放松 15°，退魔五拍右手握拳 75/80°。 morphs：形态键动画，[帧, 值]，24 帧/秒。妖化：头发 66→76 帧散开、190→220 帧落回；表情（缩瞳、露齿）74 帧切入、197 帧切回。形态键由 tools/blender_awaken.py 生成。",
+  "poses": {
+    "stand": {
+      "Spine01": {
+        "pitch": -2
+      },
+      "Spine02": {
+        "pitch": -2
+      },
+      "Head": {
+        "pitch": 2
+      },
+      "R_Forearm": {
+        "pitch": -75
+      },
+      "R_Fingers_0": {
+        "local": [
+          15,
+          0,
+          0
+        ]
+      },
+      "R_Fingers_1": {
+        "local": [
+          15,
+          0,
+          0
+        ]
+      },
+      "L_Fingers_0": {
+        "local": [
+          15,
+          0,
+          0
+        ]
+      },
+      "L_Fingers_1": {
+        "local": [
+          15,
+          0,
+          0
+        ]
+      }
+    },
+    "breathe": {
+      "base": "stand",
+      "Spine02": {
+        "pitch": -3.2
+      },
+      "L_Clavicle": {
+        "roll": -1.2
+      },
+      "R_Clavicle": {
+        "roll": 1.2
+      },
+      "Head": {
+        "pitch": 2.8
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.004
+        ]
+      }
+    },
+    "glance": {
+      "base": "breathe",
+      "Head": {
+        "pitch": 1.5,
+        "yaw": 9
+      },
+      "NeckTwist02": {
+        "yaw": 4
+      }
+    },
+    "walk_contact_L": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0,
+          0,
+          -0.006
+        ],
+        "yaw": 3
+      },
+      "Spine01": {
+        "pitch": -2,
+        "yaw": -2
+      },
+      "L_Thigh": {
+        "pitch": 12
+      },
+      "L_Calf": {
+        "pitch": 1
+      },
+      "L_Foot": {
+        "pitch": -8
+      },
+      "R_Thigh": {
+        "pitch": -9
+      },
+      "R_Calf": {
+        "pitch": -18
+      },
+      "R_Foot": {
+        "pitch": 12
+      },
+      "L_Upperarm": {
+        "pitch": -2
+      },
+      "R_Upperarm": {
+        "pitch": 2
+      }
+    },
+    "walk_pass_L": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.006
+        ]
+      },
+      "L_Thigh": {
+        "pitch": 2
+      },
+      "L_Calf": {
+        "pitch": -3
+      },
+      "R_Thigh": {
+        "pitch": 3
+      },
+      "R_Calf": {
+        "pitch": -30
+      },
+      "R_Foot": {
+        "pitch": 6
+      }
+    },
+    "walk_contact_R": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0,
+          0,
+          -0.006
+        ],
+        "yaw": -3
+      },
+      "Spine01": {
+        "pitch": -2,
+        "yaw": 2
+      },
+      "R_Thigh": {
+        "pitch": 12
+      },
+      "R_Calf": {
+        "pitch": 1
+      },
+      "R_Foot": {
+        "pitch": -8
+      },
+      "L_Thigh": {
+        "pitch": -9
+      },
+      "L_Calf": {
+        "pitch": -18
+      },
+      "L_Foot": {
+        "pitch": 12
+      },
+      "R_Upperarm": {
+        "pitch": -2
+      },
+      "L_Upperarm": {
+        "pitch": 2
+      }
+    },
+    "walk_pass_R": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.006
+        ]
+      },
+      "R_Thigh": {
+        "pitch": 2
+      },
+      "R_Calf": {
+        "pitch": -3
+      },
+      "L_Thigh": {
+        "pitch": 3
+      },
+      "L_Calf": {
+        "pitch": -30
+      },
+      "L_Foot": {
+        "pitch": 6
+      }
+    },
+    "scale_look": {
+      "base": "stand",
+      "Spine02": {
+        "pitch": 3
+      },
+      "NeckTwist01": {
+        "pitch": 6
+      },
+      "Head": {
+        "pitch": 20
+      },
+      "L_Upperarm": {
+        "pitch": 12,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -72
+      },
+      "L_Hand": {
+        "pitch": -20
+      }
+    },
+    "scale_look_in": {
+      "base": "stand",
+      "Head": {
+        "pitch": 8
+      },
+      "L_Upperarm": {
+        "pitch": 6
+      },
+      "L_Forearm": {
+        "pitch": -40
+      }
+    },
+    "reach": {
+      "base": "stand",
+      "Spine02": {
+        "pitch": 1
+      },
+      "Head": {
+        "pitch": 6
+      },
+      "L_Upperarm": {
+        "pitch": -85,
+        "roll": 6
+      },
+      "L_Forearm": {
+        "pitch": -6,
+        "yaw": -6
+      },
+      "L_Hand": {
+        "pitch": -20,
+        "roll": -45
+      }
+    },
+    "reach_in": {
+      "base": "stand",
+      "L_Upperarm": {
+        "pitch": -40
+      },
+      "L_Forearm": {
+        "pitch": -35
+      }
+    },
+    "nod": {
+      "base": "stand",
+      "NeckTwist01": {
+        "pitch": 4
+      },
+      "Head": {
+        "pitch": 14
+      }
+    },
+    "draw_ready": {
+      "base": "stand",
+      "Spine02": {
+        "pitch": -1
+      },
+      "Head": {
+        "pitch": -3
+      },
+      "R_Upperarm": {
+        "pitch": -25,
+        "roll": 12
+      },
+      "R_Forearm": {
+        "pitch": -95,
+        "yaw": 25
+      },
+      "L_Upperarm": {
+        "pitch": -25,
+        "roll": -12
+      },
+      "L_Forearm": {
+        "pitch": -95,
+        "yaw": -25
+      },
+      "L_Hand": {
+        "pitch": -5
+      },
+      "aim": {
+        "socket": "socket_R_Hand",
+        "dir": [
+          0,
+          0.15,
+          1
+        ]
+      },
+      "R_Fingers_0": {
+        "local": [
+          75,
+          0,
+          0
+        ]
+      },
+      "R_Fingers_1": {
+        "local": [
+          80,
+          0,
+          0
+        ]
+      }
+    },
+    "awaken": {
+      "base": "draw_ready",
+      "Spine01": {
+        "pitch": -5
+      },
+      "Spine02": {
+        "pitch": -8
+      },
+      "Head": {
+        "pitch": -10
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.012
+        ]
+      },
+      "R_Upperarm": {
+        "pitch": -10,
+        "roll": -50
+      },
+      "R_Forearm": {
+        "pitch": -40,
+        "yaw": 5
+      },
+      "L_Upperarm": {
+        "pitch": -10,
+        "roll": 60
+      },
+      "L_Forearm": {
+        "pitch": -40,
+        "yaw": -10
+      },
+      "aim": {
+        "socket": "socket_R_Hand",
+        "dir": [
+          -0.6,
+          0.2,
+          0.8
+        ]
+      },
+      "R_Fingers_0": {
+        "local": [
+          75,
+          0,
+          0
+        ]
+      },
+      "R_Fingers_1": {
+        "local": [
+          80,
+          0,
+          0
+        ]
+      }
+    },
+    "slash_wind": {
+      "base": "stand",
+      "Spine01": {
+        "yaw": -22
+      },
+      "Spine02": {
+        "yaw": -8
+      },
+      "Head": {
+        "yaw": 14
+      },
+      "Hip": {
+        "move": [
+          0,
+          -0.02,
+          -0.01
+        ],
+        "yaw": -10
+      },
+      "R_Upperarm": {
+        "pitch": 35,
+        "roll": -85
+      },
+      "R_Forearm": {
+        "pitch": -40,
+        "yaw": 40
+      },
+      "L_Upperarm": {
+        "pitch": 20,
+        "roll": 20
+      },
+      "L_Forearm": {
+        "pitch": -50
+      },
+      "L_Thigh": {
+        "pitch": 8
+      },
+      "R_Thigh": {
+        "pitch": -6
+      },
+      "aim": {
+        "socket": "socket_R_Hand",
+        "dir": [
+          -0.3,
+          -0.6,
+          0.75
+        ]
+      },
+      "R_Fingers_0": {
+        "local": [
+          75,
+          0,
+          0
+        ]
+      },
+      "R_Fingers_1": {
+        "local": [
+          80,
+          0,
+          0
+        ]
+      }
+    },
+    "slash": {
+      "base": "stand",
+      "Spine01": {
+        "yaw": 26,
+        "pitch": 6
+      },
+      "Spine02": {
+        "yaw": 10
+      },
+      "Head": {
+        "yaw": -12,
+        "pitch": 4
+      },
+      "Hip": {
+        "move": [
+          0,
+          0.08,
+          -0.035
+        ],
+        "yaw": 18
+      },
+      "R_Thigh": {
+        "pitch": 38
+      },
+      "R_Calf": {
+        "pitch": -35
+      },
+      "R_Foot": {
+        "pitch": -5
+      },
+      "L_Thigh": {
+        "pitch": -28
+      },
+      "L_Calf": {
+        "pitch": -6
+      },
+      "L_Foot": {
+        "pitch": 20
+      },
+      "R_Upperarm": {
+        "pitch": -78,
+        "yaw": 35
+      },
+      "R_Forearm": {
+        "pitch": -5,
+        "yaw": 10
+      },
+      "L_Upperarm": {
+        "pitch": 15,
+        "roll": 25
+      },
+      "L_Forearm": {
+        "pitch": -30
+      },
+      "aim": {
+        "socket": "socket_R_Hand",
+        "dir": [
+          1,
+          0.1,
+          0.05
+        ]
+      },
+      "R_Fingers_0": {
+        "local": [
+          75,
+          0,
+          0
+        ]
+      },
+      "R_Fingers_1": {
+        "local": [
+          80,
+          0,
+          0
+        ]
+      }
+    },
+    "recover": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": 2
+      },
+      "Spine02": {
+        "pitch": 3
+      },
+      "Head": {
+        "pitch": 12
+      },
+      "R_Upperarm": {
+        "pitch": 10
+      },
+      "R_Forearm": {
+        "pitch": -45
+      },
+      "L_Upperarm": {
+        "pitch": 6
+      },
+      "L_Forearm": {
+        "pitch": -30
+      },
+      "aim": {
+        "socket": "socket_R_Hand",
+        "dir": [
+          -0.1,
+          0.45,
+          -0.89
+        ]
+      },
+      "R_Fingers_0": {
+        "local": [
+          75,
+          0,
+          0
+        ]
+      },
+      "R_Fingers_1": {
+        "local": [
+          80,
+          0,
+          0
+        ]
+      }
+    },
+    "look_up": {
+      "base": "stand",
+      "Spine02": {
+        "pitch": -1
+      },
+      "NeckTwist01": {
+        "pitch": -3
+      },
+      "Head": {
+        "pitch": -6
+      }
+    },
+    "look_up_in": {
+      "base": "stand",
+      "Spine02": {
+        "pitch": -0.5
+      },
+      "NeckTwist01": {
+        "pitch": -1.2
+      },
+      "Head": {
+        "pitch": -2.5
+      }
+    },
+    "fold_arms": {
+      "base": "stand",
+      "Head": {
+        "pitch": 5
+      },
+      "L_Upperarm": {
+        "pitch": -30,
+        "roll": -20
+      },
+      "L_Forearm": {
+        "pitch": -95,
+        "yaw": -55
+      },
+      "R_Upperarm": {
+        "pitch": -30,
+        "roll": 20
+      },
+      "R_Forearm": {
+        "pitch": -95,
+        "yaw": 55
+      }
+    },
+    "fold_arms_breathe": {
+      "base": "fold_arms",
+      "Spine02": {
+        "pitch": -3.2
+      },
+      "Head": {
+        "pitch": 5.8
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.004
+        ]
+      }
+    },
+    "fold_arms_in": {
+      "base": "stand",
+      "L_Upperarm": {
+        "pitch": -14,
+        "roll": -8
+      },
+      "L_Forearm": {
+        "pitch": -50,
+        "yaw": -25
+      },
+      "R_Upperarm": {
+        "pitch": -14,
+        "roll": 8
+      },
+      "R_Forearm": {
+        "pitch": -50,
+        "yaw": 25
+      }
+    },
+    "turn_step_L": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.005
+        ]
+      },
+      "L_Thigh": {
+        "pitch": -8
+      },
+      "L_Calf": {
+        "pitch": 14
+      },
+      "L_Foot": {
+        "pitch": -6
+      }
+    },
+    "turn_step_R": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.005
+        ]
+      },
+      "R_Thigh": {
+        "pitch": -8
+      },
+      "R_Calf": {
+        "pitch": 14
+      },
+      "R_Foot": {
+        "pitch": -6
+      }
+    }
+  },
+  "animations": {
+    "idle_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "stand",
+          0
+        ],
+        [
+          "breathe",
+          54
+        ],
+        [
+          "stand",
+          108
+        ],
+        [
+          "breathe",
+          150
+        ],
+        [
+          "glance",
+          168
+        ],
+        [
+          "glance",
+          210
+        ],
+        [
+          "breathe",
+          228
+        ],
+        [
+          "stand",
+          264
+        ]
+      ]
+    },
+    "walk_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "walk_contact_L",
+          0
+        ],
+        [
+          "walk_pass_L",
+          12
+        ],
+        [
+          "walk_contact_R",
+          24
+        ],
+        [
+          "walk_pass_R",
+          36
+        ],
+        [
+          "walk_contact_L",
+          48
+        ]
+      ]
+    },
+    "scale_look_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "stand",
+          0
+        ],
+        [
+          "scale_look_in",
+          10
+        ],
+        [
+          "scale_look",
+          20
+        ],
+        [
+          "scale_look",
+          60
+        ],
+        [
+          "scale_look_in",
+          70
+        ],
+        [
+          "stand",
+          82
+        ]
+      ]
+    },
+    "reach_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "stand",
+          0
+        ],
+        [
+          "reach_in",
+          10
+        ],
+        [
+          "reach",
+          20
+        ],
+        [
+          "reach",
+          52
+        ],
+        [
+          "reach_in",
+          62
+        ],
+        [
+          "stand",
+          74
+        ]
+      ]
+    },
+    "nod_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "stand",
+          0
+        ],
+        [
+          "nod",
+          7
+        ],
+        [
+          "nod",
+          13
+        ],
+        [
+          "stand",
+          22
+        ]
+      ]
+    },
+    "exorcise_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "stand",
+          0
+        ],
+        [
+          "draw_ready",
+          30
+        ],
+        [
+          "draw_ready",
+          66
+        ],
+        [
+          "awaken",
+          76
+        ],
+        [
+          "awaken",
+          100
+        ],
+        [
+          "slash_wind",
+          110
+        ],
+        [
+          "slash_wind",
+          118
+        ],
+        [
+          "slash",
+          123
+        ],
+        [
+          "slash",
+          165
+        ],
+        [
+          "recover",
+          190
+        ],
+        [
+          "recover",
+          220
+        ],
+        [
+          "stand",
+          250
+        ]
+      ]
+    },
+    "look_up_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "stand",
+          0
+        ],
+        [
+          "look_up_in",
+          10
+        ],
+        [
+          "look_up",
+          20
+        ],
+        [
+          "look_up",
+          62
+        ],
+        [
+          "look_up_in",
+          72
+        ],
+        [
+          "stand",
+          82
+        ]
+      ]
+    },
+    "idle2_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "stand",
+          0
+        ],
+        [
+          "fold_arms_in",
+          12
+        ],
+        [
+          "fold_arms",
+          24
+        ],
+        [
+          "fold_arms_breathe",
+          72
+        ],
+        [
+          "fold_arms",
+          120
+        ],
+        [
+          "fold_arms_breathe",
+          168
+        ],
+        [
+          "fold_arms",
+          216
+        ],
+        [
+          "fold_arms_in",
+          228
+        ],
+        [
+          "stand",
+          240
+        ]
+      ]
+    },
+    "turn_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "stand",
+          0
+        ],
+        [
+          "turn_step_L",
+          6
+        ],
+        [
+          "stand",
+          12
+        ],
+        [
+          "turn_step_R",
+          18
+        ],
+        [
+          "stand",
+          24
+        ]
+      ]
+    }
+  },
+  "bind_fix": {
+    "L_Upperarm": {
+      "roll": -38
+    },
+    "R_Upperarm": {
+      "roll": 38
+    },
+    "R_Forearm": {
+      "pitch": 75
+    }
+  },
+  "sockets": {
+    "socket_R_Hand": {
+      "bone": "R_Hand",
+      "type": "palm",
+      "grip_ref": "front"
+    },
+    "socket_Spine02": {
+      "bone": "Spine02",
+      "type": "back",
+      "dz": -0.04
+    },
+    "socket_Waist": {
+      "bone": "Spine01",
+      "type": "front",
+      "dz": -0.05
+    }
+  },
+  "props": {
+    "sword": {
+      "socket": "socket_R_Hand",
+      "poses": [
+        "draw_ready",
+        "awaken",
+        "slash_wind",
+        "slash",
+        "recover"
+      ]
+    },
+    "medicine_chest": {
+      "socket": "socket_Spine02"
+    },
+    "scale": {
+      "socket": "socket_Waist"
+    }
+  },
+  "morphs": {
+    "exorcise_k": {
+      "awaken_hair": [
+        [
+          0,
+          0
+        ],
+        [
+          66,
+          0
+        ],
+        [
+          76,
+          1
+        ],
+        [
+          190,
+          1
+        ],
+        [
+          220,
+          0
+        ],
+        [
+          250,
+          0
+        ]
+      ],
+      "awaken_eyes": [
+        [
+          0,
+          0
+        ],
+        [
+          73,
+          0
+        ],
+        [
+          74,
+          1
+        ],
+        [
+          196,
+          1
+        ],
+        [
+          197,
+          0
+        ],
+        [
+          250,
+          0
+        ]
+      ],
+      "awaken_mouth": [
+        [
+          0,
+          0
+        ],
+        [
+          73,
+          0
+        ],
+        [
+          74,
+          1
+        ],
+        [
+          196,
+          1
+        ],
+        [
+          197,
+          0
+        ],
+        [
+          250,
+          0
+        ]
+      ]
+    }
+  }
+}

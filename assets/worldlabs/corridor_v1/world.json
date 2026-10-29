@@ -1,0 +1,49 @@
+{
+  "world_id": "dcc73a82-b1be-4572-a8c5-a7aaac360c2f",
+  "display_name": "corridor_v1",
+  "tags": null,
+  "assets": {
+    "mesh": {
+      "collider_mesh_url": "https://cdn.marble.worldlabs.ai/dcc73a82-b1be-4572-a8c5-a7aaac360c2f/b10b97b3.glb",
+      "hq_mesh_url": null,
+      "full_res_mesh_url": null
+    },
+    "imagery": {
+      "pano_url": "https://cdn.marble.worldlabs.ai/dcc73a82-b1be-4572-a8c5-a7aaac360c2f/d039da0e-9e3a-493c-a0e2-dadb69a80a27_panos/rgb_0.png"
+    },
+    "splats": {
+      "spz_urls": {
+        "500k": "https://cdn.marble.worldlabs.ai/dcc73a82-b1be-4572-a8c5-a7aaac360c2f/71e2cbed-d61a-41c2-88a2-c4301b649986_ceramic_500k.spz",
+        "100k": "https://cdn.marble.worldlabs.ai/dcc73a82-b1be-4572-a8c5-a7aaac360c2f/222c1c4a-8d0a-4480-ae05-dd87a9ecfb62_dust_100k.spz",
+        "150k": "https://cdn.marble.worldlabs.ai/dcc73a82-b1be-4572-a8c5-a7aaac360c2f/183525ca-93d8-4d99-a0ac-3fe000983966_ceramic_150k.spz",
+        "full_res": "https://cdn.marble.worldlabs.ai/dcc73a82-b1be-4572-a8c5-a7aaac360c2f/9eca686c-6d29-40af-ac47-1ee1aeb10764_ceramic.spz"
+      },
+      "semantics_metadata": {
+        "metric_scale_factor": 1.0029757022857666,
+        "ground_plane_offset": 0.5968455672264099
+      }
+    },
+    "thumbnail_url": "https://cdn.marble.worldlabs.ai/dcc73a82-b1be-4572-a8c5-a7aaac360c2f/df3f6b3f-5e95-4f7c-902d-a9e34c970bd1_sand_mpi/thumbnail.webp",
+    "caption": "The scene is a long, straight indoor palace corridor, rendered in a distinct Japanese ukiyo-e flat-color anime style with a noticeable washi paper texture, creating a visually rich and culturally immersive atmosphere. The overall tone is regal and serene, evoking a sense of traditional elegance and grandeur. The corridor features a pale green floor, upon which a coral-red carpet runner with intricate floral patterns extends the entire length of the hallway. The walls are adorned with giant ukiyo-e murals depicting stylized figures and scenes, their vibrant colors contrasting with the textured background. Purple cloth sashes, decorated with white floral motifs, are draped gracefully from the eaves, adding a layer of opulent fabric to the vertical surfaces. Rows of crimson paper lanterns hang suspended, casting a warm, inviting glow throughout the space. Along both sides of the carpet, teal lattice standing lanterns with red diamond accents are spaced at regular intervals, providing additional ambient lighting and aesthetic detail. The ceiling is elaborately strung with small, colorful ornaments, creating a festive canopy overhead that stretches as far as the eye can see. At the far end of the corridor, a large, glowing red and white fan serves as a focal point, radiating a soft luminescence. The corridor continues in a straight line, maintaining its symmetrical arrangement of murals, drapes, lanterns, and floor coverings, extending uniformly around the entire circumference of the indoor space. "
+  },
+  "created_at": "2026-10-23T07:17:36Z",
+  "updated_at": "2026-10-23T07:26:00Z",
+  "permission": {
+    "public": false,
+    "allowed_readers": [],
+    "allowed_writers": [],
+    "allow_id_access": false
+  },
+  "world_prompt": {
+    "text_prompt": "The scene is a long, straight indoor palace corridor, rendered in a distinct Japanese ukiyo-e flat-color anime style with a noticeable washi paper texture, creating a visually rich and culturally immersive atmosphere. The overall tone is regal and serene, evoking a sense of traditional elegance and grandeur. The corridor features a pale green floor, upon which a coral-red carpet runner with intricate floral patterns extends the entire length of the hallway. The walls are adorned with giant ukiyo-e murals depicting stylized figures and scenes, their vibrant colors contrasting with the textured background. Purple cloth sashes, decorated with white floral motifs, are draped gracefully from the eaves, adding a layer of opulent fabric to the vertical surfaces. Rows of crimson paper lanterns hang suspended, casting a warm, inviting glow throughout the space. Along both sides of the carpet, teal lattice standing lanterns with red diamond accents are spaced at regular intervals, providing additional ambient lighting and aesthetic detail. The ceiling is elaborately strung with small, colorful ornaments, creating a festive canopy overhead that stretches as far as the eye can see. At the far end of the corridor, a large, glowing red and white fan serves as a focal point, radiating a soft luminescence. The corridor continues in a straight line, maintaining its symmetrical arrangement of murals, drapes, lanterns, and floor coverings, extending uniformly around the entire circumference of the indoor space. The 360 scene is faultless.",
+    "type": "image",
+    "image_prompt": {
+      "uri": "https://cdn.marble.worldlabs.ai/api/media-assets/J2t4mOw5xNb4CUv1q9goAIJKbqy2/08fe60e5-275c-4a66-b255-e903278ec947/scene.jpg",
+      "data_base64": null,
+      "extension": "jpg"
+    },
+    "is_pano": false
+  },
+  "world_marble_url": "https://marble.worldlabs.ai/world/dcc73a82-b1be-4572-a8c5-a7aaac360c2f",
+  "model": "marble-1.1"
+}

@@ -1,0 +1,49 @@
+{
+  "world_id": "d4f7e273-3904-473c-80c2-2a220713ad60",
+  "display_name": "utayama_v1",
+  "tags": null,
+  "assets": {
+    "mesh": {
+      "collider_mesh_url": "https://cdn.marble.worldlabs.ai/d4f7e273-3904-473c-80c2-2a220713ad60/48e32bbe.glb",
+      "hq_mesh_url": null,
+      "full_res_mesh_url": null
+    },
+    "imagery": {
+      "pano_url": "https://cdn.marble.worldlabs.ai/d4f7e273-3904-473c-80c2-2a220713ad60/7a8356ee-7b54-4df1-838b-2d86f5b0a746_panos/rgb_0.png"
+    },
+    "splats": {
+      "spz_urls": {
+        "500k": "https://cdn.marble.worldlabs.ai/d4f7e273-3904-473c-80c2-2a220713ad60/4255d438-888c-4214-be76-75f8021a99c4_ceramic_500k.spz",
+        "100k": "https://cdn.marble.worldlabs.ai/d4f7e273-3904-473c-80c2-2a220713ad60/22c3c1e5-45bf-4432-ad09-9da41c31c2cc_dust_100k.spz",
+        "150k": "https://cdn.marble.worldlabs.ai/d4f7e273-3904-473c-80c2-2a220713ad60/cacd5f9c-6e6d-40b0-94fb-50d4dfe5a576_ceramic_150k.spz",
+        "full_res": "https://cdn.marble.worldlabs.ai/d4f7e273-3904-473c-80c2-2a220713ad60/c3be6071-2bc4-4f04-a05c-dba43b49977d_ceramic.spz"
+      },
+      "semantics_metadata": {
+        "metric_scale_factor": 1.490675449371338,
+        "ground_plane_offset": 1.1059578657150269
+      }
+    },
+    "thumbnail_url": "https://cdn.marble.worldlabs.ai/d4f7e273-3904-473c-80c2-2a220713ad60/1f606251-df04-4492-9021-0eae790c53a7_sand_mpi/thumbnail.webp",
+    "caption": "The scene is a traditionally styled Japanese interior, rendered in a detailed illustrative painting aesthetic, evoking a sense of refined elegance and historical richness. The overall tone is tranquil and ceremonial, hinting at a space designed for contemplation or dignified gatherings. Tatami mats cover the floor throughout the space, edged with a dark blue border that complements the deep indigo of the ceiling grid. Red wooden beams delineate the ceiling into a grid pattern, adorned with gold accents where the beams intersect. Sliding shoji screens, some featuring intricate golden paintings of cranes and clouds against a dark blue background, serve as walls, while others are covered in patterned fabric with geometric designs. To the left, a side room with vibrant red lanterns and patterned purple and white fabrics is visible through a doorway, suggesting an adjacent, equally ornate passage or room. A low, dark lacquered table sits in the center of the main room, featuring gold accents and surrounded by pillows for seating. Books, inkstones, and writing implements are neatly arranged on the central table. Along the walls, dark wooden chests with gold hardware provide storage, some topped with shelves holding decorative items such as ceramic vessels and additional books. A tall, blue and gold lantern with patterned panels stands in the left corner, casting a soft, ambient glow. Another, smaller chest or seat is positioned to the right of the central table, also adorned with gold. The tatami mats are arranged with precise lines, forming a grid across the floor. The painted shoji screens are positioned centrally along the back wall, facing the low table. The wooden chests are placed against the side walls, extending towards the foreground and background of the room. The lantern in the corner stands near a dark wooden cabinet, illuminated by a soft glow from within. "
+  },
+  "created_at": "2026-10-27T11:36:24Z",
+  "updated_at": "2026-10-27T11:41:44Z",
+  "permission": {
+    "public": false,
+    "allowed_readers": [],
+    "allowed_writers": [],
+    "allow_id_access": false
+  },
+  "world_prompt": {
+    "text_prompt": "The scene is a traditionally styled Japanese interior, rendered in a detailed illustrative painting aesthetic, evoking a sense of refined elegance and historical richness. The overall tone is tranquil and ceremonial, hinting at a space designed for contemplation or dignified gatherings. Tatami mats cover the floor throughout the space, edged with a dark blue border that complements the deep indigo of the ceiling grid. Red wooden beams delineate the ceiling into a grid pattern, adorned with gold accents where the beams intersect. Sliding shoji screens, some featuring intricate golden paintings of cranes and clouds against a dark blue background, serve as walls, while others are covered in patterned fabric with geometric designs. To the left, a side room with vibrant red lanterns and patterned purple and white fabrics is visible through a doorway, suggesting an adjacent, equally ornate passage or room. A low, dark lacquered table sits in the center of the main room, featuring gold accents and surrounded by pillows for seating. Books, inkstones, and writing implements are neatly arranged on the central table. Along the walls, dark wooden chests with gold hardware provide storage, some topped with shelves holding decorative items such as ceramic vessels and additional books. A tall, blue and gold lantern with patterned panels stands in the left corner, casting a soft, ambient glow. Another, smaller chest or seat is positioned to the right of the central table, also adorned with gold. The tatami mats are arranged with precise lines, forming a grid across the floor. The painted shoji screens are positioned centrally along the back wall, facing the low table. The wooden chests are placed against the side walls, extending towards the foreground and background of the room. The lantern in the corner stands near a dark wooden cabinet, illuminated by a soft glow from within. The 360 scene is faultless.",
+    "type": "image",
+    "image_prompt": {
+      "uri": "https://cdn.marble.worldlabs.ai/api/media-assets/tTx9CIP0TLZjRrzATVATIlcioFL2/7db2be4e-504d-40bf-a3e7-6ea0d2a243bb/scene.jpg",
+      "data_base64": null,
+      "extension": "jpg"
+    },
+    "is_pano": true
+  },
+  "world_marble_url": "https://marble.worldlabs.ai/world/d4f7e273-3904-473c-80c2-2a220713ad60",
+  "model": "marble-1.1"
+}

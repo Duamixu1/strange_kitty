@@ -1,0 +1,41 @@
+{
+  "_说明": "道具尺寸和朝向。size 是最长边的真实尺寸（米），按角色身高 1.7 米 = 模型 1.0 换算。align：sword = 自动把最长轴转到 +Z、细的一头（刀尖）朝上；box = 自动把箱子的面对齐坐标轴；none = 不动。rot 是对齐之后再补的旋转（度，Blender 的 XYZ）。anchor 决定原点放哪：grip = 握柄中心，back_face = 贴背那一面的中心（箱子往 +Y 伸出去），hang = 贴腹那一面、偏上的位置（天秤往 -Y 伸出去）。tris 是减面目标。 depth_scale：只压前后方向（Y）的厚度。rebuild_blade：删掉护手以上的部分，换成脚本生成的单刃刀身（Tripo 把细刀身生成成了两片）。",
+  "char_height_m": 1.7,
+  "props": {
+    "sword": {
+      "size": 0.85,
+      "align": "sword",
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "anchor": "grip",
+      "tris": 12000,
+      "rebuild_blade": true
+    },
+    "medicine_chest": {
+      "size": 0.65,
+      "align": "box",
+      "rot": [
+        0,
+        0,
+        90
+      ],
+      "anchor": "back_face",
+      "tris": 15000,
+      "depth_scale": 0.6
+    },
+    "scale": {
+      "size": 0.3,
+      "align": "none",
+      "rot": [
+        0,
+        0,
+        -90
+      ],
+      "anchor": "hang",
+      "tris": 15000
+    }
+  }
+}

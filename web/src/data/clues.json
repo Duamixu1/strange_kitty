@@ -1,0 +1,79 @@
+{
+  "_说明": "线索的位置和解锁条件，天秤引导用。坐标系同 web/world/cameras.json。requires 是 state 里的路径，全部为真才算“可发现”。npc 类线索由对话给出，没有坐标就用 NPC 站位。",
+  "scale": {
+    "radius": 6,
+    "ringSteps": [
+      0.35,
+      0.65,
+      0.9
+    ],
+    "hysteresis": 0.08,
+    "_说明": "半径按 13 米走廊定：6 米外天秤不动。三档铃声在离线索 3.9 / 2.1 / 0.6 米处各响一次，回差 0.08 防止在门槛附近来回响。"
+  },
+  "clues": {
+    "E1": {
+      "position": [
+        0.6,
+        0,
+        -5.0
+      ],
+      "requires": [],
+      "how": "pick"
+    },
+    "E2": {
+      "position": [
+        -1.5,
+        1.6,
+        -3.0
+      ],
+      "requires": [],
+      "how": "interact"
+    },
+    "E3": {
+      "npc": "kame",
+      "requires": []
+    },
+    "E4": {
+      "position": [
+        -6.61,
+        0,
+        -6.6
+      ],
+      "requires": [
+        "met.utayama"
+      ],
+      "how": "interact"
+    },
+    "E5": {
+      "position": [
+        -7.59,
+        0,
+        -12.59
+      ],
+      "requires": [
+        "lit.kata",
+        "lit.makoto"
+      ],
+      "how": "interact"
+    },
+    "E6a": {
+      "position": [
+        4.09,
+        0,
+        -12.0
+      ],
+      "requires": [],
+      "how": "pick"
+    },
+    "E6b": {
+      "position": [
+        4.98,
+        0,
+        -9.7
+      ],
+      "requires": [],
+      "how": "interact"
+    }
+  },
+  "_坐标来源": "E4 文机、E6a 线轴、E6b 抽屉柜是按全景图 14、15 上家具的落地点用 tools/room_place.py 反算的，正好落在泼溅里那件东西上"
+}

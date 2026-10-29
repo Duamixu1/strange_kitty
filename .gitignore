@@ -1,0 +1,22 @@
+# 密钥只留在本机
+.env
+
+# 依赖和构建产物
+node_modules/
+web/dist/
+.DS_Store
+
+# Tripo 原始下载（1 GB，含唐风志异的模型）；游戏用的是 assets/processed 里压过的版本
+assets/tripo_raw/
+assets/*.lock
+
+# 预告片截图和官方角色图：版权归原作，不上传
+assets/concept/ref/
+
+# World Labs 全量泼溅（每个约 28 MB），游戏用的是 splat_500k*.spz
+assets/worldlabs/**/splat_full.spz
+
+# 验收截图和游玩记录：本机开发用
+assets/processed/shots/
+assets/processed/playlogs/
+assets/worldlabs/**/shots/

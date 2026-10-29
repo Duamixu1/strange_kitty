@@ -1,0 +1,30 @@
+{
+  "kusuriuri_v2": {
+    "model_task": "6d506c13-135c-4448-a942-a72ee1c3c8a4",
+    "model_file": "assets/tripo_raw/kusuriuri_v2.glb",
+    "rigcheck_task": "a5107499-93ea-4b36-8998-55e7e2d37f4a",
+    "rig_task": "87fa3a6c-4d04-4ec8-8061-9cadaca5d802",
+    "rig_file": "assets/tripo_raw/anims/kusuriuri_v2_rigged.glb"
+  },
+  "asa": {
+    "model_task": "e8803a52-8746-46c9-a7ed-1004e272dd6a",
+    "model_file": "assets/tripo_raw/asa.glb",
+    "rigcheck_task": "cdc0205a-8989-45c2-986e-c1475c2cd844",
+    "rig_task": "5d42c086-c1f4-4676-a0b9-0beb377b26d0",
+    "rig_file": "assets/tripo_raw/anims/asa_rigged.glb"
+  },
+  "kame": {
+    "model_task": "cc33621a-5e4c-4cd7-9d11-3305808c1054",
+    "model_file": "assets/tripo_raw/kame.glb",
+    "rigcheck_task": "10e9fec7-95f2-4f68-9d43-ffa3c4c5e87e",
+    "rig_task": "aa403206-aed0-4509-9164-ef0e88365666",
+    "rig_file": "assets/tripo_raw/anims/kame_rigged.glb"
+  },
+  "utayama": {
+    "model_task": "eb8fdf17-d2c9-4d95-b648-89f3e352e06c",
+    "model_file": "assets/tripo_raw/utayama.glb",
+    "rigcheck_task": "51d4fbaf-75e8-4077-a285-81203ae33dc6",
+    "rig_task": "d5b7685a-8324-4bdc-8f29-d2a280f2392b",
+    "rig_file": "assets/tripo_raw/anims/utayama_rigged.glb"
+  }
+}

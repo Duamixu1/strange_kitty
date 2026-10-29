@@ -1,0 +1,49 @@
+{
+  "world_id": "d24b096b-7e61-4fad-b50c-4818e9290b04",
+  "display_name": "corridor_v3",
+  "tags": null,
+  "assets": {
+    "mesh": {
+      "collider_mesh_url": "https://cdn.marble.worldlabs.ai/d24b096b-7e61-4fad-b50c-4818e9290b04/785c3900.glb",
+      "hq_mesh_url": null,
+      "full_res_mesh_url": null
+    },
+    "imagery": {
+      "pano_url": "https://cdn.marble.worldlabs.ai/d24b096b-7e61-4fad-b50c-4818e9290b04/580b4fe8-8a1e-4e0c-a8ab-209b7411ad16_panos/rgb_0.png"
+    },
+    "splats": {
+      "spz_urls": {
+        "500k": "https://cdn.marble.worldlabs.ai/d24b096b-7e61-4fad-b50c-4818e9290b04/282ac371-3b32-4164-80c1-fc913d2a858a_ceramic_500k.spz",
+        "100k": "https://cdn.marble.worldlabs.ai/d24b096b-7e61-4fad-b50c-4818e9290b04/7045001b-9ca4-4305-99e1-0166f4523341_dust_100k.spz",
+        "150k": "https://cdn.marble.worldlabs.ai/d24b096b-7e61-4fad-b50c-4818e9290b04/5bf11306-f22d-42f0-97ac-acba72059a92_ceramic_150k.spz",
+        "full_res": "https://cdn.marble.worldlabs.ai/d24b096b-7e61-4fad-b50c-4818e9290b04/d9dd4a2a-13a5-403d-8a65-cc3b1dc6e675_ceramic.spz"
+      },
+      "semantics_metadata": {
+        "metric_scale_factor": 1.1983393430709839,
+        "ground_plane_offset": 0.7737815380096436
+      }
+    },
+    "thumbnail_url": "https://cdn.marble.worldlabs.ai/d24b096b-7e61-4fad-b50c-4818e9290b04/94c2d12c-1952-4cd6-8fbb-711b7d28b005_sand_mpi/thumbnail.webp",
+    "caption": "The scene is a lavish, intricately decorated hallway, rendered in a detailed painting style reminiscent of traditional Asian art, creating an opulent and festive atmosphere. The hallway is long and symmetrical, with a vibrant red carpet adorned with large, blossoming pink flowers covering the floor, leading towards a brightly lit archway at the far end. On either side of the carpet, a narrower teal-colored pathway runs along the base of ornate fabric screens. These screens are draped in rich colors, predominantly purple and red, featuring elaborate patterns of butterflies, floral motifs, and large fans. Red lanterns, strung together by colorful ribbons, hang from the ceiling in multiple rows, casting a warm glow throughout the space. Between the fabric screens and along the teal pathway, decorative blue lanterns with intricate patterns are placed on small, dark pedestals, providing additional ambient lighting. The walls beyond the fabric screens appear to be richly decorated panels, possibly with gilded details, featuring more floral and geometric designs. The ceiling itself is a latticework of red and beige, from which the myriad of lanterns are suspended. The design suggests an indoor setting within a grand palace or temple. The archway at the end of the hall reveals a glimpse of another, possibly larger, similarly decorated chamber. "
+  },
+  "created_at": "2026-10-23T08:10:22Z",
+  "updated_at": "2026-10-23T08:15:41Z",
+  "permission": {
+    "public": false,
+    "allowed_readers": [],
+    "allowed_writers": [],
+    "allow_id_access": false
+  },
+  "world_prompt": {
+    "text_prompt": "The scene is a lavish, intricately decorated hallway, rendered in a detailed painting style reminiscent of traditional Asian art, creating an opulent and festive atmosphere. The hallway is long and symmetrical, with a vibrant red carpet adorned with large, blossoming pink flowers covering the floor, leading towards a brightly lit archway at the far end. On either side of the carpet, a narrower teal-colored pathway runs along the base of ornate fabric screens. These screens are draped in rich colors, predominantly purple and red, featuring elaborate patterns of butterflies, floral motifs, and large fans. Red lanterns, strung together by colorful ribbons, hang from the ceiling in multiple rows, casting a warm glow throughout the space. Between the fabric screens and along the teal pathway, decorative blue lanterns with intricate patterns are placed on small, dark pedestals, providing additional ambient lighting. The walls beyond the fabric screens appear to be richly decorated panels, possibly with gilded details, featuring more floral and geometric designs. The ceiling itself is a latticework of red and beige, from which the myriad of lanterns are suspended. The design suggests an indoor setting within a grand palace or temple. The archway at the end of the hall reveals a glimpse of another, possibly larger, similarly decorated chamber. The 360 scene is faultless.",
+    "type": "image",
+    "image_prompt": {
+      "uri": "https://cdn.marble.worldlabs.ai/api/media-assets/J2t4mOw5xNb4CUv1q9goAIJKbqy2/8c38b09c-2f8a-4eeb-b250-bcb9dc4e9e9a/scene.jpg",
+      "data_base64": null,
+      "extension": "jpg"
+    },
+    "is_pano": true
+  },
+  "world_marble_url": "https://marble.worldlabs.ai/world/d24b096b-7e61-4fad-b50c-4818e9290b04",
+  "model": "marble-1.1"
+}

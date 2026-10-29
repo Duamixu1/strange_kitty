@@ -1,0 +1,49 @@
+{
+  "world_id": "f6ed5d61-d9c9-4676-ab50-74ad9378ec76",
+  "display_name": "maids_v1",
+  "tags": null,
+  "assets": {
+    "mesh": {
+      "collider_mesh_url": "https://cdn.marble.worldlabs.ai/f6ed5d61-d9c9-4676-ab50-74ad9378ec76/dc063dfe.glb",
+      "hq_mesh_url": null,
+      "full_res_mesh_url": null
+    },
+    "imagery": {
+      "pano_url": "https://cdn.marble.worldlabs.ai/f6ed5d61-d9c9-4676-ab50-74ad9378ec76/a68efc05-e65f-4af0-a41a-d9164cfe1ca3_panos/rgb_0.png"
+    },
+    "splats": {
+      "spz_urls": {
+        "500k": "https://cdn.marble.worldlabs.ai/f6ed5d61-d9c9-4676-ab50-74ad9378ec76/d9a8e48d-7360-4375-ab99-4d72cd2f179b_ceramic_500k.spz",
+        "100k": "https://cdn.marble.worldlabs.ai/f6ed5d61-d9c9-4676-ab50-74ad9378ec76/926cd1a1-4599-4d65-a3f3-6cfc1e30826e_dust_100k.spz",
+        "150k": "https://cdn.marble.worldlabs.ai/f6ed5d61-d9c9-4676-ab50-74ad9378ec76/971fee26-285a-41f1-9fa2-e51aaae00e39_ceramic_150k.spz",
+        "full_res": "https://cdn.marble.worldlabs.ai/f6ed5d61-d9c9-4676-ab50-74ad9378ec76/61f984b9-ae6d-4dc0-ba22-09f9b8d8229f_ceramic.spz"
+      },
+      "semantics_metadata": {
+        "metric_scale_factor": 1.303208827972412,
+        "ground_plane_offset": 0.9248180985450745
+      }
+    },
+    "thumbnail_url": "https://cdn.marble.worldlabs.ai/f6ed5d61-d9c9-4676-ab50-74ad9378ec76/7c1b5eb7-bb11-4dc1-a53b-62e3ab86acd8_sand_mpi/thumbnail.webp",
+    "caption": "The scene is a traditionally styled Japanese room, presented in a vibrant, illustrative painting style with a tranquil and elegant tone. The room features paper-paneled walls adorned with large, blossoming pink peonies and dark blue butterflies, creating a rich and naturalistic aesthetic. A circular window with delicate wooden lattice work is centrally placed on one wall, offering a glimpse of what appears to be an exterior garden or courtyard with soft light filtering through. The ceiling is characterized by an intricate grid of dark wooden beams, contrasted by lighter panels, suggesting traditional Japanese architectural methods. The floor is covered with green tatami mats, separated by dark wooden strips, leading to a central area covered by a large, ornate red rug patterned with floral motifs. A dark wooden dressing table with a mirror and various cosmetic items sits against a wall, accompanied by a tall, rectangular lantern with a blue base and a delicate patterned shade. On the opposite side of the room, a low bed is made with neatly folded white and pink quilts, positioned beside a dark, multi-drawer chest adorned with gold hardware and floral designs. Draped above the bed and along the upper walls are decorative purple fabrics with circular patterns, accented by red tassels and hanging ornaments, adding a touch of ceremonial elegance. Beyond the open doorways, a repeating pattern of hanging lanterns and purple draped fabric extends into a long, mirrored hallway, creating an illusion of depth and grandeur. "
+  },
+  "created_at": "2026-10-23T13:52:35Z",
+  "updated_at": "2026-10-23T13:59:25Z",
+  "permission": {
+    "public": false,
+    "allowed_readers": [],
+    "allowed_writers": [],
+    "allow_id_access": false
+  },
+  "world_prompt": {
+    "text_prompt": "The scene is a traditionally styled Japanese room, presented in a vibrant, illustrative painting style with a tranquil and elegant tone. The room features paper-paneled walls adorned with large, blossoming pink peonies and dark blue butterflies, creating a rich and naturalistic aesthetic. A circular window with delicate wooden lattice work is centrally placed on one wall, offering a glimpse of what appears to be an exterior garden or courtyard with soft light filtering through. The ceiling is characterized by an intricate grid of dark wooden beams, contrasted by lighter panels, suggesting traditional Japanese architectural methods. The floor is covered with green tatami mats, separated by dark wooden strips, leading to a central area covered by a large, ornate red rug patterned with floral motifs. A dark wooden dressing table with a mirror and various cosmetic items sits against a wall, accompanied by a tall, rectangular lantern with a blue base and a delicate patterned shade. On the opposite side of the room, a low bed is made with neatly folded white and pink quilts, positioned beside a dark, multi-drawer chest adorned with gold hardware and floral designs. Draped above the bed and along the upper walls are decorative purple fabrics with circular patterns, accented by red tassels and hanging ornaments, adding a touch of ceremonial elegance. Beyond the open doorways, a repeating pattern of hanging lanterns and purple draped fabric extends into a long, mirrored hallway, creating an illusion of depth and grandeur. The 360 scene is faultless.",
+    "type": "image",
+    "image_prompt": {
+      "uri": "https://cdn.marble.worldlabs.ai/api/media-assets/J2t4mOw5xNb4CUv1q9goAIJKbqy2/3061ee04-8fb5-4dcf-a047-fe1cb459ab2f/scene.jpg",
+      "data_base64": null,
+      "extension": "jpg"
+    },
+    "is_pano": true
+  },
+  "world_marble_url": "https://marble.worldlabs.ai/world/f6ed5d61-d9c9-4676-ab50-74ad9378ec76",
+  "model": "marble-1.1"
+}

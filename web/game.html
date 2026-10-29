@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>手鞠 · 灰盒游戏台</title>
+  <style>
+    :root { --paper: #F1E9DA; --ink: #322D48; --coral: #E6667A; --crimson: #B42A47; --ochre: #DCC67C; --teal: #49B3A6; --wisteria: #6A4C8C; --navy: #2A2A4E; --lavender: #D6D3EF; }
+    html, body { margin: 0; height: 100%; background: var(--navy); overflow: hidden; font-family: "Hiragino Mincho ProN", "Songti SC", "Noto Serif CJK SC", serif; color: var(--ink); }
+    #stage canvas { display: block; }
+    .paper { background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); position: relative; }
+    .paper::before { content: ""; position: absolute; inset: 0; background: url(/textures/paper.png) 0 0 / 512px; opacity: .12; mix-blend-mode: multiply; pointer-events: none; }
+    .paper > * { position: relative; }
+    #hud { position: fixed; left: 14px; top: 12px; font: 12px/1.6 -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); opacity: .8; pointer-events: none; }
+    #prompt { position: fixed; left: 50%; bottom: 17%; transform: translateX(-50%); padding: 6px 16px; font-size: 18px; letter-spacing: .1em; opacity: 0; transition: opacity .2s; pointer-events: none; }
+    #prompt.show { opacity: 1; }
+    #toast { position: fixed; right: 20px; top: 20px; padding: 8px 14px; font-size: 16px; opacity: 0; transform: translateY(-8px); transition: all .3s; pointer-events: none; display: flex; align-items: center; gap: 10px; }
+    #toast img { width: 44px; height: 44px; border: 1px solid var(--ink); }
+    #toast.show { opacity: 1; transform: none; }
+    #hint { position: fixed; right: 22px; bottom: 150px; max-width: 320px; font-size: 15px; color: var(--paper); text-align: right; opacity: 0; transition: opacity .6s; pointer-events: none; text-shadow: 0 0 6px var(--navy); }
+    #hint.show { opacity: .9; }
+    /* 右下角天秤 */
+    #hud-scale { position: fixed; right: 22px; bottom: 26px; display: flex; align-items: center; gap: 14px; cursor: pointer; user-select: none; }
+    #hud-scale .three { display: flex; gap: 8px; font-size: 26px; }
+    #hud-scale .three span { width: 40px; height: 40px; line-height: 40px; text-align: center; border: 2px solid var(--paper); color: var(--paper); opacity: .45; border-radius: 4px; }
+    #hud-scale .three span.lit { opacity: 1; background: var(--coral); border-color: var(--coral); color: var(--paper); }
+    #hud-scale .icon { width: 84px; height: 84px; transform-origin: 50% 12%; transition: filter .3s; border-radius: 50%; border: 2px solid var(--paper); background: var(--paper); object-fit: cover; }
+    #hud-scale.near .icon { filter: drop-shadow(0 0 10px var(--ochre)); border-color: var(--ochre); }
+    /* 对话框 */
+    #dialogue { position: fixed; left: 50%; bottom: 9%; transform: translateX(-50%) translateY(10px); width: min(900px, 86vw); padding: 18px 26px 22px; opacity: 0; transition: all .25s; cursor: pointer; }
+    #dialogue.show { opacity: 1; transform: translateX(-50%); }
+    #dialogue .name { display: inline-block; margin: -32px 0 8px -10px; padding: 2px 14px; background: var(--crimson); color: var(--paper); font-size: 16px; letter-spacing: .15em; }
+    #dialogue .text { font-size: 22px; line-height: 1.6; min-height: 2.4em; letter-spacing: .04em; }
+    #dialogue::after { content: "▼"; position: absolute; z-index: 1; right: 18px; bottom: 10px; font-size: 12px; color: var(--crimson); animation: bob 1s infinite; }
+    #dialogue.last::after { content: "●"; animation: none; }
+    @keyframes bob { 50% { transform: translateY(3px); } }
+    /* 天秤面板 */
+    #scale-panel { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(42,42,78,.55); }
+    #scale-panel.show { display: flex; }
+    #scale-panel .box { width: min(1040px, 92vw); height: min(620px, 88vh); display: grid; grid-template-rows: auto 1fr auto; padding: 18px 26px; position: relative; }
+    #scale-panel .title { font-size: 24px; letter-spacing: .3em; }
+    #scale-panel .close { position: absolute; right: 14px; top: 10px; width: 32px; height: 32px; border: 2px solid var(--ink); background: none; font-size: 22px; cursor: pointer; color: var(--ink); }
+    #scale-panel .body { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; min-height: 0; }
+    #scale-panel .inventory { overflow: auto; display: flex; flex-direction: column; gap: 5px; padding-right: 6px; }
+    #scale-panel .item { text-align: left; background: none; border: 2px solid var(--ink); padding: 4px 10px; cursor: pointer; color: var(--ink); font-family: inherit; display: flex; gap: 10px; align-items: center; }
+    #scale-panel .item img { width: 50px; height: 50px; flex: none; border: 1px solid var(--ink); }
+    #scale-panel .item b { display: block; font-size: 17px; }
+    #scale-panel .item span { font-size: 13px; line-height: 1.4; color: var(--wisteria); }
+    #scale-panel .item:hover:not(:disabled) { background: var(--ochre); }
+    @media (max-height: 700px) { #scale-panel .item { padding: 3px 8px; } #scale-panel .item img { width: 40px; height: 40px; } #scale-panel .item b { font-size: 15px; } #scale-panel .item span { font-size: 12px; line-height: 1.35; } }   /* 矮屏：七件证物齐了也不用滚 */
+    #scale-panel .item.used { opacity: .35; } #scale-panel .item.onpan { border-style: dashed; opacity: .5; }
+    #scale-panel .scale { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 10px; }
+    #scale-panel .post { width: 10px; height: 300px; background: var(--ink); }
+    #scale-panel .beam { position: absolute; top: 24px; left: 50%; width: 76%; height: 10px; margin-left: -38%; background: var(--ink); transform-origin: 50% 50%; transition: transform .5s cubic-bezier(.3,1.4,.5,1); }
+    #scale-panel .beam::before, #scale-panel .beam::after { content: ""; position: absolute; top: 10px; width: 2px; height: 150px; background: var(--ink); }
+    #scale-panel .beam::before { left: 0; } #scale-panel .beam::after { right: 0; }
+    #scale-panel .pan { position: absolute; top: 176px; width: 150px; text-align: center; cursor: pointer; }
+    #scale-panel .pan.left { left: calc(12% - 75px + 5px); } #scale-panel .pan.right { right: calc(12% - 75px + 5px); }
+    #scale-panel .pan .slot { height: 96px; border: 2px dashed var(--ink); border-radius: 0 0 70px 70px; padding: 6px 6px 0; font-size: 13px; line-height: 1.2; background: rgba(220,198,124,.25); display: flex; flex-direction: column; align-items: center; }
+    #scale-panel .pan .slot img { width: 54px; height: 54px; border: 1px solid var(--ink); margin-bottom: 3px; }
+    #scale-panel .pan .slot.filled { border-style: solid; background: var(--ochre); }
+    #scale-panel .pan .side { font-size: 12px; color: var(--wisteria); margin-top: 4px; }
+    #scale-panel.wrong .beam { background: var(--crimson); } #scale-panel.balanced .beam { background: var(--teal); }
+    #scale-panel .result { min-height: 1.8em; font-size: 18px; text-align: center; color: var(--crimson); }
+    /* 擦除 */
+    #wipe { position: fixed; inset: 0; background: var(--paper); z-index: 50; transform: translateX(-100%); pointer-events: none; border-right: 14px solid var(--wisteria); }
+    /* 过场：夜色、白闪、字卡 */
+    #night { position: fixed; inset: 0; background: var(--navy); mix-blend-mode: multiply; opacity: 0; transition: opacity 1.2s; pointer-events: none; }
+    #flash { position: fixed; inset: 0; background: var(--paper); opacity: 0; transition: opacity .5s; pointer-events: none; }
+    #cut-text { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.96); padding: 18px 48px; font-size: 44px; letter-spacing: .5em; text-indent: .5em; white-space: nowrap; opacity: 0; transition: all .4s; pointer-events: none; }
+    #cut-text.show { opacity: 1; transform: translate(-50%, -50%); }
+    body.cutscene #hud-scale, body.cutscene #prompt, body.cutscene #hint, body.cutscene #toast { display: none; }
+    /* 房名卡：右上角竖排，墨底纸字，像预告片的《大奥》字卡 */
+    #room-card { position: fixed; right: 36px; top: 70px; padding: 18px 12px; writing-mode: vertical-rl; font-size: 30px; letter-spacing: .35em; background: var(--navy); color: var(--paper); border: 2px solid var(--paper); box-shadow: 4px 4px 0 var(--ink); opacity: 0; transform: translateY(-10px); transition: opacity .35s, transform .35s; pointer-events: none; z-index: 40; }
+    #room-card.first { font-size: 40px; padding: 24px 16px; }
+    #room-card::before { content: "《"; } #room-card::after { content: "》"; }
+    #room-card.show { opacity: 1; transform: none; }
+    /* 鼠标指着能点的东西时的小字 */
+    #hover-tip { position: fixed; left: 0; top: 0; padding: 3px 10px; font-size: 15px; letter-spacing: .08em; background: var(--paper); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); opacity: 0; transition: opacity .12s; pointer-events: none; white-space: nowrap; z-index: 45; }
+    #hover-tip.show { opacity: 1; }
+    /* 门牌：走廊里附近的门、房间里回走廊的门，点了就走过去 */
+    #door-tags { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
+    .door-tag { position: absolute; left: 0; top: 0; padding: 4px 12px; font-size: 15px; letter-spacing: .08em; font-family: inherit; color: var(--ink); cursor: pointer; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .door-tag.show { pointer-events: auto; opacity: 1; }
+    .door-tag:not(.show) { opacity: 0 !important; }
+    .door-tag:hover { background: var(--ochre); }
+    body.cutscene #room-card, body.cutscene #hover-tip, body.cutscene #door-tags { display: none; }
+    /* 拔剑占位、结尾卡 */
+    #sword, #ending { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; }
+    #sword.show, #ending.show { display: flex; }
+    #sword { background: var(--navy); color: var(--paper); flex-direction: column; cursor: pointer; }
+    #sword .line { font-size: 40px; letter-spacing: .4em; }
+    #sword .note { margin-top: 24px; font: 14px -apple-system, "Hiragino Sans GB", sans-serif; opacity: .6; }
+    #ending .box { width: min(820px, 90vw); padding: 40px 48px; text-align: center; }
+    #ending .three { font-size: 72px; letter-spacing: .4em; margin-bottom: 10px; }
+    #ending .three span { opacity: .25; } #ending .three span.lit { opacity: 1; }
+    #ending .card { font-size: 26px; margin: 10px 0 24px; }
+    #ending .lines p { margin: 6px 0; font-size: 18px; color: var(--wisteria); }
+    #ending .other { font-size: 14px; color: var(--wisteria); opacity: .7; margin-top: 12px; }
+    #ending .brand { font: 13px -apple-system, "Hiragino Sans GB", sans-serif; color: var(--crimson); margin-top: 26px; }
+    #ending .save { margin-top: 16px; padding: 8px 22px; background: var(--ink); color: var(--paper); border: 0; font-size: 16px; font-family: inherit; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="stage"></div>
+  <div id="hud"><span id="status">加载中…</span> · 点地面走过去 · 点人和东西互动 · 拖动转视角（双击回正）· WASD 也能走 · Tab 天秤</div>
+  <div id="prompt" class="paper"></div>
+  <div id="toast" class="paper"></div>
+  <div id="hint"></div>
+  <div id="room-card"></div>
+  <div id="hover-tip"></div>
+  <div id="door-tags"></div>
+  <div id="hud-scale">
+    <div class="three"><span class="kata"></span><span class="makoto"></span><span class="kotowari"></span></div>
+    <img class="icon" src="/icons/scale.png" alt="天秤">
+  </div>
+  <div id="dialogue" class="paper"><div class="name"></div><div class="text"></div></div>
+  <div id="scale-panel"><div class="box paper">
+    <div class="title"></div><button class="close"></button>
+    <div class="body">
+      <div class="inventory"></div>
+      <div class="scale">
+        <div class="beam"></div><div class="post"></div>
+        <div class="pan left"><div class="slot"></div><div class="side">左</div></div>
+        <div class="pan right"><div class="slot"></div><div class="side">右</div></div>
+      </div>
+    </div>
+    <div class="result"></div>
+  </div></div>
+  <div id="night"></div>
+  <div id="cut-text" class="paper"></div>
+  <div id="flash"></div>
+  <div id="sword"><div class="line"></div><div class="note"></div></div>
+  <div id="ending"><div class="box paper"><div class="three"></div><div class="card"></div><div class="lines"></div><div class="other"></div><button class="save"></button><div class="brand"></div></div></div>
+  <div id="wipe"></div>
+  <script type="module" src="/src/game.js"></script>
+</body>
+</html>
