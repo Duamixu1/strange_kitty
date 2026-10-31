@@ -1,7 +1,9 @@
 # 坂井家·玄关（参考 04）：石板土间 + 深色木框，上一级是焦茶木地板；家纹襖隔开里面。
+# 土间比上框低 0.36 米（doma），正对正门的沓脱石在半高，药郎踩着它分两步上去。
 # 上面左门 U 进红色廊下，右门 U 去厨房；下面正门 E 回门前。
 name: sakai_genkan
 height: 3.0
+doma: 0.36
 ceiling: sao
 timber: 1.8
 mat: wood=wood_dark, frame=wood_dark, plaster=plaster_white, kokabe=plaster_white, earth=stone, engawa=floor_black, fusuma=fusuma_kamon, glassdoor=itado, udoor=fusuma_kamon

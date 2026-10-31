@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>怪化猫游览</title>
   <style>
     :root { --paper: #F1E9DA; --ink: #322D48; --coral: #E6667A; --crimson: #B42A47; --ochre: #DCC67C; --teal: #49B3A6; --wisteria: #6A4C8C; --navy: #2A2A4E; --lavender: #D6D3EF; }
@@ -65,12 +65,46 @@
     #map .tag-name .seal { margin-top: 4px; font: 11px -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); background: var(--ink); padding: 1px 8px; }
     #map .tests { position: fixed; right: 16px; bottom: 10px; font: 12px -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); opacity: .45; }
     #map .tests a { color: var(--paper); }
+    /* 手机（body.touch）：右上说明换短的，底部一排按钮代替键盘；说明卡挪到按钮栏上面 */
+    /* 声音开关：右上角小圆钮，"音" = 开，"静" = 关 */
+    #snd { position: fixed; right: max(12px, env(safe-area-inset-right)); top: 10px; z-index: 6; width: 34px; height: 34px; border-radius: 50%; padding: 0; font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; background: var(--paper); color: var(--crimson); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    #snd.off { color: var(--ink); opacity: .6; }
+    #help { right: 58px !important; }
+    body.touch #help { right: calc(96px + env(safe-area-inset-right)) !important; }
+    #pad { display: none; }
+    body.touch #pad { display: flex; position: fixed; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); gap: 8px; z-index: 5; }
+    body.touch.map-mode #pad { display: none; }
+    #pad button { font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .1em; white-space: nowrap; min-width: 56px; height: 44px; padding: 0 10px; background: var(--paper); color: var(--ink); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    #pad button:active { transform: translate(2px, 2px); box-shadow: none; }
+    #pad button.photo { background: var(--crimson); color: var(--paper); }
+    body.touch #help .keys { display: none; }
+    @media (orientation: portrait) { body.touch #help { top: 34px; left: 14px; right: 56px !important; text-align: left; } body.touch #pad { gap: 5px; } body.touch #pad button { min-width: 0; padding: 0 9px; letter-spacing: .04em; } }
+    body:not(.touch) #help .fingers { display: none; }
+    body.touch #prompt { pointer-events: auto; cursor: pointer; }
+    /* 横屏手机高度只有 390 左右：按钮栏竖着放右边，不挡药郎脚下 */
+    @media (orientation: landscape) {
+      body.touch #pad { flex-direction: column; left: auto; right: max(12px, env(safe-area-inset-right)); bottom: auto; top: 50%; transform: translateY(-50%); }
+      body.touch #pad button { min-width: 64px; }
+      body.touch #help { right: calc(96px + env(safe-area-inset-right)); }
+      body.touch #card { bottom: 6% !important; left: calc(50% - 48px); width: min(620px, calc(100vw - 140px)) !important; }
+      body.touch #prompt { bottom: 6% !important; }
+    }
+    body.touch #card { bottom: calc(76px + env(safe-area-inset-bottom)); width: 90vw; padding: 14px 18px 18px; }
+    body.touch #card .title { font-size: 20px; }
+    body.touch #card .body { font-size: 16px; }
+    body.touch #card::after { content: "点击关闭"; }
+    body.touch #prompt { bottom: calc(72px + env(safe-area-inset-bottom)); }
+    body.touch .tag.view { width: 38px; height: 38px; line-height: 36px; font-size: 20px; }
+    body.touch .tag.exit { padding: 6px 14px; font-size: 16px; }
+    #map .scroll { touch-action: pan-x; -webkit-overflow-scrolling: touch; }
   </style>
 </head>
 <body>
   <div id="stage"></div>
   <div id="status">加载中…</div>
-  <div id="help">点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · P 拍照 · F 换滤镜 · O 换姿势 · M 总地图</div>
+  <button id="snd" title="声音开关（B）">音</button>
+  <div id="help"><span class="keys">点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · P 拍照 · F 换滤镜 · O 换姿势 · X 拔剑 · M 总地图 · B 声音</span><span class="fingers">点地面走 · 连点两下快走 · 拖动转镜头 · 两指缩放</span></div>
+  <div id="pad"><button data-k="KeyE">看</button><button data-k="KeyO">姿势</button><button data-k="KeyX">拔剑</button><button class="photo" data-k="KeyP">拍照</button><button data-k="KeyF">滤镜</button><button data-k="KeyM">地图</button></div>
   <div id="fx"></div>
   <div id="tags"></div>
   <div id="prompt" class="paper"></div>

@@ -15,7 +15,7 @@ const CHAR_PATTERNS = [
   { color: "#49B3A6", tile: "ichimatsu", patColor: "#F1E9DA", mix: 0.5 },
   { color: "#F1E9DA" }, { color: "#D6D3EF" }, { color: "#6A4C8C" }, { color: "#E7A3B5" }, { color: "#4F74BF" }, { color: "#59B86A" }, { color: "#322D48" },
 ];
-const ALIAS = { idle: ["idle_k", "idle"], walk: ["walk2_k", "walk_k", "walk"], run: ["walk_fast_k", "walk2_k", "walk_k"], sprint: ["run_k", "walk_fast_k", "walk2_k"], gaze: ["gaze_k", "idle_k"], look: ["look_up_k", "idle_k"],
+const ALIAS = { exorcise: ["exorcise_k"], idle: ["idle_k", "idle"], walk: ["walk2_k", "walk_k", "walk"], run: ["walk_fast_k", "walk2_k", "walk_k"], sprint: ["run_k", "walk_fast_k", "walk2_k"], gaze: ["gaze_k", "idle_k"], look: ["look_up_k", "idle_k"],
   idle_alt: ["idle2_k"], turn: ["turn_k"], photo_fold: ["pose_fold_k"], photo_back: ["pose_back_k"] };
 const LOOPING = new Set(["idle_k", "idle", "walk_k", "walk", "walk2_k", "walk_fast_k", "run_k", "gaze_k", "pose_fold_k", "pose_back_k"]);
 // 走路动作本身的地面速度（米/秒，支撑脚往后蹬的速度，角色线在 Blender 里量的，1.7 米身高）。
@@ -31,7 +31,7 @@ export async function loadPlayer(loader, assetUrl, { model = "processed/kusuriur
   };
   const gltf = await loader.loadAsync(assetUrl(model));
   const m = gltf.scene;
-  m.traverse((o) => { if (o.isMesh) { o.frustumCulled = false; toonFor(o, { space: "screen", scale: 120, byPalette: CHAR_PATTERNS }); } });
+  m.traverse((o) => { if (o.isMesh) { o.frustumCulled = false; toonFor(o, { space: "screen", scale: 120, byPalette: CHAR_PATTERNS, maxY: 0.91 }); } });   // maxY：帽子（身体网格绑定高度 0.91 以上，头发最高 0.89）不铺纹样
   const box = new THREE.Box3().setFromObject(m), s = 1.7 / (box.max.y - box.min.y);
   m.scale.setScalar(s); m.position.set(-(box.min.x + box.max.x) / 2 * s, -box.min.y * s, -(box.min.z + box.max.z) / 2 * s);
   group.add(m); group.updateMatrixWorld(true);
@@ -53,7 +53,7 @@ export async function loadPlayer(loader, assetUrl, { model = "processed/kusuriur
   const layer = useLayer ? new WalkLayer(m, group) : { restore() {}, apply() {}, reset() {}, target: null };   // 拐弯内倾、起停余摆、头先转（walk_layer.js）；?layer=0 关掉对比
   let last = new THREE.Vector3();
   return {
-    group, play, get currentName() { return currentName; },
+    group, play, get currentName() { return currentName; }, get time() { return current ? current.time : 0; },
     /** 走路时每帧调：按实际移动速度（米/秒）调走路动作的播放倍率，倍率限在 0.5 到 3 之间 */
     setMoveSpeed(v) {
       if (!current || !CLIP_SPEED[currentName]) return;

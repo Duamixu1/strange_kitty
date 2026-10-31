@@ -10,10 +10,29 @@ import { CUTOUT } from "../style/toon.js";
 // 镜头和药郎之间挡着的柱子、家具交给着色器的遮挡淡出（toon.js 的 CUTOUT），这里每帧把药郎的屏幕位置和深度传过去。
 // 固定机位：区块 camera.fixed 列的矩形（格式和泼溅区块一样 { rect: [x0, x1, z0, z1], pos: [x, y, z], look: [x, y, z] }），
 // 药郎走进矩形就直接切到那个机位（像原作切镜头，不滑过去），走出来再切回跟随。look 不写就看药郎。
+// 防闪（10-31 用户反馈"走路和转向时镜头多次闪烁跳跃"，tools/tour_camjump.mjs 逐帧量过）：
+//   · 固定机位进出带 0.35 米缓冲带，切一次以后 0.6 秒内不再切（原来在矩形边上走会来回切好几次）；cuts 计数给 tour.js 锁按键方向用
+//   · 只有中间一条射线碰到、左右各偏 0.22 米的射线都没碰到的，算细东西（柱子、灯笼、栏杆），不拉近镜头，交给遮挡淡出
+//   · 拉近也平滑（约 0.25 秒贴上去，原来一帧从 2.4 米跳到 0.35 米），退回要先等 0.25 秒确认真的不挡了再慢慢退
+//   · 躲墙偏转限速每秒 1.6 弧度（原来一开始每帧转 8~10°）
 // 被挡时试的偏转角（弧度）和抬高量
 const CAND_YAW = [0, 0.35, -0.35, 0.7, -0.7, 1.05, -1.05, 1.4, -1.4];
 const CAND_PITCH = [0, 0.15, 0.3];   // 自动抬高最多 0.3 弧度（约 17°），宁可拉近也不俯拍
 const MAX_PITCH = 0.9;               // 俯角上限（约 52°），手动拖也不超过
+
+// 固定机位要拍得到药郎（10-31 万屋雨夜门前的街口机位往上看楼，药郎整个在画面下面，用户以为卡住了）：
+// 机位不动，只把看的点从 look 往药郎身上挪，挪到刚好能让药郎腰以上留在画面里为止（只用这一个标准，挪多少随药郎位置连续变；
+// 试过"先要全身、不行再要头胸"两档，两档切换时一帧转 20° 以上）。返回看点，调用方自己平滑、自己 lookAt
+const _fp = new THREE.Vector3(), _fq = new THREE.Vector3(), _fv = new THREE.Vector3(), _fl = new THREE.Vector3(), _fm = new THREE.Vector3();
+export function frameLook(camera, pos, look, player) {
+  const P = player.position, inFrame = (hs) => hs.every((h) => { const v = _fv.set(P.x, P.y + h, P.z).project(camera); return v.z < 1 && Math.abs(v.x) < 0.85 && v.y > -0.72 && v.y < 0.9; });   // 下边多留一截，提示条、按钮不挡
+  const aim = (s) => { _fl.copy(look).lerp(_fm.set(P.x, P.y + 1.1, P.z), s); camera.position.copy(pos); camera.lookAt(_fl); camera.updateMatrixWorld(); };
+  const hs = [0.5, 1.0, 1.8];   // 腰、胸口、头顶
+  aim(0); if (inFrame(hs)) return _fl.clone();
+  let lo = 0, hi = 1;
+  for (let i = 0; i < 10; i++) { const m = (lo + hi) / 2; aim(m); if (inFrame(hs)) hi = m; else lo = m; }
+  aim(hi); return _fl.clone();
+}
 
 export class FollowCam {
   constructor(camera, { yaw = Math.PI, pitch = 0.2, dist = 3.2, minDist = 0.9, maxDist = 5, target = 1.45, fov = 50 } = {}) {   // 俯角 0.2（约 11°）、看胸口偏上：接近平视，10-30 用户嫌 0.32 往下看太多
@@ -21,6 +40,7 @@ export class FollowCam {
     this.yaw = yaw; this.pitch = pitch; this.dist = dist;   // yaw：镜头在药郎的哪个方向（0 = 在 +z 那边）
     this.minDist = minDist; this.maxDist = maxDist; this.targetH = target;
     this.canStand = () => true; this.ceiling = 2.7; this.bounds = null; this.bvh = null; this.fixed = null; this.fixedOn = null;
+    this.cutT = 99; this.cuts = 0; this.clearT = 0;
     this._ray = new THREE.Ray();
     this.cur = null;     // 实际镜头距离（被墙挡住时比 dist 短）
     this.off = { yaw: 0, pitch: 0 };   // 被墙逼出来的偏转和抬高（自动，不挡了会回到 0）
@@ -28,7 +48,7 @@ export class FollowCam {
     this._t = new THREE.Vector3(); this._p = new THREE.Vector3(); this._v = new THREE.Vector3();
   }
   setZone({ canStand, ceiling, yaw, bounds = null, collider = null, fixed = null }) {
-    this.canStand = canStand; this.ceiling = ceiling; this.bounds = bounds; this.bvh = collider; this.fixed = fixed; this.fixedOn = null;
+    this.canStand = canStand; this.ceiling = ceiling; this.bounds = bounds; this.bvh = collider; this.fixed = fixed; this.fixedOn = null; this.cutT = 99; this.clearT = 0;
     if (yaw !== undefined) this.yaw = yaw;
     this.cur = null; this.off = { yaw: 0, pitch: 0 };
   }
@@ -57,9 +77,20 @@ export class FollowCam {
       while (d > 0.3 && !inside(d)) d -= 0.05;
     }
     if (this.bvh) {
-      this._ray.origin.copy(t); this._ray.direction.set(hx * cp, sp, hz * cp);
-      const hit = this.bvh.raycastFirst(this._ray, THREE.DoubleSide, 0, d + 0.25);
-      if (hit) d = Math.min(d, hit.distance - 0.25);
+      const ray = this._ray, side = this._side || (this._side = new THREE.Ray());
+      ray.origin.copy(t); ray.direction.set(hx * cp, sp, hz * cp);
+      // 碰到的是不是细东西：左右各偏 0.22 米平行打一条，都没在它后面 0.5 米内碰到东西，就跳过它接着往后找
+      const blocked = (h) => [-1, 1].some((k) => {
+        side.origin.set(t.x + hz * 0.22 * k, t.y, t.z - hx * 0.22 * k); side.direction.copy(ray.direction);
+        return !!this.bvh.raycastFirst(side, THREE.DoubleSide, 0, h + 0.5);
+      });
+      let near = 0;
+      for (let i = 0; i < 4; i++) {
+        const hit = this.bvh.raycastFirst(ray, THREE.DoubleSide, near, d + 0.25);
+        if (!hit) break;
+        if (blocked(hit.distance)) { d = Math.min(d, hit.distance - 0.25); break; }
+        near = hit.distance + 0.35;   // 细东西（柱子 0.3 米以内）：跳过它的背面
+      }
       return Math.max(0.3, d);
     }
     for (let s = 0.05; s <= d; s += 0.05) {
@@ -71,12 +102,16 @@ export class FollowCam {
 
   update(player, dt, snap = false) {
     const t = this._t.set(player.position.x, player.position.y + this.targetH, player.position.z);
-    const f = (this.fixed || []).find(({ rect: [x0, x1, z0, z1] }) => t.x >= x0 && t.x <= x1 && t.z >= z0 && t.z <= z1);
+    const inRect = ({ rect: [x0, x1, z0, z1] }, m) => t.x >= x0 - m && t.x <= x1 + m && t.z >= z0 - m && t.z <= z1 + m;
+    let f = this.fixedOn && inRect(this.fixedOn, 0.35) ? this.fixedOn : (this.fixed || []).find((r) => inRect(r, 0)) || null;
+    this.cutT += dt;
+    if (f !== this.fixedOn) { if (this.cutT < 0.6 && !snap) f = this.fixedOn; else { this.cutT = 0; this.cuts++; } }
     if (f) {
       this.fixedOn = f;
-      this.camera.position.set(...f.pos);
-      if (f.look) this.camera.lookAt(...f.look); else this.camera.lookAt(t);
-      this.camera.updateMatrixWorld();
+      const look = frameLook(this.camera, _fp.set(...f.pos), f.look ? _fq.set(...f.look) : t, player);
+      // 看点平滑跟（刚切进这个机位那一下直接到位）
+      if (this.cutT === 0 || snap || !this._fixLook) this._fixLook = look; else this._fixLook.lerp(look, 1 - Math.exp(-6 * dt));
+      this.camera.lookAt(this._fixLook); this.camera.updateMatrixWorld();
       this.updateCutout(player);
       return;
     }
@@ -88,16 +123,18 @@ export class FollowCam {
     for (const dy of CAND_YAW) for (const dp of CAND_PITCH) {
       const pitch = Math.min(this.pitch + dp, MAX_PITCH);
       const r = this.reach(t, this.yaw + dy, pitch, want);
-      const cost = Math.abs(dy) + dp * 4 + (want - r) * 2.5 + (r < 0.7 ? 3 : 0) + (Math.abs(dy - prev.yaw) + Math.abs(dp - prev.pitch)) * 0.5;
+      const cost = Math.abs(dy) + dp * 4 + (want - r) * 2.5 + (r < 0.7 ? 3 : 0) + (Math.abs(dy - prev.yaw) + Math.abs(dp - prev.pitch)) * 1.2;
       if (!best || cost < best.cost) best = { cost, dy, dp };
     }
-    const k = snap || this.cur === null ? 1 : 1 - Math.exp(-5 * dt);
-    this.off = { yaw: prev.yaw + (best.dy - prev.yaw) * k, pitch: prev.pitch + (best.dp - prev.pitch) * k };
+    const k = snap || this.cur === null ? 1 : 1 - Math.exp(-3 * dt), lim = snap || this.cur === null ? 9 : 1.6 * dt;
+    const ease = (a, b) => a + THREE.MathUtils.clamp((b - a) * k, -lim, lim);
+    this.off = { yaw: ease(prev.yaw, best.dy), pitch: ease(prev.pitch, best.dp) };
     const yaw = this.yaw + this.off.yaw, pitch = Math.min(this.pitch + this.off.pitch, MAX_PITCH);
     const allowed = this.reach(t, yaw, pitch, want);
-    // 拉远时慢慢退，被挡时立刻贴上来（不让镜头穿进墙里哪怕一帧）
-    if (this.cur === null || snap) this.cur = allowed;
-    else this.cur = allowed < this.cur ? allowed : this.cur + (allowed - this.cur) * (1 - Math.exp(-4 * dt));
+    // 被挡时快速贴上来（约 0.25 秒，不是一帧跳过去）；不挡了先等 0.25 秒再慢慢退，免得一进一出地抽
+    if (this.cur === null || snap) { this.cur = allowed; this.clearT = 0; }
+    else if (allowed < this.cur) { this.cur += (allowed - this.cur) * (1 - Math.exp(-10 * dt)); this.clearT = 0; }
+    else if ((this.clearT += dt) > 0.25) this.cur += (allowed - this.cur) * (1 - Math.exp(-2.5 * dt));
     const cp = Math.cos(pitch);
     this.camera.position.copy(t).addScaledVector(this._v.set(Math.sin(yaw) * cp, Math.sin(pitch), Math.cos(yaw) * cp), this.cur);
     this.camera.lookAt(t);

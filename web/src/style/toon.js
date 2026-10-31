@@ -11,6 +11,8 @@ import { pub } from "../paths.js";
 //     world：按世界坐标三平面投影，跟着表面走（地面、墙），scale 是一个周期多少米
 //   { space, byPalette: [{ color, tile, patColor, mix }, ...] }
 //     按贴图颜色最接近哪个色板色来决定铺哪种纹样，给 Tripo 烘好贴图的角色用；没列出的颜色不铺
+//   maxY：网格自己坐标里（绑定姿势，不跟动作动）高于这个高度的地方不铺纹样。药郎的帽子用（10-31 用户说帽子"有点透"：
+//     帽子的深色被归到藏青、铺了按屏幕走的纹样，药郎一动纹样不动，看着像透过帽子看到后面）
 // setPatternsEnabled(false) 全局关掉，方便对比。
 
 export const PATTERN_NAMES = ["asanoha", "ichimatsu", "seigaiha", "shippo"];   // 麻叶、市松、青海波、七宝（tools/patterns.py --set mononoke）
@@ -67,7 +69,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       uPatSpace: { value: p.space === "world" ? 1 : 0 },
       uPatScale: { value: p.scale ?? (p.space === "world" ? 1.0 : 96) },
       uPatColor: { value: lin(p.color || "#F1E9DA") },
-      uPatMix: { value: p.mix ?? 0.4 },
+      uPatMix: { value: p.mix ?? 0.4 }, uPatMaxY: { value: p.maxY ?? 1e6 },
       uPalN: { value: pal.n },
       uPalColor: { value: pal.color }, uPalTile: { value: pal.tile }, uPalPatColor: { value: pal.patColor }, uPalMix: { value: pal.mix },
       uCutout: { value: 0 }, uCutCenter: CUTOUT.center, uCutRadius: CUTOUT.radius, uCutDepth: CUTOUT.depth,
@@ -80,8 +82,9 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       varying vec3 vNormalW;
       varying vec3 vWorldPos;
       varying float vViewZ;
+      varying float vObjY;
       void main() {
-        vUv = uv;
+        vUv = uv; vObjY = position.y;
         #include <morphinstance_vertex>
         #include <beginnormal_vertex>
         #include <morphnormal_vertex>
@@ -104,7 +107,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       uniform sampler2D tPat0, tPat1, tPat2, tPat3;
       uniform vec4 uPatAspect;
       uniform int uPatEnabled, uPatTile, uPatSpace, uPalN;
-      uniform float uPixelRatio, uPatScale, uPatMix;
+      uniform float uPixelRatio, uPatScale, uPatMix, uPatMaxY;
       uniform vec3 uPatColor;
       uniform vec3 uPalColor[${MAXPAL}];
       uniform int uPalTile[${MAXPAL}];
@@ -114,6 +117,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       varying vec3 vNormalW;
       varying vec3 vWorldPos;
       varying float vViewZ;
+      varying float vObjY;
       uniform int uCutout;
       uniform vec2 uCutCenter;
       uniform float uCutRadius, uCutDepth;
@@ -146,7 +150,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
         }
         vec3 base = uColor;
         if (uHasMap == 1) base *= texture2D(map, vUv).rgb;   // sRGB 贴图由 WebGL2 硬件解成线性
-        if (uPatEnabled == 1) {
+        if (uPatEnabled == 1 && vObjY < uPatMaxY) {
           if (uPalN > 0) {
             // 按最接近的色板色选纹样。分类用低一级 mip 的模糊采样，否则 Tripo 贴图的噪点会让纹样碎成雪花
             vec3 cls = uHasMap == 1 ? uColor * texture2D(map, vUv, 3.0).rgb : uColor;

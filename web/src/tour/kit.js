@@ -50,6 +50,7 @@ const KIT = {
   fusuma_nami_img: { tex: "fusuma_nami_img.jpg", shadeMix: 0.08 }, rug_tsuru_img: { tex: "rug_tsuru_img.jpg", shadeMix: 0.08 },
   fusuma_ondori: { tex: "fusuma_ondori.jpg", shadeMix: 0.08 },   // 坂井家客间左墙雄鸡襖（scenes/24，10-31，40 积分）
   byobu_shoukaku: { tex: "byobu_shoukaku.jpg", shadeMix: 0.06, double: true },
+  kutsunugi: { color: "paper", shadeMix: 0.25 },   // 坂井家玄关沓脱石（参考 04 那块浅色石阶），10-31
   wall_gray: { tex: "wall_gray.png", shadeMix: 0.15 }, earth_dark: { tex: "earth_dark.png", shadeMix: 0.2 }, goten_black: { tex: "goten_black.png", shadeMix: 0.1 },
   panels_ybg: { tex: "panels_ybg.png", shadeMix: 0.1 },
   gunkei: { tex: "gunkei.jpg", shadeMix: 0.03 },   // 大座敷天花的群鸡图（scenes/23，10-30 花 25 积分），整片铺   // 大座敷凸间后墙的美人画屏风（scenes/22，10-30 花 25 积分）

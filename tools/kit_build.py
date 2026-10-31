@@ -349,6 +349,7 @@ class Plan:
         self.koshi = float(self.cfg.get("koshi", "0"))
         self.kamoi = float(self.cfg.get("kamoi", KAMOI))   # 鸭居高（襖、障子、门洞的高度），坂井家婚礼大座敷 2.4：襖顶到鸭居，上面只剩一窄条小壁
         self.nageshi = self.kamoi + (NAGESHI - KAMOI)
+        self.doma = float(self.cfg.get("doma", "0"))   # 土间比上框低多少米（坂井家玄关 0.36）：土间地面、墙脚、挨着土间的门都往下伸这么多
         self.hfun = []   # [(矩形, f(x, z) → 地面高度)]：拱桥这种不平的地面，写进可走格子的 floor   # 腰板高度（米），0 = 没有；有的话土壁下面这一截换成 koshi 材质
 
     def R(self, role):
@@ -359,6 +360,11 @@ class Plan:
         return self.g[j][i] if 0 <= i < self.w and 0 <= j < self.h else " "
 
     def wall(self, i, j): return self.at(i, j) in WALLS
+
+    def base(self, i, j):
+        """墙格上门扇、敷居的底高：挨着土间（8 邻里有 earth 格）就是 -doma，别的 0"""
+        if not self.doma: return 0.0
+        return -self.doma if any(self.floor(i + dx, j + dz) == "earth" for dx in (-1, 0, 1) for dz in (-1, 0, 1)) else 0.0
 
     def floor(self, i, j):
         """格子的地面种类；墙格、外面返回 None；标记格、家具格跟最近的地面（不算床之间）"""
@@ -524,8 +530,10 @@ def plan_floors(P, walk, block):
             xs = [c[0] for c in reg]; zs = [c[1] for c in reg]
             along_x = (max(xs) - min(xs)) >= (max(zs) - min(zs))
             if kind == "engawa" and P.cfg.get("seams") == "across": along_x = not along_x   # 板缝横过廊下（万屋长廊）
+            y = -P.doma if kind == "earth" else 0.0
             for (a, b) in reg:
-                r = P.cell_rect(a, b); floor_quad(P.R(kind), r, along_x=along_x); walk.append(mrect(r))
+                r = P.cell_rect(a, b); floor_quad(P.R(kind), r, y=y, along_x=along_x); walk.append(mrect(r))
+    if P.doma: doma_step(P, block)
     for reg in P.regions("toko"):          # 床之间：抬高的木台 + 床框 + 后墙挂轴
         rs = [mrect(P.cell_rect(a, b)) for a, b in reg]
         x0, z0, x1, z1 = min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)
@@ -546,6 +554,63 @@ def plan_floors(P, walk, block):
             pts = [(x, y0, cz + w_ / 2), (x, y0, cz - w_ / 2), (x, y0 + h_, cz - w_ / 2), (x, y0 + h_, cz + w_ / 2)]
             if back == "E": pts = [pts[1], pts[0], pts[3], pts[2]]
         face("kakejiku", pts, [(0, 0), (1, 0), (1, 1), (0, 1)], want=n)
+
+
+def doma_step(P, block):
+    """土间和上面地板的交界（平面图 doma: 0.36，坂井家玄关参考 04）：交界处立焦茶上框（竖板 + 压顶横木），
+    正对正门 E 的那段前面放一块纸白沓脱石，高度在土间和上框正中，药郎从石头上分两步走上去；
+    上框别的地方挡一条，不让人从土间一步跨上 0.36 米。高度写进 P.hfun（交界处 0.1 米的小斜坡，脚不会一下弹上去）"""
+    d = P.doma; edges = []   # (轴, 交界线坐标, 起, 止, 土间那边的符号)，米
+    for j in range(P.h):
+        for i in range(P.w):
+            if P.floor(i, j) != "earth": continue
+            x0, z0, x1, z1 = mrect(P.cell_rect(i, j))
+            for k, (dx, dz) in DIRS.items():
+                f = P.floor(i + dx, j + dz)
+                if not f or f == "earth": continue
+                if dz: edges.append(("x", z0 if dz < 0 else z1, x0, x1, -dz))
+                else: edges.append(("z", x0 if dx < 0 else x1, z0, z1, -dx))
+    ecols = [(i, j) for j in range(P.h) for i in range(P.w) if P.at(i, j) == "E"]
+    ex = P.center(*ecols[0])[0] if ecols else None
+    sw, sd, sh = 3 * CELL, 0.5, d / 2   # 沓脱石宽 3 格、深 0.5 米，顶面在一半高
+    ramp = 0.05
+    for ax, c, a0, a1, sg in edges:
+        if ax == "x":
+            face(P.R("wood"), [(a0, -d, c), (a1, -d, c), (a1, 0, c), (a0, 0, c)], [(a0, -d), (a1, -d), (a1, 0), (a0, 0)], want=(0, 0, sg))   # 上框竖板
+            box(P.R("wood"), ((a0 + a1) / 2, -0.05, c + sg * 0.03), (a1 - a0, 0.11, 0.08))   # 压顶横木，往土间凸一点
+            s0, s1 = (ex - sw / 2, ex + sw / 2) if ex is not None else (0, 0)
+            for b0, b1 in ((a0, min(a1, s0)), (max(a0, s1), a1)):   # 沓脱石以外挡住
+                if b1 - b0 > 1e-6: block.append((b0, min(c, c + sg * 0.06), b1, max(c, c + sg * 0.06)))
+        else:
+            face(P.R("wood"), [(c, -d, a0), (c, -d, a1), (c, 0, a1), (c, 0, a0)], [(a0, -d), (a1, -d), (a1, 0), (a0, 0)], want=(sg, 0, 0))
+            box(P.R("wood"), (c + sg * 0.03, -0.05, (a0 + a1) / 2), (0.08, 0.11, a1 - a0))
+            block.append((min(c, c + sg * 0.06), a0, max(c, c + sg * 0.06), a1))
+    # 沓脱石：只做横向交界（土间在下面）上、对着正门的那块
+    xs = [e for e in edges if e[0] == "x" and ex is not None and e[2] - 1e-6 <= ex <= e[3] + 1e-6]
+    if xs:
+        _, c, _, _, sg = xs[0]
+        z0, z1 = sorted((c, c + sg * sd))
+        box("kutsunugi", (ex, -d + sh / 2, (z0 + z1) / 2), (sw, sh, sd))
+        box("kutsunugi", (ex, -d + 0.01, (z0 + z1) / 2 + sg * 0.03), (sw + 0.08, 0.02, sd + 0.06))   # 底下压一圈，像石头埋进土间
+        def h(x, z, c=c, sg=sg):
+            t = (z - c) * sg   # 往土间走是正
+            on = ex - sw / 2 <= x <= ex + sw / 2
+            def lerp(t, t0, y0, y1): return y0 + (y1 - y0) * max(0.0, min(1.0, (t - t0 + ramp) / (2 * ramp)))
+            if not on: return 0.0 if t < 0 else -d
+            return lerp(t, 0, 0.0, -sh) if t < sd / 2 else lerp(t, sd, -sh, -d)
+    else:
+        def h(x, z, c=None): return None
+    # 整片土间（多伸 0.1 米到上框里）都记高度：不在沓脱石上的就是 -d
+    rs = [mrect(P.cell_rect(i, j)) for j in range(P.h) for i in range(P.w) if P.floor(i, j) == "earth"]
+    X0, Z0, X1, Z1 = min(r[0] for r in rs) - 0.1, min(r[1] for r in rs) - 0.1, max(r[2] for r in rs) + 0.1, max(r[3] for r in rs) + 0.1
+    def earth(x, z):   # 墙格那半格（地面伸过去的部分）按旁边的地面格算
+        i, j = int(x / CELL), int(z / CELL)
+        if P.floor(i, j): return P.floor(i, j) == "earth"
+        near = [P.floor(i + dx, j + dz) for dx, dz in DIRS.values() if P.floor(i + dx, j + dz)]
+        return bool(near) and near[0] == "earth"
+    def f(x, z):
+        return h(x, z) if xs else (-d if earth(x, z) else 0.0)
+    P.hfun.append(((X0, Z0, X1, Z1), f))
 
 
 def arch_bridge(P, reg, walk, block):
@@ -975,7 +1040,7 @@ def mural_decal(P, i, j, axis, cx, cz):
 
 def panel(P, i, j, axis, key, c):
     """一扇襖 / 障子 / 楼梯口襖 / 玻璃门的两面贴图（框在 plan_walls 里）。襖绘按整排连续（u = 沿轴格数 / 4）"""
-    cx, cz = P.center(i, j); L, Hh = CELL, P.kamoi
+    cx, cz = P.center(i, j); L, Hh = CELL, P.kamoi; y0 = P.base(i, j)
     inset = 0.025 if key in ("fusuma", "fusuma2", "glassdoor") else 0.0
     span = int(P.cfg.get("fusuma_span", "4"))   # 一幅襖绘横跨几扇（坂井家雄鸡襖 6、浪涛襖 5），从这一排的第一扇算起
     if key in ("fusuma", "fusuma2"):
@@ -987,10 +1052,10 @@ def panel(P, i, j, axis, key, c):
     for sg in (-1, 1):
         if axis == "x":
             z = cz + sg * off; a, b = cx - L / 2 + inset, cx + L / 2 - inset
-            pts = [(a, inset, z), (b, inset, z), (b, Hh - inset, z), (a, Hh - inset, z)]; n = (0, 0, sg)
+            pts = [(a, y0 + inset, z), (b, y0 + inset, z), (b, Hh - inset, z), (a, Hh - inset, z)]; n = (0, 0, sg)
         else:
             x = cx + sg * off; a, b = cz - L / 2 + inset, cz + L / 2 - inset
-            pts = [(x, inset, a), (x, inset, b), (x, Hh - inset, b), (x, Hh - inset, a)]; n = (sg, 0, 0)
+            pts = [(x, y0 + inset, a), (x, y0 + inset, b), (x, Hh - inset, b), (x, Hh - inset, a)]; n = (sg, 0, 0)
         # 两面各按"站在这一面看过去从左到右"排 u：法线朝 +x 或 -z 的那面要左右翻，不然有一面的襖绘是反的（坂井家雄鸡襖发现的）
         m0, m1 = (1 - u0, 1 - u1) if (axis == "z" and sg == 1) or (axis == "x" and sg == -1) else (u0, u1)   # 整幅一起镜像（扇的顺序和每扇里面都翻）
         face(P.R(key), pts, [(m0, 0), (m1, 0), (m1, 1), (m0, 1)], want=n)
@@ -1005,14 +1070,15 @@ def plan_walls(P, block, segs):
             if c not in WALLS: continue
             cx, cz = P.center(i, j); axis = P.wall_axis(i, j)
             if c in "FSUDGEHN" and axis:
+                b0 = P.base(i, j)
                 if c != "D":
                     panel(P, i, j, axis, PANELS[c], (cx, cz))
-                    wbox(P.R("wood") if c == "S" else P.R("frame"), (cx, cz), axis, CELL, T_PANEL, 0, P.kamoi, block)   # 框，贴图面在 panel() 里
+                    wbox(P.R("wood") if c == "S" else P.R("frame"), (cx, cz), axis, CELL, T_PANEL, b0, P.kamoi, block)   # 框，贴图面在 panel() 里
                 k = P.k
                 wbox(P.R("wood"), (cx, cz), axis, CELL, T_WALL * min(k, 1.4), P.kamoi, P.kamoi + 0.07 * k)  # 鸭居
                 wbox(P.R("kokabe"), (cx, cz), axis, CELL, T_WALL * 0.8, P.kamoi + 0.07 * k, H)            # 小壁
                 wbox(P.R("wood"), (cx, cz), axis, CELL, T_WALL + 0.05 * k, P.nageshi, P.nageshi + 0.1 * k)  # 长押
-                wbox(P.R("wood"), (cx, cz), axis, CELL, T_WALL, 0, 0.015)                             # 敷居
+                wbox(P.R("wood"), (cx, cz), axis, CELL, T_WALL, b0, b0 + 0.015)                       # 敷居
                 big = P.cfg.get("fanlight") == "big"
                 nextE = big and any(P.at(i + (d if axis == "x" else 0), j + (d if axis == "z" else 0)) == "E" for d in (-1, 1))   # 正门旁边的玻璃门：让正门那扇大的罩住
                 if c in "DGEU" and (P.on("fanlight") or big) and H - P.kamoi > 0.55 and (c != "U" or big) and not (c == "G" and nextE):
@@ -1033,11 +1099,11 @@ def plan_walls(P, block, segs):
                 L = math.hypot(dx, dz) * CELL / 2 + ext; ux, uz = dx / math.hypot(dx, dz), dz / math.hypot(dx, dz)
                 p0, p1 = (cx, cz), (cx + ux * L, cz + uz * L)
                 if P.koshi > 0 and not full:
-                    obox(P.R("koshi"), p0, p1, T_WALL + 0.02, 0, P.koshi, segs)
+                    obox(P.R("koshi"), p0, p1, T_WALL + 0.02, -P.doma, P.koshi, segs)
                     obox(P.R("wood"), p0, p1, T_WALL + 0.04, P.koshi, P.koshi + 0.04 * P.k)
                     obox(P.R("plaster"), p0, p1, T_WALL, P.koshi + 0.04 * P.k, P.nageshi)
                 else:
-                    obox(P.R("plaster"), p0, p1, T_WALL, 0, P.nageshi, segs)
+                    obox(P.R("plaster"), p0, p1, T_WALL, -P.doma, P.nageshi, segs)
                 if full: obox(P.R("plaster"), p0, p1, T_WALL, P.nageshi, H)
                 else:
                     obox(P.R("wood"), p0, p1, T_WALL + 0.05 * P.k, P.nageshi, P.nageshi + 0.1 * P.k)
@@ -1049,7 +1115,7 @@ def plan_walls(P, block, segs):
                 posts.add((cx, cz))   # 整面画的墙（mural_full）中间不立柱，只留两头
     for pts, size in ((posts, P.post), (free, P.post * 1.35)):
         for (x, z) in pts:
-            box(P.R("wood"), (x, H / 2, z), (size, H, size))
+            box(P.R("wood"), (x, (H - P.doma) / 2, z), (size, H + P.doma, size))
             block.append((x - size / 2, z - size / 2, x + size / 2, z + size / 2))
 
 
@@ -1262,16 +1328,15 @@ def walk_grid(P, walk, block, segs, cell=0.1, radius=0.25):
             if 0 <= n[0] < w and 0 <= n[1] < h and n not in keep and grid[n[1]][n[0]] == "1": keep.add(n); stack.append(n)
     if keep:
         out["rows"] = ["".join("1" if (i, j) in keep else "0" for i in range(w)) for j in range(h)]
-    if P.hfun:   # 有拱桥：出 floor（每格厘米，int16 小端 base64，走不到的格 -32768），和 walkmap.json 一个格式
+    if P.hfun:   # 有拱桥、下沉土间：出 floor（每格厘米，int16 小端 base64，走不到的格 -32768），和 walkmap.json 一个格式
         import base64, struct
         vals = []
         for j in range(h):
             for i in range(w):
                 if out["rows"][j][i] != "1": vals.append(-32768); continue
-                x, z = (i + 0.5) * cell, (j + 0.5) * cell; y = 0.0
-                for (r, f) in P.hfun:
-                    if r[0] <= x <= r[2] and r[1] <= z <= r[3]: y = max(y, f(x, z))
-                vals.append(round(y * 100))
+                x, z = (i + 0.5) * cell, (j + 0.5) * cell
+                ys = [f(x, z) for (r, f) in P.hfun if r[0] <= x <= r[2] and r[1] <= z <= r[3]]
+                vals.append(round((max(ys) if ys else 0.0) * 100))
         out["floor"] = base64.b64encode(struct.pack(f"<{len(vals)}h", *vals)).decode()
     return out
 

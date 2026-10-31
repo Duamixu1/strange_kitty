@@ -13,6 +13,7 @@ import { SplatCam } from "./splat_cam.js";
 import { locationIds, loadLocation, loadText, loadMap, resolveZone } from "./locations.js";
 import { fusumaWipe, prompt, toast, card, Tags, flash } from "./ui.js";
 import { createRain } from "./rain.js";
+import { audio } from "./audio.js";
 
 // 游览版：药郎在原作地点里走走看看（docs/14_游览版方案.md）。
 //   /tour.html                    绘卷总地图（现在是占位的横向长卷，游5 的图到了再换）
@@ -23,13 +24,25 @@ import { createRain } from "./rain.js";
 const params = new URLSearchParams(location.search);
 const locId = params.get("loc");
 const status = document.getElementById("status");
-const assetUrl = asset;   // src/paths.js：开发读 ../assets，发布读站点里的 game-assets/
+// 手机、平板（手指是主要输入）：底部按钮栏代替键盘，说明换成手指的；?touch=1 在电脑上强开
+const touch = matchMedia("(pointer: coarse)").matches || params.has("touch");
+if (touch) document.body.classList.add("touch");
+const assetUrl = asset;
+// 声音：浏览器要用户先操作一次才能出声（手机上是第一次点屏幕）；右上角"音"键开关，记在本机
+for (const ev of ["pointerdown", "pointerup", "touchend", "keydown"]) addEventListener(ev, () => audio.unlock(), { capture: true });
+const sndBtn = document.getElementById("snd");
+const showSnd = () => { sndBtn.textContent = audio.muted ? "静" : "音"; sndBtn.classList.toggle("off", audio.muted); };
+const toggleSnd = () => { audio.unlock(); audio.toggle(); showSnd(); };
+showSnd();
+sndBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleSnd(); });
+addEventListener("keydown", (e) => { if (e.code === "KeyB") toggleSnd(); });   // src/paths.js：开发读 ../assets，发布读站点里的 game-assets/
 
 if (!locId) showMap().catch((e) => { console.error(e); status.textContent = "总地图加载失败：" + e.message; }); else startLocation(locId).catch((e) => { console.error(e); status.textContent = "加载失败：" + e.message; });
 
 // ---------------------------------------------------------------- 总地图（占位）
 async function showMap() {
   document.body.classList.add("map-mode");
+  audio.setScene("map");
   const { real, test } = locationIds();
   const map = await loadMap();
   const texts = await loadText();
@@ -59,7 +72,7 @@ async function showMap() {
   }
   // 拖着看、滚轮横着走
   let drag = null;
-  scroll.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, s: scroll.scrollLeft, moved: false }; });
+  scroll.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch") drag = { x: e.clientX, s: scroll.scrollLeft, moved: false }; });   // 手指用浏览器自己的横滑
   addEventListener("pointermove", (e) => { if (!drag) return; const dx = e.clientX - drag.x; if (Math.abs(dx) > 5) drag.moved = true; scroll.scrollLeft = drag.s - dx; });
   addEventListener("pointerup", () => setTimeout(() => (drag = null)));
   scroll.addEventListener("click", (e) => { if (drag?.moved) { e.preventDefault(); e.stopPropagation(); } }, true);
@@ -117,6 +130,7 @@ async function startLocation(id) {
 
   // ---- 区块 ----
   let Z = null, world = null, col = null, pf = null, path = null, arriveLock = false, busy = false;
+  let baseFov = 50;   // 区块定的 fov（横屏），竖屏时 fitFov 在它基础上放大
   const tags = new Tags((tid) => onTag(tid));
   const zoneCache = new Map(), npcCache = new Map();
   let npcsOn = [];
@@ -168,7 +182,7 @@ async function startLocation(id) {
     }
     const near = col.nearestStand(player.position.x, player.position.z, 3); if (near) player.position.set(near.x, 0, near.z);
     player.rotation.y = yaw; stand();
-    camera.fov = z.camera?.fov ?? loc.camera?.fov ?? 50; camera.updateProjectionMatrix();
+    baseFov = z.camera?.fov ?? loc.camera?.fov ?? 50; camera.fov = baseFov; camera.updateProjectionMatrix();
     if (["circle", "rail"].includes(z.camera?.mode)) {
       cam = splatCam;
       cam.setZone({ canStand: col.canStand, yaw: camYaw, camera: z.camera });
@@ -178,6 +192,7 @@ async function startLocation(id) {
       cam.setZone({ canStand: col.canStand, ceiling: z.height, yaw: camYaw, bounds, collider: world ? buildCollider(world) : null, fixed: z.camera?.fixed || null });
       if (z.camera) Object.assign(cam, z.camera);
     }
+    fitFov();
     cam.update(player, 0, true);
     tags.clear();
     for (const [n, p] of Object.entries(z.views)) tags.add(`view:${n}`, "view", "観", [p[0], 1.9, p[1]]);
@@ -187,6 +202,7 @@ async function startLocation(id) {
     rain.set(wet); post.setTint(wet ? "#8C8CC8" : "#ffffff", wet ? 0.45 : 0);
     scene.background.set(z.background || loc.background || "#2A2A4E");
     status.textContent = `${loc.name} · ${z.name || zoneId}`;
+    audio.setScene(loc.id, zoneId); floorSnd = audio.floorOf(loc.id, zoneId);
   }
 
   function viewText(n) {
@@ -200,20 +216,25 @@ async function startLocation(id) {
     const p = Z.views[n]; player.rotation.y = Math.atan2(p[0] - player.position.x, p[1] - player.position.z) || player.rotation.y;
     P.play(Z.viewLook?.[n] === "up" ? "look" : "gaze", 0.4);   // 驻足看；高处的观景点（区块里写 viewLook: { "1": "up" }）抬头看
     prompt.set("");
+    audio.play("bell");
     await card.open(viewText(n));
+    audio.play("paper");
     P.play("idle", 0.4); stillT = 0;
     busy = false;
   }
   async function takeExit(i) {
     const e = Z.exits[i]; if (!e || busy) return;
     busy = true; path = null; P.play("idle"); prompt.set("");
+    audio.play("hyoshigi"); audio.play("slide");
     await fusumaWipe(() => enterZone(e.to, { stair: e.arrive ?? 0 }));
     busy = false;
   }
   function walkTo(x, z, then = null, tol = 0.3) {
     const r = pf.routeTo([player.position.x, player.position.z], [x, z], tol);
     if (!r) { toast("过不去"); return; }
-    path = { pts: r.pts.slice(1), then };
+    const pts = r.pts.slice(1);
+    if (!pts.length) { path = null; then && then(); return; }   // 点在药郎脚下：原来会留一条空路线，每帧报错把画面卡住（10-31 镜头诊断撞出来的）
+    path = { pts, then };
   }
   function onTag(tid) {
     if (busy || card.isOpen) return;
@@ -225,40 +246,63 @@ async function startLocation(id) {
 
   // ---- 输入 ----
   const keys = new Set();
-  addEventListener("keydown", (e) => {
-    keys.add(e.code);
-    if (e.code === "KeyE" || e.code === "Escape" || e.code === "Space") {
+  function act(code) {
+    if (code === "KeyX" || (code === "Escape" && sword)) { drawSword(); return; }
+    if (code === "KeyE" || code === "Escape" || code === "Space") {
       if (card.isOpen) { card.close(); return; }
-      if (e.code === "KeyE") { const v = nearView(); if (v) openView(v); }
+      if (code === "KeyE") { const v = nearView(); if (v) openView(v); else if (touch) toast("走到観旁边再看"); }
     }
-    if (e.code === "KeyP") photo();
-    if (e.code === "KeyF") setFilter(filterIdx + 1);
-    if (e.code === "KeyO" && !busy && !card.isOpen) cyclePose();
-    if (e.code === "KeyM") location.href = pub("tour.html");
+    if (code === "KeyP") photo();
+    if (code === "KeyF") setFilter(filterIdx + 1);
+    if (code === "KeyO" && !busy && !card.isOpen) cyclePose();
+    if (code === "KeyM") location.href = pub("tour.html");
+  }
+  addEventListener("keydown", (e) => {
+    keys.add(e.code); act(e.code);
     if (/^(Arrow|Key[WASD])/.test(e.code)) path = null;
   });
+  // 手机按钮栏：data-k 就是对应的键
+  document.getElementById("prompt").addEventListener("click", () => act("KeyE"));   // 手机上提示条本身能点（只有 body.touch 时接收点击）
+  document.querySelectorAll("#pad [data-k]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); act(b.dataset.k); }));
   addEventListener("keyup", (e) => keys.delete(e.code));
   document.getElementById("card").addEventListener("click", () => card.close());
   const canvas = renderer.domElement;
-  let drag = null;
-  canvas.addEventListener("pointerdown", (e) => { drag = { x: e.clientX, y: e.clientY, moved: false }; });
+  // 手指：一指拖转镜头、点地面走（连点两下快走），两指捏合拉远拉近；鼠标照旧。两指放开以后这一下不算点
+  let drag = null, pinch = null, lastTap = null;
+  const fingers = new Map();
+  const spread = () => { const [a, b] = [...fingers.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
+  canvas.addEventListener("pointerdown", (e) => {
+    fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (fingers.size === 2) { pinch = spread(); drag = null; return; }
+    if (fingers.size === 1) drag = { x: e.clientX, y: e.clientY, moved: false, touch: e.pointerType === "touch" };
+  });
   addEventListener("pointermove", (e) => {
+    if (fingers.has(e.pointerId)) fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && fingers.size === 2) { const d = spread(); if (d > 10) { cam.zoomBy(pinch / d); pinch = d; } return; }
     if (!drag) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-    if (!drag.moved && Math.hypot(dx, dy) > 6) drag.moved = true;
-    if (drag.moved) { cam.turn(dx * 0.005, dy * 0.004); drag.x = e.clientX; drag.y = e.clientY; }
+    if (!drag.moved && Math.hypot(dx, dy) > (drag.touch ? 10 : 6)) drag.moved = true;
+    if (drag.moved) { const k = drag.touch ? 1.4 : 1; cam.turn(dx * 0.005 * k, dy * 0.004 * k); drag.x = e.clientX; drag.y = e.clientY; }
   });
-  addEventListener("pointerup", (e) => {
-    if (drag && !drag.moved && !busy && !card.isOpen) clickFloor(e.clientX, e.clientY);
+  const lift = (e) => {
+    fingers.delete(e.pointerId);
+    if (fingers.size < 2) pinch = null;
+    if (e.type === "pointerup" && drag && !drag.moved && !busy && !card.isOpen) {
+      const now = performance.now(), dbl = lastTap && now - lastTap.t < 350 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 40;
+      lastTap = dbl ? null : { t: now, x: e.clientX, y: e.clientY };
+      clickFloor(e.clientX, e.clientY, dbl);
+    }
     drag = null;
-  });
+  };
+  addEventListener("pointerup", lift); addEventListener("pointercancel", lift);
   canvas.addEventListener("wheel", (e) => { e.preventDefault(); cam.zoomBy(e.deltaY > 0 ? 1.1 : 0.9); }, { passive: false });
   const ray = new THREE.Raycaster(), floor = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
-  function clickFloor(x, y) {
+  function clickFloor(x, y, fast = false) {
     ray.setFromCamera(new THREE.Vector2((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1), camera);
     if (!ray.ray.intersectPlane(floor, hit)) return;
     const s = pf.snapPoint(hit.x, hit.z, 0.8); if (!s) return;
     arriveLock = false; walkTo(s[0], s[1]);
+    if (path) path.fast = fast;   // 连点两下：快走过去
   }
 
   // ---- 每帧 ----
@@ -276,16 +320,22 @@ async function startLocation(id) {
     player.rotation.y = wrap(player.rotation.y + Math.sign(d) * step); P.setFacing?.(yaw);
   }
   let curSpeed = 0, shiftT = 0;   // 当前移动速度（米/秒）、Shift 按住多久
+  // 按住方向键时镜头切了（进出固定机位、轨道换侧），"前"还按切之前的画面算，直到换键或松开；
+  // 不然一切镜头"前"就变了，药郎被带回原来的范围，镜头又切回去，来回闪（10-31）
+  let moveLock = null;
   function move(dt) {
     if (busy || card.isOpen) return;
-    const f = cam.forward, r = new THREE.Vector3(-f.z, 0, f.x);
     const k = (a, b) => keys.has(a) || keys.has(b);
+    const sig = ["KeyW", "ArrowUp", "KeyS", "ArrowDown", "KeyA", "ArrowLeft", "KeyD", "ArrowRight"].filter((c) => keys.has(c)).join();
+    if (!sig || !moveLock || moveLock.sig !== sig || moveLock.cam !== cam) moveLock = sig ? { sig, cam, cuts: cam.cuts, f: cam.forward.clone() } : null;
+    else if (moveLock.cuts === cam.cuts) moveLock.f.copy(cam.forward);   // 没切镜头：照常跟着镜头（边走边拖镜头会转弯）
+    const f = moveLock ? moveLock.f : cam.forward, r = new THREE.Vector3(-f.z, 0, f.x);
     const v = new THREE.Vector3();
     if (k("KeyW", "ArrowUp")) v.add(f); if (k("KeyS", "ArrowDown")) v.sub(f);
     if (k("KeyD", "ArrowRight")) v.add(r); if (k("KeyA", "ArrowLeft")) v.sub(r);
     // 走 1.0 米/秒；按住 Shift 快走 1.8 米/秒，按住超过 1 秒加速成跑 2.85 米/秒（run_k，10-31 角色线做的，第二版实测 2.833）。
     // 速度慢慢加上去（每秒最多加 2.5 米/秒），换步态按当前速度，不是一按就跳；播放倍率按实际速度算，脚不打滑。松开往下减得快
-    const fast = keys.has("ShiftLeft") || keys.has("ShiftRight");
+    const fast = keys.has("ShiftLeft") || keys.has("ShiftRight") || !!path?.fast;
     shiftT = fast ? shiftT + dt : 0;
     const want = fast ? (shiftT > 1 ? 2.85 : 1.8) : 1.0;
     curSpeed = Math.max(curSpeed, 0.6);
@@ -348,8 +398,35 @@ async function startLocation(id) {
     path = null; pose = POSES[i] ? POSES[i][0] : null;
     if (pose === "photo_back") { const f = cam.forward; player.rotation.y = Math.atan2(f.x, f.z); }
     P.play(pose || "idle", 0.3); P.resetSprings(); stillT = 0;
-    toast(pose ? `姿势：${POSES[i][1]}（O 切换，走动就取消）` : "姿势：不摆");
+    audio.play("tick");
+    toast(pose ? `姿势：${POSES[i][1]}（${touch ? "" : "O 切换，"}走动就取消）` : "姿势：不摆");
   }
+  // 拔剑（10-31 加进游览版）：探案版结局的退魔三拍 exorcise_k，X 键 / 手机"拔剑"钮。约 10 秒：
+  // 1.25 秒抽剑，3.08 秒妖化（描边变红、换表情）到 8.21 秒，5.1 秒横斩，7.9 秒收剑；剑只在这段里出现（data/props.json）。
+  // 药郎先转向镜头；播的时候不能走（busy），镜头照常拖，可以拍照；再按 X 或 Esc 收手
+  const AWAKEN = { from: 3.08, to: 8.21, fade: 0.15 };
+  let sword = false, swordTimers = [];
+  const awakenMix = (t) => Math.max(0, Math.min(1, (t - (AWAKEN.from - AWAKEN.fade)) / AWAKEN.fade, ((AWAKEN.to + AWAKEN.fade) - t) / AWAKEN.fade));
+  function drawSword() {
+    if (sword) { endSword(); return; }
+    if (busy || card.isOpen) return;
+    sword = true; busy = true; path = null; pose = null; stillT = 0; prompt.set("");
+    const f = cam.forward; player.rotation.y = Math.atan2(-f.x, -f.z);
+    P.play("exorcise", 0.25); P.resetSprings();
+    audio.play("hyoshigi");
+    swordTimers = [[1.25, "unsheathe"], [3.08, "awaken"], [5.1, "slash"], [7.9, "sheath"]].map(([t, n]) => setTimeout(() => sword && audio.play(n), t * 1000));
+  }
+  function endSword() {
+    swordTimers.forEach(clearTimeout); swordTimers = [];
+    if (P.currentName === "exorcise_k") P.play("idle", 0.4);
+    sword = false; busy = false; post.setOutlineMix(0); stillT = 0;
+  }
+  function swordTick() {
+    if (!sword) return;
+    if (P.currentName !== "exorcise_k") { endSword(); return; }   // 播完自己回了待机
+    post.setOutlineMix(awakenMix(P.time));
+  }
+
   let exitsOff = false;   // 自动拍图时关掉：药郎被摆到出口旁边拍验收机位，会被自动传走，下一张拍成别的区块
   function checkExits() {
     if (busy || !Z.exits || exitsOff) return;
@@ -365,7 +442,7 @@ async function startLocation(id) {
   function updatePrompt() {
     if (busy || card.isOpen) return;
     const v = nearView();
-    prompt.set(v ? `E 看看 · ${viewText(v).title}` : "");
+    prompt.set(v ? `${touch ? "点这里看" : "E 看看"} · ${viewText(v).title}` : "");
   }
 
   // ---- 拍照：去掉界面，按当前滤镜合成，存 PNG ----
@@ -383,7 +460,7 @@ async function startLocation(id) {
     const f = FILTERS[filterIdx];
     renderer.domElement.style.filter = f.css === "none" ? "" : f.css;
     fxEl.className = f.id;
-    if (!quiet) toast(`滤镜：${f.name}（F 切换）`);
+    if (!quiet) { audio.play("tick"); toast(`滤镜：${f.name}${touch ? "" : "（F 切换）"}`); }
   }
   function composePhoto(f = FILTERS[filterIdx]) {
     post.render();
@@ -406,18 +483,41 @@ async function startLocation(id) {
     return c;
   }
   function photo() {
-    const url = composePhoto().toDataURL("image/png");
+    audio.play("shutter");
+    const shot = composePhoto(), url = shot.toDataURL("image/png");
     flash();
+    if (touch && navigator.canShare) {
+      // 手机：弹系统分享，能直接存进相册；不支持分享文件的退回下载
+      shot.toBlob((b) => {
+        const f = new File([b], `怪化猫游览_${loc.name}.png`, { type: "image/png" });
+        if (navigator.canShare({ files: [f] })) navigator.share({ files: [f] }).catch(() => {}); else download();
+      }, "image/png");
+      return;
+    }
+    download();
+    function download() {
     const a = document.createElement("a");
     const t = new Date(), pad = (n) => String(n).padStart(2, "0");
     a.download = `怪化猫游览_${loc.name}_${FILTERS[filterIdx].id === "none" ? "" : FILTERS[filterIdx].name + "_"}${t.getFullYear()}${pad(t.getMonth() + 1)}${pad(t.getDate())}_${pad(t.getHours())}${pad(t.getMinutes())}${pad(t.getSeconds())}.png`;
     a.href = url; a.click();
     toast("拍好了，存在下载文件夹");
+    }
+  }
+
+  // 脚步声：按走过的距离数步子，一步的长度随速度变（走 1 米/秒约 0.6 米一步，跑约 0.9 米）。
+  // 地面按区块定（audio.js 的 FLOOR）；坂井家玄关土间比地板低，踩在土间上换成石头声
+  let floorSnd = "tatami", stepAcc = 0;
+  function footsteps(d, dt) {
+    if (d < 1e-4 || dt <= 0) { stepAcc = Math.min(stepAcc, 0.3); return; }
+    stepAcc += d;
+    const v = d / dt, stride = 0.42 + 0.17 * Math.min(v, 3);
+    if (stepAcc >= stride) { stepAcc -= stride; audio.play("step", player.position.y < -0.1 ? "stone" : floorSnd, Math.min(1, 0.6 + v * 0.2)); }
   }
 
   const clock = new THREE.Clock(), tv = new THREE.Vector3();
   function frame(dt = Math.min(clock.getDelta(), 0.1)) {
-    if (Z) { move(dt); checkExits(); updatePrompt(); }
+    swordTick();
+    if (Z) { const x0 = player.position.x, z0 = player.position.z; move(dt); footsteps(Math.hypot(player.position.x - x0, player.position.z - z0), dt); checkExits(); updatePrompt(); }
     P.update(dt);
     for (const n of npcsOn) npcTick(n, dt);
     cam.update(player, dt);
@@ -425,7 +525,13 @@ async function startLocation(id) {
     post.render();
     tags.update(camera, innerWidth, innerHeight, tv);
   }
-  addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); post.resize(); });
+  // 竖屏手机：区块的 fov 是按横屏定的，竖着横向只剩一条缝。窄于 1.2:1 时放大竖向 fov，让横向视野和 1.2:1 时一样，最多 75°
+  function fitFov() {
+    const a = innerWidth / innerHeight, t = Math.tan(THREE.MathUtils.degToRad(baseFov) / 2);
+    camera.fov = a >= 1.2 ? baseFov : Math.min(75, THREE.MathUtils.radToDeg(2 * Math.atan(t * 1.2 / a)));
+    camera.updateProjectionMatrix();
+  }
+  addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; fitFov(); renderer.setSize(innerWidth, innerHeight); post.resize(); });
 
   await enterZone(params.get("zone") || loc.start);
   renderer.setAnimationLoop(() => frame());
@@ -435,7 +541,7 @@ async function startLocation(id) {
     const data = renderer.domElement.toDataURL("image/jpeg", 0.92);
     return (await fetch("/__shot", { method: "POST", body: JSON.stringify({ name, data }) })).json();
   }
-  window.__tour = { loc, get zone() { return Z; }, player, P, get cam() { return cam; }, splats, setFilter, composePhoto, cyclePose, get pose() { return pose; }, camera, scene, renderer, post, enterZone, walkTo, openView, takeExit, keys, save, step: (n = 1, dt = 1 / 60) => { for (let i = 0; i < n; i++) frame(dt); }, card, tags };
+  window.__tour = { loc, audio, get zone() { return Z; }, get col() { return col; }, player, P, get cam() { return cam; }, splats, setFilter, composePhoto, cyclePose, get pose() { return pose; }, camera, scene, renderer, post, enterZone, walkTo, openView, takeExit, keys, save, step: (n = 1, dt = 1 / 60) => { for (let i = 0; i < n; i++) frame(dt); }, card, tags };
   if (params.get("auto")) autoShots();
   if (params.get("selftest")) selfTest();
   if (params.get("walktest")) walkTest();
@@ -516,12 +622,19 @@ async function startLocation(id) {
         if (!col.canStand(x, z)) continue;
         const d = segD(x, z); if (d > 2 && (!best || d < best.d)) best = { x, z, d };
       }
-      if (best) player.position.set(best.x, 0, best.z);
+      if (best) { player.position.set(best.x, 0, best.z); stand(); }
       // 记 6 秒里离起点最远走了多远（只比首尾会撞上"走过去又走回来"的时刻）
       let moved = 0;
       for (let k = 0; k < 60; k++) { run(0.1); moved = Math.max(moved, p0.distanceTo(n.group.position)); }
       log(moved > 0.3, `配角巡逻：${pz} 里的配角 6 秒内最远离开起点 ${moved.toFixed(2)} 米`);
     }
+    // 拔剑：X 一下，4 秒时应在妖化（描边红），10 秒后回待机
+    await enterZone(loc.start); run(1);
+    act("KeyX"); run(4);
+    const red = post.quadMat.uniforms.uOutlineColor.value.r;
+    log(P.currentName === "exorcise_k" && red > 0.2, `拔剑：4 秒时在退魔三拍里、描边变红（${P.currentName}，红 ${red.toFixed(2)}）`);
+    await save(`tour_${loc.id}_动作_拔剑`);
+    run(7); log(!sword && P.currentName === "idle_k" && post.quadMat.uniforms.uOutlineColor.value.r < 0.1, `拔剑播完回待机、描边回墨色（${P.currentName}）`);
     // 拍照姿势：先回到出发区块的出生点（前面按 W 可能走到墙角，镜头被挤到头顶），
     // O 切两次（抱臂、回头），各等 1 秒让下摆停下来再存图；再切一次回不摆
     await enterZone(loc.start); run(1);
@@ -559,7 +672,7 @@ async function startLocation(id) {
         await save(`tour_${loc.id}_${zid}_观景点${n}`);
       }
       for (const s of Z.walk.shots || []) {
-        player.position.set(s.player[0], 0, s.player[1]); player.rotation.y = s.player[2] || 0;
+        player.position.set(s.player[0], 0, s.player[1]); stand(); player.rotation.y = s.player[2] || 0;   // stand：坂井家玄关土间低 0.36 米，不贴地会飘
         renderer.setAnimationLoop(null);
         P.play("idle"); for (let i = 0; i < 40; i++) P.update(1 / 60);   // 一小步一小步推：一次推 0.5 秒弹簧骨会甩飞，姿势像蹲着侧身
         camera.position.set(...s.cam); camera.lookAt(...s.look); camera.updateMatrixWorld();
