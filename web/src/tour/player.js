@@ -35,6 +35,7 @@ export async function loadPlayer(loader, assetUrl, { model = "processed/kusuriur
   const box = new THREE.Box3().setFromObject(m), s = 1.7 / (box.max.y - box.min.y);
   m.scale.setScalar(s); m.position.set(-(box.min.x + box.max.x) / 2 * s, -box.min.y * s, -(box.min.z + box.max.z) / 2 * s);
   group.add(m); group.updateMatrixWorld(true);
+  m.traverse((o) => o.layers.enable(3));   // 第 3 图层：妖化红描边只给药郎（post.js 的 maskLayer）
   const mixer = new THREE.AnimationMixer(m), actions = {};
   for (const clip of gltf.animations) actions[clip.name.replace(/^preset:(biped:)?/, "").replace(/\|.*$/, "").toLowerCase()] = mixer.clipAction(clip);
   let current = null, currentName = null;
@@ -50,10 +51,11 @@ export async function loadPlayer(loader, assetUrl, { model = "processed/kusuriur
   play("idle");
   const sb = springs ? new SpringBones(m) : null;
   const pr = props ? await attachProps(m, loader, assetUrl, (o) => toonFor(o, null)).catch(() => null) : null;
+  pr?.list.forEach((p) => { if (p.id !== "medicine_chest") p.prop.traverse((o) => o.layers.enable(3)); });   // 剑也跟着妖化变红（药箱拔剑时放在地上，不变红）
   const layer = useLayer ? new WalkLayer(m, group) : { restore() {}, apply() {}, reset() {}, target: null };   // 拐弯内倾、起停余摆、头先转（walk_layer.js）；?layer=0 关掉对比
   let last = new THREE.Vector3();
   return {
-    group, play, get currentName() { return currentName; }, get time() { return current ? current.time : 0; },
+    group, play, get currentName() { return currentName; }, get time() { return current ? current.time : 0; }, props: pr ? pr.list : [],
     /** 走路时每帧调：按实际移动速度（米/秒）调走路动作的播放倍率，倍率限在 0.5 到 3 之间 */
     setMoveSpeed(v) {
       if (!current || !CLIP_SPEED[currentName]) return;

@@ -35,18 +35,20 @@ export class PaperOutlinePost {
         uPaperScale: { value: 1.0 },      // 1 = 纸纹一像素对一像素
         uPaperStrength: { value: 0.15 },
         uTint: { value: new THREE.Color("#ffffff") }, uTintMix: { value: 0 },   // 整体调色（游览版雨夜：往藏青压一点）
+        uRed: { value: new THREE.Color("#B42A47") }, uRedMix: { value: 0 },      // 妖化红描边：0 = 墨色，1 = 深红
+        tMask: { value: null }, uUseMask: { value: 0 },                         // 有 maskLayer 时只在这层物体附近变红
       },
       vertexShader: /* glsl */ `
         varying vec2 vUv;
         void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
       `,
       fragmentShader: /* glsl */ `
-        uniform sampler2D tColor, tNormal, tDepth, tPaper;
+        uniform sampler2D tColor, tNormal, tDepth, tPaper, tMask;
         uniform vec2 uRes;
         uniform float uNear, uFar, uDepthThresh, uNormalThresh, uOuterWidth, uInnerWidth, uPaperScale, uPaperStrength;
-        uniform vec3 uOutlineColor, uPaperColor, uTint;
-        uniform float uTintMix;
-        uniform int uOutline, uPaper, uLetterbox;
+        uniform vec3 uOutlineColor, uPaperColor, uTint, uRed;
+        uniform float uTintMix, uRedMix;
+        uniform int uOutline, uPaper, uLetterbox, uUseMask;
         varying vec2 vUv;
 
         float linDepth(vec2 uv) {
@@ -84,7 +86,11 @@ export class PaperOutlinePost {
             nd = max(nd, 1.0 - dot(nc, nrm(vUv - vec2(0.0, i.y))));
             float nEdge = smoothstep(uNormalThresh * 0.7, uNormalThresh * 1.3, nd) * step(dc, 0.999) * 0.45 * max(isMesh(vUv), mesh);
             float edge = clamp(max(dEdge, nEdge), 0.0, 1.0);
-            col = mix(col, uOutlineColor, edge);
+            // 妖化红：有遮罩时只在遮罩物体（药郎）和它的外轮廓上变红，屋子的线还是墨色
+            float mk = 1.0;
+            if (uUseMask == 1) mk = max(max(texture2D(tMask, vUv).r, max(texture2D(tMask, vUv + vec2(o.x, o.y)).r, texture2D(tMask, vUv - vec2(o.x, o.y)).r)),
+                                        max(texture2D(tMask, vUv + vec2(o.x, -o.y)).r, texture2D(tMask, vUv - vec2(o.x, -o.y)).r));
+            col = mix(col, mix(uOutlineColor, uRed, uRedMix * mk), edge);
           }
 
           col = mix(col, col * uTint, uTintMix);
@@ -114,6 +120,8 @@ export class PaperOutlinePost {
     });
     this.exclude = [];   // 高斯泼溅（SplatMesh），不进法线通道
     this.spark = null;   // 设了 SparkRenderer 就让泼溅在描边通道里只写深度，挡住墙后的物体
+    this.maskLayer = null;   // 设成图层号（游览版 3）：红描边只给开了这层的物体；null = 整屏（探案版）
+    this.maskRT = null; this.maskMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     this.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.quadMat);
     this.quadScene = new THREE.Scene(); this.quadScene.add(this.quad);
     this.quadCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -128,15 +136,14 @@ export class PaperOutlinePost {
   // 整体调色：col × tint 按 mix 混进去，0 = 关（探案版不用）
   setTint(color = "#ffffff", mix = 0) { this.quadMat.uniforms.uTint.value.set(color); this.quadMat.uniforms.uTintMix.value = mix; }
 
-  // 描边色在墨色和红色之间混：0 = canon 第 12 色，1 = 深红（药郎妖化时用）
-  setOutlineMix(t) {
-    if (!this._ink) { this._ink = new THREE.Color("#322D48"); this._red = new THREE.Color("#B42A47"); }
-    this.quadMat.uniforms.uOutlineColor.value.copy(this._ink).lerp(this._red, Math.max(0, Math.min(1, t)));
-  }
+  // 描边色在墨色和红色之间混：0 = canon 第 12 色，1 = 深红（药郎妖化时用）。设了 maskLayer 只有那层物体变红
+  setOutlineMix(t) { this.quadMat.uniforms.uRedMix.value = Math.max(0, Math.min(1, t)); }
+  // 妖化描边换色（游览版设金色 #DCC67C）；不调就是默认深红（探案版）
+  setAwakenColor(c) { this.quadMat.uniforms.uRed.value.set(c); }
 
   resize() {
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
-    this.normalRT.setSize(size.x, size.y); this.colorRT.setSize(size.x, size.y);
+    this.normalRT.setSize(size.x, size.y); this.colorRT.setSize(size.x, size.y); this.maskRT?.setSize(size.x >> 1, size.y >> 1);
     this.quadMat.uniforms.uRes.value = size;
   }
 
@@ -171,6 +178,15 @@ export class PaperOutlinePost {
       renderer.render(scene, camera);
       hidden.forEach((o) => (o.visible = true));
       scene.overrideMaterial = null;
+    }
+    // 红描边遮罩（只在妖化、并且设了 maskLayer 时画）：只画那层物体，纯白，半分辨率
+    const U = this.quadMat.uniforms, useMask = this.maskLayer !== null && U.uRedMix.value > 0;
+    U.uUseMask.value = useMask ? 1 : 0;
+    if (useMask) {
+      if (!this.maskRT) { const s = renderer.getDrawingBufferSize(new THREE.Vector2()); this.maskRT = new THREE.WebGLRenderTarget(s.x >> 1, s.y >> 1); U.tMask.value = this.maskRT.texture; }
+      const lm = camera.layers.mask; camera.layers.set(this.maskLayer);
+      scene.overrideMaterial = this.maskMat; renderer.setRenderTarget(this.maskRT); renderer.setClearColor(0x000000, 1); renderer.clear();
+      renderer.render(scene, camera); scene.overrideMaterial = null; camera.layers.mask = lm;
     }
     scene.background = bg;
     renderer.setRenderTarget(this.colorRT);

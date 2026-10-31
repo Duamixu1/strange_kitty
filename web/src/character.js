@@ -60,6 +60,8 @@ const presets = {
   DigitB: { pos: [0.25, 1.52, -1.05], target: [0, 1.47, 0] },     // 后脑勺近景（查双面头）
   DigitX: { pos: [-1.2, 1.45, 0], target: [0, 1.4, 0] },          // 头部正侧面近景（看后脑勺剪影）
   DigitU: { pos: [-0.45, 0.25, 0.35], target: [-0.25, 0.7, 0] },   // 右袖从下往上看
+  DigitL: { pos: [4.2, 0.95, 0], target: [0, 0.85, 0] },          // 左正侧面（看剑从身前横过时离左袖多远）
+  DigitV: { pos: [0, 2.4, 1.6], target: [0, 1.0, 0.3] },          // 前上方俯看（看剑在身前多远）
 };
 function applyPreset(k) {
   const p = presets[k]; if (!p) return;
@@ -203,7 +205,7 @@ window.__viewer = {
   resume() { if (current) current.paused = false; },
 };
 
-// ?auto=动作:秒,动作:秒&views=1,3,4&prefix=名字：加载完按顺序定格、按机位（1 正面 2 脸 3 背面 4 斜侧 C 上半身正面 D 上半身斜侧 T 俯视 F 脚边 S 正侧面 H 右手右袖近景 U 右袖仰视 K 脚边侧面近景 B 后脑勺近景 X 头部正侧面）拍，
+// ?auto=动作:秒,动作:秒&views=1,3,4&prefix=名字：加载完按顺序定格、按机位（1 正面 2 脸 3 背面 4 斜侧 C 上半身正面 D 上半身斜侧 T 俯视 F 脚边 S 正侧面 H 右手右袖近景 U 右袖仰视 K 脚边侧面近景 B 后脑勺近景 X 头部正侧面 L 左正侧面 V 前上方俯看）拍，
 // 存到 assets/processed/shots/<prefix>_<动作>_<秒>_<机位>.jpg，拍完标题改成 DONE。给无头 Chrome 用（tools/char_shots.sh）
 if (params.get("auto")) {
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));

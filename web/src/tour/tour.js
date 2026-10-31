@@ -10,6 +10,7 @@ import { loadKit } from "./kit.js";
 import { loadPlayer, loadNpc } from "./player.js";
 import { FollowCam, buildCollider } from "./follow_cam.js";
 import { SplatCam } from "./splat_cam.js";
+import { swordShot } from "./sword_cam.js";
 import { locationIds, loadLocation, loadText, loadMap, resolveZone } from "./locations.js";
 import { fusumaWipe, prompt, toast, card, Tags, flash } from "./ui.js";
 import { createRain } from "./rain.js";
@@ -98,6 +99,8 @@ async function startLocation(id) {
   document.getElementById("stage").appendChild(renderer.domElement);
   scene.add(new THREE.DirectionalLight(0xffffff, 1));
   const post = new PaperOutlinePost(renderer, scene, camera);
+  post.maskLayer = 3;   // 拔剑妖化的描边变色只给药郎（player.js 给药郎开了第 3 图层），屋子的线不跟着变
+  post.setAwakenColor("#C9A23A");   // 妖化描边用金色（10-31 用户："不要用红色的勾边，改成金色"）。canon 赭金 #DCC67C 太浅，压在浅色墙前看不清，往深调成金；探案版不设，还是深红
   post.setFlags({ outline: true, paper: true, letterbox: false });
   const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath(pub("draco/")));
 
@@ -402,27 +405,47 @@ async function startLocation(id) {
     toast(pose ? `姿势：${POSES[i][1]}（${touch ? "" : "O 切换，"}走动就取消）` : "姿势：不摆");
   }
   // 拔剑（10-31 加进游览版）：探案版结局的退魔三拍 exorcise_k，X 键 / 手机"拔剑"钮。约 10 秒：
-  // 1.25 秒抽剑，3.08 秒妖化（描边变红、换表情）到 8.21 秒，5.1 秒横斩，7.9 秒收剑；剑只在这段里出现（data/props.json）。
+  // 1.25 秒抽剑，3.08 秒妖化（描边变金、换表情）到 8.21 秒，5.1 秒横斩，7.9 秒收剑；剑只在这段里出现（data/props.json）。
   // 药郎先转向镜头；播的时候不能走（busy），镜头照常拖，可以拍照；再按 X 或 Esc 收手
   const AWAKEN = { from: 3.08, to: 8.21, fade: 0.15 };
-  let sword = false, swordTimers = [];
+  let sword = false, swordTimers = [], swordFace = 0;
   const awakenMix = (t) => Math.max(0, Math.min(1, (t - (AWAKEN.from - AWAKEN.fade)) / AWAKEN.fade, ((AWAKEN.to + AWAKEN.fade) - t) / AWAKEN.fade));
   function drawSword() {
     if (sword) { endSword(); return; }
     if (busy || card.isOpen) return;
     sword = true; busy = true; path = null; pose = null; stillT = 0; prompt.set("");
-    const f = cam.forward; player.rotation.y = Math.atan2(-f.x, -f.z);
-    P.play("exorcise", 0.25); P.resetSprings();
+    const f = cam.forward; swordFace = Math.atan2(-f.x, -f.z);   // 转向镜头：平滑转过去（一下拧 180° 下摆弹簧骨甩开，像白布摊了一地，翻车集 008）
+    P.play("exorcise", 0.25);   // 不重置弹簧骨：重置那一帧下摆回到绑定姿势，像白布摊了一地（翻车集 008）
+    putDownChest();
     audio.play("hyoshigi");
     swordTimers = [[1.25, "unsheathe"], [3.08, "awaken"], [5.1, "slash"], [7.9, "sheath"]].map(([t, n]) => setTimeout(() => sword && audio.play(n), t * 1000));
   }
   function endSword() {
     swordTimers.forEach(clearTimeout); swordTimers = [];
     if (P.currentName === "exorcise_k") P.play("idle", 0.4);
-    sword = false; busy = false; post.setOutlineMix(0); stillT = 0;
+    sword = false; busy = false; post.setOutlineMix(0); stillT = 0; fitFov();   // fitFov：把运镜改过的 fov 复位
+    pickUpChest();
   }
-  function swordTick() {
+  // 药箱：原作药郎退魔前先把药箱放下。拔剑时把药箱从背上摘下，立在他右后方的地上（保持背着时的朝向），收剑后挂回去。
+  // 不放下的话横斩转身时药箱从侧面甩出来压着袖子和头发（翻车集 008）
+  let chestSaved = null;
+  function putDownChest() {
+    const c = P.props.find((p) => p.id === "medicine_chest"); if (!c || chestSaved) return;
+    const o = c.prop; chestSaved = { parent: o.parent, pos: o.position.clone(), quat: o.quaternion.clone(), scale: o.scale.clone() };
+    player.updateMatrixWorld(true); scene.attach(o);
+    const yaw = swordFace, fx = Math.sin(yaw), fz = Math.cos(yaw);   // 按转向镜头之后的朝向放（药郎是慢慢转过去的）
+    o.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), yaw - player.rotation.y);
+    const box = new THREE.Box3().setFromObject(o), ctr = box.getCenter(new THREE.Vector3());
+    const tx = player.position.x - fz * 0.75 - fx * 0.35, tz = player.position.z + fx * 0.75 - fz * 0.35;   // 右手边 0.75 米、往后 0.35 米
+    o.position.x += tx - ctr.x; o.position.z += tz - ctr.z; o.position.y += player.position.y - box.min.y;
+  }
+  function pickUpChest() {
+    const c = P.props.find((p) => p.id === "medicine_chest"); if (!c || !chestSaved) return;
+    const o = c.prop, s = chestSaved; s.parent.add(o); o.position.copy(s.pos); o.quaternion.copy(s.quat); o.scale.copy(s.scale); chestSaved = null;
+  }
+  function swordTick(dt) {
     if (!sword) return;
+    if (P.time < 1.2) turnToward(swordFace, 6, dt);
     if (P.currentName !== "exorcise_k") { endSword(); return; }   // 播完自己回了待机
     post.setOutlineMix(awakenMix(P.time));
   }
@@ -516,11 +539,12 @@ async function startLocation(id) {
 
   const clock = new THREE.Clock(), tv = new THREE.Vector3();
   function frame(dt = Math.min(clock.getDelta(), 0.1)) {
-    swordTick();
+    swordTick(dt);
     if (Z) { const x0 = player.position.x, z0 = player.position.z; move(dt); footsteps(Math.hypot(player.position.x - x0, player.position.z - z0), dt); checkExits(); updatePrompt(); }
     P.update(dt);
     for (const n of npcsOn) npcTick(n, dt);
     cam.update(player, dt);
+    if (sword) { fitFov(); swordShot(camera, cam, player, P.time); }   // 拔剑运镜（sword_cam.js）：每帧从跟随镜头的结果上叠，fov 先复位再乘
     rain.update(dt, camera);
     post.render();
     tags.update(camera, innerWidth, innerHeight, tv);
@@ -631,10 +655,11 @@ async function startLocation(id) {
     // 拔剑：X 一下，4 秒时应在妖化（描边红），10 秒后回待机
     await enterZone(loc.start); run(1);
     act("KeyX"); run(4);
-    const red = post.quadMat.uniforms.uOutlineColor.value.r;
-    log(P.currentName === "exorcise_k" && red > 0.2, `拔剑：4 秒时在退魔三拍里、描边变红（${P.currentName}，红 ${red.toFixed(2)}）`);
+    const red = post.quadMat.uniforms.uRedMix.value;
+    const chestDown = P.props.find((p) => p.id === "medicine_chest")?.prop.parent === scene;
+    log(P.currentName === "exorcise_k" && red > 0.9 && chestDown !== false, `拔剑：4 秒时在退魔三拍里、描边变红、药箱放在地上（${P.currentName}，红 ${red.toFixed(2)}，药箱在地上 ${chestDown}）`);
     await save(`tour_${loc.id}_动作_拔剑`);
-    run(7); log(!sword && P.currentName === "idle_k" && post.quadMat.uniforms.uOutlineColor.value.r < 0.1, `拔剑播完回待机、描边回墨色（${P.currentName}）`);
+    run(7); log(!sword && P.currentName === "idle_k" && post.quadMat.uniforms.uRedMix.value < 0.01 && !!P.props.find((p) => p.id === "medicine_chest")?.prop.parent !== scene, `拔剑播完回待机、药箱挂回背上、描边回墨色（${P.currentName}）`);
     // 拍照姿势：先回到出发区块的出生点（前面按 W 可能走到墙角，镜头被挤到头顶），
     // O 切两次（抱臂、回头），各等 1 秒让下摆停下来再存图；再切一次回不摆
     await enterZone(loc.start); run(1);

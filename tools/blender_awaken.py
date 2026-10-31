@@ -9,6 +9,8 @@
 
 形态键（导出到 glTF 是 morph target，名字照写）：
   awaken_hair   头发散开：头发顶点往外、往上飘成火焰形，发梢动得最多，头顶不动（在 kusuriuri_body、kusuriuri_hair 两个网格上）
+                分成 22 缕，缕和缕之间凹成沟（10-31 第二版，第一版整片拉开像一张布）
+  awaken_hair2  同样散开，缕的分界错开半缕、长短卷法另一套；exorcise_k 里两个交替播，火舌一跳一跳地动
   awaken_eyes   瞳孔缩小：两只眼睛上各一块贴片（kusuriuri_awaken_eyes），平时藏在脸皮后面，打开时翻到脸皮前面
   awaken_mouth  露齿：嘴上一块贴片（kusuriuri_awaken_mouth），同上
 为什么表情用贴片：Tripo 的脸是画在贴图上的，而且脸在贴图里被切成很多碎块，形态键改不了瞳孔大小也张不了嘴，
@@ -160,25 +162,48 @@ kd.balance()
 sm = np.array([np.mean([raw[j] for _, j, _ in kd.find_range(p, 0.016)]) for p in Pw])
 mask = raw * sstep(0.3, 0.6, sm)          # 平滑只用来剔掉零星的浅色点，不往外扩到旁边的衣服
 d = Pw - np.array(HC); ang = np.arctan2(d[:, 1], d[:, 0])
-out = d[:, :2] / np.maximum(np.linalg.norm(d[:, :2], axis=1, keepdims=True), 1e-6)
-out[:, 1] = np.where(out[:, 1] > 0, out[:, 1] * 0.3, out[:, 1])   # 往后（+Y）的分量压到三成：背后有药箱，火焰从两侧和头周围冒出来
-out /= np.maximum(np.linalg.norm(out, axis=1, keepdims=True), 1e-6)
-wob = np.sin(ang * 5 + Pw[:, 2] * 32)                             # 火舌：绕头一圈 5 股，上下错开
+out0 = d[:, :2] / np.maximum(np.linalg.norm(d[:, :2], axis=1, keepdims=True), 1e-6)
+out0[:, 1] = np.where(out0[:, 1] > 0, out0[:, 1] * 0.3, out0[:, 1])   # 往后（+Y）的分量压到三成：背后有药箱，火焰从两侧和头周围冒出来
+out0 /= np.maximum(np.linalg.norm(out0, axis=1, keepdims=True), 1e-6)
 headlvl = sstep(0.95, 0.84, Pw[:, 2]) * sstep(0.70, 0.78, Pw[:, 2])   # 头部周围：帽檐下面到下巴
 hang = np.clip((0.78 - Pw[:, 2]) / 0.3, 0, 1)                         # 背后长发：越往下越飘
-spread = (0.065 * headlvl + 0.075 * hang ** 0.8) * (1 + 0.4 * wob)
-lift = (0.02 * headlvl + 0.11 * hang ** 1.1) * (1 - 0.3 * wob)
-disp = np.zeros_like(Pw); disp[:, :2] = out * spread[:, None]; disp[:, 2] = lift
-disp *= mask[:, None]
-print(f"[awaken] 头发散开：{int((mask > 0.5).sum())} 个顶点，发梢最多抬高 {disp[:, 2].max():.3f}、外扩 {np.linalg.norm(disp[:, :2], axis=1).max():.3f}（模型单位）")
+N_LOCK = 22
+
+
+def flame(seed, shift):
+    """一套"分缕"的火焰形位移（10-31 第二版）。第一版是整片头发按 5 股正弦一起往外推，贴图被拉成一整片（翻车集 009）。
+    现在绕头分 N_LOCK 缕，越往下越拧（火舌打旋）；每缕长短、往上翘、往旁边卷各不一样（seed 定），
+    缕的中间推得最远、两缕交界处只推三成，交界处凹下去成一道沟，平涂的明暗和描边的内线（法线差）会沿着沟画出一缕一缕的发丝；
+    每缕里再加 5 道细褶，像发丝。shift：缕的分界整体转多少（0~1 缕），两套错开交替播，火舌会动"""
+    rng = np.random.default_rng(seed)
+    L = rng.uniform(0.55, 1.45, N_LOCK); U = rng.uniform(0.75, 1.35, N_LOCK); CU = rng.uniform(-0.6, 0.6, N_LOCK)
+    a = ang + 1.1 * (0.86 - Pw[:, 2]) + 2 * math.pi * shift / N_LOCK
+    x = (a + math.pi) / (2 * math.pi) * N_LOCK
+    k = np.floor(x).astype(int) % N_LOCK; uc = 2 * (x - np.floor(x)) - 1
+    w = 1 - np.abs(uc) ** 1.6
+    prof = 0.3 + 0.7 * w * L[k] + 0.06 * np.sin(x * 2 * math.pi * 5)       # 交界处统一 0.3，相邻两缕在沟里接得上，网格不撕开
+    tip = hang ** 1.5
+    th = CU[k] * tip * 0.9 * w                                            # 发梢往旁边卷（火舌打旋），缕中间卷得最多
+    c, s_ = np.cos(th), np.sin(th)
+    out = np.stack([out0[:, 0] * c - out0[:, 1] * s_, out0[:, 0] * s_ + out0[:, 1] * c], axis=1)
+    spread = (0.065 * headlvl + 0.075 * hang ** 0.8) * prof
+    lift = (0.02 * headlvl + 0.11 * hang ** 1.1) * (0.4 + 0.6 * w * U[k]) + 0.04 * tip * w * (U[k] - 0.75)
+    disp = np.zeros_like(Pw); disp[:, :2] = out * spread[:, None]; disp[:, 2] = lift
+    return disp * mask[:, None]
+
+
+SETS = {"awaken_hair": flame(7, 0.0), "awaken_hair2": flame(23, 0.5)}
+for name, disp in SETS.items():
+    print(f"[awaken] {name}：{int((mask > 0.5).sum())} 个顶点，发梢最多抬高 {disp[:, 2].max():.3f}、外扩 {np.linalg.norm(disp[:, :2], axis=1).max():.3f}（模型单位）")
 for ob in hair_meshes:
     ob.shape_key_add(name="Basis", from_mix=False)
-    ob.shape_key_add(name="awaken_hair", from_mix=False)
+    for name in SETS: ob.shape_key_add(name=name, from_mix=False)
 inv = {ob.name: ob.matrix_world.inverted().to_3x3() for ob in hair_meshes}
-for (ob, vi, _, _, _), dv in zip(recs, disp):
-    if not dv.any(): continue
-    kb = ob.data.shape_keys.key_blocks["awaken_hair"]
-    kb.data[vi].co = kb.data[vi].co + inv[ob.name] @ Vector(tuple(dv))
+for name, disp in SETS.items():
+    for (ob, vi, _, _, _), dv in zip(recs, disp):
+        if not dv.any(): continue
+        kb = ob.data.shape_keys.key_blocks[name]
+        kb.data[vi].co = kb.data[vi].co + inv[ob.name] @ Vector(tuple(dv))
 
 # 形态键的当前值会被导出成网格的默认权重，必须是 0，否则不播妖化时头发也是散开的
 for ob in bpy.data.objects:
@@ -189,5 +214,6 @@ if a.out:
     bpy.ops.export_scene.gltf(filepath=a.out, export_format="GLB", use_selection=False,
         export_draco_mesh_compression_enable=True, export_draco_mesh_compression_level=6,
         export_image_format="JPEG", export_jpeg_quality=88, export_animations=False, export_skins=True,
-        export_morph=True, export_morph_normal=False, export_yup=True)
+        export_morph=True, export_morph_normal=True,   # 形态键带法线：分缕的沟才有明暗和内线（10-31 第二版）
+        export_yup=True)
     print(f"[awaken] wrote {a.out} {os.path.getsize(a.out)/1e6:.1f} MB")
