@@ -2,7 +2,7 @@
 # requires-python = ">=3.10"
 # dependencies = ["pillow"]
 # ///
-"""按 docs/02 的 12 色画色板图（也作为生图参考）。
+"""按 docs/02 的色板画色板图（也作为生图参考）。怪化猫 13 色（10-29 加了第 13 色焦茶），唐风 12 色。
 
   uv run tools/palette.py            唐风版 → assets/concept/00_色板.png（现行）
   uv run tools/palette.py --set tang   唐风版 → assets/concept/00_色板_唐风.png（另一个项目的，搬家时带走）
@@ -24,14 +24,16 @@ SETS = {
         ],
     },
     "mononoke": {
-        "title": "MONONOKE fan game · 12-colour palette",
+        "title": "MONONOKE fan game · 13-colour palette",
         "out": "assets/concept/00_色板.png",
         "colors": [
             ("01 生成り paper", "#F1E9DA"), ("02 珊瑚 coral", "#E6667A"), ("03 深紅 crimson", "#B42A47"),
             ("04 山吹 ochre gold", "#DCC67C"), ("05 萌葱 green", "#59B86A"), ("06 青磁 teal", "#49B3A6"),
             ("07 藍 indigo blue", "#4F74BF"), ("08 藤 wisteria", "#6A4C8C"), ("09 濃紺 navy", "#2A2A4E"),
             ("10 白藤 pale lavender", "#D6D3EF"), ("11 鴇 pink", "#E7A3B5"), ("12 墨 outline ink", "#322D48"),
+            ("13 焦茶 dark wood", "#573F33"),   # 2026-10-29 加：万屋这类木构建筑的木框、腰板（从万屋参考帧取的木色，略提暖）
         ],
+        "ink": "#322D48",
     },
 }
 FONT = "/System/Library/Fonts/Hiragino Sans GB.ttc"
@@ -41,7 +43,8 @@ def main():
     p.add_argument("--set", default="mononoke", choices=SETS)
     args = p.parse_args()
     s = SETS[args.set]
-    palette, paper, ink = s["colors"], s["colors"][0][1], s["colors"][-1][1]
+    palette, paper = s["colors"], s["colors"][0][1]
+    ink = s.get("ink", s["colors"][-1][1])   # 描边色：怪化猫版第 12 色墨，不是最后一色
     cols, sw, sh, pad = 6, 300, 260, 24
     rows = (len(palette) + cols - 1) // cols
     W, H = cols * sw + pad * 2, rows * sh + pad * 2 + 70

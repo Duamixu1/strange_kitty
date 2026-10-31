@@ -1,0 +1,19 @@
+# 坂井家·客间（参考 06）：黑漆地板、红蓝圆坐垫 c、左墙雄鸡襖（scenes/24，6 扇一幅 fusuma_span: 6）、
+# 正面松鹤屏风（scenes/27）、右墙障子。下 U 回廊下。
+name: sakai_kyakuma
+height: 3.0
+ceiling: goten
+timber: 1.8
+fusuma_span: 6
+mat: wood=wood_dark, frame=crimson, plaster=plaster_white, kokabe=plaster_white, engawa=floor_black, fusuma=fusuma_ondori, udoor=fusuma_kamon, byobu=byobu_shoukaku
+shot: 正面 | 2.0,1.8,6.2 | 5.6,0.9,0.9 | 6.83,5.9,-2.6
+shot: 雄鸡襖 | 8.2,1.5,5.8 | 0.4,1.1,3.2 | 6.83,5.9,-2.6
+---
+###########
+F===YYY===S
+F=========S
+F=c==c==c=S
+F=========S
+F=c=====c=S
+F======1==S
+#####U#####

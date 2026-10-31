@@ -1,0 +1,22 @@
+# 坂井家·厨房 + 后院古井（参考 05、13），第二版（10-30）：整体调暗——深灰土间（earth_dark）、近黑木头（wood=lacquer）、焦茶板墙、黑天花；
+# 两口灶 Z + 吊架 Q + 水缸 O + 陶罐 J，木案 R 在正中，障子窗透光。下面门洞 D 出去是后院（白砂、不封顶），古井 W 只有木框方井，前面小坟和鲜花。上 U 回玄关。
+name: sakai_daidokoro
+height: 3.0
+ceiling: floor_black
+ceiling_skip: gravel
+timber: 1.8
+mat: wood=lacquer, frame=lacquer, plaster=koshiita, kokabe=wall_gray, earth=earth_dark, udoor=fusuma_kamon
+shot: 厨房 | 8.4,1.8,4.4 | 3.5,0.9,0.8 | 2.28,4.1,2.4
+shot: 古井 | 2.0,1.8,9.0 | 5.0,0.6,6.6 | 7.74,6.8,-1.9
+---
+#####U#####
+S_ZZ___JJOS
+S____Q____S
+S__RRRR___S
+S_1_______S
+#####D#####
+#,,,,,,,,,#
+#,,,,W,,2,#
+#,,,,,,,,,#
+#,,,,,,,,,#
+###########

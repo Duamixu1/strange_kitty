@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>怪化猫游览</title>
+  <style>
+    :root { --paper: #F1E9DA; --ink: #322D48; --coral: #E6667A; --crimson: #B42A47; --ochre: #DCC67C; --teal: #49B3A6; --wisteria: #6A4C8C; --navy: #2A2A4E; --lavender: #D6D3EF; }
+    html, body { margin: 0; height: 100%; background: var(--navy); overflow: hidden; font-family: "Hiragino Mincho ProN", "Songti SC", "Noto Serif CJK SC", serif; color: var(--ink); }
+    #stage canvas { display: block; touch-action: none; }
+    .paper { background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); position: relative; }
+    .paper::before { content: ""; position: absolute; inset: 0; background: url(/textures/paper.png) 0 0 / 512px; opacity: .12; mix-blend-mode: multiply; pointer-events: none; }
+    .paper > * { position: relative; }
+    #status { position: fixed; left: 14px; top: 12px; font: 12px/1.6 -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); opacity: .8; pointer-events: none; text-shadow: 0 0 4px var(--navy); }
+    #help { position: fixed; right: 14px; top: 12px; font: 12px/1.6 -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); opacity: .55; text-align: right; pointer-events: none; text-shadow: 0 0 4px var(--navy); }
+    #prompt { position: fixed; left: 50%; bottom: 8%; transform: translateX(-50%); padding: 6px 16px; font-size: 18px; letter-spacing: .1em; opacity: 0; transition: opacity .2s; pointer-events: none; }
+    #prompt.show { opacity: 1; }
+    #toast { position: fixed; left: 50%; top: 20px; transform: translateX(-50%) translateY(-8px); padding: 8px 16px; font-size: 16px; opacity: 0; transition: all .3s; pointer-events: none; }
+    #toast.show { opacity: 1; transform: translateX(-50%); }
+    /* 说明卡 */
+    #card { position: fixed; left: 50%; bottom: 10%; transform: translateX(-50%) translateY(12px); width: min(620px, 86vw); padding: 18px 26px 22px; opacity: 0; pointer-events: none; transition: all .25s; cursor: pointer; }
+    #card.show { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+    #card .place { display: inline-block; margin: -32px 0 8px -10px; padding: 2px 14px; background: var(--crimson); color: var(--paper); font-size: 14px; letter-spacing: .15em; }
+    #card .title { font-size: 24px; letter-spacing: .12em; margin-bottom: 8px; }
+    #card .body { font-size: 18px; line-height: 1.75; letter-spacing: .04em; }
+    #card::after { content: "E / 点击 关闭"; position: absolute; right: 16px; bottom: 8px; font: 11px -apple-system, "Hiragino Sans GB", sans-serif; opacity: .45; }
+    /* 地面标签 */
+    #tags { position: fixed; inset: 0; pointer-events: none; }
+    .tag { position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; user-select: none; }
+    .tag.view { width: 30px; height: 30px; line-height: 28px; text-align: center; font-size: 17px; border-radius: 50%; background: var(--paper); border: 2px solid var(--ink); color: var(--crimson); box-shadow: 2px 2px 0 var(--ink); }
+    .tag.exit { padding: 3px 12px; font-size: 15px; letter-spacing: .12em; background: var(--crimson); color: var(--paper); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+    .tag:hover { filter: brightness(1.08); transform-origin: 50% 100%; }
+    #wipe { position: fixed; inset: 0; transform: translateX(-100%); pointer-events: none; z-index: 20;
+      background: repeating-linear-gradient(90deg, var(--paper) 0 23%, var(--ink) 23% 23.6%, var(--paper) 23.6% 49.4%, var(--ink) 49.4% 50.6%, var(--paper) 50.6% 76.4%, var(--ink) 76.4% 77%, var(--paper) 77% 100%); }
+    /* 拍照滤镜预览（F 切换）：画布本身走 CSS filter，夜色的藍调和雨丝叠在这一层 */
+    #fx { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+    #fx.night { background: rgba(42, 42, 78, .35); mix-blend-mode: multiply; }
+    #fx.rain { background: repeating-linear-gradient(104deg, transparent 0 22px, rgba(241, 233, 218, .3) 22px 23px, transparent 23px 51px); background-size: 180px 180px; animation: rain .3s linear infinite; }
+    @keyframes rain { to { background-position: -40px 180px; } }
+    #flash { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 30; }
+    #flash.go { animation: flash .45s ease-out; }
+    @keyframes flash { 0% { opacity: .85; } 100% { opacity: 0; } }
+    /* 总地图：绘卷长卷（场景线 data/tour/map.json 的图 + 热区），按窗口高度缩放，横着拖看 */
+    #map { display: none; position: fixed; inset: 0; background: var(--navy); }
+    body.map-mode #map { display: flex; flex-direction: column; justify-content: center; }
+    body.map-mode #help { display: none; }
+    #map h1 { color: var(--paper); font-weight: normal; letter-spacing: .5em; margin: 0 0 4px 48px; font-size: 26px; }
+    #map .hint { color: var(--paper); opacity: .55; margin: 0 0 14px 50px; font: 13px -apple-system, "Hiragino Sans GB", sans-serif; letter-spacing: .08em; }
+    #map .scroll { overflow-x: auto; overflow-y: hidden; padding: 10px 0 18px; cursor: grab; scrollbar-width: thin; scrollbar-color: var(--wisteria) transparent; user-select: none; }
+    #map .scroll:active { cursor: grabbing; }
+    #map .roll { display: flex; align-items: stretch; width: max-content; padding: 0 40px; height: min(72vh, 620px); }
+    #map .rod { width: 26px; flex: none; border-radius: 13px; background: linear-gradient(90deg, #3a2a22, #573F33 35%, #7a5a48 50%, #573F33 65%, #3a2a22); border: 2px solid var(--ink); margin: -14px 0; }
+    #map .paper-roll { position: relative; height: 100%; flex: none; box-shadow: 0 0 0 3px var(--ink), 6px 8px 0 3px rgba(0,0,0,.35); }
+    #map .paper-roll img { display: block; height: 100%; width: 100%; pointer-events: none; -webkit-user-drag: none; }
+    #map .spot { position: absolute; }
+    #map .spot.locked { background: rgba(241, 233, 218, .5); backdrop-filter: grayscale(1) brightness(1.05); -webkit-backdrop-filter: grayscale(1) brightness(1.05); }
+    #map .spot.open { cursor: pointer; border: 3px solid transparent; transition: border-color .15s, background .15s; }
+    #map .spot.open:hover { border-color: var(--crimson); background: rgba(231, 163, 181, .12); }
+    #map .tag-name { position: absolute; transform: translate(-50%, -10%); display: flex; flex-direction: column; align-items: center; pointer-events: none; transition: transform .15s; }
+    #map .tag-name .name { background: var(--paper); border: 2px solid var(--ink); padding: 3px 12px; font-size: clamp(14px, 2.4vh, 22px); letter-spacing: .25em; box-shadow: 3px 3px 0 var(--ink); }
+    #map .tag-name.open { pointer-events: auto; cursor: pointer; }
+    #map .tag-name.open .name { background: var(--crimson); color: var(--paper); }
+    #map .tag-name.hover { transform: translate(-50%, -24%); }
+    #map .tag-name .sub { margin-top: 4px; font-size: clamp(10px, 1.5vh, 13px); color: var(--ink); background: rgba(241, 233, 218, .85); padding: 0 6px; letter-spacing: .08em; }
+    #map .tag-name .seal { margin-top: 4px; font: 11px -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); background: var(--ink); padding: 1px 8px; }
+    #map .tests { position: fixed; right: 16px; bottom: 10px; font: 12px -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); opacity: .45; }
+    #map .tests a { color: var(--paper); }
+  </style>
+</head>
+<body>
+  <div id="stage"></div>
+  <div id="status">加载中…</div>
+  <div id="help">点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · P 拍照 · F 换滤镜 · O 换姿势 · M 总地图</div>
+  <div id="fx"></div>
+  <div id="tags"></div>
+  <div id="prompt" class="paper"></div>
+  <div id="toast" class="paper"></div>
+  <div id="card" class="paper"><div class="place"></div><div class="title"></div><div class="body"></div></div>
+  <div id="wipe"></div>
+  <div id="flash"></div>
+  <div id="map"><h1>怪化猫 · 游览</h1><div class="hint">拖动或滚轮看长卷，点亮着的地点进去</div><div class="scroll"><div class="roll"><div class="rod"></div><div class="paper-roll"><img alt="绘卷总地图"></div><div class="rod"></div></div></div><div class="tests"></div></div>
+  <script type="module" src="/src/tour/tour.js"></script>
+</body>
+</html>

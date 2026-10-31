@@ -43,6 +43,7 @@ def main():
     p.add_argument("--texture-quality", default="detailed")
     p.add_argument("--face-limit", type=int, default=0, help="0 = 自适应")
     p.add_argument("--rig-model", default="v1.0-20240301")
+    p.add_argument("--no-rig", action="store_true", help="只生成不绑骨（先检查模型，比如后脑勺有没有长脸，再决定花不花绑骨的 25）")
     a = p.parse_args()
 
     api = Tripo(load_key())
@@ -67,6 +68,8 @@ def main():
         st["model_file"] = str(model_file.relative_to(ROOT)); save_state(STATE_ALL)
         log(f"模型 → {st['model_file']} ({model_file.stat().st_size/1e6:.0f} MB)")
 
+    if a.no_rig:
+        log(f"只生成不绑骨；余额 {api.balance()['balance']}"); return
     # 2. 绑骨
     rig_file = OUT / "anims" / f"{a.name}_rigged.glb"
     if not st.get("rig_file") or not (ROOT / st["rig_file"]).exists():

@@ -1,0 +1,30 @@
+# 坂井家·婚礼大座敷（参考 07）：绿畳、两侧浪涛襖、蓝底鹤纹大地毯（rug_tex）、深处金屏风；
+# 第三版（10-31）：正面一排家纹襖（N），正中四格敞开（D），后面一个浅里间（黑地板），金屏风挪进里间、放大到 2.6 米（byobu_h）。
+# 下 U 回廊下。浪涛襖、鹤纹地毯、松鹤屏风是图片模型出的（scenes/25~27）。
+name: sakai_ozashiki
+height: 3.2
+ceiling: goten
+timber: 1.8
+rug: 3.0,6.0,10.0,11.0
+rug_tex: rug_tsuru_img
+fusuma_span: 5
+kamoi: 2.4
+mat: wood=wood_dark, frame=crimson, plaster=plaster_white, kokabe=plaster_white, fusuma=fusuma_nami_img, fusuma2=fusuma_kamon, udoor=fusuma_kamon, engawa=floor_black
+byobu_h: 2.6
+shot: 正面 | 9.8,2.0,12.5 | 6.4,1.3,1.6 | 3.19,10.5,2.6
+---
+##############
+#===YYYYYYY==#
+#============#
+#NNNNDDDDNNNN#
+F............F
+F............F
+F............F
+F............F
+F............F
+F............F
+F............F
+F..1.........F
+F............F
+F............F
+#######U######

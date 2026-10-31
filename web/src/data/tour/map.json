@@ -1,0 +1,122 @@
+{
+ "_说明": "绘卷总地图（游5，场景线）。image 是长卷图，rect 是每个地点在图上的热区 [x0,y0,x1,y1]（像素，图左上角为原点），label 是放名字的点，open=false 的画上去但灰着。现在是重画版（10-30，Tripo chat_image_2.5_sunburst 照积木底稿重画，tools/scenes.json 的 20_总地图长卷，原图 assets/concept/scenes/20_总地图长卷.png）；积木底稿 /textures/kit/map_scroll.jpg（3840×1193）还留着，热区是按底稿投影算的、纵向按 1280/1193 放大",
+ "image": "/textures/kit/map_scroll_painted.jpg",
+ "size": [
+  3840,
+  1280
+ ],
+ "places": [
+  {
+   "id": "ooku",
+   "name": "大奥",
+   "sub": "唐傘 · 火鼠 · 蛇神",
+   "open": true,
+   "rect": [
+    123,
+    505,
+    596,
+    841
+   ],
+   "label": [
+    361,
+    723
+   ]
+  },
+  {
+   "id": "wanya",
+   "name": "万屋",
+   "sub": "座敷童子",
+   "open": true,
+   "rect": [
+    644,
+    505,
+    1115,
+    841
+   ],
+   "label": [
+    881,
+    723
+   ]
+  },
+  {
+   "id": "sakai",
+   "name": "坂井家",
+   "sub": "怪～ayakashi～ 化猫",
+   "open": true,
+   "rect": [
+    1165,
+    505,
+    1634,
+    841
+   ],
+   "label": [
+    1400,
+    723
+   ]
+  },
+  {
+   "id": "fuenokoji",
+   "name": "笛小路家",
+   "sub": "鵺",
+   "open": false,
+   "rect": [
+    1686,
+    505,
+    2154,
+    841
+   ],
+   "label": [
+    1920,
+    723
+   ]
+  },
+  {
+   "id": "solaris",
+   "name": "そらりす丸",
+   "sub": "海坊主",
+   "open": false,
+   "rect": [
+    2207,
+    505,
+    2673,
+    841
+   ],
+   "label": [
+    2440,
+    723
+   ]
+  },
+  {
+   "id": "subway",
+   "name": "地下铁",
+   "sub": "化猫",
+   "open": false,
+   "rect": [
+    2727,
+    505,
+    3192,
+    841
+   ],
+   "label": [
+    2959,
+    723
+   ]
+  },
+  {
+   "id": "prison",
+   "name": "牢房",
+   "sub": "のっぺらぼう",
+   "open": false,
+   "rect": [
+    3248,
+    505,
+    3711,
+    841
+   ],
+   "label": [
+    3479,
+    723
+   ]
+  }
+ ]
+}

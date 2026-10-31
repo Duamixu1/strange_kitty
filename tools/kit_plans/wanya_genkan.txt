@@ -1,0 +1,24 @@
+# 万屋·门厅（一楼）。参考 assets/concept/ref/wanya/ 03、05、09：石地、珊瑚墙 + 深色木框、门楣半圆彩色玻璃、
+# 彩色玻璃门、柜台、洋式藍椅、门厅里的柱网；右墙楼梯口上二楼长廊（原作是红楼梯，这里用转场门）。
+# 正门 E 出去是雨夜外景 wanya_soto；k 是一个黑影客人（10-31 挪到柜台东边靠墙的角落，原来在出生点、观景点镜头正前方）。
+# 第二轮（10-30）：门上大拱形彩玻、长押以上花卉画带、柜台后一排金襖 + 柜台"同"字牌、正门到柜台一条红地毯（参考 05、09）。
+name: wanya_genkan
+height: 3.2
+ceiling: goten_teal
+fanlight: big
+counter_sign: on
+rug: 4.55,2.1,6.45,6.2
+timber: 1.8
+koshi: 0.95
+mat: wood=wood_dark, frame=wood_dark, plaster=plaster_coral, kokabe=frieze_flower, earth=stone, koshi=koshiita
+shot: 门厅全景 | 1.4,1.6,5.4 | 6.5,1.4,1.0 | 5.0,4.1,3.14
+shot: 回望玻璃门 | 5.0,1.5,1.6 | 5.0,1.6,6.0 | 4.6,3.6,0
+shot: 楼梯口 | 4.0,1.5,4.2 | 9.6,1.3,2.3 | 8.5,2.4,1.57
+---
+###FFFFF###
+#___RRR__k#
+#_________U
+#h_o___o_h#
+#____@____#
+#h___1___h#
+####GEG####

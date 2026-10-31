@@ -20,3 +20,10 @@ assets/worldlabs/**/splat_full.spz
 assets/processed/shots/
 assets/processed/playlogs/
 assets/worldlabs/**/shots/
+
+# 宣发视频的素材和成片（几百 MB，超过 GitHub 单文件 100 MB 上限）：只放本机
+promo/raw/
+promo/**/*.mp4
+promo/**/*.wav
+promo/**/*.mov
+__pycache__/

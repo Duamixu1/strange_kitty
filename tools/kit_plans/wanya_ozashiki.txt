@@ -1,0 +1,31 @@
+# 万屋·大座敷（座敷童子出现的大房间，楼层原作没交代，这里放在八角厅上面）。参考 06、07：
+# 绿畳 + 四周黑漆框和山吹小花、中间高台（华丽地毯、坐垫、漆盒、烛台）+ 前面一把藍椅、后面八角凸间（斜墙，后墙贴美人画 M），
+# 凸间后墙整面是美人画屏风（mural_full，scenes/22），土壁下面一截青磁腰板，左墙火灯窗障子 H、右墙花卉襖、长押以上一圈莲花画带、两盏吊灯笼 l、地上散落的手鞠和陀螺 t。
+name: wanya_ozashiki
+height: 3.4
+ceiling: gunkei
+ceiling_fit: room
+timber: 1.8
+mural: bijin_byobu
+mural_full: on
+tatami_border: 0.8
+koshi: 0.6
+dais_items: on
+mat: wood=wood_dark, frame=frame_crimson, plaster=plaster_white, kokabe=frieze_flower, fusuma=fusuma_hana, koshi=plaster_teal
+shot: 正面看高台 | 5.9,1.5,8.8 | 5.9,1.3,0.6 | 4.0,7.4,3.14
+shot: 侧面 | 10.4,1.5,8.4 | 3.4,1.3,1.4 | 3.4,5.2,-2.4
+shot: 火灯窗障子 | 6.4,1.5,6.4 | 0.6,1.3,4.6 | 2.6,5.6,-1.57
+shot: 花卉襖 | 2.2,1.5,7.6 | 11.6,1.2,5.0 | 8.4,6.4,1.57
+shot: 仰望群鸡图 | 5.9,1.4,8.6 | 5.9,3.4,3.0 | 5.9,6.6,3.14
+---
+    MMMMM
+   /=====\
+###=======###
+H....PPP....F
+H....PPP....F
+H..l.PPP.l..F
+H...1.h.....F
+H..t........F
+H.......t...F
+H...........F
+######U######

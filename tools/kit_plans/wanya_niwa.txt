@@ -1,0 +1,22 @@
+# 万屋·室内庭（参考帧 12：室内的红拱桥、庭石、白砂、水）。八角厅右边的门进来。
+# 第二轮（10-30）：小溪改成池子、庭石放大、四角竹丛 w、后墙扇面画（M + ougi_wall）。
+name: wanya_niwa
+height: 3.6
+ceiling: goten_teal
+timber: 1.8
+bridge_rise: 0.55
+rock_scale: 1.6
+mural: ougi_wall
+mat: wood=wood_dark, frame=wood_dark, plaster=plaster_coral, kokabe=plaster_white, gravel=gravel
+shot: 拱桥 | 3.2,1.7,7.3 | 6.6,0.6,3.6 | 2.0,4.6,1.57
+shot: 桥上 | 10.6,1.9,2.2 | 5.0,0.8,4.6 | 6.0,4.55,-1.57
+---
+###MMMMMMM###
+#w,r,~~~~,,w#
+#r,,~~~~~~,,#
+#,,,~~~~~~r,#
+#,,,bbbbb,,,#
+#,1,bbbbb,2,#
+#,,,~~~~~,,,#
+#w,,~~~~,,w,#
+##U##########

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>积木区块查看</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #2A2A4E; overflow: hidden; }
+    canvas { display: block; }
+    #status { position: fixed; left: 12px; top: 10px; font: 12px/1.6 -apple-system, "Hiragino Sans GB", sans-serif; color: #F1E9DA; opacity: .85; text-shadow: 0 0 4px #2A2A4E; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div id="status">加载中…</div>
+  <script type="module">
+    // 场景线的积木区块查看器（docs/16_积木平面图格式.md）：不是游戏页面，只用来看积木拼得对不对、和大奥积木走廊是不是一套画风。
+    //   /kit_view.html?plan=zashiki_demo   1~9 切平面图里写的 shot 机位，0 是俯视（叠可走格子），拖动环视，S 存图
+    //   &auto=1  依次拍完所有机位存到 assets/processed/shots/kitview_<plan>_*.jpg（tools/kit_shots.sh view <plan>）
+    //   /kit_view.html?glb=map_diorama&cam=x,y,z&look=x,y,z&fov=15&noplayer=1   看不走平面图的积木（手写的 CUSTOM），机位写在网址里
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+    import { makeToonMaterial } from "/src/style/toon.js";
+    import { PaperOutlinePost } from "/src/style/post.js";
+    import { attachProps } from "/src/props.js";
+    import { loadKit } from "/src/tour/kit.js";
+
+    const params = new URLSearchParams(location.search);
+    const glb = params.get("glb");
+    const plan = glb || params.get("plan") || "zashiki_demo";
+    const vec = (k) => params.get(k).split(",").map(Number);
+    const status = document.getElementById("status");
+    const walk = glb ? { cell: 0.1, x0: 0, z0: 0, rows: [], size: [1, 1], height: 1, spawn: null, shots: [] } : await (await fetch(`/src/data/tour/${plan}_walk.json`)).json();
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color("#F1E9DA");
+    const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.05, glb ? 400 : 80);
+    const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    const post = new PaperOutlinePost(renderer, scene, camera);
+    post.setFlags({ outline: true, paper: true, letterbox: false });
+
+    const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath("/draco/"));
+    const assetUrl = (u) => `/@fs${ASSETS_DIR}/${u}`;
+    const loading = [loadKit(loader, assetUrl(`processed/kit/${plan}.glb`)).then((g) => scene.add(g))];
+
+    // 可走格子：俯视机位时铺在地上（红点 = 能站）
+    const wc = walk.cell, pts = [];
+    walk.rows.forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] === "1") pts.push(walk.x0 + (i + 0.5) * wc, 0.03, walk.z0 + (j + 0.5) * wc); });
+    const walkGeo = new THREE.BufferGeometry(); walkGeo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+    const walkPts = new THREE.Points(walkGeo, new THREE.PointsMaterial({ color: "#B42A47", size: 0.09, depthTest: false, transparent: true, opacity: 0.85 }));
+    walkPts.visible = false; scene.add(walkPts); post.exclude.push(walkPts);
+
+    // 药郎（和 game.js / kit_compare 同一个模型、同一套角色纹样）
+    const CHAR_PATTERNS = [
+      { color: "#E6667A", tile: "asanoha", patColor: "#F1E9DA", mix: 0.9 }, { color: "#B42A47", tile: "asanoha", patColor: "#E7A3B5", mix: 0.8 },
+      { color: "#2A2A4E", tile: "seigaiha", patColor: "#D6D3EF", mix: 0.85 }, { color: "#DCC67C", tile: "shippo", patColor: "#B42A47", mix: 0.6 },
+      { color: "#49B3A6", tile: "ichimatsu", patColor: "#F1E9DA", mix: 0.5 },
+      { color: "#F1E9DA" }, { color: "#D6D3EF" }, { color: "#6A4C8C" }, { color: "#E7A3B5" }, { color: "#4F74BF" }, { color: "#59B86A" }, { color: "#322D48" },
+    ];
+    const toonFor = (o, pattern) => {
+      const map = o.material.map || null; if (map) map.colorSpace = THREE.SRGBColorSpace;
+      o.material = makeToonMaterial({ map, color: map ? "#ffffff" : o.material.color.clone(), shadeColor: "#6A4C8C", shadeMix: 0.35, threshold: 0.42, pattern });
+    };
+    const player = new THREE.Group(); scene.add(player);
+    if (!params.get("noplayer")) loading.push(loader.loadAsync(assetUrl("processed/kusuriuri_v2_posed_layered.glb")).then(async (gltf) => {
+      const m = gltf.scene;
+      m.traverse((o) => { if (o.isMesh) { o.frustumCulled = false; toonFor(o, { space: "screen", scale: 120, byPalette: CHAR_PATTERNS }); } });
+      const box = new THREE.Box3().setFromObject(m), s = 1.7 / (box.max.y - box.min.y);
+      m.scale.setScalar(s); m.position.set(-(box.min.x + box.max.x) / 2 * s, -box.min.y * s, -(box.min.z + box.max.z) / 2 * s);
+      player.add(m);
+      const idle = gltf.animations.find((c) => /idle_k/.test(c.name)) || gltf.animations.find((c) => /idle/.test(c.name));
+      if (idle) { const mixer = new THREE.AnimationMixer(m); mixer.clipAction(idle).play(); mixer.setTime(0.5); }
+      await attachProps(m, loader, assetUrl, (o) => toonFor(o, null)).catch(() => {});
+    }));
+
+    const [W, D] = walk.size, sp = walk.spawn || [W / 2, D / 2];
+    const topH = (Math.max(W / (innerWidth / innerHeight), D) * 1.12) / (2 * Math.tan(THREE.MathUtils.degToRad(20))) + walk.height;   // 整张图塞进 40° 俯视
+    const SHOTS = glb ? [{ name: params.get("name") || "机位", cam: vec("cam"), look: vec("look"), player: [0, 0, 0], fov: +params.get("fov") || 50 }]
+      : [{ name: "俯视可走", cam: [W / 2, topH, D / 2 + 0.01], look: [W / 2, 0, D / 2], player: [sp[0], sp[1], 0], top: true }, ...walk.shots];
+    let cur = 0, ly = 0, lp = 0;
+    function shot(i) {
+      cur = i; ly = lp = 0; const S = SHOTS[i];
+      player.position.set(S.player[0], 0, S.player[1]); player.rotation.y = S.player[2] || 0;
+      walkPts.visible = !!S.top;
+      camera.fov = S.fov || (S.top ? 40 : 50); camera.updateProjectionMatrix();
+      apply(); status.textContent = `${plan} · ${S.name}（0~${SHOTS.length - 1} 切机位，拖动环视，S 存图）`;
+    }
+    function apply() {
+      const S = SHOTS[cur]; camera.position.set(...S.cam);
+      camera.up.set(0, S.top ? 0 : 1, S.top ? -1 : 0);   // 俯视时图的上方（-z）朝上，和平面图文字一个方向
+      camera.lookAt(...S.look);
+      camera.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), ly); camera.rotateX(lp);
+    }
+    // 俯视时把天花藏起来（只藏天花这一种材质的网格）
+    const ceilings = () => { const out = []; scene.traverse((o) => { if (o.isMesh && /^kit_(sao|goten)/.test(o.name)) out.push(o); }); return out; };
+    let drag = null;
+    renderer.domElement.addEventListener("pointerdown", (e) => (drag = { x: e.clientX, y: e.clientY }));
+    addEventListener("pointerup", () => (drag = null));
+    addEventListener("pointermove", (e) => { if (!drag) return; ly -= (e.clientX - drag.x) * 0.004; lp = Math.max(-1.2, Math.min(1.2, lp - (e.clientY - drag.y) * 0.004)); drag = { x: e.clientX, y: e.clientY }; apply(); });
+    addEventListener("keydown", (e) => { const n = +e.key; if (!isNaN(n) && n < SHOTS.length) shot(n); if (e.code === "KeyS") save(); });
+    addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); post.resize(); });
+
+    function frame() { const top = !!SHOTS[cur].top; ceilings().forEach((o) => (o.visible = !top)); post.render(); }
+    async function save(name = `kitview_${plan}_${cur}_${SHOTS[cur].name}`) {
+      frame(); const data = renderer.domElement.toDataURL("image/jpeg", 0.92);
+      return (await fetch("/__shot", { method: "POST", body: JSON.stringify({ name, data }) })).json();
+    }
+    window.__kv = { shots: SHOTS, shot, save, scene, camera, walk };
+    shot(0);
+    renderer.setAnimationLoop(frame);
+    Promise.all(loading).then(async () => {
+      status.textContent += " · 已加载";
+      if (!params.get("auto")) return;
+      status.style.display = "none";
+      await new Promise((r) => setTimeout(r, 2000));
+      for (let i = 0; i < SHOTS.length; i++) { shot(i); await new Promise((r) => setTimeout(r, 600)); await save(); }
+      document.title = "DONE";
+    }).catch((e) => (status.textContent = "加载失败：" + e.message));
+  </script>
+</body>
+</html>

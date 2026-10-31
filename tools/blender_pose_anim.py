@@ -90,6 +90,10 @@ def apply_pose(name):
         s = bones.get(pb.name); fix = BIND_FIX.get(pb.name)
         if not s and not fix: continue
         M = pb.matrix.copy(); head = M.translation.copy()
+        if s and s.get("world"):
+            # 朝向不继承父骨头这一帧的转动：先回到绑定朝向（位置跟着父骨头走），再叠这里写的角度。
+            # 走路时骨盆扭转、侧倾，大腿用这个保持在角色的前后平面里摆，脚不会被骨盆带着往旁边甩
+            M = Matrix.Translation(head) @ pb.bone.matrix_local.to_3x3().to_4x4()
         R = Matrix.Identity(4)
         if fix: R = rot_spec(fix, head) @ R
         if s:   R = rot_spec(s, head) @ R
@@ -100,6 +104,7 @@ def apply_pose(name):
             lx, ly, lz = (math.radians(x) for x in s["local"])
             M2 = M2 @ (Matrix.Rotation(lz, 4, "Z") @ Matrix.Rotation(ly, 4, "Y") @ Matrix.Rotation(lx, 4, "X"))
         pb.matrix = M2
+        if s and s.get("scale") is not None: pb.scale = (s["scale"],) * 3   # 缩放（手缩进袖子用），子骨头跟着缩
         bpy.context.view_layer.update()
     aim = bones.get("aim")
     if aim: apply_aim(aim, name)
@@ -135,15 +140,18 @@ def apply_aim(aim, pose_name):
 def capture_pose(name):
     """在没有动作驱动的状态下摆姿势，把每根骨头的基础旋转/位移记下来"""
     apply_pose(name)
-    return {pb.name: (pb.rotation_quaternion.copy(), pb.location.copy()) for pb in arm.pose.bones}
+    return {pb.name: (pb.rotation_quaternion.copy(), pb.location.copy(), pb.scale.copy()) for pb in arm.pose.bones}
 
-def key_pose(basis, frame):
+def key_pose(basis, frame, scaled=(), chains=()):
     for pb in arm.pose.bones:
-        if pb.name.startswith("chain_"): continue   # 骨链（下摆、大袖、长发）不进关键帧，查看器里由弹簧骨驱动
-        q, loc = basis[pb.name]
-        pb.rotation_quaternion = q; pb.location = loc
+        # 骨链（下摆、大袖、长发）默认不进关键帧，查看器里由弹簧骨驱动；动作的姿势里写了某节骨链（走路时下摆跟腿摆），
+        # 就给这个动作打它的帧，弹簧骨把它当目标形状、在上面叠余摆（web/src/spring.js）
+        if pb.name.startswith("chain_") and pb.name not in chains: continue
+        q, loc, sc = basis[pb.name]
+        pb.rotation_quaternion = q; pb.location = loc; pb.scale = sc
         pb.keyframe_insert("rotation_quaternion", frame=frame)
         pb.keyframe_insert("location", frame=frame)
+        if pb.name in scaled: pb.keyframe_insert("scale", frame=frame)   # 只有这个动作里缩放过的骨头才打缩放帧
 
 # ---- 挂点 ----
 # spec["sockets"] 里每一项生成一个空节点，挂在指定骨头上（parent_type=BONE），导出成那根骨头的子节点。
@@ -192,9 +200,13 @@ def make_sockets():
             info = f"掌心 {len(pts)} 个顶点，握柄朝 {d.get('grip_ref', 'front')}"
         else:
             zc = head.z + d.get("dz", 0.0) * H
-            band = allv[(np.abs(allv[:, 2] - zc) < 0.03 * H) & (np.abs(allv[:, 0] - head.x) < 0.06 * H)]
-            # 用百分位数不用极值：翘起的发梢、衣角会把挂点拉离身体
-            yy = np.percentile(band[:, 1], 97) if d["type"] == "back" else np.percentile(band[:, 1], 3)
+            src = np.array([tuple(v) for o in bpy.data.objects if o.type == "MESH" and o.name.split(".")[0] in d["meshes"]
+                            for v in (o.matrix_world @ w.co for w in o.data.vertices)]) if d.get("meshes") else allv
+            band = src[(np.abs(src[:, 2] - zc) < 0.03 * H) & (np.abs(src[:, 0] - head.x) < 0.06 * H)]
+            # 用百分位数不用极值：翘起的发梢、衣角会把挂点拉离身体。pct 可改（背面默认 97、腹前默认 3），
+            # meshes 只量这几个网格，inset 再往身体里收多少（模型单位，正值 = 往身体中心）
+            pct = d.get("pct", 97 if d["type"] == "back" else 3)
+            yy = np.percentile(band[:, 1], pct) + (-1 if d["type"] == "back" else 1) * d.get("inset", 0.0)
             M = Matrix.Translation(Vector((head.x, yy, zc)))
             info = f"{'背面' if d['type']=='back' else '腹前'} y={yy:.3f} z={zc:.3f}（{len(band)} 个顶点）"
         e = bpy.data.objects.new(name, None); e.empty_display_type = "ARROWS"; e.empty_display_size = 0.05 * H
@@ -248,8 +260,10 @@ for name in names:
     an = anims[name]
     act = bpy.data.actions.new(name)
     arm.animation_data.action = act
+    scaled = {b for pn, _ in an["keys"] for b, s in resolve(pn).items() if isinstance(s, dict) and s.get("scale") is not None}
+    chains = {b for pn, _ in an["keys"] for b in resolve(pn) if b.startswith("chain_")}
     for pose_name, frame in an["keys"]:
-        key_pose(cache[pose_name], frame)
+        key_pose(cache[pose_name], frame, scaled, chains)
     # 关键帧默认就是贝塞尔自动钳制，等于姿势间缓入缓出，不用再改插值（Blender 5 的 Action 没有 fcurves 属性）
     act.use_frame_range = True; act.frame_range = (an["keys"][0][1], an["keys"][-1][1])
     arm.animation_data.action = None

@@ -27,6 +27,10 @@ function patternTextures() {
   });
   return textures;
 }
+// 遮挡淡出（游览版跟随镜头用）：镜头和角色之间挡着的柱子、行灯，在角色周围一个椭圆里按网点抖动镂空，
+// 平涂风格里看着像淡出。全局一份，每帧由镜头更新；只对 uCutout=1 的材质（游览版积木）生效，探案版不受影响。
+//   center 屏幕像素（设备像素，左下原点），radius 像素（横向；纵向 ×1.7），depth 角色胸口的观察深度（米），0 = 关
+export const CUTOUT = { center: { value: new THREE.Vector2() }, radius: { value: 0 }, depth: { value: 0 } };
 export function setPatternsEnabled(v) { ENABLED.value = v ? 1 : 0; }
 export function patternsEnabled() { return ENABLED.value === 1; }
 const lin = (c) => new THREE.Color(c).convertSRGBToLinear();
@@ -65,6 +69,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       uPatMix: { value: p.mix ?? 0.4 },
       uPalN: { value: pal.n },
       uPalColor: { value: pal.color }, uPalTile: { value: pal.tile }, uPalPatColor: { value: pal.patColor }, uPalMix: { value: pal.mix },
+      uCutout: { value: 0 }, uCutCenter: CUTOUT.center, uCutRadius: CUTOUT.radius, uCutDepth: CUTOUT.depth,
     },
     vertexShader: /* glsl */ `
       #include <common>
@@ -73,6 +78,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       varying vec2 vUv;
       varying vec3 vNormalW;
       varying vec3 vWorldPos;
+      varying float vViewZ;
       void main() {
         vUv = uv;
         #include <morphinstance_vertex>
@@ -86,6 +92,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
         #include <skinning_vertex>
         vWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
         #include <project_vertex>
+        vViewZ = -mvPosition.z;
       }
     `,
     fragmentShader: /* glsl */ `
@@ -105,6 +112,14 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       varying vec2 vUv;
       varying vec3 vNormalW;
       varying vec3 vWorldPos;
+      varying float vViewZ;
+      uniform int uCutout;
+      uniform vec2 uCutCenter;
+      uniform float uCutRadius, uCutDepth;
+
+      // 4×4 有序抖动阈值 0..1（bayer2 递归一层）
+      float bayer2(vec2 a) { a = floor(a); return fract(a.x / 2.0 + a.y * a.y * 0.75); }
+      float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
 
       float tileAt(int t, vec2 uv) {
         if (t == 0) { uv.y /= uPatAspect.x; return texture2D(tPat0, uv).r; }
@@ -122,6 +137,12 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       }
 
       void main() {
+        // 遮挡淡出：角色周围椭圆里、比角色离镜头近 0.35 米以上、离地 15 厘米以上（不挖地板）的片元按网点镂空
+        if (uCutout == 1 && uCutDepth > 0.0 && vWorldPos.y > 0.15 && vViewZ < uCutDepth - 0.35) {
+          vec2 q = gl_FragCoord.xy - uCutCenter; q.y /= 1.7;
+          float a = 1.0 - smoothstep(0.55, 1.0, length(q) / uCutRadius);
+          if (bayer4(gl_FragCoord.xy / 2.0) < a * 0.9) discard;
+        }
         vec3 base = uColor;
         if (uHasMap == 1) base *= texture2D(map, vUv).rgb;   // sRGB 贴图由 WebGL2 硬件解成线性
         if (uPatEnabled == 1) {

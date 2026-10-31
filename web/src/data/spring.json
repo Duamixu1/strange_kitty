@@ -1,5 +1,5 @@
 {
-  "_说明": "弹簧骨参数。骨链按名字分组：chain_hem_* 下摆、chain_sleeve_* 大袖、chain_hair_* 长发（由 tools/blender_layers.py 生成）。stiffness 回到绑定形状的力，gravity 重力（米/秒），drag 阻尼 0~1，hit 骨链关节的碰撞半径（米），colliders 用哪些碰撞体。碰撞体是两根骨头头部之间的胶囊，r 是半径（米）；加载时会在绑定姿势下自动缩小到不碰任何骨链，免得下摆一开始就被撑鼓。 碰撞体还可以是盒子：{type:'box', node:挂点或骨头名, min, max}，min/max 是那个节点自己坐标里的范围（模型单位，身高 1.0），药箱就是这样挂在 socket_Spine02 上的；盒子也按关节校准，静止时贴着的关节只把最近的那一面让开。",
+  "_说明": "弹簧骨参数。骨链按名字分组：chain_hem_* 下摆、chain_sleeve_* 大袖、chain_hair_* 长发（由 tools/blender_layers.py 生成）。stiffness 回到绑定形状的力，gravity 重力（米/秒），drag 阻尼 0~1，hit 骨链关节的碰撞半径（米），colliders 用哪些碰撞体。碰撞体是两根骨头头部之间的胶囊，r 是半径（米）；加载时会在绑定姿势下自动缩小到不碰任何骨链，免得下摆一开始就被撑鼓。 碰撞体还可以是盒子：{type:'box', node:挂点或骨头名, min, max}，min/max 是那个节点自己坐标里的范围（模型单位，身高 1.0），药箱就是这样挂在 socket_Spine02 上的；盒子也按关节校准，静止时贴着的关节只把最近的那一面让开。 盒子可以加 push（比如 \"+z\"）：掉进去的关节固定从这一面推出去，药箱用 +z（朝身体那面），头发和袖子被压在背和箱子之间，不会从箱顶翻出去。 组里可以加 driven（stiffness / drag / relative 覆盖默认值），只在这条骨链被动作打了帧的时候用：走路 walk2_k / walk_fast_k 给下摆打了跟腿摆的帧，弹簧骨以动作为目标只叠余摆；relative 是惯性里扣掉角色整体平移的比例，0 = 世界惯性（走快了被'风'吹成披风），1 = 完全跟着身体。没有被驱动时（待机等）参数照旧。",
   "groups": {
     "hem": {
       "stiffness": 1.6,
@@ -12,7 +12,12 @@
         "calf_L",
         "calf_R",
         "hips"
-      ]
+      ],
+      "driven": {
+        "stiffness": 4.0,
+        "drag": 0.3,
+        "relative": 0.9
+      }
     },
     "sleeve": {
       "stiffness": 0.5,
@@ -82,7 +87,8 @@
         0.143,
         0.191,
         0.016
-      ]
+      ],
+      "push": "+z"
     }
   }
 }

@@ -50,6 +50,16 @@ const presets = {
   Digit2: { pos: [0.25, 1.52, 1.05], target: [0, 1.47, 0] },   // 脸
   Digit3: { pos: [0, 1.0, -4.6], target: [0, 0.88, 0] },       // 背面
   Digit4: { pos: [2.6, 1.3, 3.6], target: [0, 0.88, 0] },      // 斜侧
+  DigitC: { pos: [0, 1.2, 2.1], target: [0, 1.0, 0] },         // 上半身正面（只给 ?auto 的 views=C 用）
+  DigitD: { pos: [1.5, 1.2, 1.5], target: [0, 1.0, 0] },       // 上半身斜侧
+  DigitT: { pos: [0, 3.0, 0.35], target: [0, 1.0, 0] },        // 俯视（看前臂朝向）
+  DigitF: { pos: [0.7, 0.3, 1.3], target: [0, 0.12, 0] },       // 脚边（看脚底落地、下摆穿地）
+  DigitS: { pos: [-4.2, 0.95, 0], target: [0, 0.85, 0] },       // 正侧面（角色朝 +z，镜头在他右手边）
+  DigitH: { pos: [-1.1, 0.75, 0.25], target: [-0.2, 0.75, 0] },   // 右手和右袖近景（从角色右边看）
+  DigitK: { pos: [-1.6, 0.3, 0.25], target: [0, 0.12, 0.25] },     // 脚边正侧面近景（看脚落地滑不滑，配 &follow=0）
+  DigitB: { pos: [0.25, 1.52, -1.05], target: [0, 1.47, 0] },     // 后脑勺近景（查双面头）
+  DigitX: { pos: [-1.2, 1.45, 0], target: [0, 1.4, 0] },          // 头部正侧面近景（看后脑勺剪影）
+  DigitU: { pos: [-0.45, 0.25, 0.35], target: [-0.25, 0.7, 0] },   // 右袖从下往上看
 };
 function applyPreset(k) {
   const p = presets[k]; if (!p) return;
@@ -66,8 +76,8 @@ const ANIM_KEYS = ["Digit5", "Digit6", "Digit7", "Digit8", "Digit9", "Digit0", "
 const ONE_SHOT = new Set(["turn", "look_around", "slash", "agree", "bow", "cast_a_spell", "hurt", "greet_01", "greet_02"]);
 let mixer = null, actions = {}, clipNames = [], current = null, currentName = null;
 function clipKey(name) { return name.replace(/^preset:(biped:)?/, "").replace(/\|.*$/, "").toLowerCase(); }
-// 一次性动作：Tripo 预设里列出的几个，以及手 K 的 *_k 里除了 idle_k / walk_k 之外的全部
-function isOneShot(name) { return ONE_SHOT.has(name) || (name.endsWith("_k") && name !== "idle_k" && name !== "walk_k"); }
+// 一次性动作：Tripo 预设里列出的几个，以及手 K 的 *_k 里除了待机、走路、驻足看、拍照姿势这些循环动作之外的全部
+function isOneShot(name) { return ONE_SHOT.has(name) || (name.endsWith("_k") && !/^(idle|walk|gaze|pose_)/.test(name)); }
 function play(name, { once = isOneShot(name) } = {}) {
   const next = actions[name]; if (!next) return;
   if (current && current !== next) current.fadeOut(0.25);
@@ -193,15 +203,58 @@ window.__viewer = {
   resume() { if (current) current.paused = false; },
 };
 
+// ?auto=动作:秒,动作:秒&views=1,3,4&prefix=名字：加载完按顺序定格、按机位（1 正面 2 脸 3 背面 4 斜侧 C 上半身正面 D 上半身斜侧 T 俯视 F 脚边 S 正侧面 H 右手右袖近景 U 右袖仰视 K 脚边侧面近景 B 后脑勺近景 X 头部正侧面）拍，
+// 存到 assets/processed/shots/<prefix>_<动作>_<秒>_<机位>.jpg，拍完标题改成 DONE。给无头 Chrome 用（tools/char_shots.sh）
+if (params.get("auto")) {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  (async () => {
+    while (!mixer || (params.get("props") !== "0" && !props)) await wait(200);
+    await wait(800);
+    const views = (params.get("views") || "1,4").split(",");
+    // &move=米/秒：走路动作边播边往前走（模拟游戏里），弹簧骨真的跑起来不定格，先走 1.2 秒热身再拍第 t 秒；
+    // 地上铺一条每 25 厘米一道墨线的地带，支撑脚相对墨线不动就是不滑；镜头跟着身体平移
+    const move = +params.get("move") || 0, z0 = model.position.z, follow = params.get("follow") !== "0";
+    let camDz = null;   // &follow=0：镜头只在拍第一张时对准身体，之后不动，脚踩的墨线在画面里该一动不动
+    if (move) {
+      autoSim = true;
+      const strip = new THREE.Group();
+      strip.add(new THREE.Mesh(new THREE.PlaneGeometry(1.6, 16).rotateX(-Math.PI / 2).translate(0, 0.002, 6), makeToonMaterial({ color: "#D6D3EF", shadeColor: "#6A4C8C" })));
+      for (let z = -2; z <= 14; z += 0.25) { const m = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.004, z % 1 === 0 ? 0.03 : 0.012), makeToonMaterial({ color: "#322D48" })); m.position.set(0, 0.004, z); strip.add(m); }
+      scene.add(strip);
+    }
+    for (const item of params.get("auto").split(",")) {
+      const [clip, t] = item.split(":");
+      if (move) {
+        play(clip, { once: false }); mixer.stopAllAction(); current.reset().setEffectiveWeight(1).play();
+        model.position.z = z0; model.updateMatrixWorld(true); if (springs) springs.reset();
+        const dt = 1 / 60, T = 1.2 + (+t || 0);
+        for (let tt = 0; tt < T - 1e-6; tt += dt) {
+          mixer.update(dt); model.position.z += move * dt; model.updateMatrixWorld(true);
+          if (springs && flags.spring) springs.update(dt);
+          if (props) props.update(currentName, current.time);
+        }
+      } else { play(clip); window.__viewer.seek(+t || 0); }
+      for (const v of views) {
+        applyPreset("Digit" + v);
+        if (move) { if (follow || camDz === null) camDz = model.position.z - z0; camera.position.z += camDz; controls.target.z += camDz; controls.update(); }
+        post.render();
+        const name = `${params.get("prefix") || "char"}_${clip}_${t || 0}_${v}`;
+        await fetch("/__shot", { method: "POST", body: JSON.stringify({ name, data: renderer.domElement.toDataURL("image/jpeg", 0.9) }) });
+      }
+    }
+    document.title = "DONE";
+  })();
+}
+
 const clock = new THREE.Clock();
-let twosAcc = 0;
+let twosAcc = 0, autoSim = false;   // autoSim：?auto&move 自己推帧，渲染循环不再更新动画和弹簧骨
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.1);
-  if (mixer) {
+  if (mixer && !autoSim) {
     if (flags.twos) { twosAcc += dt; if (twosAcc >= 1 / 12) { mixer.update(twosAcc); if (springs && flags.spring) springs.update(twosAcc); twosAcc = 0; } }
     else { mixer.update(dt); if (springs && flags.spring) springs.update(dt); }
   }
-  if (props) props.update(currentName, current ? current.time : 0);
+  if (props && !autoSim) props.update(currentName, current ? current.time : 0);
   controls.update();
   post.render();
 });

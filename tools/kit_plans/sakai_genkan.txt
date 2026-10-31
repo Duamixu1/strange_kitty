@@ -1,0 +1,17 @@
+# 坂井家·玄关（参考 04）：石板土间 + 深色木框，上一级是焦茶木地板；家纹襖隔开里面。
+# 上面左门 U 进红色廊下，右门 U 去厨房；下面正门 E 回门前。
+name: sakai_genkan
+height: 3.0
+ceiling: sao
+timber: 1.8
+mat: wood=wood_dark, frame=wood_dark, plaster=plaster_white, kokabe=plaster_white, earth=stone, engawa=floor_black, fusuma=fusuma_kamon, glassdoor=itado, udoor=fusuma_kamon
+shot: 进门看里面 | 7.6,1.8,6.2 | 4.0,1.1,0.8 | 2.28,5.0,3.6
+---
+##U#FFF#U##
+#=========#
+#=========#
+#o=======o#
+#_________#
+#_1_______#
+#_________#
+#####E#####

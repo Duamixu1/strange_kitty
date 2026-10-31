@@ -1,0 +1,395 @@
+{
+  "_说明": "坂井家（怪～ayakashi～ 化猫），场景线游12，10-30。七个积木区块（tools/kit_plans/sakai_*.txt），参考 assets/concept/ref/sakai/（只看不裁）。图案全是程序画的，浪涛襖、雄鸡襖、鹤纹地毯更像原作要图片模型（等用户定）。说明卡 key：sakai_omote.1、sakai_genkan.1、sakai_rouka.1、sakai_kyakuma.1、sakai_ozashiki.1、sakai_misshitsu.1、sakai_daidokoro.1、sakai_daidokoro.2",
+  "id": "sakai",
+  "name": "坂井家",
+  "start": "omote",
+  "background": "#2A2A4E",
+  "camera": {
+    "dist": 3.0,
+    "pitch": 0.2,
+    "fov": 50
+  },
+  "zones": {
+    "omote": {
+      "name": "门前",
+      "kit": "sakai_omote",
+      "spawnYaw": 3.1416,
+      "background": "#D6D3EF",
+      "camera": {
+        "dist": 3.4,
+        "fov": 55,
+        "fixed": [
+          {
+            "rect": [
+              5.6,
+              11.8,
+              5.0,
+              7.2
+            ],
+            "pos": [
+              7.73,
+              1.9,
+              11.9
+            ],
+            "look": [
+              7.73,
+              2.1,
+              0.0
+            ],
+            "_说明": "出生点一带：从街上正对门楼平着看，门楼和两边矮墙排成一条横线（参考 01）"
+          },
+          {
+            "rect": [
+              9.6,
+              11.4,
+              3.2,
+              5.0
+            ],
+            "pos": [
+              4.5,
+              2.2,
+              8.0
+            ],
+            "look": [
+              8.6,
+              2.6,
+              0.0
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：从左前方斜拍门楼，药郎在右边"
+          }
+        ]
+      },
+      "exits": [
+        {
+          "stair": 0,
+          "to": "genkan",
+          "arrive": 2,
+          "label": "进门"
+        }
+      ]
+    },
+    "genkan": {
+      "name": "玄关",
+      "kit": "sakai_genkan",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "rouka",
+          "arrive": 3,
+          "label": "廊下"
+        },
+        {
+          "stair": 1,
+          "to": "daidokoro",
+          "arrive": 0,
+          "label": "厨房"
+        },
+        {
+          "stair": 2,
+          "to": "omote",
+          "arrive": 0,
+          "label": "出门"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              1.4,
+              3.2,
+              4.1,
+              5.9
+            ],
+            "pos": [
+              7.6,
+              1.8,
+              6.2
+            ],
+            "look": [
+              4.0,
+              1.1,
+              0.8
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：药郎在画面左边，房间当主角"
+          }
+        ]
+      }
+    },
+    "rouka": {
+      "name": "红色廊下",
+      "kit": "sakai_rouka",
+      "camera": {
+        "dist": 2.6,
+        "fixed": [
+          {
+            "rect": [
+              0.9,
+              2.0,
+              5.0,
+              6.8
+            ],
+            "pos": [
+              3.3,
+              1.7,
+              10.5
+            ],
+            "look": [
+              1.9,
+              1.2,
+              0.6
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：从廊下后段往深处拍，药郎在左边"
+          }
+        ]
+      },
+      "exits": [
+        {
+          "stair": 3,
+          "to": "genkan",
+          "arrive": 0,
+          "label": "玄关"
+        },
+        {
+          "stair": 1,
+          "to": "kyakuma",
+          "arrive": 0,
+          "label": "客间"
+        },
+        {
+          "stair": 2,
+          "to": "ozashiki",
+          "arrive": 0,
+          "label": "大座敷"
+        },
+        {
+          "stair": 0,
+          "to": "misshitsu",
+          "arrive": 0,
+          "label": "深处"
+        }
+      ],
+      "npcs": [
+        {
+          "id": "odajima",
+          "model": "processed/odajima_posed.glb",
+          "height": 1.68,
+          "pos": [
+            3.1,
+            2.2
+          ],
+          "yaw": 0.0,
+          "patrol": [
+            [
+              3.1,
+              6.4
+            ]
+          ],
+          "speed": 0.858,
+          "pause": 3.0,
+          "idles": [
+            "look_around_k",
+            "posture_k",
+            "nod_k"
+          ]
+        }
+      ],
+      "_npcs说明": "若党小田島沿红色廊下东侧 (3.1,2.2)↔(3.1,6.4) 守夜巡逻，离各出口 1.4 米以上，廊下西侧一直留着过人的路"
+    },
+    "kyakuma": {
+      "name": "客间",
+      "kit": "sakai_kyakuma",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "rouka",
+          "arrive": 1,
+          "label": "回廊下"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              5.9,
+              7.7,
+              5.0,
+              6.8
+            ],
+            "pos": [
+              6.2,
+              1.8,
+              6.6
+            ],
+            "look": [
+              2.0,
+              1.1,
+              1.0
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：从药郎左后方往左前方斜拍，左墙雄鸡襖和正面松鹤屏风同时入画（参考 06），药郎在画面右侧不挡公鸡"
+          }
+        ]
+      },
+      "npcs": [
+        {
+          "id": "yoshiyuki",
+          "model": "processed/yoshiyuki_posed.glb",
+          "height": 1.55,
+          "pos": [
+            3.96,
+            3.28
+          ],
+          "yaw": 0.59,
+          "idles": [
+            "turn_slow_k",
+            "nod_k",
+            "posture_k"
+          ],
+          "gap": [
+            12,
+            20
+          ]
+        }
+      ],
+      "_npcs说明": "隐居的老家主伊行站在两个坐垫之间，不走动，朝观景点镜头；从镜头看他正好在雄鸡襖和松鹤屏风中间那段白墙前，两幅画都不挡"
+    },
+    "ozashiki": {
+      "name": "婚礼大座敷",
+      "kit": "sakai_ozashiki",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "rouka",
+          "arrive": 2,
+          "label": "回廊下"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              2.3,
+              4.1,
+              9.5,
+              11.4
+            ],
+            "pos": [
+              9.8,
+              2.0,
+              12.5
+            ],
+            "look": [
+              6.4,
+              1.3,
+              1.6
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：从右后角斜拍，鹤纹地毯、浪涛襖、正面敞开的里间和金屏风都在画面里，药郎在左边"
+          }
+        ]
+      }
+    },
+    "misshitsu": {
+      "name": "密室",
+      "kit": "sakai_misshitsu",
+      "camera": {
+        "dist": 2.4,
+        "fixed": [
+          {
+            "rect": [
+              1.4,
+              3.2,
+              4.1,
+              5.9
+            ],
+            "pos": [
+              6.0,
+              1.8,
+              6.1
+            ],
+            "look": [
+              3.6,
+              1.2,
+              0.5
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：从右后角拍暗红正壁和白无垢，药郎在左边"
+          }
+        ]
+      },
+      "exits": [
+        {
+          "stair": 0,
+          "to": "rouka",
+          "arrive": 0,
+          "label": "回廊下"
+        }
+      ]
+    },
+    "daidokoro": {
+      "name": "厨房与后院",
+      "kit": "sakai_daidokoro",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "genkan",
+          "arrive": 1,
+          "label": "玄关"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              6.8,
+              8.6,
+              6.0,
+              7.7
+            ],
+            "pos": [
+              2.0,
+              1.8,
+              9.0
+            ],
+            "look": [
+              5.0,
+              0.6,
+              6.6
+            ],
+            "_view": 1,
+            "_说明": "观景点 2：从左后方拍古井和小坟，药郎在右边"
+          }
+        ]
+      },
+      "npcs": [
+        {
+          "id": "kayo",
+          "model": "processed/kayo_posed.glb",
+          "height": 1.45,
+          "pos": [
+            6.3,
+            2.1
+          ],
+          "yaw": 1.571,
+          "patrol": [
+            [
+              8.5,
+              2.1
+            ]
+          ],
+          "speed": 0.65,
+          "pause": 3.5,
+          "idles": [
+            "fix_collar_k",
+            "look_around_k",
+            "nod_k"
+          ]
+        }
+      ],
+      "_npcs说明": "女中加世在灶台和水缸之间 (6.3,2.1)↔(8.5,2.1) 来回忙；西边那条去观景点和后院的路一直通"
+    }
+  }
+}

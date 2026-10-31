@@ -26,5 +26,58 @@
     "rigcheck_task": "51d4fbaf-75e8-4077-a285-81203ae33dc6",
     "rig_task": "d5b7685a-8324-4bdc-8f29-d2a280f2392b",
     "rig_file": "assets/tripo_raw/anims/utayama_rigged.glb"
+  },
+  "shino": {
+    "model_task": "47c8da99-f68f-4582-ac6b-3cfb923ee929",
+    "model_file": "assets/tripo_raw/shino.glb",
+    "rigcheck_task": "f050c827-157d-4475-93ea-06922690994d",
+    "rig_task": "105b460b-ce6d-4029-af6c-a625694fccf6",
+    "rig_file": "assets/tripo_raw/anims/shino_rigged.glb"
+  },
+  "hisayo": {
+    "model_task": "46b68f0e-9ba0-4f84-b67d-7713e7ac4457",
+    "model_file": "assets/tripo_raw/hisayo.glb",
+    "rigcheck_task": "6581ddb8-6a9c-49ff-a4be-1c4a1d5bfc03",
+    "rig_task": "1e92d25f-33d1-4850-972b-0d44b3cac01b",
+    "rig_file": "assets/tripo_raw/anims/hisayo_rigged.glb"
+  },
+  "tokuji": {
+    "model_task": "86008284-a6cc-411c-bfe2-387af8c4036d",
+    "model_file": "assets/tripo_raw/tokuji.glb",
+    "rigcheck_task": "167bf414-28ab-4778-a802-59099180a2a2",
+    "rig_task": "1c62ea54-3da1-41ec-8bd6-11d9080bbfcc",
+    "rig_file": "assets/tripo_raw/anims/tokuji_rigged.glb"
+  },
+  "kayo": {
+    "model_task": "4ca4bd05-d123-48a1-aae3-3f2c6042e104",
+    "model_file": "assets/tripo_raw/kayo.glb",
+    "rigcheck_task": "27bb83ae-3aa1-4b81-8efa-551419914c74",
+    "rig_task": "1ffc5b09-7d8f-4e7a-b181-b8146ebc7283",
+    "rig_file": "assets/tripo_raw/anims/kayo_rigged.glb"
+  },
+  "yoshiyuki": {
+    "model_task": "556946a2-e0a4-4d42-a43c-f3ed8cc691be",
+    "model_file": "assets/tripo_raw/yoshiyuki.glb",
+    "rigcheck_task": "f4b0e9a3-2eef-4d77-9129-dd48b8efb1ef",
+    "rig_task": "8545d120-bbd8-49eb-a95f-d726247f412e",
+    "rig_file": "assets/tripo_raw/anims/yoshiyuki_rigged.glb"
+  },
+  "odajima": {
+    "model_task": "859a76ec-f1f1-4bc5-82f2-dfff72921810",
+    "model_file": "assets/tripo_raw/odajima.glb",
+    "rigcheck_task": "ce06938a-78d1-480a-9e86-9ef0190f6f63",
+    "rig_task": "68f1daa0-f47e-4cc5-a2d9-1c43f1fdc47a",
+    "rig_file": "assets/tripo_raw/anims/odajima_rigged.glb"
+  },
+  "tokuji2": {
+    "model_task": "1e247912-9275-4019-a872-f0bafe1f0dc6",
+    "model_file": "assets/tripo_raw/tokuji2.glb",
+    "rigcheck_task": "f9db69c8-f3ad-4afb-822e-0f8643c8c24e",
+    "rig_task": "6a4e7648-4e64-40be-af8c-35e03ff20519",
+    "rig_file": "assets/tripo_raw/anims/tokuji2_rigged.glb"
+  },
+  "tokuji3": {
+    "model_task": "12852e1f-59eb-49d7-b790-28a8ee088ebf",
+    "model_file": "assets/tripo_raw/tokuji3.glb"
   }
 }

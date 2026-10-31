@@ -33,6 +33,7 @@ export class PaperOutlinePost {
         uInnerWidth: { value: 0.8 },
         uPaperScale: { value: 1.0 },      // 1 = 纸纹一像素对一像素
         uPaperStrength: { value: 0.15 },
+        uTint: { value: new THREE.Color("#ffffff") }, uTintMix: { value: 0 },   // 整体调色（游览版雨夜：往藏青压一点）
       },
       vertexShader: /* glsl */ `
         varying vec2 vUv;
@@ -42,7 +43,8 @@ export class PaperOutlinePost {
         uniform sampler2D tColor, tNormal, tDepth, tPaper;
         uniform vec2 uRes;
         uniform float uNear, uFar, uDepthThresh, uNormalThresh, uOuterWidth, uInnerWidth, uPaperScale, uPaperStrength;
-        uniform vec3 uOutlineColor, uPaperColor;
+        uniform vec3 uOutlineColor, uPaperColor, uTint;
+        uniform float uTintMix;
         uniform int uOutline, uPaper, uLetterbox;
         varying vec2 vUv;
 
@@ -63,7 +65,11 @@ export class PaperOutlinePost {
             float dc = linDepth(vUv);
             float d1 = abs(linDepth(vUv + vec2( o.x,  o.y)) - linDepth(vUv - vec2( o.x,  o.y)));
             float d2 = abs(linDepth(vUv + vec2( o.x, -o.y)) - linDepth(vUv - vec2( o.x, -o.y)));
-            float dEdge = smoothstep(uDepthThresh * 0.6, uDepthThresh * 1.4, max(d1, d2) / max(dc, 1e-4));
+            // 阈值按表面斜度放大：贴地平视时地板每个像素的深度差本来就大，不放大会整片地板被当成轮廓涂黑
+            //（游览版积木走廊发现的）。nrm().z 是观察空间法线朝镜头的分量，背景处为 0 时按 0.15 算
+            float facing = max(abs(nrm(vUv).z), 0.15);
+            float th = uDepthThresh / facing;
+            float dEdge = smoothstep(th * 0.6, th * 1.4, max(d1, d2) / max(dc, 1e-4));
             // 只在网格（灰盒、角色、道具）附近画线：四个采样点里有一个是网格才算，泼溅和泼溅之间不描边
             float mesh = max(max(isMesh(vUv + vec2(o.x, o.y)), isMesh(vUv - vec2(o.x, o.y))), max(isMesh(vUv + vec2(o.x, -o.y)), isMesh(vUv - vec2(o.x, -o.y))));
             dEdge *= max(mesh, isMesh(vUv));
@@ -79,6 +85,8 @@ export class PaperOutlinePost {
             float edge = clamp(max(dEdge, nEdge), 0.0, 1.0);
             col = mix(col, uOutlineColor, edge);
           }
+
+          col = mix(col, col * uTint, uTintMix);
 
           if (uPaper == 1) {
             // 和纸：按屏幕像素平铺，不随镜头动。灰度 0.5 为中性，亮的地方往纸白提，暗的地方压暗
@@ -115,6 +123,9 @@ export class PaperOutlinePost {
     this.quadMat.uniforms.uPaper.value = paper ? 1 : 0;
     this.quadMat.uniforms.uLetterbox.value = letterbox ? 1 : 0;
   }
+
+  // 整体调色：col × tint 按 mix 混进去，0 = 关（探案版不用）
+  setTint(color = "#ffffff", mix = 0) { this.quadMat.uniforms.uTint.value.set(color); this.quadMat.uniforms.uTintMix.value = mix; }
 
   // 描边色在墨色和红色之间混：0 = canon 第 12 色，1 = 深红（药郎妖化时用）
   setOutlineMix(t) {

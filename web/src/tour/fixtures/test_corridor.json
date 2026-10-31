@@ -1,0 +1,30 @@
+{
+  "_说明": "总指挥自测用的地点：大奥积木走廊一个区块，可走范围直接写矩形，两头各一个出口互相传送（测拉门转场）。正式地点放 web/src/data/tour/",
+  "id": "test_corridor",
+  "name": "测试·积木走廊",
+  "start": "hall",
+  "background": "#2A2A4E",
+  "zones": {
+    "hall": {
+      "name": "大奥主廊",
+      "kit": "ooku_corridor_kit",
+      "walkRect": [-1.8, 1.8, -12.7, -0.5],
+      "height": 5.5,
+      "spawn": [0, -2.2],
+      "spawnYaw": 3.1416,
+      "views": { "1": [0, -11.4], "2": [-1.3, -6.6] },
+      "stairs": [
+        { "door": [0, 0], "stand": [0, -0.7], "face": [0, 1] },
+        { "door": [0, -13.2], "stand": [0, -12.5], "face": [0, -1] }
+      ],
+      "exits": [
+        { "stair": 0, "to": "hall", "arrive": 1, "label": "到尽头" },
+        { "stair": 1, "to": "hall", "arrive": 0, "label": "回门口" }
+      ],
+      "texts": {
+        "1": { "title": "扇面门洞", "body": "走廊尽头的红白扇面。测试用的说明卡，正式文字由文案线写进 text.json。" },
+        "2": { "title": "左墙的襖绘", "body": "测试用的说明卡：站近一点看墙画，镜头不会糊。" }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+# 坂井家·红色廊下（参考 10）：朱红地板、朱红柱和梁（wood=crimson）、灰墙、上方黄蓝绿色块带、黑格天花，通往深处的密室。
+# 下 U 回玄关，左 U 客间，右 U 婚礼大座敷，尽头 U 密室。
+name: sakai_rouka
+height: 2.9
+ceiling: goten_black
+timber: 1.8
+seams: across
+mat: wood=crimson, frame=crimson, plaster=wall_gray, kokabe=panels_ybg, engawa=deck, udoor=fusuma_kamon
+shot: 廊下深处 | 3.3,1.7,10.5 | 1.9,1.2,0.6 | 1.37,5.9,3.14
+---
+##U##
+#===#
+#===#
+#===#
+U===#
+#===#
+#1==#
+#===#
+#===U
+#===#
+#===#
+#===#
+#===#
+##U##

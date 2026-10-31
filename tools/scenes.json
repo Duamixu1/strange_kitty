@@ -1,7 +1,7 @@
 {
   "_说明": "主参考图清单。refs 顺序对应提示词里的 image[1]、image[2]…；每张图自动接 canon 和 style_suffix，总长不超 1800 字符。用法：uv run tools/tripo_scene.py --only 13_书生三视图。01~12 是怪化猫版（上游参考，2026-10-23 转向后不再重出），13 起是唐风志异版。",
   "style_suffix": "Style: Japanese ukiyo-e anime, 2D cel illustration, entirely flat colours with no gradients and no realistic lighting, every surface shows a visible crumpled washi paper texture, thin dark-indigo coloured outlines (never pure black), bold traditional patterns. No text, no logos, no watermark.",
-  "canon": "Consistency rules: use only the 12 colours of the palette image (paper cream, coral red, crimson, ochre gold, green, teal, indigo blue, wisteria purple, navy, pale lavender, pink, ink outline).",
+  "canon": "Consistency rules: use only the 13 colours of the palette image (paper cream, coral red, crimson, ochre gold, green, teal, indigo blue, wisteria purple, navy, pale lavender, pink, ink outline, dark wood brown #573F33 for timber frames).",
   "scenes": [
     {
       "id": "01_药贩子三视图",
@@ -255,6 +255,173 @@
         "assets/concept/00_色板.png"
       ],
       "prompt": "A flat, straight-on view of one section of painted palace wall mural, filling the whole frame edge to edge, no perspective, no frame, no wall edges visible, as a texture. The mural shows exactly the scene of image[1], painted large in the giant ukiyo-e mural style of the corridor walls in image[2] and image[4]: a little girl with two round hair buns tied with ribbons, eyes closed, smiling, in a red kimono with white cherry blossoms and a navy sash, kicking a temari ball high with one leg raised; the temari ball has the chrysanthemum-star pattern of the left ball in image[3]; indigo seigaiha waves and pale cherry blossoms below her feet, a plain cream background. The paint is old but the colours are still bright, with fine crackle in the cream ground and a few flaked spots at the corners. Girl centred, taking about two thirds of the height.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "20_总地图长卷",
+      "size": "3840x1280",
+      "_说明": "游5：照积木底稿（kit_build.py -- map_diorama 渲的长卷）重画。七个地点的位置不能挪，网页热区按底稿算（web/src/data/tour/map.json）。长卷比例出不了就分左右两半（接缝在坂井家和笛小路家之间）。需求见 docs/17_总地图重画需求.md",
+      "refs": [
+        "web/public/textures/kit/map_scroll.jpg",
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/02_走廊全景.png"
+      ],
+      "prompt": "A long horizontal emakimono picture scroll, redrawn over the exact composition of image[1]: keep every building, the river, mountains, pines and gold cloud bands at the same position, size and left-to-right order. Style of image[3], colours of image[2], ink outlines thick outside thin inside, asanoha/seigaiha patterns on roofs and drapes, oblique bird's-eye view. Left to right: (1) long palace corridor hall, black tiled roof, crimson pillars, red lanterns under the eaves, wisteria drapes, red gate; (2) three-storey wooden inn on a rainy night, crimson-railed verandas, shoji windows glowing ochre, red lanterns, curved karahafu gable, red arched bridge over the river, slanting rain only here; (3) one-storey samurai house, long black roof, white walls, an old well with a small roof; (4) mansion in near-monochrome ink and pale lavender with a curl of incense smoke; (5) indigo sea patch, merchant ship with one sail, a huge round head with one giant eye rising behind it; (6) Taisho tram car in celadon on rails, row of lit windows; (7) small wooden-barred prison cell with a little roof. Cream paper ground, no people."
+    },
+    {
+      "id": "21_总地图_大奥门",
+      "size": "1792x1600",
+      "_说明": "游5 补丁：只重画总地图长卷左端大奥那一块（20_总地图长卷.png 的 x 0-900、y 300-1100），红鸟居换成宫殿门，出完缩回 900×800 羽化贴回原位（tools/kit_map_patch.py）。热区不动。chat_image 要求边长是 16 的倍数（1800 被拒）",
+      "refs": [
+        "assets/concept/map_brief/patch/ooku_crop.png",
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Redraw image[1] exactly: same framing, same mountains, gold cloud bands, pine trees, stone embankment, blue river and the edge of the next building on the right, all at the same positions and sizes. Change only one thing: the red torii shrine gate in front of the palace hall is wrong; replace it with an Edo castle inner-palace gate (karamon): a vermilion-lacquered gate with its own small curved black tiled roof and gold fittings, joined on both sides by short roofed corridors hung with wisteria-purple drapes and red paper lanterns, colours like image[2]. Keep the long palace hall behind it, its black tiled roof, red lanterns and purple drapes. Same flat style, same line weight and washi texture as image[1], colours of image[3]."
+    },
+    {
+      "id": "22_大座敷_美人画屏风",
+      "size": "2048x1312",
+      "_说明": "游3 第二轮：万屋大座敷八角凸间后墙，整面贴（4.55 米宽 × 约 2.9 米高），换掉借用的大奥美人脸。不用原作截图当输入",
+      "refs": [
+        "assets/concept/scenes/16_阿浅_建模三视图.png",
+        "assets/concept/scenes/03_走廊_左墙.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A two-panel Japanese folding screen (byobu) seen flat and straight-on, filling the whole frame, a thin dark-wood frame and one vertical gold divider between the two panels. Each panel shows one full-length standing bijin-ga court beauty in ukiyo-e style, head to feet, facing slightly toward each other: elaborate layered kimono with large bold patterns (peony, chrysanthemum, seigaiha waves) in coral, crimson, indigo and ochre, tall black hair with combs and kanzashi, pale face with small red lips. Plain gold-leaf ochre background with a few cream suyari-gasumi cloud bands. Figure drawing and costume detail like image[1], mural flatness and line style like image[2], colours only from image[3]. No text."
+    },
+    {
+      "id": "23_大座敷_群鸡图天花",
+      "size": "2048x1600",
+      "_说明": "游3 第二轮：万屋大座敷天花，整片铺一张（房间约 11 × 8.6 米），画面里自带格天井的格子，3D 格梁去掉。不用原作截图当输入",
+      "refs": [
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A coffered Japanese temple ceiling seen from directly below, flat, filling the whole frame: a regular grid of 6 by 5 square panels separated by dark-wood lattice beams with ochre gold fittings at the crossings. Every panel holds one painted rooster or hen in the style of Jakuchu's flock of chickens: bold flat shapes, crimson combs, ochre and navy and cream feathers with crisp patterned scales, each bird in a different pose, on a pale celadon background. Flat cel colours and thin ink outlines like image[1], colours only from image[2]. No text."
+    },
+    {
+      "id": "24_坂井家_雄鸡襖",
+      "size": "2496x832",
+      "_说明": "游12：坂井家客间左墙，6 扇襖横跨一幅（fusuma_span: 6），参考 06 只看不喂。chat_image 长边不能超过短边 3 倍，2560×832 被拒，改 2496×832（正好 3:1）",
+      "refs": [
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/23_大座敷_群鸡图天花.png"
+      ],
+      "prompt": "A wide flat painting for six sliding fusuma doors side by side, straight-on, filling the frame: one huge proud rooster standing on the left third, crimson comb, sweeping navy and ochre tail feathers with crisp patterned scales, a few chicks and plum branches to the right, bold ukiyo-e composition on a pale celadon background with cream suyari-gasumi clouds, gold-leaf ground near the bottom. Rooster feather drawing like image[3]. Flat cel colours with hard edges and thin ink outlines like image[1], colours only from image[2]. No text, no people."
+    },
+    {
+      "id": "25_坂井家_浪涛襖",
+      "size": "2560x992",
+      "_说明": "游12：坂井家婚礼大座敷两侧，5 扇一幅、两侧各重复两次（fusuma_span: 5），参考 07 只看不喂",
+      "refs": [
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A wide flat painting for five sliding fusuma doors side by side, straight-on, filling the frame: giant crashing ocean waves in the style of a Hokusai great wave, deep indigo and navy water, curling cream-white foam claws, layered crests rising from bottom left to a huge breaking wave on the right, a few seabirds, cream sky with gold suyari-gasumi bands at the top. Left and right edges match so the panels can repeat. Flat cel colours with hard edges and thin ink outlines like image[1], colours only from image[2]. No text, no people."
+    },
+    {
+      "id": "26_坂井家_鹤纹地毯",
+      "size": "2048x1456",
+      "_说明": "游12：坂井家婚礼大座敷地毯（rug_tex，7×5 格），参考 07 只看不喂",
+      "refs": [
+        "assets/concept/scenes/02_走廊全景.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A large Japanese wedding carpet seen flat from directly above, filling the frame: deep indigo-blue field, one huge white crane in the centre with wings fully spread and a red crown, stylised swirling cream clouds and small turtles in the corners for longevity, a thick crimson border with an ochre key-pattern line and a cream inner line. Flat cel colours with hard edges and thin ink outlines like image[1], colours only from image[2]. No text, no people."
+    },
+    {
+      "id": "27_坂井家_松鹤屏风",
+      "size": "2048x1312",
+      "_说明": "游12：坂井家客间正面的松鹤屏风（Y，mat byobu=），参考 06 只看不喂",
+      "refs": [
+        "assets/concept/scenes/22_大座敷_美人画屏风.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A six-panel Japanese folding screen seen flat and straight-on, filling the frame, thin dark-wood frame and gold dividers between panels: an old gnarled pine tree with dark green needle clusters spreading across the panels, two white cranes with red crowns, one standing and one landing, on a gold-leaf ochre ground with cream cloud bands. Screen framing like image[1]. Flat cel colours with hard edges and thin ink outlines like image[1], colours only from image[2]. No text, no people."
+    },
+    {
+      "id": "28_志乃_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/16_阿浅_建模三视图.png"
+      ],
+      "prompt": "Modelling turnaround sheet of Shino, a young pregnant woman seeking shelter at a town inn, drawn in exactly the same style, line quality, flat colouring and sheet layout as image[2] and image[3], but a different person: do not copy their faces, hair or costumes. Three views side by side: front, side profile facing the same way as in image[2], back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, both kimono sleeves fully spread, hands open and empty, feet slightly apart; the kimono hangs loosely and does not cling to the body, every hem ends at the ankles with no trailing train. Shino: about 20, gentle and anxious face, blue eyes, light freckles on the cheeks. Blonde hair gathered into a loose bun wrapped with an indigo-blue cloth and a pink comb, a few loose strands. Visibly pregnant: a round belly under the kimono, the obi tied high above the belly. Kimono: plain ochre-orange, navy-and-wisteria collar, wisteria-purple obi. White tabi socks and straw zori sandals. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "29_久代_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/16_阿浅_建模三视图.png"
+      ],
+      "prompt": "Modelling turnaround sheet of Hisayo, the elderly proprietress of a grand old inn, drawn in exactly the same style, line quality, flat colouring and sheet layout as image[2] and image[3], but a different person: do not copy their faces, hair or costumes. Three views side by side: front, side profile facing the same way as in image[2], back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, both kimono sleeves fully spread, hands open and empty, feet slightly apart; the kimono hangs loosely and does not cling to the body, every hem ends at the ankles with no trailing train. Hisayo: about 70, tall, thin, upright and stern, deep wrinkles, heavy old-fashioned make-up with teal eye shadow and small crimson lips, a mole on the forehead. White hair in a tall elaborate bun with a crimson comb, several gold hair sticks and dangling crimson bead ornaments at both sides. Kimono: dark wisteria-purple with navy edges, crimson and white layered collars, black obi with a small gold pattern. White tabi socks and zori sandals. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "30_徳次_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/16_阿浅_建模三视图.png"
+      ],
+      "prompt": "Modelling turnaround sheet of Tokuji, the head clerk of a grand old inn, a man, drawn in exactly the same style, line quality, flat colouring and sheet layout as image[2] and image[3], but a different person: do not copy their faces, hair or costumes. Three views side by side: front, side profile facing the same way as in image[2], back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, both kimono sleeves fully spread, hands open and empty, feet slightly apart; the kimono hangs loosely and does not cling to the body, the kimono hem ends just above the ankles with no trailing train. Tokuji: about 40, short and stocky, dark brown skin, round wide eyes, prominent front teeth, small gold earrings. Frizzy black hair in two round puffs at the sides with a small topknot, a pale blue shaved patch on top. Crimson kimono with a green collar, a navy clerk's apron (maekake) tied at the waist with a white round crest, kimono tucked short. White tabi socks and straw zori sandals. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "31_加世_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/16_阿浅_建模三视图.png"
+      ],
+      "prompt": "Modelling turnaround sheet of Kayo, a young maid of a samurai household, drawn in exactly the same style, line quality, flat colouring and sheet layout as image[2] and image[3], but a different person: do not copy their faces, hair or costumes. Three views side by side: front, side profile facing the same way as in image[2], back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, both kimono sleeves fully spread, hands open and empty, feet slightly apart; the kimono hangs loosely and does not cling to the body, every hem ends at the ankles with no trailing train. Kayo: about 16, lively and frank, round face, big round eyes, small mouth. Black hair in a high bun with red, yellow and green flower hairpins and a yellow comb. Kimono: ochre yellow with large teal-blue scalloped spots, green collar over a pink under-collar, wisteria-purple obi tied with a green cord. White tabi socks and zori sandals. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "32_坂井伊行_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/16_阿浅_建模三视图.png"
+      ],
+      "prompt": "Modelling turnaround sheet of Sakai Yoshiyuki, the retired old lord of a samurai household, drawn in exactly the same style, line quality, flat colouring and sheet layout as image[2] and image[3], but a different person: do not copy their faces, hair or costumes. Three views side by side: front, side profile facing the same way as in image[2], back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, both kimono sleeves fully spread, hands open and empty, feet slightly apart; the kimono hangs loosely and does not cling to the body, every hem ends at the ankles with no trailing train. Yoshiyuki: about 80, thin, slightly stooped, dazed half-closed eyes, a vacant expression. White hair with a tiny topknot, a long white beard and moustache. Dark navy-black kimono with layered pale lavender and white collars, a wisteria-purple sash, a sleeveless navy kataginu over the shoulders with small white crests. No sword. White tabi socks and zori sandals. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "33_小田島_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/16_阿浅_建模三视图.png"
+      ],
+      "prompt": "Modelling turnaround sheet of Odajima, a young retainer samurai of a samurai household, drawn in exactly the same style, line quality, flat colouring and sheet layout as image[2] and image[3], but a different person: do not copy their faces, hair or costumes. Three views side by side: front, side profile facing the same way as in image[2], back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, both kimono sleeves fully spread, hands open and empty, feet slightly apart; the kimono and hakama hang loosely and does not cling to the body, every hem ends at the ankles with no trailing train. Odajima: about 25, lean and upright, earnest hot-headed face, thick eyebrows, firm jaw. Shaved crown with a neat topknot (chonmage). Pale blue kimono with large black-and-white checkered round crests on the chest, sleeves and back, black hakama trousers to the ankles, a plain dark sash, no swords. White tabi socks and straw zori sandals. Plain cream washi paper background. Palette: image[1].",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "34_徳次_背面重画",
+      "size": "2048x2048",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/30_徳次_建模三视图.png"
+      ],
+      "prompt": "Back view only of the exact same man as image[2], same scale, line quality and flat colouring, a single full-body figure centred on a plain cream background. He stands in the same A-pose as image[2], seen exactly from behind: arms raised about 40 degrees from the body, kimono sleeves spread, feet slightly apart. The back of his head shows ONLY hair: two large round puffs of frizzy black hair at both sides that meet and cover the whole back of the head and the nape, a pale blue shaved patch on the crown with a small black topknot on top. Absolutely no face, no eyes, no nose, no mouth, no ears showing from the front, no facial outline on the back of the head. Costume exactly as image[2] from behind: crimson kimono with gold round crests on the sleeves and back, green collar visible only as a thin band at the back of the neck, the navy apron strings tied in a bow at the back of the waist, white tabi socks and straw zori sandals seen from behind. No text. Palette: image[1].",
       "model": "chat_image_2.5_sunburst",
       "quality": "high"
     }
