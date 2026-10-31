@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { pub } from "../paths.js";
 import { makeToonMaterial } from "../style/toon.js";
 
 // 游览版积木（tools/kit_build.py 出的 GLB）：材质名 kit_<key>，这里按 key 换成卡通材质。
@@ -60,7 +61,7 @@ const KIT = {
 const texCache = new Map();
 function tex(file) {
   if (!texCache.has(file)) {
-    const t = new THREE.TextureLoader().load(`/textures/kit/${file}`);
+    const t = new THREE.TextureLoader().load(pub(`textures/kit/${file}`));
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
     t.flipY = false;   // glTF 的 UV 原点在左上，和 GLTFLoader 自己加载的贴图一样不翻
     texCache.set(file, t);

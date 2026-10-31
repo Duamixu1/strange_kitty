@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { asset, pub } from "../paths.js";
 import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
@@ -22,7 +23,7 @@ import { createRain } from "./rain.js";
 const params = new URLSearchParams(location.search);
 const locId = params.get("loc");
 const status = document.getElementById("status");
-const assetUrl = (u) => (/^(https?:)?\//.test(u) ? u : `/@fs${ASSETS_DIR}/${u}`);
+const assetUrl = asset;   // src/paths.js：开发读 ../assets，发布读站点里的 game-assets/
 
 if (!locId) showMap().catch((e) => { console.error(e); status.textContent = "总地图加载失败：" + e.message; }); else startLocation(locId).catch((e) => { console.error(e); status.textContent = "加载失败：" + e.message; });
 
@@ -37,7 +38,7 @@ async function showMap() {
     // 长卷：图按窗口高度缩放，热区按图的像素比例换成百分比，图换成重画版也不用改
     const [W, H] = map.size;
     paper.style.aspectRatio = `${W} / ${H}`;
-    paper.querySelector("img").src = map.image;
+    paper.querySelector("img").src = asset(map.image);
     for (const P of map.places) {
       const open = P.open && real.includes(P.id);
       const [x0, y0, x1, y1] = P.rect, pct = (v, t) => `${(v / t) * 100}%`;
@@ -63,8 +64,8 @@ async function showMap() {
   addEventListener("pointerup", () => setTimeout(() => (drag = null)));
   scroll.addEventListener("click", (e) => { if (drag?.moved) { e.preventDefault(); e.stopPropagation(); } }, true);
   scroll.addEventListener("wheel", (e) => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { e.preventDefault(); scroll.scrollLeft += e.deltaY; } }, { passive: false });
-  // 不在地图上的地点（测试、示例）列在右下角
-  const extra = [...real.filter((id) => !map?.places.some((P) => P.id === id)), ...test];
+  // 不在地图上的地点（测试、示例）列在右下角；发布的站点不显示
+  const extra = import.meta.env.DEV ? [...real.filter((id) => !map?.places.some((P) => P.id === id)), ...test] : [];
   document.querySelector("#map .tests").innerHTML = extra.length ? "测试：" + extra.map((id) => `<a href="?loc=${id}">${id}</a>`).join(" · ") : "";
   status.textContent = "";
 }
@@ -85,7 +86,7 @@ async function startLocation(id) {
   scene.add(new THREE.DirectionalLight(0xffffff, 1));
   const post = new PaperOutlinePost(renderer, scene, camera);
   post.setFlags({ outline: true, paper: true, letterbox: false });
-  const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath("/draco/"));
+  const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath(pub("draco/")));
 
   // ---- 泼溅（地点级，进地点时一次加载完，之后不再动）----
   // Spark 的坑：运行中改泼溅的 visible / opacity / position、加 SplatEdit，整个泼溅系统会掉成 0 个点（探案版试过）。
@@ -95,7 +96,7 @@ async function startLocation(id) {
   if (loc.splats?.length) {
     const spark = new SparkRenderer({ renderer }); scene.add(spark);
     for (const S of loc.splats) {
-      const m = new SplatMesh({ url: `/@fs${ASSETS_DIR}/worldlabs/${S.name}/splat_${S.quality || "500k"}.spz` });
+      const m = new SplatMesh({ url: asset(`worldlabs/${S.name}/splat_${S.quality || "500k"}.spz`) });
       const yaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(S.yawDeg || 0));
       m.quaternion.copy(yaw.multiply(new THREE.Quaternion(1, 0, 0, 0)));
       m.scale.setScalar(S.scale); m.position.set(...S.position);
@@ -233,7 +234,7 @@ async function startLocation(id) {
     if (e.code === "KeyP") photo();
     if (e.code === "KeyF") setFilter(filterIdx + 1);
     if (e.code === "KeyO" && !busy && !card.isOpen) cyclePose();
-    if (e.code === "KeyM") location.href = "/tour.html";
+    if (e.code === "KeyM") location.href = pub("tour.html");
     if (/^(Arrow|Key[WASD])/.test(e.code)) path = null;
   });
   addEventListener("keyup", (e) => keys.delete(e.code));

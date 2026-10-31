@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { pub } from "../paths.js";
 
 // 2 阶平涂材质：固有色 + 一层阴影色，没有高光、没有真实光照衰减。
 // 阴影色不是把固有色压暗，而是往 canon 里的"藤紫"(#6A4C8C) 偏一点，像赛璐珞的阴影层。
@@ -21,7 +22,7 @@ function patternTextures() {
   if (textures) return textures;
   const loader = new THREE.TextureLoader();
   textures = PATTERN_NAMES.map((n) => {
-    const t = loader.load(`/textures/patterns/${n}.png`);
+    const t = loader.load(pub(`textures/patterns/${n}.png`));
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.NoColorSpace; t.anisotropy = 4;
     return t;
   });

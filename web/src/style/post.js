@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { pub } from "../paths.js";
 
 // 描边 + 和纸后期，一个合成 shader 做完：
 //   pass 1  场景法线 + 深度 → normalRT（scene.overrideMaterial = MeshNormalMaterial）
@@ -12,7 +13,7 @@ export class PaperOutlinePost {
     this.normalRT = new THREE.WebGLRenderTarget(size.x, size.y, { depthTexture: new THREE.DepthTexture(size.x, size.y, THREE.UnsignedIntType) });
     this.colorRT = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType });
     this.normalMat = new THREE.MeshNormalMaterial();
-    const paper = new THREE.TextureLoader().load("/textures/paper.png");
+    const paper = new THREE.TextureLoader().load(pub("textures/paper.png"));
     paper.wrapS = paper.wrapT = THREE.RepeatWrapping;
     paper.colorSpace = THREE.NoColorSpace;
 

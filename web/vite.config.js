@@ -58,10 +58,13 @@ function playlogSaver() {
   };
 }
 
+// 发布站点（tools/build_site.py）：SITE=1 只打游览版 tour.html，SITE_BASE 是站点挂的子路径（GitHub Pages 是 /strange_kitty/）
+const SITE = process.env.SITE === "1";
 export default defineConfig({
+  base: process.env.SITE_BASE || "/",
   plugins: [shotSaver(), playlogSaver()],
   define: { ASSETS_DIR: JSON.stringify(assetsDir) },
   server: { port: 5173, fs: { allow: [root, assetsDir] } },
   optimizeDeps: { exclude: ["@sparkjsdev/spark"] },
-  build: { rollupOptions: { input: { index: path.resolve(root, "index.html"), character: path.resolve(root, "character.html"), game: path.resolve(root, "game.html") } } },
+  build: { rollupOptions: { input: SITE ? { tour: path.resolve(root, "tour.html") } : { index: path.resolve(root, "index.html"), character: path.resolve(root, "character.html"), game: path.resolve(root, "game.html"), tour: path.resolve(root, "tour.html") } } },
 });
