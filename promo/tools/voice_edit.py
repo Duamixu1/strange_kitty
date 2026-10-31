@@ -2,9 +2,11 @@
 同时输出每段在成片口播里的时间和字幕（promo/voice/口播_剪辑.json）。
 剪辑表里的时间都是原录音的秒数，来自 mlx-whisper 逐字时间戳（口播_转写.json），切点再挪到附近的安静处。注意 Whisper 的逐字时间戳比实际晚 0.3–0.4 秒，按它切会切掉字尾；可疑的切点用"逐步挪动切点再转写"找准后写死（"fixed"）。
 字幕：每行写它在原录音里的开始时间 + 改好错字的文字（转写里"药廊""大澳""Triple""crawl code"之类都改过来了）。
-用法：python voice_edit.py
+用法：python voice_edit.py          第一版口播（口播_原始.m4a → 口播_剪辑.*）
+      python voice_edit.py v3       按口播稿 v3 重录的版本（口播v3_原始.m4a → 口播v3_剪辑.*）
+v3 的字幕写成 (大概时间, 转写里这句开头几个字, 字幕文字)，程序按逐字时间戳自动找到这句真正开始的时间。
 """
-import json, subprocess
+import json, subprocess, sys
 from pathlib import Path
 import numpy as np
 
@@ -61,8 +63,84 @@ EDL = [
         (330.18, "希望大家喜欢")]),
 ]
 
-def load():
-    raw = subprocess.run([FF, "-i", str(V / "口播_原始.m4a"), "-af", "highpass=f=80,afftdn=nf=-30", "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"], capture_output=True).stdout
+
+# ---------------- v3：按口播稿 v3 重录（一口气录完，只剪了一句和两处口误）----------------
+EDL_V3 = [
+    ("缘起", [(0.0, 18.30)], [
+        (0.0, "Hello", "Hello，大家好，这次我做了一个《怪化猫》的二创"), (4.5, "特别", "特别喜欢这部作品，尤其是它的纹样和配色"),
+        (8.5, "正好", "正好赶上 Tripo 的共创计划，送了两万积分"), (12.2, "我就想", "我就想试一下，能不能用 World Labs、Blender 和 Tripo"),
+        (16.4, "搭出", "搭出一个药郎的世界")]),
+    ("开头", [(18.60, 24.40)], [
+        (18.9, "最后", "最后做成了一个能从头玩到尾的解谜小游戏"), (22.0, "今天", "今天带你玩一遍")]),
+    ("推门", [(24.70, 35.78, "fixed"), (38.80, 60.95, "fixed")], [   # 剪掉 35.7–38.8"但其实这个应该已经是用积木搭的一个"（画面里是泼溅，说积木会对不上）
+        (24.9, "故事", "故事放在电影《唐伞》里的大奥"), (28.5, "也就是", "也就是江户时代将军的后宫"), (30.9, "推门", "推门进去，是这条走廊"),
+        (33.1, "场景", "场景是用 World Labs 生成的"), (38.84, "当时", "当时是用一张全景图，就可以"), (42.0, "生成", "生成一个能走进去的高斯泼溅空间"),
+        (45.4, "坡建", "泼溅本身没有碰撞"), (47.4, "我从", "我从点云里算出能走的范围，当作边界"), (51.6, "最难", "最难的是往里面放东西"),
+        (53.9, "人和", "人和道具是另外做的模型"), (56.0, "一开始", "一开始会飘在空中"), (57.6, "描边", "描边还会透过墙露出来")]),
+    ("规则", [(61.30, 83.00)], [
+        (61.5, "玩法", "玩法呢，参考了我比较喜欢的《锈湖》"), (64.5, "空间", "空间不大，每样东西都藏着一段故事"), (69.1, "规则", "规则沿用原作"),
+        (70.7, "要", "药郎要弄清物怪的形、真、理，才能拔剑"), (75.7, "这里", "这里是一个天秤"), (77.1, "两件", "两件对得上的东西放上去"),
+        (79.6, "天秤", "天秤就会平，然后亮一个字")]),
+    ("形", [(83.10, 120.25)], [
+        (83.3, "进门", "进门左手有一幅画"), (85.1, "里面", "里面的女孩在踢手鞠"), (87.4, "地上", "地上有一截彩线"), (89.9, "两样", "两样一配，形就亮了"),
+        (91.7, "天秤", "天秤还兼着指南针的作用"), (95.5, "离线索", "离线索越近，晃得越厉害"), (97.8, "还会", "还会响铃，这个声音还挺清脆的"),
+        (101.5, "站着", "站着不动一会儿呢，它也会出提示"), (103.9, "操作", "操作改过一次"), (106.1, "最早", "最早是 WASD 自由走"),
+        (108.1, "但我", "但我自己试玩的时候，镜头转来转去，特别容易晕"), (112.3, "然后", "然后很恶心想吐，就改成了鼠标点哪走哪"),
+        (116.3, "但还是", "但视角还是可以变化")]),
+    ("真", [(120.25, 158.85)], [
+        (120.3, "然后", "然后右手第一间是女中的房间"), (123.3, "阿贵", "阿龟会给你半张家书"), (125.9, "再去", "再去对面，翻歌山桌上的入宫登记簿"),
+        (128.8, "针", "真就亮了"), (130.3, "两样", "两样一对，故事就清楚了"), (132.6, "女中", "女中阿雪进入大奥时"),
+        (135.2, "带着", "带着母亲给她缠的手鞠，在门口被没收了"), (139.0, "做人物", "做人物时，我最纠结的是还原度"),
+        (141.7, "想让", "想让人一眼认出是谁，又不想照着原作描"), (146.5, "所以", "所以我按自己的色板，重新做了设定图"),
+        (150.3, "摆成", "摆成了 A pose，交给 Tripo"), (153.3, "平图", "平涂、描边和和纸纹理"), (156.1, "是最后", "是最后用代码套上去的")]),
+    ("理", [(158.85, 179.75)], [
+        (158.8, "然后", "然后最后是理"), (160.4, "井里", "井里能捞出那只手鞠"), (163.2, "手机", "手鞠在江户时代是很常见的"),
+        (165.6, "多是", "多是母亲用和服剩下的丝线，一圈一圈缠给女儿的"), (169.7, "镜头", "尽头阿雪的空房里"),
+        (171.8, "还有", "还有一个木线轴，和一封没写完的家信"), (174.7, "只能", "只能选一样放上天秤"), (176.3, "选哪个", "选哪个，决定你看到哪一个结局")]),
+    ("拔剑", [(180.10, 203.66, "fixed"), (204.88, 206.66, "fixed")], [   # 剪掉"你折起来"和最后的"这个骨头"
+        (180.2, "三个字", "三个字齐了，药郎就会拔剑"), (182.5, "这套", "这套动作呢，不是现成的"), (184.8, "是一个", "是一个姿势一个姿势调出来的"),
+        (187.5, "做到", "做到横斩时呢，出了问题"), (189.9, "他的", "他的大袖被两条腿扯成了一张膜"), (193.2, "后来", "后来把衣服和头发也拆成几层"),
+        (197.5, "又挂", "又挂一串骨头，让它们自己摆"), (201.3, "然后", "然后脚也出过事，就是横斩"), (204.8, "它就", "它就折叠起来")]),
+    ("分工", [(207.60, 228.50)], [
+        (207.7, "代码", "代码呢，基本上是 CC（Claude Code）写的"), (210.1, "我开了", "我开了好几个对话，一个当总指挥"),
+        (213.1, "其他", "其他的分别管角色、场景、玩法和文案"), (216.4, "各改", "各改各的文件，就不会有冲突"), (219.1, "过一张", "共用一张待办表"),
+        (220.8, "我主要", "我主要做判断：先做哪一步，像不像"), (223.9, "积分", "积分有没有必要用"),
+        (225.5, "用下来", "用下来呢，我觉得真的很好，因为这个 Opus")]),
+    ("感想", [(228.80, 253.15)], [
+        (228.9, "然后说回", "然后说回电影"), (230.3, "唐风", "《唐伞》的画风和 TV 版差别还是很大的"), (234.1, "满屏", "满屏的纹样和颜色，是非常的极繁主义"),
+        (237.3, "虽然", "虽然我妈觉得，我应该做一些唐朝或者宋朝的角色"), (242.2, "所以", "所以下一期呢，包括这里也是我先跑的一些图"),
+        (245.8, "可能", "可能我会想在《聊斋志异》"), (248.4, "或者", "或者是其他里面去选一些有意思的人物"), (250.9, "然后大家", "然后大家也可以给我一些建议")]),
+    ("结尾", [(253.15, 282.40)], [
+        (253.2, "现在", "现在我在做的是 TV 版里的万屋"), (256.6, "这次", "这次场景改用 Blender 积木来搭"),
+        (259.2, "破茧", "泼溅好看，但是它离墙很近的时候就很糊"), (263.0, "也没有", "也没有办法随便走"), (264.9, "积木", "积木没有那么细，但能走的地方就多很多"),
+        (268.6, "然后现在", "然后现在已经开源了，而且还有一个网站链接"), (272.7, "大家", "大家也可以玩"),
+        (273.6, "在", "在 GitHub 和我的一个 GitHub 部署的网站上"), (279.2, "就感谢", "感谢药郎给我的灵感"), (281.1, "希望", "希望你们喜欢")]),
+]
+
+def resolve_v3(edl, words):
+    """(大概时间, 开头几个字, 文字) → (真正开始时间, 文字)：在大概时间 ±2.5 秒内找转写里以这几个字开头的位置"""
+    out = []
+    for name, pieces, subs in edl:
+        rs = []
+        for approx, anchor, txt in subs:
+            best = None
+            for i, w in enumerate(words):
+                if abs(w["start"] - approx) > 2.5: continue
+                seq = "".join(x["word"].strip() for x in words[i:i + 8]).replace(",", "").replace("。", "")
+                if seq.startswith(anchor) and (best is None or abs(w["start"] - approx) < abs(best - approx)): best = w["start"]
+            if best is None: raise ValueError(f"{name}: 找不到「{anchor}」@{approx}")
+            rs.append((best, txt))
+        out.append((name, pieces, rs))
+    return out
+
+VER = sys.argv[1] if len(sys.argv) > 1 else ""
+SRC, OUT = ("口播_原始.m4a", "口播_剪辑") if VER != "v3" else ("口播v3_原始.m4a", "口播v3_剪辑")
+
+def load(denoise=True):
+    """denoise=True：高通 + afftdn 降噪（第一版语音备忘录低码率录音用）；False：只滤 80 Hz 以下。
+    降噪会把 3–12 kHz 削掉 7–10 dB，咬字发糊（2026-10-31 实测），干净的录音不要用它出声，只拿它找切点。"""
+    af = "highpass=f=80,afftdn=nf=-30" if denoise else "highpass=f=80"
+    raw = subprocess.run([FF, "-i", str(V / SRC), "-af", af, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"], capture_output=True).stdout
     return np.frombuffer(raw, np.float32)
 
 def snap(a, t, side, win=0.25, thr=-48):
@@ -77,18 +155,40 @@ def snap(a, t, side, win=0.25, thr=-48):
         if e < best: best, bt = e, s0
     return bt
 
+def align_onsets(sections, wav):
+    """字幕对齐到真正开口的时刻：在字幕时间前 0.3 秒到后 1.2 秒内，找"安静 ≥0.15 秒之后第一次变响"的位置。
+    Whisper 给的句子开始时间有时早、有时晚（实测 -0.1 到 +0.9 秒），句中有停顿的地方用音量曲线校正；找不到停顿就不动。"""
+    v = np.frombuffer(subprocess.run([FF, "-i", str(wav), "-ac", "1", "-ar", "16000", "-f", "f32le", "-"], capture_output=True).stdout, np.float32)
+    st = 0.02
+    for sec in sections:
+        for item in sec["subs"]:
+            x = item[0]; quiet = 0.0
+            for t in np.arange(max(sec["start"], x - 0.3), min(sec["end"], x + 1.2), st):
+                seg = v[int(t * 16000):int((t + st) * 16000)]
+                if len(seg) == 0: break
+                db = 20 * np.log10(np.sqrt(np.mean(seg ** 2)) + 1e-9)
+                if db < -42: quiet += st
+                elif quiet >= 0.15 and db > -36: item[0] = round(float(t) - 0.05, 3); break
+                elif db > -36: quiet = 0.0
+
 def main():
     a = load(); fade = int(0.012 * SR); gap = np.zeros(int(0.14 * SR), np.float32)
-    out, sections, t = [], [], 0.0
-    for name, pieces, subs in EDL:
+    clean = load(denoise=False) if VER == "v3" else a   # v3 录音本身干净：切点在降噪信号上找，出声用原始录音
+    out, out_den, sections, t = [], [], [], 0.0
+    edl = EDL
+    if VER == "v3":
+        words = [w for seg in json.loads((V / "口播v3_转写.json").read_text())["segments"] for w in seg["words"]]
+        edl = resolve_v3(EDL_V3, words)
+    for name, pieces, subs in edl:
         t0 = t; mapping = []
         for i, pc in enumerate(pieces):
             s, e = pc[0], pc[1]; fixed = len(pc) > 2      # 第三项 "fixed"：这个切点已经按音量曲线人工找准，不再挪
             si = int(s * SR) if fixed else snap(a, s, "start"); ei = int(e * SR) if fixed else snap(a, e, "end")
-            seg = a[si:ei].copy(); seg[:fade] *= np.linspace(0, 1, fade); seg[-fade:] *= np.linspace(1, 0, fade)
+            ramp = lambda x: (x.__setitem__(slice(0, fade), x[:fade] * np.linspace(0, 1, fade)), x.__setitem__(slice(-fade, None), x[-fade:] * np.linspace(1, 0, fade)), x)[-1]
+            seg = ramp(clean[si:ei].copy()); out_den.append(ramp(a[si:ei].copy()))
             mapping.append((si / SR, ei / SR, t)); out.append(seg); t += len(seg) / SR
-            if i < len(pieces) - 1: out.append(gap); t += len(gap) / SR
-        out.append(np.zeros(int(0.35 * SR), np.float32)); t += 0.35      # 段与段之间留一口气
+            if i < len(pieces) - 1: out.append(gap); out_den.append(gap); t += len(gap) / SR
+        out.append(np.zeros(int(0.35 * SR), np.float32)); out_den.append(out[-1]); t += 0.35      # 段与段之间留一口气
         def m(x):
             for ss, ee, tt in mapping:
                 if ss - 0.3 <= x <= ee + 0.05: return tt + max(0.0, x - ss)
@@ -97,9 +197,13 @@ def main():
         sections.append({"name": name, "start": round(t0, 3), "end": round(t - 0.35, 3), "subs": [[round(x, 3), txt] for x, txt in lines]})
     y = np.concatenate(out)
     tmp = V / "_tmp.f32"; tmp.write_bytes(y.astype(np.float32).tobytes())
-    subprocess.run([FF, "-y", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", str(tmp), "-af", "loudnorm=I=-16:TP=-1.5:LRA=9", "-ar", str(SR), str(V / "口播_剪辑.wav")], check=True)
+    subprocess.run([FF, "-y", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", str(tmp), "-af", "loudnorm=I=-16:TP=-1.5:LRA=9", "-ar", str(SR), str(V / f"{OUT}.wav")], check=True)
     tmp.unlink()
-    (V / "口播_剪辑.json").write_text(json.dumps(sections, ensure_ascii=False, indent=1))
+    if VER == "v3":   # 字幕对齐在降噪版上找停顿（底噪低，停顿更好认），和出声的版本切点完全一样
+        den = V / "_den.wav"; tmp.write_bytes(np.concatenate(out_den).astype(np.float32).tobytes())
+        subprocess.run([FF, "-y", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", str(tmp), "-af", "loudnorm=I=-16:TP=-1.5:LRA=9", "-ar", str(SR), str(den)], check=True)
+        tmp.unlink(); align_onsets(sections, den); den.unlink()
+    (V / f"{OUT}.json").write_text(json.dumps(sections, ensure_ascii=False, indent=1))
     for s in sections: print(f"{s['name']}: {s['start']:.1f}–{s['end']:.1f}（{s['end'] - s['start']:.1f}s）")
     print("总长", round(len(y) / SR, 1))
 

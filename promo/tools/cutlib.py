@@ -47,8 +47,8 @@ def title_png():
 MONTAGE = [
     # 人物
     ("img", SH / "npc_对话_asa.jpg", 0.5, dict(fit="cover", z=(1.08, 1.0), note=("阿浅",))),
-    ("v", A, 48.6, 0.5, 1.0, dict(z=(1.25, 1.18), note=("阿龟",))),
-    ("v", A, 86.6, 0.5, 1.0, dict(z=(1.2, 1.12), note=("歌山",))),
+    ("img", SH / "npc_对话_kame.jpg", 0.5, dict(fit="cover", z=(1.0, 1.06), note=("阿龟",))),       # 用对话近景截图：游戏画面放大后对话框会压到字幕
+    ("img", SH / "npc_对话_utayama.jpg", 0.5, dict(fit="cover", z=(1.0, 1.06), note=("歌山",))),
     ("img", SH / "cut_02_散线.jpg", 0.5, dict(fit="cover", z=(1.0, 1.1), note=("物怪·手鞠",))),
     # 场景
     ("v", A, 6.4, 0.5, 1.0, dict(note=("大奥·长廊",))),

@@ -38,6 +38,18 @@ showSnd();
 sndBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleSnd(); });
 addEventListener("keydown", (e) => { if (e.code === "KeyB") toggleSnd(); });   // src/paths.js：开发读 ../assets，发布读站点里的 game-assets/
 
+// 访问统计（GoatCounter）：页面按"/"（总地图）和"/地点/区块"报，玩家操作按事件报（拔剑、拍照、开说明卡）。
+// 统计脚本是异步加载的，没到就先排队；开发时（localhost / 本机地址）不报。国内有些网络加载不到脚本，那部分就不计
+const statQ = [];
+const statOn = !/^(localhost|127\.|\[::1\]|::1$)/.test(location.hostname) && !params.has("selftest") && !params.has("auto");
+function stat(path, title, event = false) {
+  if (!statOn) return;
+  const send = () => window.goatcounter.count({ path, title, event });
+  if (window.goatcounter?.count) send(); else statQ.push(send);
+}
+if (statOn) { const t = setInterval(() => { if (window.goatcounter?.count) { clearInterval(t); statQ.splice(0).forEach((f) => f()); } }, 500); setTimeout(() => clearInterval(t), 30000); }
+if (!locId) stat("/", "总地图");
+
 if (!locId) showMap().catch((e) => { console.error(e); status.textContent = "总地图加载失败：" + e.message; }); else startLocation(locId).catch((e) => { console.error(e); status.textContent = "加载失败：" + e.message; });
 
 // ---------------------------------------------------------------- 总地图（占位）
@@ -206,6 +218,7 @@ async function startLocation(id) {
     scene.background.set(z.background || loc.background || "#2A2A4E");
     status.textContent = `${loc.name} · ${z.name || zoneId}`;
     audio.setScene(loc.id, zoneId); floorSnd = audio.floorOf(loc.id, zoneId);
+    stat(`/${loc.id}/${zoneId}`, `${loc.name} · ${z.name || zoneId}`);
   }
 
   function viewText(n) {
@@ -215,6 +228,7 @@ async function startLocation(id) {
   }
   async function openView(n) {
     if (busy) return;
+    stat(`说明卡/${Z.textKey}.${n}`, `说明卡 · ${viewText(n).title}`, true);
     busy = true; path = null; pose = null;
     const p = Z.views[n]; player.rotation.y = Math.atan2(p[0] - player.position.x, p[1] - player.position.z) || player.rotation.y;
     P.play(Z.viewLook?.[n] === "up" ? "look" : "gaze", 0.4);   // 驻足看；高处的观景点（区块里写 viewLook: { "1": "up" }）抬头看
@@ -413,6 +427,7 @@ async function startLocation(id) {
   function drawSword() {
     if (sword) { endSword(); return; }
     if (busy || card.isOpen) return;
+    stat("拔剑", `拔剑 · ${loc.name}`, true);
     sword = true; busy = true; path = null; pose = null; stillT = 0; prompt.set("");
     const f = cam.forward; swordFace = Math.atan2(-f.x, -f.z);   // 转向镜头：平滑转过去（一下拧 180° 下摆弹簧骨甩开，像白布摊了一地，翻车集 008）
     P.play("exorcise", 0.25);   // 不重置弹簧骨：重置那一帧下摆回到绑定姿势，像白布摊了一地（翻车集 008）
@@ -506,6 +521,7 @@ async function startLocation(id) {
     return c;
   }
   function photo() {
+    stat("拍照", `拍照 · ${loc.name}`, true);
     audio.play("shutter");
     const shot = composePhoto(), url = shot.toDataURL("image/png");
     flash();

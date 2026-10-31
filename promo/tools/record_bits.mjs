@@ -4,6 +4,7 @@
 // code：  game.js 在一个代码编辑器样式的页面里往下滚（页面由本脚本现生成，代码高亮用 cdnjs 的 highlight.js）
 // doc <md 文件> <起行> <止行>：把一段 Markdown（分工表、待办表）渲染成文档页，慢慢往下滚
 // url <网址>：打开网页（比如 GitHub 仓库页），停一会儿再慢慢往下滚
+// shot <网址> <输出.png>：打开网页等 8 秒，截一张 1920×1080 的图（静止页面录不出帧时用）
 import { spawn } from "node:child_process";
 import fs from "node:fs"; import path from "node:path"; import os from "node:os";
 
@@ -44,6 +45,10 @@ if (MODE === "shader") {
   const slot = await js(`(()=>{const t=document.getElementById('anims')?.textContent||''; const m=t.match(/([0-9=\\-\\[\\]\\\\])=([^ ]*(slash|exorcise)[^ ]*)/); return m?m[1]:null;})()`);
   console.log("横斩键", slot, await js(`document.getElementById('anims')?.textContent`));
   if (slot) { await key("Digit4", "4"); await key(`Digit${slot}`, slot); mark("slash"); await sleep(5500); }
+} else if (MODE === "shot") {
+  await send("Page.navigate", { url: process.argv[4] }); await sleep(8000);
+  const r = await send("Page.captureScreenshot", { format: "png" });
+  fs.writeFileSync(path.resolve(process.argv[5]), Buffer.from(r.data, "base64")); console.log("截图", process.argv[5]);
 } else if (MODE === "doc" || MODE === "url") {
   let target;
   if (MODE === "doc") {
