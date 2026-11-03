@@ -65,46 +65,101 @@
     #map .tag-name .seal { margin-top: 4px; font: 11px -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); background: var(--ink); padding: 1px 8px; }
     #map .tests { position: fixed; right: 16px; bottom: 10px; font: 12px -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); opacity: .45; }
     #map .tests a { color: var(--paper); }
-    /* 手机（body.touch）：右上说明换短的，底部一排按钮代替键盘；说明卡挪到按钮栏上面 */
     /* 声音开关：右上角小圆钮，"音" = 开，"静" = 关 */
     #snd { position: fixed; right: max(12px, env(safe-area-inset-right)); top: 10px; z-index: 6; width: 34px; height: 34px; border-radius: 50%; padding: 0; font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; background: var(--paper); color: var(--crimson); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
     #snd.off { color: var(--ink); opacity: .6; }
     #help { right: 58px !important; }
-    body.touch #help { right: calc(96px + env(safe-area-inset-right)) !important; }
-    #pad { display: none; }
-    body.touch #pad { display: flex; position: fixed; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); gap: 8px; z-index: 5; }
-    body.touch.map-mode #pad { display: none; }
-    #pad button { font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .1em; white-space: nowrap; min-width: 56px; height: 44px; padding: 0 10px; background: var(--paper); color: var(--ink); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    #pad button:active { transform: translate(2px, 2px); box-shadow: none; }
-    #pad button.photo { background: var(--crimson); color: var(--paper); }
     body.touch #help .keys { display: none; }
-    @media (orientation: portrait) { body.touch #help { top: 34px; left: 14px; right: 56px !important; text-align: left; } body.touch #pad { gap: 5px; } body.touch #pad button { min-width: 0; padding: 0 9px; letter-spacing: .04em; } }
     body:not(.touch) #help .fingers { display: none; }
-    body.touch #prompt { pointer-events: auto; cursor: pointer; }
-    /* 横屏手机高度只有 390 左右：按钮栏竖着放右边，不挡药郎脚下 */
+    /* 手机（body.touch）操作，像手游（11-03 用户："左边摇杆控制方向，右边是一些按键"）：
+       左下摇杆区（左 45% 宽、下 60% 高）：手指按到哪摇杆就出现在哪，推一点走、推到底快走；只点一下不拖还是"点地面走"。
+       右下角视角摇杆（11-03 用户："看"改成视角的遥控台）：推哪边镜头往哪边转，推得越多转得越快，松手停；
+       左边朱红大圆"拍照"，上方弧形排拔剑、姿势；用得少的滤镜、地图放右上角"音"旁边。右半屏拖动转镜头、两指缩放照旧。
+       看说明卡：点画面里的"観"、或走到旁边点提示条。电脑版不显示这些（键盘鼠标） */
+    #pad, #stick, #look { display: none; }
+    body.touch #pad { display: block; }
+    body.touch.map-mode #pad, body.touch.map-mode #stick, body.touch.map-mode #look { display: none; }
+    #pad button { position: fixed; z-index: 5; font: 14px/1 "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .04em; white-space: nowrap; padding: 0; border-radius: 50%; width: 54px; height: 54px; background: rgba(241, 233, 218, .92); color: var(--ink); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: opacity .2s; }
+    #pad button:active { transform: translate(2px, 2px); box-shadow: none; }
+    #pad .b-photo { width: 66px; height: 66px; font-size: 17px; right: calc(150px + env(safe-area-inset-right)); bottom: calc(30px + env(safe-area-inset-bottom)); background: var(--crimson); color: var(--paper); }
+    #pad .b-sword { right: calc(138px + env(safe-area-inset-right)); bottom: calc(110px + env(safe-area-inset-bottom)); }
+    #pad .b-pose { right: calc(66px + env(safe-area-inset-right)); bottom: calc(150px + env(safe-area-inset-bottom)); }
+    /* 视角摇杆：固定在右下角，底座 120 像素，手柄跟着手指，最多推出 46 像素 */
+    body.touch #look { display: block; position: fixed; right: calc(22px + env(safe-area-inset-right)); bottom: calc(22px + env(safe-area-inset-bottom)); width: 120px; height: 120px; z-index: 5; touch-action: none; border-radius: 50%; border: 2px solid rgba(241, 233, 218, .75); background: rgba(42, 42, 78, .25); opacity: .75; transition: opacity .2s; }
+    body.touch #look.on { opacity: 1; transition: none; }
+    #look .knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(241, 233, 218, .95); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); pointer-events: none; display: flex; align-items: center; justify-content: center; font: 13px/1 "Hiragino Mincho ProN", "Songti SC", serif; color: var(--ink); }
+    #pad .b-filter, #pad .b-map { width: auto; height: 30px; padding: 0 10px; border-radius: 15px; font-size: 13px; top: 12px; }
+    #pad .b-map { right: calc(56px + env(safe-area-inset-right)); }
+    #pad .b-filter { right: calc(116px + env(safe-area-inset-right)); }
+    body.touch #stick { display: block; position: fixed; left: 0; bottom: 0; width: 45vw; height: 60vh; z-index: 3; touch-action: none; }
+    #stick .base { position: absolute; left: calc(28px + env(safe-area-inset-left)); bottom: calc(28px + env(safe-area-inset-bottom)); width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(241, 233, 218, .75); background: rgba(42, 42, 78, .25); transition: opacity .2s; opacity: .7; pointer-events: none; }
+    #stick.on .base { opacity: 1; transition: none; }
+    #stick .knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(241, 233, 218, .95); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+    body.touch #tags { z-index: 4; }
+    body.touch #help { right: calc(180px + env(safe-area-inset-right)) !important; }
+    @media (orientation: portrait) { body.touch #help { top: 48px; left: 14px; right: 14px !important; text-align: left; } }
+    body.touch #prompt { pointer-events: auto; cursor: pointer; bottom: calc(190px + env(safe-area-inset-bottom)); }
+    body.touch #card { bottom: calc(190px + env(safe-area-inset-bottom)); width: 90vw; padding: 14px 18px 18px; }
     @media (orientation: landscape) {
-      body.touch #pad { flex-direction: column; left: auto; right: max(12px, env(safe-area-inset-right)); bottom: auto; top: 50%; transform: translateY(-50%); }
-      body.touch #pad button { min-width: 64px; }
-      body.touch #help { right: calc(96px + env(safe-area-inset-right)); }
-      body.touch #card { bottom: 6% !important; left: calc(50% - 48px); width: min(620px, calc(100vw - 140px)) !important; }
+      body.touch #card { bottom: 6% !important; width: min(560px, calc(100vw - 380px)) !important; }
       body.touch #prompt { bottom: 6% !important; }
     }
-    body.touch #card { bottom: calc(76px + env(safe-area-inset-bottom)); width: 90vw; padding: 14px 18px 18px; }
     body.touch #card .title { font-size: 20px; }
     body.touch #card .body { font-size: 16px; }
     body.touch #card::after { content: "点击关闭"; }
-    body.touch #prompt { bottom: calc(72px + env(safe-area-inset-bottom)); }
     body.touch .tag.view { width: 38px; height: 38px; line-height: 36px; font-size: 20px; }
     body.touch .tag.exit { padding: 6px 14px; font-size: 16px; }
     #map .scroll { touch-action: pan-x; -webkit-overflow-scrolling: touch; }
+    /* 首次加载提示（tour/loading.js 接手进度）：纸色卡片、细进度条、轮播小提示；静态写在这里，程序没下完也能显示 */
+    #loading { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: var(--navy); transition: opacity .5s; padding: 16px; box-sizing: border-box; }
+    #loading.out { opacity: 0; pointer-events: none; }
+    #loading .card { width: min(440px, 100%); padding: 22px 24px 18px; text-align: left; }
+    #loading h1 { margin: 0 0 2px; font-weight: normal; font-size: 22px; letter-spacing: .4em; }
+    #loading .where { font-size: 15px; letter-spacing: .1em; margin-bottom: 14px; color: var(--crimson); }
+    #loading .bar { height: 6px; background: rgba(50, 45, 72, .15); border: 1px solid var(--ink); overflow: hidden; }
+    #loading .bar i { display: block; height: 100%; width: 0; background: var(--crimson); transition: width .3s; }
+    #loading:not(.counting) .bar i { width: 30%; animation: loadslide 1.4s ease-in-out infinite; }
+    @keyframes loadslide { 0% { transform: translateX(-100%); } 100% { transform: translateX(340%); } }
+    #loading .meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; font: 12px/1.6 -apple-system, "Hiragino Sans GB", sans-serif; opacity: .7; }
+    #loading .big, #loading .note { font: 13px/1.7 -apple-system, "Hiragino Sans GB", sans-serif; margin-top: 12px; }
+    #loading .big:empty { display: none; }
+    #loading .tip { margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(50, 45, 72, .35); font-size: 14px; line-height: 1.7; min-height: 2.4em; transition: opacity .3s; }
+    #loading .tip b { color: var(--crimson); font-weight: normal; margin-right: 6px; }
+    #loading.failed .bar, #loading.failed .tip, #loading.failed .meta { display: none; }
   </style>
 </head>
 <body>
   <div id="stage"></div>
-  <div id="status">加载中…</div>
+  <div id="status"></div>
+  <div id="loading"><div class="card paper">
+    <h1>怪化猫 · 游览</h1>
+    <div class="where">正在加载</div>
+    <div class="bar"><i></i></div>
+    <div class="meta"><span class="step">准备中…</span><span class="mb"></span></div>
+    <div class="big"></div>
+    <div class="note">第一次进入要准备场景和人物，稍等片刻；之后再来会快很多。<span class="wifi">手机建议连 Wi-Fi。</span></div>
+    <div class="tip"></div>
+  </div></div>
+  <script>
+    // 加载提示：程序还没下完时先用这段小脚本显示地点名和轮播提示（tour/loading.js 之后接手进度）
+    (function () {
+      var L = document.getElementById("loading"), loc = new URLSearchParams(location.search).get("loc");
+      var names = { ooku: "大奥", wanya: "万屋", sakai: "坂井家" }, touch = matchMedia("(pointer: coarse)").matches || /[?&]touch=1/.test(location.search);
+      L.querySelector(".where").textContent = loc ? "正在进入「" + (names[loc] || loc) + "」" : "正在展开绘卷";
+      if (!touch) L.querySelector(".wifi").remove();
+      var tips = touch
+        ? ["左下角按住拖动就能走，推到底走得快", "走到「観」旁边，点右下红色的「看」打开说明卡", "右半边屏幕拖动转镜头，两根手指缩放", "点「拔剑」，药郎会拔出退魔之剑", "点「拍照」存图，右上角「滤镜」换夜色、雨、褪色", "右上角「音」可以开关声音"]
+        : ["点地面，药郎就走过去；也可以用 WASD，按住 Shift 快走", "看到「観」点一下，会走过去打开说明卡", "拖动转镜头，滚轮拉远拉近", "按 X，药郎会拔出退魔之剑", "P 拍照，F 换滤镜（夜色、雨、褪色），O 换姿势", "右上角「音」或按 B 开关声音"];
+      var i = Math.floor(Math.random() * tips.length), el = L.querySelector(".tip");
+      function show() { el.style.opacity = 0; setTimeout(function () { el.innerHTML = "<b>小提示</b>" + tips[i++ % tips.length]; el.style.opacity = 1; }, 300); }
+      show(); setInterval(show, 4000);
+    })();
+  </script>
   <button id="snd" title="声音开关（B）">音</button>
-  <div id="help"><span class="keys">点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · P 拍照 · F 换滤镜 · O 换姿势 · X 拔剑 · M 总地图 · B 声音</span><span class="fingers">点地面走 · 连点两下快走 · 拖动转镜头 · 两指缩放</span></div>
-  <div id="pad"><button data-k="KeyE">看</button><button data-k="KeyO">姿势</button><button data-k="KeyX">拔剑</button><button class="photo" data-k="KeyP">拍照</button><button data-k="KeyF">滤镜</button><button data-k="KeyM">地图</button></div>
+  <div id="help"><span class="keys">点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · P 拍照 · F 换滤镜 · O 换姿势 · X 拔剑 · M 总地图 · B 声音</span><span class="fingers">左边摇杆走路 · 右边摇杆转视角 · 两指缩放</span></div>
+  <div id="look"><div class="knob">视角</div></div>
+  <div id="pad"><button class="b-sword" data-k="KeyX">拔剑</button><button class="b-photo" data-k="KeyP">拍照</button><button class="b-pose" data-k="KeyO">姿势</button><button class="b-filter" data-k="KeyF">滤镜</button><button class="b-map" data-k="KeyM">地图</button></div>
+  <div id="stick"><div class="base"><div class="knob"></div></div></div>
   <div id="fx"></div>
   <div id="tags"></div>
   <div id="prompt" class="paper"></div>

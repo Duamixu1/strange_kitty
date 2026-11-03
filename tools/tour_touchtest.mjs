@@ -20,7 +20,7 @@ for (let i = 0; i < 90; i++) { await sleep(1000); if (await ev("!!(window.__tour
 await sleep(2500);
 const shot = async (name) => { const r = await cdp("Page.captureScreenshot", { format: "jpeg", quality: 80 }); fs.writeFileSync(`${out}/${name}.jpg`, Buffer.from(r.data, "base64")); };
 const touch = (type, pts) => cdp("Input.dispatchTouchEvent", { type, touchPoints: pts.map(([x, y], i) => ({ x, y, id: i })) });
-const res = {}; const innerW = +(process.env.W||844);
+const res = {}; await ev(`window.__pe=[];["pointerdown","pointerup","pointercancel"].forEach(t=>addEventListener(t,e=>__pe.push(t+":"+e.pointerId+":"+e.target.tagName+"#"+e.target.id),{capture:true}))`); const innerW = +(process.env.W||844);
 res.touchClass = await ev("document.body.classList.contains('touch')");
 const pos = () => ev("[__tour.player.position.x, __tour.player.position.z].map(v=>+v.toFixed(2))");
 const dist = () => ev("+(__tour.cam.cur ?? __tour.cam.dist).toFixed(2)");
@@ -36,11 +36,11 @@ if (tp) { await touch("touchStart", [tp]); await sleep(60); await touch("touchEn
 await sleep(2500); res.p1 = await pos(); res.walked = Math.hypot(res.p1[0] - res.p0[0], res.p1[1] - res.p0[1]);
 // 2. 一指拖：转镜头
 res.yaw0 = await ev("+__tour.cam.yaw.toFixed(3)");
-await touch("touchStart", [[innerW/2, 200]]); for (let k = 1; k <= 8; k++) { await touch("touchMove", [[innerW/2 - 80 + k * 20, 200]]); await sleep(16); } await touch("touchEnd", []);
-await sleep(300); res.yaw1 = await ev("+__tour.cam.yaw.toFixed(3)"); res.p2 = await pos(); res.dragNoWalk = Math.hypot(res.p2[0] - res.p1[0], res.p2[1] - res.p1[1]) < 0.05;
+await touch("touchStart", [[innerW*0.7, 200]]); for (let k = 1; k <= 8; k++) { await touch("touchMove", [[innerW*0.7 - 80 + k * 20, 200]]); await sleep(16); } await touch("touchEnd", []);
+await sleep(300); res.peDrag = await ev("__pe.slice(-6)"); res.yaw1 = await ev("+__tour.cam.yaw.toFixed(3)"); res.p2 = await pos(); res.dragNoWalk = Math.hypot(res.p2[0] - res.p1[0], res.p2[1] - res.p1[1]) < 0.05;
 // 3. 两指捏合：拉近
 res.d0 = await ev("+__tour.cam.dist.toFixed(2)");
-await touch("touchStart", [[innerW/2-120, 200], [innerW/2+120, 200]]); for (let k = 1; k <= 8; k++) { await touch("touchMove", [[innerW/2-120 + k * 10, 200], [innerW/2+120 - k * 10, 200]]); await sleep(16); } await touch("touchEnd", []);
+await touch("touchStart", [[innerW*0.55, 200], [innerW*0.95, 200]]); for (let k = 1; k <= 8; k++) { await touch("touchMove", [[innerW*0.55 + k * 8, 200], [innerW*0.95 - k * 8, 200]]); await sleep(16); } await touch("touchEnd", []);
 await sleep(300); res.d1 = await ev("+__tour.cam.dist.toFixed(2)"); res.p3 = await pos(); res.pinchNoWalk = Math.hypot(res.p3[0] - res.p2[0], res.p3[1] - res.p2[1]) < 0.05;
 await shot(`touch_${loc}_1`);
 // 4. 连点两下：快走
@@ -58,6 +58,11 @@ await shot(`touch_${loc}_2`);
 const tag = await ev("(()=>{const t=[...document.querySelectorAll('.tag.view')].find(e=>{const b=e.getBoundingClientRect();return b.x>0&&b.x<844&&b.y>0&&b.y<330&&e.style.display!=='none'});if(!t)return null;const b=t.getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2]})()");
 res.tag = tag;
 if (tag) { await touch("touchStart", [tag]); await sleep(50); await touch("touchEnd", []); for (let i = 0; i < 20 && !(await ev("__tour.card.isOpen")); i++) await sleep(500); res.cardOpen = await ev("__tour.card.isOpen"); await sleep(600); await shot(`touch_${loc}_3_card`); await touch("touchStart", [[422, 250]]); await sleep(50); await touch("touchEnd", []); await sleep(600); res.cardClosed = !(await ev("__tour.card.isOpen")); }
+// 摇杆：左下角按住往上推满 1.5 秒，药郎应往镜头前方走
+const H0 = +(process.env.H||390), sp0 = await pos();
+await touch("touchStart", [[70, H0 - 90]]); for (let k = 1; k <= 6; k++) { await touch("touchMove", [[70, H0 - 90 - k * 12]]); await sleep(16); }
+await sleep(1500); res.stickMoved = await (async () => { const p1 = await pos(); return +Math.hypot(p1[0] - sp0[0], p1[1] - sp0[1]).toFixed(2); })();
+await touch("touchEnd", []); await sleep(300);
 res.audioReady = await ev("__tour.audio.ready");
 res.sounds = await ev("(() => { const c = {}; for (const n of window.__snd || []) c[n] = (c[n] || 0) + 1; return c; })()");
 res.errors = await ev("window.__errs || []");
