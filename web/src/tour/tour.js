@@ -745,6 +745,12 @@ async function startLocation(id) {
   await enterZone(params.get("zone") || loc.start);
   renderer.setAnimationLoop(() => frame());
   // 加载提示：泼溅（大奥）也要等下完，不然一进去房间是空的；最多等 2 分钟，网太慢就先让人进去
+  // 11-05（翻车集 016）：泼溅刚下完还没排好序、衣服弹簧骨还在从绑定姿势往下落，加载提示一撤就看见空房间和炸开的衣摆。
+  //   在提示底下先跑一会儿：至少 30 帧、泼溅地点至少 1.2 秒（后台标签页不出帧，最多等 3 秒）
+  await Promise.race([(async () => {
+    const t0 = performance.now();
+    for (let n = 0; n < 30 || performance.now() - t0 < (splatOf.size ? 1200 : 300); n++) await new Promise((r) => requestAnimationFrame(r));
+  })(), new Promise((r) => setTimeout(r, 3000))]);
   loading.done();   // 进门那块泼溅 enterZone 里已经等过了
   if (splatOf.size) splatQueue();
   prefetchNext(Z.id);
