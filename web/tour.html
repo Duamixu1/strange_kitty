@@ -9,7 +9,7 @@
     html, body { margin: 0; height: 100%; background: var(--navy); overflow: hidden; font-family: "Hiragino Mincho ProN", "Songti SC", "Noto Serif CJK SC", serif; color: var(--ink); }
     #stage canvas { display: block; touch-action: none; }
     .paper { background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); position: relative; }
-    .paper::before { content: ""; position: absolute; inset: 0; background: url(/textures/paper.png) 0 0 / 512px; opacity: .12; mix-blend-mode: multiply; pointer-events: none; }
+    .paper::before { content: ""; position: absolute; inset: 0; background: url(/textures/paper.jpg) 0 0 / 512px; opacity: .12; mix-blend-mode: multiply; pointer-events: none; }
     .paper > * { position: relative; }
     #status { position: fixed; left: 14px; top: 12px; font: 12px/1.6 -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); opacity: .8; pointer-events: none; text-shadow: 0 0 4px var(--navy); }
     #help { position: fixed; right: 14px; top: 12px; font: 12px/1.6 -apple-system, "Hiragino Sans GB", sans-serif; color: var(--paper); opacity: .55; text-align: right; pointer-events: none; text-shadow: 0 0 4px var(--navy); }
@@ -32,6 +32,8 @@
     .tag:hover { filter: brightness(1.08); transform-origin: 50% 100%; }
     #wipe { position: fixed; inset: 0; transform: translateX(-100%); pointer-events: none; z-index: 20;
       background: repeating-linear-gradient(90deg, var(--paper) 0 23%, var(--ink) 23% 23.6%, var(--paper) 23.6% 49.4%, var(--ink) 49.4% 50.6%, var(--paper) 50.6% 76.4%, var(--ink) 76.4% 77%, var(--paper) 77% 100%); }
+    #wipe::after { content: "正在布置下一间…"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 8px 18px; font-size: 16px; letter-spacing: .25em; color: var(--ink); background: var(--paper); border: 1px solid var(--ink); opacity: 0; transition: opacity .3s; white-space: nowrap; }
+    #wipe.wait::after { opacity: 1; }
     /* 拍照滤镜预览（F 切换）：画布本身走 CSS filter，夜色的藍调和雨丝叠在这一层 */
     #fx { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
     #fx.night { background: rgba(42, 42, 78, .35); mix-blend-mode: multiply; }

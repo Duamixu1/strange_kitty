@@ -1,13 +1,14 @@
 import * as THREE from "three";
 import { asset, pub } from "../paths.js";
-import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
+// Spark（泼溅渲染，压缩后约 1 MB，占程序包一大半）只有大奥用：进大奥时才 import，总地图、坂井家、万屋不用下它（11-05 用户："其他人打开特别慢"）
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { PaperOutlinePost } from "../style/post.js";
 import { createCollision } from "../world/collision.js";
 import { createPathfinder } from "../world/pathfind.js";
 import { loadKit } from "./kit.js";
-import { loadPlayer, loadNpc } from "./player.js";
+import { loadPlayer, loadNpc, PLAYER_MODEL } from "./player.js";
+import PROPS from "../data/props.json";
 import { FollowCam, buildCollider } from "./follow_cam.js";
 import { SplatCam } from "./splat_cam.js";
 import { swordShot } from "./sword_cam.js";
@@ -104,9 +105,16 @@ async function showMap() {
 }
 
 // ---------------------------------------------------------------- 地点
+function preloadFiles(urls) {
+  for (const href of new Set(urls)) {
+    const l = document.createElement("link");
+    l.rel = "preload"; l.as = "fetch"; l.crossOrigin = "anonymous"; l.href = href;   // as=fetch + crossorigin，GLTFLoader 的 fetch 才能直接拿这份
+    document.head.appendChild(l);
+  }
+}
 async function startLocation(id) {
   const loc = await loadLocation(id);
-  loading.start(id, loc.name, loc.splats?.length || 0); loading.step("搭场景…");
+  loading.start(id, loc.name, loc.splats?.length ? 1 : 0);   // 只等进门那块泼溅 loading.step("搭场景…");
   const texts = await loadText();
   document.title = `${loc.name} · 怪化猫游览`;
 
@@ -118,7 +126,7 @@ async function startLocation(id) {
   renderer.setSize(innerWidth, innerHeight);
   document.getElementById("stage").appendChild(renderer.domElement);
   scene.add(new THREE.DirectionalLight(0xffffff, 1));
-  const post = new PaperOutlinePost(renderer, scene, camera);
+  const post = new PaperOutlinePost(renderer, scene, camera, { paper: "textures/paper.jpg" });
   post.maskLayer = 3;   // 拔剑妖化的描边变色只给药郎（player.js 给药郎开了第 3 图层），屋子的线不跟着变
   post.setAwakenColor("#C9A23A");   // 妖化描边用金色（10-31 用户："不要用红色的勾边，改成金色"）。canon 赭金 #DCC67C 太浅，压在浅色墙前看不清，往深调成金；探案版不设，还是深红
   post.setFlags({ outline: true, paper: true, letterbox: false });
@@ -128,21 +136,42 @@ async function startLocation(id) {
   // Spark 的坑：运行中改泼溅的 visible / opacity / position、加 SplatEdit，整个泼溅系统会掉成 0 个点（探案版试过）。
   // 所以几个泼溅区块共用一个坐标系、一起加载，换区块只换镜头规则和可走范围，不增删泼溅。
   // 条目格式和 cameras.json 的 layout.splats 一样：原始帧 y 向下、沿 +z；绕 X 转 180°，再绕 Y 转 yawDeg，缩放，平移 position
-  const splats = [];
+  // 11-05 懒加载：五块泼溅（每块 7 MB）原来一起下、全下完才让进，慢网上要等 36 MB。现在先只下进门那块，进去以后其余几块
+  //   一块接一块在后台下（按出口顺序），走进还没下完的房间时在拉门里等那一块；没开始下的，点进去就插队先下它。
+  //   泼溅是"加进场景以后不再改"，后加的几块只是晚一点 new，加进去以后同样不动它（Spark 怕的是改 visible / opacity / 加 SplatEdit）。
+  const splats = [], splatOf = new Map();   // splatOf：区块 id → { S, mesh, ready }
+  const firstZone = params.get("zone") || loc.start;
+  let Spark = null;
+  const zoneOfSplat = (S) => S.zone || S.name.replace(/_v\d+$/, "");
+  function addSplat(e) {
+    if (e.mesh) return e.ready;
+    const S = e.S, m = new Spark.SplatMesh({ url: asset(`worldlabs/${S.name}/splat_${S.quality || "500k"}.spz`) });
+    const yaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(S.yawDeg || 0));
+    m.quaternion.copy(yaw.multiply(new THREE.Quaternion(1, 0, 0, 0)));
+    m.scale.setScalar(S.scale); m.position.set(...S.position);
+    m.frustumCulled = false;   // Spark 算的包围盒不对，镜头一偏整块被剔掉
+    scene.add(m); splats.push(m); post.exclude.push(m);
+    e.mesh = m; e.ready = Promise.resolve(m.initialized).then(() => { e.done = true; loading.splatDone(); }, (err) => { e.done = true; console.warn("泼溅加载失败", S.name, err); });
+    return e.ready;
+  }
   if (loc.splats?.length) {
-    const spark = new SparkRenderer({ renderer }); scene.add(spark);
-    for (const S of loc.splats) {
-      const m = new SplatMesh({ url: asset(`worldlabs/${S.name}/splat_${S.quality || "500k"}.spz`) });
-      m.initialized?.then(() => loading.splatDone());
-      const yaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(S.yawDeg || 0));
-      m.quaternion.copy(yaw.multiply(new THREE.Quaternion(1, 0, 0, 0)));
-      m.scale.setScalar(S.scale); m.position.set(...S.position);
-      m.frustumCulled = false;   // Spark 算的包围盒不对，镜头一偏整块被剔掉
-      scene.add(m); splats.push(m);
-    }
-    post.exclude.push(...splats); post.spark = spark;
+    Spark = await import("@sparkjsdev/spark");
+    const spark = new Spark.SparkRenderer({ renderer }); scene.add(spark); post.spark = spark;
+    for (const S of loc.splats) splatOf.set(zoneOfSplat(S), { S, mesh: null, ready: null, done: false });
+    if (!splatOf.has(firstZone)) splatOf.set(firstZone, splatOf.get(zoneOfSplat(loc.splats[0])));
+    addSplat(splatOf.get(firstZone));
+  }
+  // 后台一块接一块下其余泼溅（进门那块好了才开始，不跟它抢网速）
+  async function splatQueue() {
+    for (const e of new Set(splatOf.values())) { if (!e.mesh) await addSplat(e); }
   }
 
+  // 11-05：药郎、三件随身道具、进门区块的积木和配角同时开始下（原来一个下完才下下一个，慢网上光排队就多好几秒）。
+  //   这里只发 <link rel=preload>，真正读文件的还是下面的 loader，拿的是同一份，不会多下
+  {
+    const z0 = loc.zones?.[firstZone] || {};
+    preloadFiles([PLAYER_MODEL, ...Object.values(PROPS).map((d) => d.url), z0.kit && `processed/kit/${z0.kit}.glb`, ...(z0.npcs || []).map((d) => d.model)].filter(Boolean).map((u) => assetUrl(u)));
+  }
   status.textContent = `${loc.name} · 加载药郎…`; loading.step("请药郎出场…");
   const P = await loadPlayer(loader, assetUrl, { springs: params.get("spring") !== "0", props: params.get("props") !== "0", layer: params.get("layer") !== "0" });
   const player = P.group; scene.add(player);
@@ -158,33 +187,47 @@ async function startLocation(id) {
   const tags = new Tags((tid) => onTag(tid));
   const zoneCache = new Map(), npcCache = new Map();
   let npcsOn = [];
-  async function enterZone(zoneId, arrive = null) {
-    const z = await resolveZone(loc, zoneId);
-    enc.reset();   // 换区块：物怪直接收掉
-    if (world) scene.remove(world);
-    world = null;
-    if (z.kit && !zoneCache.has(zoneId)) {
-      const g = await loadKit(loader, assetUrl(`processed/kit/${z.kit}.glb`));
-      g.traverse((o) => { if (o.isMesh && o.material.uniforms?.uCutout) o.material.uniforms.uCutout.value = 1; });   // 积木参与遮挡淡出
-      if (z.offset) g.position.set(...z.offset);
-      zoneCache.set(zoneId, g);
-    }
-    if (z.kit) { world = zoneCache.get(zoneId); scene.add(world); }
-    // 配角站桩：区块的 npcs 列表（格式见 14 第三节），换区块时摘掉上一个区块的；药郎绕着走（挡住半径 0.45 米）
-    for (const n of npcsOn) scene.remove(n.group);
-    npcsOn = [];
-    if (z.npcs?.length) {
-      if (!npcCache.has(zoneId)) npcCache.set(zoneId, await Promise.all(z.npcs.map(async (d) => {
+  // 区块的积木（连贴图）和配角下好、建好，放进 zoneCache / npcCache；同一区块只下一次。
+  // 11-05 用户："会卡在这里（换区块的拉门），然后等很久才进"：原来走到门口才开始下下一间，现在进一间以后就在后台把隔壁几间先下好（prefetchNext）
+  const prepping = new Map();
+  function prepZone(zoneId) {
+    if (prepping.has(zoneId)) return prepping.get(zoneId);
+    const z = loc.zones?.[zoneId] || {};
+    const job = Promise.all([
+      z.kit && !zoneCache.has(zoneId) && loadKit(loader, assetUrl(`processed/kit/${z.kit}.glb`)).then((g) => {
+        g.traverse((o) => { if (o.isMesh && o.material.uniforms?.uCutout) o.material.uniforms.uCutout.value = 1; });   // 积木参与遮挡淡出
+        if (z.offset) g.position.set(...z.offset);
+        zoneCache.set(zoneId, g);
+      }),
+      z.npcs?.length && !npcCache.has(zoneId) && Promise.all(z.npcs.map(async (d) => {
         const n = await loadNpc(loader, assetUrl, d).catch((e) => { console.warn("配角加载失败", d.model, e); return null; });
         if (n) {
           n.group.position.set(d.pos[0], 0, d.pos[1]); n.group.rotation.y = d.yaw || 0; n.pos = [...d.pos]; n.home = { pos: [...d.pos], yaw: d.yaw || 0 };
           if (d.patrol?.length) n.patrol = { pts: [d.pos, ...d.patrol], i: 0, dir: 1, speed: d.speed ?? 0.7, pause: d.pause ?? 3, hold: 0, yield: 0 };
         }
         return n;
-      })));
-      npcsOn = npcCache.get(zoneId).filter(Boolean);
-      for (const n of npcsOn) scene.add(n.group);
-    }
+      })).then((list) => npcCache.set(zoneId, list)),
+    ]).catch((e) => { prepping.delete(zoneId); throw e; });   // 失败了下次进门再试
+    prepping.set(zoneId, job);
+    return job;
+  }
+  // 后台按出口顺序一间一间先下隔壁（不并发，免得跟眼前要用的抢网速）；出错不管，进门时 prepZone 会再试
+  let prefetchChain = Promise.resolve();
+  function prefetchNext(zoneId) {
+    for (const e of loc.zones?.[zoneId]?.exits || []) prefetchChain = prefetchChain.then(() => prepZone(e.to)).catch(() => {});
+  }
+  async function enterZone(zoneId, arrive = null) {
+    const sp = splatOf.get(zoneId);
+    if (sp && !sp.done) await Promise.race([addSplat(sp), new Promise((r) => setTimeout(r, 120000))]);   // 这间的泼溅还没下完：在拉门里等它（没开始下的先插队）；最多等 2 分钟，网太慢就先让人进去
+    const [z] = await Promise.all([resolveZone(loc, zoneId), prepZone(zoneId)]);
+    enc.reset();   // 换区块：物怪直接收掉
+    if (world) scene.remove(world);
+    world = null;
+    if (z.kit) { world = zoneCache.get(zoneId); scene.add(world); }
+    // 配角站桩：区块的 npcs 列表（格式见 14 第三节），换区块时摘掉上一个区块的；药郎绕着走（挡住半径 0.45 米）
+    for (const n of npcsOn) scene.remove(n.group);
+    npcsOn = (npcCache.get(zoneId) || []).filter(Boolean);
+    for (const n of npcsOn) scene.add(n.group);
     Z = z; col = createCollision(z.walk);
     if (npcsOn.length) {
       const base = col.canStand;
@@ -253,7 +296,12 @@ async function startLocation(id) {
     const e = Z.exits[i]; if (!e || busy) return;
     busy = true; path = null; P.play("idle"); prompt.set("");
     audio.play("hyoshigi"); audio.play("slide");
-    await fusumaWipe(() => enterZone(e.to, { stair: e.arrive ?? 0 }));
+    const wipeEl = document.getElementById("wipe");
+    await fusumaWipe(async () => {
+      const t = setTimeout(() => wipeEl.classList.add("wait"), 500);   // 隔壁还没下完：拉门上写一句，不让人以为卡死了
+      try { await enterZone(e.to, { stair: e.arrive ?? 0 }); } finally { clearTimeout(t); wipeEl.classList.remove("wait"); }
+    });
+    prefetchNext(e.to);
     busy = false;
   }
   function walkTo(x, z, then = null, tol = 0.3) {
@@ -697,8 +745,9 @@ async function startLocation(id) {
   await enterZone(params.get("zone") || loc.start);
   renderer.setAnimationLoop(() => frame());
   // 加载提示：泼溅（大奥）也要等下完，不然一进去房间是空的；最多等 2 分钟，网太慢就先让人进去
-  if (splats.length) { loading.step("展开实景房间…"); await Promise.race([Promise.all(splats.map((m) => m.initialized)), new Promise((r) => setTimeout(r, 120000))]); }
-  loading.done();
+  loading.done();   // 进门那块泼溅 enterZone 里已经等过了
+  if (splatOf.size) splatQueue();
+  prefetchNext(Z.id);
   if (enc.on) enc.preload();   // 进去以后再在后台下这个地点的物怪（0.4~0.8 MB），不拖慢首次加载
 
   async function save(name) {

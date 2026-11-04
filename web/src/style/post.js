@@ -7,13 +7,13 @@ import { pub } from "../paths.js";
 //   pass 3  全屏合成：深度跳变画粗外轮廓，法线跳变画细内线；再叠屏幕空间和纸、暗角、可选宽银幕黑边
 // 描边色固定 canon 第 12 色 #322D48。和纸贴图按屏幕像素平铺，不跟镜头动。
 export class PaperOutlinePost {
-  constructor(renderer, scene, camera) {
+  constructor(renderer, scene, camera, { paper: paperFile = "textures/paper.png" } = {}) {   // 游览版传 paper.jpg（同一张纸纹，352 KB，png 是 850 KB）；探案版不传，照旧
     this.renderer = renderer; this.scene = scene; this.camera = camera;
     const size = renderer.getDrawingBufferSize(new THREE.Vector2());
     this.normalRT = new THREE.WebGLRenderTarget(size.x, size.y, { depthTexture: new THREE.DepthTexture(size.x, size.y, THREE.UnsignedIntType) });
     this.colorRT = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType });
     this.normalMat = new THREE.MeshNormalMaterial();
-    const paper = new THREE.TextureLoader().load(pub("textures/paper.png"));
+    const paper = new THREE.TextureLoader().load(pub(paperFile));
     paper.wrapS = paper.wrapT = THREE.RepeatWrapping;
     paper.colorSpace = THREE.NoColorSpace;
 
