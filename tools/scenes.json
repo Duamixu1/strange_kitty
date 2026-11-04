@@ -424,6 +424,80 @@
       "prompt": "Back view only of the exact same man as image[2], same scale, line quality and flat colouring, a single full-body figure centred on a plain cream background. He stands in the same A-pose as image[2], seen exactly from behind: arms raised about 40 degrees from the body, kimono sleeves spread, feet slightly apart. The back of his head shows ONLY hair: two large round puffs of frizzy black hair at both sides that meet and cover the whole back of the head and the nape, a pale blue shaved patch on the crown with a small black topknot on top. Absolutely no face, no eyes, no nose, no mouth, no ears showing from the front, no facial outline on the back of the head. Costume exactly as image[2] from behind: crimson kimono with gold round crests on the sleeves and back, green collar visible only as a thin band at the back of the neck, the navy apron strings tied in a bow at the back of the waist, white tabi socks and straw zori sandals seen from behind. No text. Palette: image[1].",
       "model": "chat_image_2.5_sunburst",
       "quality": "high"
+    },
+    {
+      "id": "35_化猫_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png"
+      ],
+      "suffix": "model",
+      "prompt": "Modelling turnaround sheet of the Bakeneko mononoke (a monster cat spirit) from the anime Mononoke, drawn in the same line quality and flat colouring as image[2], but a four-legged creature, not a person. Three views side by side on one baseline, same scale, wide empty space between them: front, side profile facing right, back. It stands on all four legs, legs straight and slightly apart, every paw flat on the ground, tail raised in an S curve and split into two at the tip. A large lean cat the size of a big dog, sleek body, long neck, slightly arched back. Fur is flat navy-black with crimson and ochre-gold ukiyo-e flame patterns along the flanks and legs. Angular mask-like face, huge round ochre-gold eyes with thin slit pupils and crimson rims, pointed ears, mouth closed with two small white fangs showing. A crimson collar with one gold bell. Back view: back of the head is only black fur and ears, no face. Plain cream background. Palette: image[1]."
+    },
+    {
+      "id": "36_座敷童子_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png"
+      ],
+      "suffix": "model",
+      "prompt": "Modelling turnaround sheet of a Zashiki-warashi child spirit from the anime Mononoke, drawn in the same line quality, flat colouring and sheet layout as image[2], but a different character: do not copy his face, hair or costume. Three views side by side: front, a pure side profile facing right (only one closed eye and one cheek visible, the far side of the face hidden), back; feet on one baseline, same scale, wide empty space between the views. A-pose for 3D modelling: arms raised about 40 degrees from the body, kimono sleeves spread, hands open and empty, feet slightly apart; the kimono hem ends at the ankles with no train. A small child about 6 years old, doll-like proportions with a slightly large head. Straight black bob hair with a blunt fringe (okappa). Pale porcelain-white face like an ichimatsu doll, eyes closed with long lashes, small red lips, faint pink cheeks. Crimson kimono with ochre-gold temari-ball and pink plum-blossom patterns, a pale lavender obi tied in a bow at the back, white tabi and small red zori. Back view: back of the head is only black hair, no face. Plain cream background. Palette: image[1]."
+    },
+    {
+      "id": "37_唐伞_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png"
+      ],
+      "suffix": "model",
+      "prompt": "Modelling turnaround sheet of the Karakasa umbrella mononoke (a kasa-obake) for the anime Mononoke, drawn in the same line quality and flat colouring as image[2], but an object creature, not a person. Three views side by side on one baseline, same scale, wide empty space between them: front, side profile facing right, back. A closed traditional Japanese oil-paper umbrella (wagasa) standing upright, about as tall as a child, the folded canopy forms a tall cone like a hooded body. Crimson paper with one wide navy ring band, ochre-gold bamboo ribs. One single large eye in the middle of the front of the canopy, ochre-gold iris, thick outline; below it a wide mouth with a long pink tongue hanging down. No arms. The handle comes out of the bottom as one single wooden leg ending in one tall geta sandal. Two paper talisman strips with red seals tied around the canopy with a teal cord. Back view: no eye and no mouth, plain canopy. Plain cream background. Palette: image[1]."
+    },
+    {
+      "id": "38_无面_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/35_化猫_建模三视图.png"
+      ],
+      "suffix": "model",
+      "prompt": "Modelling turnaround sheet of a Noppera-bo faceless spirit, line quality and layout like image[2] but a different man. Mononoke (2007) anime style: ukiyo-e print meets kabuki; dense flat patterns on every surface; faces like Noh masks or kumadori make-up; eerie and theatrical, never cute, no round cartoon eyes. Match the style of image[3]. Front, pure side profile facing right, back; same baseline, wide gaps. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hem at the ankles. Tall slender man. Blank face of ivory lacquer like an unpainted Noh mask: fine crackle lines, two gold kintsugi seams, two crimson kumadori strokes sweeping up from where eyes would be; no eyes, no nose. Long black hair tied low. Black kimono patterned with navy and gold waves and gold cloud crests, crimson brocade obi, four small white Noh masks hanging from cords at the obi. Black geta. Cream background. Palette: image[1]."
+    },
+    {
+      "id": "39_火鼠_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/35_化猫_建模三视图.png"
+      ],
+      "suffix": "model",
+      "prompt": "Modelling turnaround sheet of the Hinezumi fire-rat mononoke. Only an animal: copy only the line quality of image[2], never draw the man from image[2]; no human anywhere. Mononoke (2007) anime style: ukiyo-e print meets kabuki; dense flat patterns on every surface; faces like Noh masks or kumadori make-up; eerie and theatrical, never cute, no round cartoon eyes. Match the style of image[3]. Three views of the same rat on one baseline, same scale, wide gaps: front (face toward us), side profile facing right (whole body seen from the side, tail out behind), back (rump and tail toward us, no face). Gaunt sinister rat the size of a large dog, prowling low like a hunting fox: long level body, head low and forward, four thin legs on the ground, NOT sitting, NOT upright. A crest of stylised flames like Fudo Myoo's flame halo runs along its spine, flat vermilion and gold fire shapes. Crimson fur patterned with small fire scrolls. Face with crimson and black kumadori stripes, narrow gold eyes, white whiskers, long incisors. Teal cord with a paper talisman at the neck. Long thin tail straight out behind ending in one flame wisp. Cream background. Palette: image[1]."
+    },
+    {
+      "id": "40_海坊主_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/35_化猫_建模三视图.png"
+      ],
+      "suffix": "model",
+      "prompt": "Modelling turnaround sheet of the Umibozu sea-monk mononoke, a giant spirit drawn like image[2]'s line quality. Mononoke (2007) anime style: ukiyo-e print meets kabuki; dense flat patterns on every surface; faces like Noh masks or kumadori make-up; eerie and theatrical, never cute, no round cartoon eyes. Match the style of image[3]. Three views on one baseline, same scale, wide gaps: front, side profile facing right, back. Towering monk rising out of the sea, no legs, no arms. Huge shaven head with a stern old-monk Noh-mask face: pale grey-blue, deep carved wrinkles, heavy brows, half-closed glowing gold eyes, mouth pressed shut. Large pale pearl rosary with a crimson tassel round the neck; crimson and gold brocade kesa sash over the left shoulder. Below, a broad bell-shaped dark indigo robe covered in ukiyo-e wave lines, foam curls and small silver fish; the hem dissolves into curling teal and white wave crests flat on the ground. Cream background. Palette: image[1]."
+    },
+    {
+      "id": "41_鵺_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/35_化猫_建模三视图.png"
+      ],
+      "suffix": "model",
+      "prompt": "Modelling turnaround sheet of the Nue chimera mononoke. Four-legged creature drawn like image[2]'s line quality. Mononoke (2007) anime style: ukiyo-e print meets kabuki; dense flat patterns on every surface; faces like Noh masks or kumadori make-up; eerie and theatrical, never cute, no round cartoon eyes. Match the style of image[3]. Three views of the same beast on one baseline, same scale, wide gaps: front, side profile facing right, back. The side view shows the whole long body like a walking tiger: a level back about twice as long as the body is tall, head at the right end, the snake tail rising from the left end, front legs under the shoulders and hind legs under the hips, all four legs visible. Size of a large dog. Monkey head with a face like a red Shojo Noh mask: crimson skin, gold eyes, white kumadori lines, a long white-lavender mane flowing like smoke. Tanuki body in dark brown fur with a brocade pattern of purple clouds and gold lightning zigzags; tiger legs with bold black and ochre stripes, gold claws; the tail is a green snake with gold scale crests, its head raised in an S curve. Back view: only mane, no face. Cream background. Palette: image[1]."
     }
   ],
   "model_suffix": "Style: 2D cel sheet for 3D modelling reference: entirely flat colours, no gradients, no lighting, no cast shadows, NO paper texture, clean thin reddish-brown outlines, plain flat cream background. No text, no logos, no watermark."

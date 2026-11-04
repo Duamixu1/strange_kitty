@@ -126,6 +126,108 @@
     #loading .tip { margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(50, 45, 72, .35); font-size: 14px; line-height: 1.7; min-height: 2.4em; transition: opacity .3s; }
     #loading .tip b { color: var(--crimson); font-weight: normal; margin-right: 6px; }
     #loading.failed .bar, #loading.failed .tip, #loading.failed .meta { display: none; }
+    /* 物怪出没（encounter.js）："怪"开关在"音"下面；遭遇时屋角渗墨（#mkink），形真理的字浮在物怪头上、一句话在下方（#mk）；
+       手机遭遇时多"札"（占拍照的大圆位置）、"闪"（占姿势的位置）、"跳"（闪右边）、"瞬"（拔剑上面），拍照挪到右上角，形真理齐了拔剑钮发亮 */
+    #mkbtn { position: fixed; right: max(12px, env(safe-area-inset-right)); top: 50px; z-index: 6; width: 34px; height: 34px; border-radius: 50%; padding: 0; font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; background: var(--paper); color: var(--crimson); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    #mkbtn.off { color: var(--ink); opacity: .6; text-decoration: line-through; }
+    body.map-mode #mkbtn { display: none; }
+    /* 药箱（medbox.js）：收集册子。"箱"钮在"怪"下面；打开时整屏压暗，中间一只大黑漆箱子 4×3 抽屉；点抽屉在上面弹卡 */
+    #boxbtn { position: fixed; right: max(12px, env(safe-area-inset-right)); top: 90px; z-index: 6; width: 34px; height: 34px; border-radius: 50%; padding: 0; font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; background: var(--paper); color: var(--ink); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    #boxbtn.new::after { content: ""; position: absolute; right: -2px; top: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--crimson); border: 1.5px solid var(--paper); }
+    body.map-mode #boxbtn { display: none; }
+    /* 抽屉宽按屏幕宽、高里小的那个算（一只箱子占满大半屏，11-04 用户要"先显示药箱的大图"），卡宽 --tw */
+    #medbox { --dw: max(64px, min(calc((100vw - 70px) / 4.3), calc((100vh - 140px) / 2.9), 210px)); --tw: min(580px, 92vw);
+      position: fixed; inset: 0; z-index: 9; display: none; align-items: center; justify-content: center; gap: 22px; padding: 16px; background: rgba(20, 16, 31, .62); font-family: "Hiragino Mincho ProN", "Songti SC", serif; }
+    #medbox.show { display: flex; }
+    #medbox .mb-box { position: relative; background: #1B1622; padding: 34px 14px 14px; border: 3px solid #0d0a12; box-shadow: 5px 5px 0 #0d0a12; flex: none; }
+    #medbox .mb-box::before { content: "藥"; position: absolute; left: 50%; top: -20px; transform: translateX(-50%); width: 38px; height: 38px; display: grid; place-items: center; background: var(--crimson); color: var(--paper); border: 2px solid #C9A23A; font-size: 20px; }
+    #medbox .mb-count { position: absolute; left: 16px; top: 9px; color: #C9A23A; font-size: 13px; letter-spacing: .12em; }
+    #medbox .mb-x { position: absolute; right: 8px; top: 4px; border: 0; background: none; color: #C9A23A; font: 22px/1 serif; cursor: pointer; padding: 2px 6px; }
+    #medbox .mb-grid { display: grid; grid-template-columns: repeat(4, var(--dw)); gap: calc(var(--dw) * .08); }
+    #medbox .mb-dr { position: relative; height: calc(var(--dw) * .86); padding: 0; background: linear-gradient(#2c2433, #211a28); border: 2px solid #8a6d26; cursor: pointer; font: inherit; transition: transform .18s, box-shadow .18s; -webkit-tap-highlight-color: transparent; }
+    #medbox .mb-dr::before { content: ""; position: absolute; inset: 4px; border: 1px solid rgba(201, 162, 58, .35); background: radial-gradient(circle at 50% 50%, rgba(201, 162, 58, .18) 1px, transparent 1.5px) 0 0 / 9px 9px; pointer-events: none; }
+    #medbox .mb-dr .lbl { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); writing-mode: vertical-rl; white-space: nowrap; background: var(--paper); color: var(--ink); padding: 3px 2px; font-size: calc(var(--dw) * .115); line-height: 1.05; min-height: calc(var(--dw) * .48); border: 1px solid #b9a98a; }   /* 六个字（褪色的红手鞠）也要在拉环上面收住 */
+    #medbox .mb-dr .new { position: absolute; left: calc(50% + 8px); top: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--crimson); border: 1px solid var(--paper); }
+    #medbox .mb-dr .lbl { z-index: 1; }   /* 签条长了就盖住拉环，不让拉环横穿字 */
+    body.medbox-open #pad, body.medbox-open #tags, body.touch.medbox-open #look, body.touch.medbox-open #stick { display: none; }
+    #medbox .mb-dr .ring { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); width: calc(var(--dw) * .2); height: calc(var(--dw) * .1); border: 2px solid #C9A23A; border-top: 0; border-radius: 0 0 10px 10px; }
+    #medbox .mb-dr.empty { cursor: default; }
+    #medbox .mb-dr.empty .lbl { background: #3a3142; border-color: #4a3f55; }
+    #medbox .mb-dr.on { transform: translateY(6px) scale(1.05); box-shadow: 0 8px 0 #0d0a12; border-color: #C9A23A; z-index: 2; }
+    #medbox .mb-dr.sel { outline: 2px solid #C9A23A; outline-offset: 3px; }   /* 方向键选到的那格 */
+    #medbox .mb-dr.shake { animation: mbshake .35s; }   /* 空抽屉拉不开 */
+    @keyframes mbshake { 25% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
+    #medbox.card .mb-box { filter: brightness(.45); }   /* 卡弹出来时箱子压暗 */
+    #medbox .mb-dr.scale { cursor: default; display: grid; place-items: center; color: #C9A23A; font-size: calc(var(--dw) * .15); letter-spacing: .2em; }
+    #medbox .mb-tray { display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; box-sizing: border-box; width: var(--tw); max-height: calc(100vh - 24px); overflow-y: auto; background: var(--paper); color: var(--ink); border: 2px solid var(--ink); box-shadow: 4px 4px 0 #0d0a12; padding: 18px 22px 20px; }
+    #medbox.card .mb-tray { display: block; animation: mbcard .22s ease-out; }
+    @keyframes mbcard { from { opacity: 0; transform: translate(-50%, calc(-50% + 14px)); } }
+    #medbox .tr-x { position: sticky; float: right; top: 0; margin: -6px -6px 0 0; z-index: 2; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); font: 20px/1 serif; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+    #medbox .tr-img { clear: both; position: relative; aspect-ratio: 1.6; max-height: 40vh; width: 100%; background: #F1E9DA; border: 2px solid #b9a98a; overflow: hidden; }   /* 立绘 720×450，底色和渲染时一样 */
+    #medbox .tr-img img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    #medbox .tr-img .tr-tag {   /* 不叫 .tag：地面标签（観、出口）的 .tag 是全局样式，会把这条撑满整格盖住立绘 */ position: absolute; right: 8px; bottom: 6px; writing-mode: vertical-rl; white-space: nowrap; background: var(--paper); padding: 5px 2px; border: 1px solid var(--crimson); color: var(--crimson); font-size: 15px; letter-spacing: .12em; }
+    #medbox h3 { margin: 12px 0 0; font-size: 24px; letter-spacing: .12em; font-weight: normal; }
+    #medbox h3.mute { color: #7A7088; }
+    #medbox .meta { font-size: 13.5px; color: #7A7088; margin-bottom: 4px; }
+    #medbox .row { margin-top: 6px; font-size: 16px; line-height: 1.6; }
+    #medbox .row b { display: inline-block; width: 26px; color: var(--crimson); font-weight: normal; }
+    #medbox .body { margin-top: 10px; font-size: 15px; line-height: 1.6; color: #5a5068; }
+    #medbox .after { margin-top: 10px; font-size: 15px; line-height: 1.6; color: #7A7088; border-left: 3px solid #C9A23A; padding-left: 8px; }
+    @media (max-height: 460px) {   /* 手机横屏：箱子缩一点，托盘矮一点 */
+      #medbox { --tw: min(480px, 92vw); }
+      #medbox .mb-dr .lbl { top: 4px; }
+      #medbox .tr-img { aspect-ratio: auto; height: 110px; }
+      #medbox h3 { font-size: 19px; } #medbox .row { font-size: 14px; } #medbox .body, #medbox .after { font-size: 13px; }
+    }
+    @media (orientation: portrait) and (max-width: 600px) {   /* 手机竖屏 */
+      #medbox .mb-dr .lbl { top: 4px; }
+    }
+    #mkink { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at center, rgba(20, 16, 31, 0) 52%, rgba(20, 16, 31, .55) 78%, rgba(20, 16, 31, .9) 100%); }
+    #mk { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+    #mk .kanji { position: absolute; left: 0; top: 0; font: 64px/1 "Hiragino Mincho ProN", "Songti SC", serif; color: var(--crimson); text-shadow: 0 0 2px var(--paper), 2px 2px 0 var(--paper), -2px -2px 0 var(--paper), 2px -2px 0 var(--paper), -2px 2px 0 var(--paper); opacity: 0; transition: opacity .35s; }
+    #mk .kanji.show { opacity: 1; }
+    #mk .line { position: absolute; left: 50%; bottom: 24%; transform: translateX(-50%); max-width: 80vw; padding: 6px 14px; font: 17px/1.6 "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .06em; color: var(--paper); background: rgba(42, 42, 78, .72); border-left: 3px solid var(--crimson); opacity: 0; transition: opacity .35s; }
+    #mk .line.show { opacity: 1; }
+    #pad .b-ofuda, #pad .b-dodge, #pad .b-jump, #pad .b-blink { display: none; }
+    body.touch.encounter #pad .b-ofuda, body.touch.encounter #pad .b-dodge, body.touch.encounter #pad .b-jump, body.touch.encounter #pad .b-blink { display: block; }
+    body.touch.encounter #pad .b-pose { display: none; }
+    #pad .b-ofuda { width: 66px; height: 66px; font-size: 22px; right: calc(150px + env(safe-area-inset-right)); bottom: calc(30px + env(safe-area-inset-bottom)); background: var(--crimson); color: var(--paper); }
+    #pad .b-dodge { font-size: 18px; right: calc(66px + env(safe-area-inset-right)); bottom: calc(150px + env(safe-area-inset-bottom)); }
+    #pad .b-jump { font-size: 18px; right: calc(8px + env(safe-area-inset-right)); bottom: calc(150px + env(safe-area-inset-bottom)); }
+    #pad .b-blink { font-size: 18px; right: calc(124px + env(safe-area-inset-right)); bottom: calc(170px + env(safe-area-inset-bottom)); }
+    body.blink-cd #pad .b-blink { opacity: .4; }   /* 瞬移冷却 3 秒 */
+    body.touch.encounter #pad .b-photo { width: auto; height: 30px; padding: 0 10px; border-radius: 15px; font-size: 13px; top: 12px; bottom: auto; right: calc(176px + env(safe-area-inset-right)); background: rgba(241, 233, 218, .92); color: var(--ink); }
+    body.touch.encounter #help { display: none; }
+    /* 第一次遭遇的教学卡（#mktut）：一页一个键，左右翻；形真理没齐按拔剑：屏幕中间三格，齐了的红、空的虚线，抖一下 */
+    #mktut { position: fixed; inset: 0; z-index: 8; display: none; align-items: center; justify-content: center; background: rgba(20, 16, 31, .35); }
+    #mktut.show { display: flex; }
+    #mktut .box { position: relative; width: min(340px, 84vw); padding: 26px 22px 14px; text-align: center; }
+    #mktut .place { position: absolute; left: 12px; top: -13px; padding: 2px 14px; background: var(--crimson); color: var(--paper); font-size: 13px; letter-spacing: .15em; }
+    #mktut .skip { position: absolute; right: 8px; top: 6px; border: 0; background: none; font: 12px -apple-system, "Hiragino Sans GB", sans-serif; color: var(--ink); opacity: .5; cursor: pointer; padding: 6px; }
+    #mktut .key { display: inline-block; min-width: 64px; height: 64px; padding: 0 10px; margin: 6px 0 10px; font: 32px/58px "Hiragino Mincho ProN", "Songti SC", serif; color: var(--paper); background: var(--ink); border: 3px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--crimson); }
+    #mktut .key.wide { font-size: 22px; }
+    #mktut .key.intro { background: var(--crimson); box-shadow: 3px 3px 0 var(--ink); letter-spacing: .2em; padding: 0 14px; }
+    body.touch #mktut .key:not(.intro) { border-radius: 32px; background: rgba(241, 233, 218, .95); color: var(--ink); font-size: 24px; }
+    #mktut .name { font-size: 20px; letter-spacing: .1em; margin-bottom: 6px; }
+    #mktut .line { font-size: 16px; line-height: 1.6; }
+    #mktut .tip { font-size: 13px; opacity: .6; min-height: 1.5em; margin-top: 4px; }
+    #mktut .nav { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    #mktut .nav button { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); font: 26px/1 serif; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); -webkit-tap-highlight-color: transparent; }
+    #mktut .nav button:disabled { opacity: .25; cursor: default; }
+    #mktut .nav button.go { width: auto; padding: 0 16px; border-radius: 22px; font: 16px/1 "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .1em; background: var(--crimson); color: var(--paper); }
+    #mktut .no { font: 13px -apple-system, sans-serif; opacity: .55; letter-spacing: .1em; }
+    @media (max-height: 420px) { #mktut .box { padding-top: 20px; } #mktut .key { height: 52px; min-width: 52px; line-height: 46px; margin: 2px 0 6px; } #mktut .nav { margin-top: 4px; } }
+    body.mk-tut #tags, body.mk-tut #pad, body.touch.mk-tut #look, body.touch.mk-tut #stick { display: none; }   /* 教学卡开着（遭遇停住）：按钮和地面标签先收起来，不压卡 */
+    #mk .need { position: absolute; left: 50%; top: 34%; transform: translate(-50%, -50%); text-align: center; opacity: 0; transition: opacity .25s; }
+    #mk .need.show { opacity: 1; animation: mkshake .45s; }
+    #mk .need .k { display: inline-block; width: 62px; height: 62px; margin: 0 7px; font: 42px/56px "Hiragino Mincho ProN", "Songti SC", serif; color: rgba(241, 233, 218, .45); border: 3px dashed rgba(241, 233, 218, .6); border-radius: 6px; background: rgba(20, 16, 31, .5); }
+    #mk .need .k.got { color: var(--paper); background: var(--crimson); border: 3px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+    #mk .need .t { display: inline-block; margin-top: 12px; padding: 5px 14px; font: 18px/1.5 "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .06em; color: var(--paper); background: rgba(42, 42, 78, .8); border-left: 3px solid var(--crimson); }
+    body.touch #mk .need .k { width: 48px; height: 48px; font-size: 32px; line-height: 42px; }
+    body.touch #mk .need .t { font-size: 15px; }
+    @keyframes mkshake { 0%, 100% { transform: translate(-50%, -50%); } 20% { transform: translate(calc(-50% - 9px), -50%); } 40% { transform: translate(calc(-50% + 8px), -50%); } 60% { transform: translate(calc(-50% - 5px), -50%); } 80% { transform: translate(calc(-50% + 3px), -50%); } }
+    body.mk-ready #pad .b-sword { background: #C9A23A; color: var(--paper); animation: mkpulse 1s ease-in-out infinite; }
+    @keyframes mkpulse { 50% { transform: scale(1.12); } }
   </style>
 </head>
 <body>
@@ -156,9 +258,14 @@
     })();
   </script>
   <button id="snd" title="声音开关（B）">音</button>
-  <div id="help"><span class="keys">点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · P 拍照 · F 换滤镜 · O 换姿势 · X 拔剑 · M 总地图 · B 声音</span><span class="fingers">左边摇杆走路 · 右边摇杆转视角 · 两指缩放</span></div>
+  <button id="mkbtn" title="物怪出没：开">怪</button>
+  <button id="boxbtn" title="药箱：斩过的物怪和执念物（I）">箱</button>
+  <div id="medbox" role="dialog" aria-label="药箱"><div class="mb-box"><div class="mb-count"></div><button class="mb-x" aria-label="关上药箱">×</button><div class="mb-grid"></div></div><div class="mb-tray"></div></div>
+  <div id="mkink"></div>
+  <div id="mk"></div>
+  <div id="help"><span class="keys">点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · P 拍照 · F 换滤镜 · O 换姿势 · X 拔剑 · M 总地图 · B 声音 · 物怪出没时 J 投札、空格闪避、K 跳、L 瞬移 · I 药箱</span><span class="fingers">左边摇杆走路 · 右边摇杆转视角 · 两指缩放</span></div>
   <div id="look"><div class="knob">视角</div></div>
-  <div id="pad"><button class="b-sword" data-k="KeyX">拔剑</button><button class="b-photo" data-k="KeyP">拍照</button><button class="b-pose" data-k="KeyO">姿势</button><button class="b-filter" data-k="KeyF">滤镜</button><button class="b-map" data-k="KeyM">地图</button></div>
+  <div id="pad"><button class="b-sword" data-k="KeyX">拔剑</button><button class="b-photo" data-k="KeyP">拍照</button><button class="b-pose" data-k="KeyO">姿势</button><button class="b-ofuda" data-k="KeyJ">札</button><button class="b-dodge" data-k="Space">闪</button><button class="b-jump" data-k="KeyK">跳</button><button class="b-blink" data-k="KeyL">瞬</button><button class="b-filter" data-k="KeyF">滤镜</button><button class="b-map" data-k="KeyM">地图</button></div>
   <div id="stick"><div class="base"><div class="knob"></div></div></div>
   <div id="fx"></div>
   <div id="tags"></div>

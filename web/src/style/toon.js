@@ -72,6 +72,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       uPatMix: { value: p.mix ?? 0.4 }, uPatMaxY: { value: p.maxY ?? 1e6 },
       uPalN: { value: pal.n },
       uPalColor: { value: pal.color }, uPalTile: { value: pal.tile }, uPalPatColor: { value: pal.patColor }, uPalMix: { value: pal.mix },
+      uRim: { value: 0 }, uRimColor: { value: new THREE.Color("#F6E3B4") },   // 边缘透光：默认关；暗场景里的黑物怪用（encounter.js）
       uCutout: { value: 0 }, uCutCenter: CUTOUT.center, uCutRadius: CUTOUT.radius, uCutDepth: CUTOUT.depth,
     },
     vertexShader: /* glsl */ `
@@ -119,6 +120,8 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       varying float vViewZ;
       varying float vObjY;
       uniform int uCutout;
+      uniform float uRim;
+      uniform vec3 uRimColor;
       uniform vec2 uCutCenter;
       uniform float uCutRadius, uCutDepth;
 
@@ -172,6 +175,10 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
         // 阴影层：固有色和阴影色相乘再和固有色混合，保留纹样，只是整体偏紫偏暗
         vec3 shaded = mix(base, base * uShade * 1.6, uShadeMix);
         vec3 c = mix(shaded, base, lit);
+        if (uRim > 0.0) {   // 侧对镜头的那圈（菲涅尔）从里往外慢慢亮起来，像身上透出一层光（硬切的细边用户嫌生硬，11-04 改）
+          float fres = 1.0 - abs(dot(normalize(vNormalW), normalize(cameraPosition - vWorldPos)));
+          c = mix(c, uRimColor, pow(smoothstep(0.2, 1.0, fres), 1.6) * uRim);
+        }
         gl_FragColor = vec4(c, 1.0);
       }
     `,

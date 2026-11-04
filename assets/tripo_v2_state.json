@@ -79,5 +79,39 @@
   "tokuji3": {
     "model_task": "12852e1f-59eb-49d7-b790-28a8ee088ebf",
     "model_file": "assets/tripo_raw/tokuji3.glb"
+  },
+  "zashiki": {
+    "model_task": "d67f16cb-64f2-4e88-b2ce-9f3e23153346",
+    "model_file": "assets/tripo_raw/zashiki.glb",
+    "rigcheck_task": "17e9e8b1-cc53-4e6b-96f3-5652ee305e4a",
+    "rig_task": "6cfe9e67-cb1f-4fea-8781-9a5c3a07c7d0",
+    "rig_file": "assets/tripo_raw/anims/zashiki_rigged.glb"
+  },
+  "bakeneko": {
+    "model_task": "ad1f9599-428f-49aa-bdfb-99d58b2fd5a5",
+    "model_file": "assets/tripo_raw/bakeneko.glb"
+  },
+  "karakasa": {
+    "model_task": "2ed2508e-42ae-447f-bbbc-ffa6e0b89d18",
+    "model_file": "assets/tripo_raw/karakasa.glb"
+  },
+  "noppera": {
+    "model_task": "8bb78eca-ded0-4c21-94c8-c19ca44f467a",
+    "model_file": "assets/tripo_raw/noppera.glb",
+    "rigcheck_task": "20340505-db78-4c93-bbc1-172f6c580c10",
+    "rig_task": "0e9aded1-f5f3-405e-8928-55e5f2723fea",
+    "rig_file": "assets/tripo_raw/anims/noppera_rigged.glb"
+  },
+  "hinezumi": {
+    "model_task": "eebb198b-1043-4d50-9929-f7f9cb8f0ae5",
+    "model_file": "assets/tripo_raw/hinezumi.glb"
+  },
+  "umibozu": {
+    "model_task": "73b1de9c-8b4a-4ae0-80b0-c9060122a765",
+    "model_file": "assets/tripo_raw/umibozu.glb"
+  },
+  "nue": {
+    "model_task": "b829e44f-be19-47e6-9bc5-5f9ec078a6cf",
+    "model_file": "assets/tripo_raw/nue.glb"
   }
 }

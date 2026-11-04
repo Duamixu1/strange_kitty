@@ -35,6 +35,9 @@ def needed_assets():
         elif isinstance(o, str) and re.fullmatch(r"processed/[\w./-]+\.glb", o):
             need.add(o)
     for f in (WEB / "src/data/tour").glob("*.json"): walk(json.loads(f.read_text()))
+    # 物怪出没（docs/18）：物怪模型写在 mononoke_fx.js 的 MONSTERS 里，不在地点 JSON；药箱的立绘在 processed/zukan/
+    need |= set(re.findall(r"processed/[\w./-]+\.glb", (WEB / "src/tour/mononoke_fx.js").read_text()))
+    need |= {f"processed/zukan/{p.name}" for p in (ASSETS / "processed/zukan").glob("*.jpg")}
     return sorted(need)
 
 

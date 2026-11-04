@@ -1,594 +1,613 @@
 {
- "_说明": "大奥（唐傘）：探案版的五块 World Labs 泼溅原样搬过来（坐标同 web/src/world/cameras.json 的 layout.splats），可走图 data/tour/ooku_walk.json 复制自 data/walkmap.json（带 floor）。场景线游4，10-29。说明卡 key 是 <textKey>.<数字>：ooku_corridor.1/2、ooku_maids.1、ooku_utayama.1、ooku_yuki.1、ooku_courtyard.1",
- "id": "ooku",
- "name": "大奥",
- "start": "corridor",
- "background": "#F1E9DA",
- "splats": [
-  {
-   "name": "corridor_v3",
-   "quality": "500k_level",
-   "scale": 1.5,
-   "position": [
-    0,
-    1.03,
-    -3.255
-   ],
-   "yawDeg": 0
-  },
-  {
-   "name": "maids_v1",
-   "quality": "500k_clipped",
-   "scale": 1.3032,
-   "position": [
-    6,
-    0.99,
-    -2.4
-   ],
-   "yawDeg": -90
-  },
-  {
-   "name": "yuki_v1",
-   "quality": "500k_clipped",
-   "scale": 1.0811,
-   "position": [
-    4.811,
-    1.088,
-    -11.0
-   ],
-   "yawDeg": -90
-  },
-  {
-   "name": "utayama_v1",
-   "quality": "500k_clipped",
-   "scale": 1.4907,
-   "position": [
-    -5.118,
-    1.133,
-    -6.6
-   ],
-   "yawDeg": 90
-  },
-  {
-   "name": "courtyard_v1",
-   "quality": "500k_clipped",
-   "scale": 1.75,
-   "position": [
-    -5.487,
-    1.208,
-    -12.5
-   ],
-   "yawDeg": 90
+  "_说明": "大奥（唐傘）：探案版的五块 World Labs 泼溅原样搬过来（坐标同 web/src/world/cameras.json 的 layout.splats），可走图 data/tour/ooku_walk.json 复制自 data/walkmap.json（带 floor）。场景线游4，10-29。说明卡 key 是 <textKey>.<数字>：ooku_corridor.1/2、ooku_maids.1、ooku_utayama.1、ooku_yuki.1、ooku_courtyard.1",
+  "id": "ooku",
+  "name": "大奥",
+  "start": "corridor",
+  "background": "#F1E9DA",
+  "splats": [
+    {
+      "name": "corridor_v3",
+      "quality": "500k_level",
+      "scale": 1.5,
+      "position": [
+        0,
+        1.03,
+        -3.255
+      ],
+      "yawDeg": 0
+    },
+    {
+      "name": "maids_v1",
+      "quality": "500k_clipped",
+      "scale": 1.3032,
+      "position": [
+        6,
+        0.99,
+        -2.4
+      ],
+      "yawDeg": -90
+    },
+    {
+      "name": "yuki_v1",
+      "quality": "500k_clipped",
+      "scale": 1.0811,
+      "position": [
+        4.811,
+        1.088,
+        -11.0
+      ],
+      "yawDeg": -90
+    },
+    {
+      "name": "utayama_v1",
+      "quality": "500k_clipped",
+      "scale": 1.4907,
+      "position": [
+        -5.118,
+        1.133,
+        -6.6
+      ],
+      "yawDeg": 90
+    },
+    {
+      "name": "courtyard_v1",
+      "quality": "500k_clipped",
+      "scale": 1.75,
+      "position": [
+        -5.487,
+        1.208,
+        -12.5
+      ],
+      "yawDeg": 90
+    }
+  ],
+  "zones": {
+    "corridor": {
+      "name": "大奥主廊",
+      "walk": "ooku",
+      "walkClip": [
+        -2.6,
+        2.6,
+        -13.2,
+        0.2
+      ],
+      "height": 5.5,
+      "spawn": [
+        0,
+        -2.6
+      ],
+      "spawnYaw": 3.1416,
+      "camera": {
+        "mode": "rail",
+        "a": [
+          0,
+          -1.9
+        ],
+        "b": [
+          0,
+          -11.8
+        ],
+        "back": 3.0,
+        "h": 1.6,
+        "fov": 42,
+        "fixed": [
+          {
+            "rect": [
+              -1.6,
+              -0.3,
+              -6.8,
+              -5.2
+            ],
+            "pos": [
+              1.2,
+              1.6,
+              -8.6
+            ],
+            "look": [
+              -1.6,
+              1.3,
+              -5.4
+            ],
+            "_说明": "观景点 2（中段左墙）：轨道镜头在这里离靠门口那段收窄的墙太近，左边一条虚影；改从走廊右前方回头拍左墙"
+          }
+        ]
+      },
+      "views": {
+        "1": [
+          0,
+          -11.0
+        ],
+        "2": [
+          -1.0,
+          -6.0
+        ]
+      },
+      "stairs": [
+        {
+          "door": [
+            2.4,
+            -2.4
+          ],
+          "stand": [
+            1.9,
+            -2.4
+          ],
+          "face": [
+            1,
+            0
+          ]
+        },
+        {
+          "door": [
+            -2.4,
+            -6.6
+          ],
+          "stand": [
+            -1.9,
+            -6.6
+          ],
+          "face": [
+            -1,
+            0
+          ]
+        },
+        {
+          "door": [
+            2.4,
+            -11.0
+          ],
+          "stand": [
+            1.9,
+            -11.0
+          ],
+          "face": [
+            1,
+            0
+          ]
+        },
+        {
+          "door": [
+            -2.4,
+            -12.5
+          ],
+          "stand": [
+            -1.9,
+            -12.5
+          ],
+          "face": [
+            -1,
+            0
+          ]
+        }
+      ],
+      "exits": [
+        {
+          "stair": 0,
+          "to": "maids",
+          "arrive": 0,
+          "label": "女中房"
+        },
+        {
+          "stair": 1,
+          "to": "utayama",
+          "arrive": 0,
+          "label": "歌山房"
+        },
+        {
+          "stair": 2,
+          "to": "yuki",
+          "arrive": 0,
+          "label": "空房"
+        },
+        {
+          "stair": 3,
+          "to": "courtyard",
+          "arrive": 0,
+          "label": "中庭"
+        }
+      ],
+      "textKey": "ooku_corridor",
+      "mononoke": [
+        [
+          0.95,
+          -7.05
+        ],
+        [
+          -0.85,
+          -11.25
+        ],
+        [
+          0.05,
+          -3.15
+        ],
+        [
+          -1.15,
+          -8.85
+        ]
+      ],
+      "_mononoke说明": "物怪出生点（游27，场景线 11-04）：周围 1 米都能站，避开固定机位、出口 1.6 米和配角路线；药郎在区块里大多数地方都有一个点在 2.5~7 米"
+    },
+    "maids": {
+      "name": "女中房",
+      "walk": "ooku",
+      "walkClip": [
+        3.0,
+        9.2,
+        -4.8,
+        0.0
+      ],
+      "height": 3.0,
+      "camera": {
+        "mode": "circle",
+        "center": [
+          6,
+          -2.4
+        ],
+        "r": 1.2,
+        "margin": 0.9,
+        "dist": 3.0,
+        "h": 1.5,
+        "fov": 55,
+        "fixed": [
+          {
+            "rect": [
+              7.4,
+              8.4,
+              -3.4,
+              -2.4
+            ],
+            "pos": [
+              5.2,
+              1.75,
+              -1.6
+            ],
+            "look": [
+              8.6,
+              1.15,
+              -2.6
+            ],
+            "_view": 1,
+            "_说明": "观景点 1（圆窗）：从房间西北往东南斜拍，圆窗在画面中间，阿浅在左、阿龟在右后，药郎站在画面右下不挡圆窗"
+          }
+        ]
+      },
+      "views": {
+        "1": [
+          7.9,
+          -2.9
+        ]
+      },
+      "stairs": [
+        {
+          "door": [
+            3.9,
+            -2.4
+          ],
+          "stand": [
+            4.4,
+            -2.4
+          ],
+          "face": [
+            -1,
+            0
+          ],
+          "_说明": "门口立着积木的关着的金襖（kit ooku_doors），挡住门外被裁掉的走廊泼溅"
+        }
+      ],
+      "exits": [
+        {
+          "stair": 0,
+          "to": "corridor",
+          "arrive": 0,
+          "label": "回走廊"
+        }
+      ],
+      "textKey": "ooku_maids",
+      "kit": "ooku_doors",
+      "npcs": [
+        {
+          "id": "asa",
+          "model": "processed/asa_posed.glb",
+          "height": 1.46,
+          "pos": [
+            7.3,
+            -1.5
+          ],
+          "yaw": -1.981,
+          "idles": [
+            "fix_collar_k",
+            "look_around_k",
+            "nod_k"
+          ]
+        },
+        {
+          "id": "kame",
+          "model": "processed/kame_posed.glb",
+          "height": 1.42,
+          "pos": [
+            5.9,
+            -3.3
+          ],
+          "yaw": 1.571,
+          "idles": [
+            "fix_collar_k",
+            "look_around_k",
+            "nod_k"
+          ],
+          "patrol": [
+            [
+              7.0,
+              -3.3
+            ]
+          ],
+          "speed": 0.65,
+          "pause": 3.5
+        }
+      ],
+      "_npcs说明": "阿浅站桩（开门迎客的位置），隔一阵整整衣领、四下看看、点点头；阿龟沿房间南侧 (5.9,-3.3)↔(7.0,-3.3) 来回走，速度 0.65，到头停 3.5 秒。路线全在可走图里，离观景点 0.95 米、离到达点 1.6 米，阿龟走到哪儿药郎都能走到观景点（10-31 洪泛验过）"
+    },
+    "utayama": {
+      "name": "歌山房",
+      "walk": "ooku",
+      "walkClip": [
+        -8.2,
+        -3.0,
+        -9.3,
+        -3.6
+      ],
+      "height": 3.0,
+      "camera": {
+        "mode": "circle",
+        "center": [
+          -5.118,
+          -6.6
+        ],
+        "r": 1.0,
+        "margin": 0.8,
+        "dist": 2.8,
+        "h": 1.5,
+        "fov": 55,
+        "fixed": [
+          {
+            "rect": [
+              -5.6,
+              -3.9,
+              -8.4,
+              -4.8
+            ],
+            "pos": [
+              -6.7,
+              1.75,
+              -5.9
+            ],
+            "_说明": "门口这一段：从房间里侧往门口拍，门口有积木的金襖挡着，不糊；安全圈太小，药郎一进门就站进圈里，镜头会贴脸"
+          },
+          {
+            "rect": [
+              -6.9,
+              -5.8,
+              -7.7,
+              -6.85
+            ],
+            "pos": [
+              -4.5,
+              1.85,
+              -6.35
+            ],
+            "look": [
+              -6.6,
+              1.2,
+              -7.8
+            ],
+            "_view": 1,
+            "_说明": "观景点 1（鹤屏风、文机）：安全圈镜头在这里贴得太近，药郎和歌山都被切到腰；改从全景拍摄点附近往屏风斜着拍，药郎、屏风、歌山全身都在画面里"
+          }
+        ]
+      },
+      "views": {
+        "1": [
+          -6.35,
+          -7.25
+        ]
+      },
+      "stairs": [
+        {
+          "door": [
+            -3.95,
+            -6.6
+          ],
+          "stand": [
+            -4.45,
+            -6.6
+          ],
+          "face": [
+            1,
+            0
+          ],
+          "_说明": "门口立着积木的关着的金襖（kit ooku_doors），挡住门外被裁掉的走廊泼溅"
+        }
+      ],
+      "exits": [
+        {
+          "stair": 0,
+          "to": "corridor",
+          "arrive": 1,
+          "label": "回走廊"
+        }
+      ],
+      "textKey": "ooku_utayama",
+      "kit": "ooku_doors",
+      "npcs": [
+        {
+          "id": "utayama",
+          "model": "processed/utayama_posed.glb",
+          "height": 1.57,
+          "pos": [
+            -6.3,
+            -8.75
+          ],
+          "yaw": 0.993,
+          "idles": [
+            "turn_slow_k",
+            "touch_hair_k",
+            "posture_k"
+          ],
+          "gap": [
+            10,
+            18
+          ]
+        }
+      ],
+      "_npcs说明": "歌山 10-30 从探案版的 (-7.0,-8.0) 挪到 (-6.3,-8.75)：观景点镜头里在画面右侧、药箱右边能看到她全身；房间被文机隔成东西两半，中间只有 (-5.7,-7.7) 一个窄口，站位要离窄口 1 米以上，否则药郎走不到观景点。朝门口。10-31：歌山是御年寄，不走动，只隔 10~18 秒换个姿势（慢慢转身、理鬓、正姿）"
+    },
+    "yuki": {
+      "name": "阿雪的空房",
+      "walk": "ooku",
+      "walkClip": [
+        3.0,
+        6.8,
+        -13.0,
+        -9.0
+      ],
+      "height": 3.0,
+      "camera": {
+        "mode": "circle",
+        "center": [
+          4.811,
+          -11.0
+        ],
+        "r": 0.6,
+        "margin": 0.6,
+        "dist": 2.4,
+        "h": 1.5,
+        "fov": 52,
+        "fixed": [
+          {
+            "rect": [
+              3.9,
+              6.6,
+              -13.0,
+              -9.0
+            ],
+            "pos": [
+              5.95,
+              2.3,
+              -11.65
+            ],
+            "_说明": "空房只有 2.5 米深，整间都用这个机位（探案版也是远墙机位）。往墙角退会进泼溅虚影（试过 6.2,-12.3），只能抬高拉开一点，fov 52"
+          }
+        ]
+      },
+      "views": {
+        "1": [
+          5.6,
+          -11.0
+        ]
+      },
+      "stairs": [
+        {
+          "door": [
+            3.95,
+            -11.0
+          ],
+          "stand": [
+            4.45,
+            -11.0
+          ],
+          "face": [
+            -1,
+            0
+          ],
+          "_说明": "门口立着积木的关着的金襖（kit ooku_doors），挡住门外被裁掉的走廊泼溅"
+        }
+      ],
+      "exits": [
+        {
+          "stair": 0,
+          "to": "corridor",
+          "arrive": 2,
+          "label": "回走廊"
+        }
+      ],
+      "textKey": "ooku_yuki",
+      "kit": "ooku_doors"
+    },
+    "courtyard": {
+      "name": "中庭",
+      "walk": "ooku",
+      "walkClip": [
+        -8.6,
+        -3.0,
+        -16.2,
+        -9.3
+      ],
+      "height": 8.0,
+      "camera": {
+        "mode": "circle",
+        "center": [
+          -5.487,
+          -12.5
+        ],
+        "r": 1.2,
+        "margin": 0.9,
+        "dist": 3.0,
+        "h": 1.5,
+        "fov": 55,
+        "fixed": [
+          {
+            "rect": [
+              -7.4,
+              -5.9,
+              -13.6,
+              -11.5
+            ],
+            "pos": [
+              -5.2,
+              1.7,
+              -14.2
+            ],
+            "look": [
+              -7.0,
+              1.0,
+              -12.6
+            ],
+            "_说明": "井边观景点在安全圈里，镜头会被挤到背后贴着药箱；从东南侧斜着拍，药郎和井都在画面里"
+          }
+        ]
+      },
+      "views": {
+        "1": [
+          -6.55,
+          -12.55
+        ]
+      },
+      "stairs": [
+        {
+          "door": [
+            -3.2,
+            -12.5
+          ],
+          "stand": [
+            -3.7,
+            -12.5
+          ],
+          "face": [
+            1,
+            0
+          ],
+          "_说明": "门口立着积木的关着的金襖（kit ooku_doors），挡住门外被裁掉的走廊泼溅"
+        }
+      ],
+      "exits": [
+        {
+          "stair": 0,
+          "to": "corridor",
+          "arrive": 3,
+          "label": "回走廊"
+        }
+      ],
+      "textKey": "ooku_courtyard",
+      "kit": "ooku_doors"
+    }
   }
- ],
- "zones": {
-  "corridor": {
-   "name": "大奥主廊",
-   "walk": "ooku",
-   "walkClip": [
-    -2.6,
-    2.6,
-    -13.2,
-    0.2
-   ],
-   "height": 5.5,
-   "spawn": [
-    0,
-    -2.6
-   ],
-   "spawnYaw": 3.1416,
-   "camera": {
-    "mode": "rail",
-    "a": [
-     0,
-     -1.9
-    ],
-    "b": [
-     0,
-     -11.8
-    ],
-    "back": 3.0,
-    "h": 1.6,
-    "fov": 42,
-    "fixed": [
-     {
-      "rect": [
-       -1.6,
-       -0.3,
-       -6.8,
-       -5.2
-      ],
-      "pos": [
-       1.2,
-       1.6,
-       -8.6
-      ],
-      "look": [
-       -1.6,
-       1.3,
-       -5.4
-      ],
-      "_说明": "观景点 2（中段左墙）：轨道镜头在这里离靠门口那段收窄的墙太近，左边一条虚影；改从走廊右前方回头拍左墙"
-     }
-    ]
-   },
-   "views": {
-    "1": [
-     0,
-     -11.0
-    ],
-    "2": [
-     -1.0,
-     -6.0
-    ]
-   },
-   "stairs": [
-    {
-     "door": [
-      2.4,
-      -2.4
-     ],
-     "stand": [
-      1.9,
-      -2.4
-     ],
-     "face": [
-      1,
-      0
-     ]
-    },
-    {
-     "door": [
-      -2.4,
-      -6.6
-     ],
-     "stand": [
-      -1.9,
-      -6.6
-     ],
-     "face": [
-      -1,
-      0
-     ]
-    },
-    {
-     "door": [
-      2.4,
-      -11.0
-     ],
-     "stand": [
-      1.9,
-      -11.0
-     ],
-     "face": [
-      1,
-      0
-     ]
-    },
-    {
-     "door": [
-      -2.4,
-      -12.5
-     ],
-     "stand": [
-      -1.9,
-      -12.5
-     ],
-     "face": [
-      -1,
-      0
-     ]
-    }
-   ],
-   "exits": [
-    {
-     "stair": 0,
-     "to": "maids",
-     "arrive": 0,
-     "label": "女中房"
-    },
-    {
-     "stair": 1,
-     "to": "utayama",
-     "arrive": 0,
-     "label": "歌山房"
-    },
-    {
-     "stair": 2,
-     "to": "yuki",
-     "arrive": 0,
-     "label": "空房"
-    },
-    {
-     "stair": 3,
-     "to": "courtyard",
-     "arrive": 0,
-     "label": "中庭"
-    }
-   ],
-   "textKey": "ooku_corridor"
-  },
-  "maids": {
-   "name": "女中房",
-   "walk": "ooku",
-   "walkClip": [
-    3.0,
-    9.2,
-    -4.8,
-    0.0
-   ],
-   "height": 3.0,
-   "camera": {
-    "mode": "circle",
-    "center": [
-     6,
-     -2.4
-    ],
-    "r": 1.2,
-    "margin": 0.9,
-    "dist": 3.0,
-    "h": 1.5,
-    "fov": 55,
-    "fixed": [
-     {
-      "rect": [
-       7.4,
-       8.4,
-       -3.4,
-       -2.4
-      ],
-      "pos": [
-       5.2,
-       1.75,
-       -1.6
-      ],
-      "look": [
-       8.6,
-       1.15,
-       -2.6
-      ],
-      "_view": 1,
-      "_说明": "观景点 1（圆窗）：从房间西北往东南斜拍，圆窗在画面中间，阿浅在左、阿龟在右后，药郎站在画面右下不挡圆窗"
-     }
-    ]
-   },
-   "views": {
-    "1": [
-     7.9,
-     -2.9
-    ]
-   },
-   "stairs": [
-    {
-     "door": [
-      3.9,
-      -2.4
-     ],
-     "stand": [
-      4.4,
-      -2.4
-     ],
-     "face": [
-      -1,
-      0
-     ],
-     "_说明": "门口立着积木的关着的金襖（kit ooku_doors），挡住门外被裁掉的走廊泼溅"
-    }
-   ],
-   "exits": [
-    {
-     "stair": 0,
-     "to": "corridor",
-     "arrive": 0,
-     "label": "回走廊"
-    }
-   ],
-   "textKey": "ooku_maids",
-   "kit": "ooku_doors",
-   "npcs": [
-    {
-     "id": "asa",
-     "model": "processed/asa_posed.glb",
-     "height": 1.46,
-     "pos": [
-      7.3,
-      -1.5
-     ],
-     "yaw": -1.981,
-     "idles": [
-      "fix_collar_k",
-      "look_around_k",
-      "nod_k"
-     ]
-    },
-    {
-     "id": "kame",
-     "model": "processed/kame_posed.glb",
-     "height": 1.42,
-     "pos": [
-      5.9,
-      -3.3
-     ],
-     "yaw": 1.571,
-     "idles": [
-      "fix_collar_k",
-      "look_around_k",
-      "nod_k"
-     ],
-     "patrol": [
-      [
-       7.0,
-       -3.3
-      ]
-     ],
-     "speed": 0.65,
-     "pause": 3.5
-    }
-   ],
-   "_npcs说明": "阿浅站桩（开门迎客的位置），隔一阵整整衣领、四下看看、点点头；阿龟沿房间南侧 (5.9,-3.3)↔(7.0,-3.3) 来回走，速度 0.65，到头停 3.5 秒。路线全在可走图里，离观景点 0.95 米、离到达点 1.6 米，阿龟走到哪儿药郎都能走到观景点（10-31 洪泛验过）"
-  },
-  "utayama": {
-   "name": "歌山房",
-   "walk": "ooku",
-   "walkClip": [
-    -8.2,
-    -3.0,
-    -9.3,
-    -3.6
-   ],
-   "height": 3.0,
-   "camera": {
-    "mode": "circle",
-    "center": [
-     -5.118,
-     -6.6
-    ],
-    "r": 1.0,
-    "margin": 0.8,
-    "dist": 2.8,
-    "h": 1.5,
-    "fov": 55,
-    "fixed": [
-     {
-      "rect": [
-       -5.6,
-       -3.9,
-       -8.4,
-       -4.8
-      ],
-      "pos": [
-       -6.7,
-       1.75,
-       -5.9
-      ],
-      "_说明": "门口这一段：从房间里侧往门口拍，门口有积木的金襖挡着，不糊；安全圈太小，药郎一进门就站进圈里，镜头会贴脸"
-     },
-     {
-      "rect": [
-       -6.9,
-       -5.8,
-       -7.7,
-       -6.85
-      ],
-      "pos": [
-       -4.5,
-       1.85,
-       -6.35
-      ],
-      "look": [
-       -6.6,
-       1.2,
-       -7.8
-      ],
-      "_view": 1,
-      "_说明": "观景点 1（鹤屏风、文机）：安全圈镜头在这里贴得太近，药郎和歌山都被切到腰；改从全景拍摄点附近往屏风斜着拍，药郎、屏风、歌山全身都在画面里"
-     }
-    ]
-   },
-   "views": {
-    "1": [
-     -6.35,
-     -7.25
-    ]
-   },
-   "stairs": [
-    {
-     "door": [
-      -3.95,
-      -6.6
-     ],
-     "stand": [
-      -4.45,
-      -6.6
-     ],
-     "face": [
-      1,
-      0
-     ],
-     "_说明": "门口立着积木的关着的金襖（kit ooku_doors），挡住门外被裁掉的走廊泼溅"
-    }
-   ],
-   "exits": [
-    {
-     "stair": 0,
-     "to": "corridor",
-     "arrive": 1,
-     "label": "回走廊"
-    }
-   ],
-   "textKey": "ooku_utayama",
-   "kit": "ooku_doors",
-   "npcs": [
-    {
-     "id": "utayama",
-     "model": "processed/utayama_posed.glb",
-     "height": 1.57,
-     "pos": [
-      -6.3,
-      -8.75
-     ],
-     "yaw": 0.993,
-     "idles": [
-      "turn_slow_k",
-      "touch_hair_k",
-      "posture_k"
-     ],
-     "gap": [
-      10,
-      18
-     ]
-    }
-   ],
-   "_npcs说明": "歌山 10-30 从探案版的 (-7.0,-8.0) 挪到 (-6.3,-8.75)：观景点镜头里在画面右侧、药箱右边能看到她全身；房间被文机隔成东西两半，中间只有 (-5.7,-7.7) 一个窄口，站位要离窄口 1 米以上，否则药郎走不到观景点。朝门口。10-31：歌山是御年寄，不走动，只隔 10~18 秒换个姿势（慢慢转身、理鬓、正姿）"
-  },
-  "yuki": {
-   "name": "阿雪的空房",
-   "walk": "ooku",
-   "walkClip": [
-    3.0,
-    6.8,
-    -13.0,
-    -9.0
-   ],
-   "height": 3.0,
-   "camera": {
-    "mode": "circle",
-    "center": [
-     4.811,
-     -11.0
-    ],
-    "r": 0.6,
-    "margin": 0.6,
-    "dist": 2.4,
-    "h": 1.5,
-    "fov": 52,
-    "fixed": [
-     {
-      "rect": [
-       3.9,
-       6.6,
-       -13.0,
-       -9.0
-      ],
-      "pos": [
-       5.95,
-       2.3,
-       -11.65
-      ],
-      "_说明": "空房只有 2.5 米深，整间都用这个机位（探案版也是远墙机位）。往墙角退会进泼溅虚影（试过 6.2,-12.3），只能抬高拉开一点，fov 52"
-     }
-    ]
-   },
-   "views": {
-    "1": [
-     5.6,
-     -11.0
-    ]
-   },
-   "stairs": [
-    {
-     "door": [
-      3.95,
-      -11.0
-     ],
-     "stand": [
-      4.45,
-      -11.0
-     ],
-     "face": [
-      -1,
-      0
-     ],
-     "_说明": "门口立着积木的关着的金襖（kit ooku_doors），挡住门外被裁掉的走廊泼溅"
-    }
-   ],
-   "exits": [
-    {
-     "stair": 0,
-     "to": "corridor",
-     "arrive": 2,
-     "label": "回走廊"
-    }
-   ],
-   "textKey": "ooku_yuki",
-   "kit": "ooku_doors"
-  },
-  "courtyard": {
-   "name": "中庭",
-   "walk": "ooku",
-   "walkClip": [
-    -8.6,
-    -3.0,
-    -16.2,
-    -9.3
-   ],
-   "height": 8.0,
-   "camera": {
-    "mode": "circle",
-    "center": [
-     -5.487,
-     -12.5
-    ],
-    "r": 1.2,
-    "margin": 0.9,
-    "dist": 3.0,
-    "h": 1.5,
-    "fov": 55,
-    "fixed": [
-     {
-      "rect": [
-       -7.4,
-       -5.9,
-       -13.6,
-       -11.5
-      ],
-      "pos": [
-       -5.2,
-       1.7,
-       -14.2
-      ],
-      "look": [
-       -7.0,
-       1.0,
-       -12.6
-      ],
-      "_说明": "井边观景点在安全圈里，镜头会被挤到背后贴着药箱；从东南侧斜着拍，药郎和井都在画面里"
-     }
-    ]
-   },
-   "views": {
-    "1": [
-     -6.55,
-     -12.55
-    ]
-   },
-   "stairs": [
-    {
-     "door": [
-      -3.2,
-      -12.5
-     ],
-     "stand": [
-      -3.7,
-      -12.5
-     ],
-     "face": [
-      1,
-      0
-     ],
-     "_说明": "门口立着积木的关着的金襖（kit ooku_doors），挡住门外被裁掉的走廊泼溅"
-    }
-   ],
-   "exits": [
-    {
-     "stair": 0,
-     "to": "corridor",
-     "arrive": 3,
-     "label": "回走廊"
-    }
-   ],
-   "textKey": "ooku_courtyard",
-   "kit": "ooku_doors"
-  }
- }
 }

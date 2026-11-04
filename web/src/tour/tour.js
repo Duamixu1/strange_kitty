@@ -16,6 +16,8 @@ import { fusumaWipe, prompt, toast, card, Tags, flash } from "./ui.js";
 import { createRain } from "./rain.js";
 import { audio } from "./audio.js";
 import { loading } from "./loading.js";
+import { createEncounter } from "./encounter.js";
+import { createMedbox } from "./medbox.js";
 
 // 游览版：药郎在原作地点里走走看看（docs/14_游览版方案.md）。
 //   /tour.html                    绘卷总地图（现在是占位的横向长卷，游5 的图到了再换）
@@ -158,6 +160,7 @@ async function startLocation(id) {
   let npcsOn = [];
   async function enterZone(zoneId, arrive = null) {
     const z = await resolveZone(loc, zoneId);
+    enc.reset();   // 换区块：物怪直接收掉
     if (world) scene.remove(world);
     world = null;
     if (z.kit && !zoneCache.has(zoneId)) {
@@ -234,7 +237,7 @@ async function startLocation(id) {
     return { place: `${loc.name} · ${Z.name || Z.id}`, title: t.title || `观景点 ${key}`, body: t.body || "（说明卡待写：文案线 text.json）" };
   }
   async function openView(n) {
-    if (busy) return;
+    if (busy || enc.active) return;   // 物怪出没时不开说明卡
     stat(`说明卡/${Z.textKey}.${n}`, `说明卡 · ${viewText(n).title}`, true);
     busy = true; path = null; pose = null;
     const p = Z.views[n]; player.rotation.y = Math.atan2(p[0] - player.position.x, p[1] - player.position.z) || player.rotation.y;
@@ -271,7 +274,14 @@ async function startLocation(id) {
   // ---- 输入 ----
   const keys = new Set();
   function act(code) {
-    if (code === "KeyX" || (code === "Escape" && sword)) { drawSword(); return; }
+    if (box?.key(code)) return;   // 药箱开着：方向键换格、Esc / I 关，别的键不管
+    if (enc.tutKey(code)) return;   // 物怪出没教学卡开着：翻页 / 跳过，别的键不管
+    if (code === "KeyX" || (code === "Escape" && sword)) { if (!sword && enc.act("sword")) return; drawSword(); return; }   // 物怪出没时：形真理齐了才拔得出（encounter.js）
+    if (code === "KeyI") { openBox(); return; }
+    if (code === "KeyJ") { enc.act("throw"); return; }
+    if (code === "KeyK") { enc.act("jump"); return; }   // 跳、瞬移只在物怪出没时有
+    if (code === "KeyL") { enc.act("blink"); return; }
+    if (code === "Space" && enc.active && !card.isOpen) { enc.act("dodge"); return; }
     if (code === "KeyE" || code === "Escape" || code === "Space") {
       if (card.isOpen) { card.close(); return; }
       if (code === "KeyE") { const v = nearView(); if (v) openView(v); else if (touch) toast("走到観旁边再看"); }
@@ -282,6 +292,7 @@ async function startLocation(id) {
     if (code === "KeyM") location.href = pub("tour.html");
   }
   addEventListener("keydown", (e) => {
+    if (e.code === "Space" && enc.active) e.preventDefault();
     keys.add(e.code); act(e.code);
     if (/^(Arrow|Key[WASD])/.test(e.code)) path = null;
   });
@@ -394,7 +405,7 @@ async function startLocation(id) {
   // 不然一切镜头"前"就变了，药郎被带回原来的范围，镜头又切回去，来回闪（10-31）
   let moveLock = null;
   function move(dt) {
-    if (busy || card.isOpen) return;
+    if (busy || card.isOpen || enc.holding || box?.isOpen) return;   // 察觉、投札、闪避、袖挡的时候、药箱开着时脚下不走
     const k = (a, b) => keys.has(a) || keys.has(b);
     const sm = Math.min(1, Math.hypot(stick.x, stick.y)), stickOn = sm > 0.15;   // 手机摇杆推了多少（0~1）
     const sig = ["KeyW", "ArrowUp", "KeyS", "ArrowDown", "KeyA", "ArrowLeft", "KeyD", "ArrowRight"].filter((c) => keys.has(c)).join() + (stickOn ? "|stick" : "");
@@ -476,25 +487,32 @@ async function startLocation(id) {
   // 拔剑（10-31 加进游览版）：探案版结局的退魔三拍 exorcise_k，X 键 / 手机"拔剑"钮。约 10 秒：
   // 1.25 秒抽剑，3.08 秒妖化（描边变金、换表情）到 8.21 秒，5.1 秒横斩，7.9 秒收剑；剑只在这段里出现（data/props.json）。
   // 药郎先转向镜头；播的时候不能走（busy），镜头照常拖，可以拍照；再按 X 或 Esc 收手
-  const AWAKEN = { from: 3.08, to: 8.21, fade: 0.15 };
-  let sword = false, swordTimers = [], swordFace = 0;
-  const awakenMix = (t) => Math.max(0, Math.min(1, (t - (AWAKEN.from - AWAKEN.fade)) / AWAKEN.fade, ((AWAKEN.to + AWAKEN.fade) - t) / AWAKEN.fade));
-  function drawSword() {
+  // 物怪出没（encounter.js）用 opts：face 转向物怪；short 第二次以后的 3 秒短版（不带运镜）；onSlash 横斩那一下（物怪化墨）；onEnd(砍到没有)。
+  // 短版：角色线的 exorcise_short_k 到了就播它（出手帧在 EXO_SHORT，到了按 17 里写的改）；没到先拿 exorcise_k 从 4.3 秒（已经妖化、横斩前）1.6 倍速播
+  const AWAKEN = { from: 3.08, to: 8.21, fade: 0.15 }, SLASH = 5.1;
+  const EXO_SHORT = { unsheathe: 0.42, slash: 1.67, sheath: 2.4, awaken: [0.75, 2.58] }, EXO_FALLBACK = { from: 4.3, speed: 1.6 };   // 短版节奏点：角色线 17 第十五节
+  let sword = false, swordTimers = [], swordFace = 0, swordOpts = {}, swordT = 0, swordSlashed = false;
+  const awakenMix = (t, A = AWAKEN) => Math.max(0, Math.min(1, (t - (A.from - A.fade)) / A.fade, ((A.to + A.fade) - t) / A.fade));
+  function drawSword(opts = {}) {
     if (sword) { endSword(); return; }
     if (busy || card.isOpen) return;
     stat("拔剑", `拔剑 · ${loc.name}`, true);
-    sword = true; busy = true; path = null; pose = null; stillT = 0; prompt.set("");
-    const f = cam.forward; swordFace = Math.atan2(-f.x, -f.z);   // 转向镜头：平滑转过去（一下拧 180° 下摆弹簧骨甩开，像白布摊了一地，翻车集 008）
-    P.play("exorcise", 0.25);   // 不重置弹簧骨：重置那一帧下摆回到绑定姿势，像白布摊了一地（翻车集 008）
+    sword = true; busy = true; path = null; pose = null; stillT = 0; prompt.set(""); swordOpts = opts; swordT = 0; swordSlashed = false;
+    const f = cam.forward; swordFace = opts.face ?? Math.atan2(-f.x, -f.z);   // 转向镜头：平滑转过去（一下拧 180° 下摆弹簧骨甩开，像白布摊了一地，翻车集 008）
+    let sfx = [[1.25, "unsheathe"], [3.08, "awaken"], [SLASH, "slash"], [7.9, "sheath"]];
+    if (opts.short && P.has("exorcise_short")) { P.play("exorcise_short", 0.2); sfx = [[EXO_SHORT.unsheathe, "unsheathe"], [EXO_SHORT.awaken[0], "awaken"], [EXO_SHORT.slash, "slash"], [EXO_SHORT.sheath, "sheath"]]; }
+    else if (opts.short) { const F = EXO_FALLBACK; P.play("exorcise", 0.2, F); sfx = [[0, "unsheathe"], [0.1, "awaken"], ...sfx.slice(2).map(([t, n]) => [(t - F.from) / F.speed, n])]; }
+    else P.play("exorcise", 0.25);   // 不重置弹簧骨：重置那一帧下摆回到绑定姿势，像白布摊了一地（翻车集 008）
     putDownChest();
     audio.play("hyoshigi");
-    swordTimers = [[1.25, "unsheathe"], [3.08, "awaken"], [5.1, "slash"], [7.9, "sheath"]].map(([t, n]) => setTimeout(() => sword && audio.play(n), t * 1000));
+    swordTimers = sfx.map(([t, n]) => setTimeout(() => sword && audio.play(n), t * 1000));
   }
   function endSword() {
     swordTimers.forEach(clearTimeout); swordTimers = [];
-    if (P.currentName === "exorcise_k") P.play("idle", 0.4);
+    if (/^exorcise/.test(P.currentName)) P.play("idle", 0.4);
     sword = false; busy = false; post.setOutlineMix(0); stillT = 0; fitFov();   // fitFov：把运镜改过的 fov 复位
     pickUpChest();
+    const o = swordOpts; swordOpts = {}; o.onEnd?.(swordSlashed);
   }
   // 药箱：原作药郎退魔前先把药箱放下。拔剑时把药箱从背上摘下，立在他右后方的地上（保持背着时的朝向），收剑后挂回去。
   // 不放下的话横斩转身时药箱从侧面甩出来压着袖子和头发（翻车集 008）
@@ -515,10 +533,54 @@ async function startLocation(id) {
   }
   function swordTick(dt) {
     if (!sword) return;
-    if (P.time < 1.2) turnToward(swordFace, 6, dt);
-    if (P.currentName !== "exorcise_k") { endSword(); return; }   // 播完自己回了待机
-    post.setOutlineMix(awakenMix(P.time));
+    swordT += dt;
+    if (swordT < 1.2) turnToward(swordFace, 6, dt);
+    if (!/^exorcise/.test(P.currentName)) { endSword(); return; }   // 播完自己回了待机
+    const short = P.currentName === "exorcise_short_k";
+    post.setOutlineMix(short ? awakenMix(P.time, { from: EXO_SHORT.awaken[0], to: EXO_SHORT.awaken[1], fade: 0.15 }) : awakenMix(P.time));
+    if (!swordSlashed && P.time >= (short ? EXO_SHORT.slash : SLASH)) { swordSlashed = true; swordOpts.onSlash?.(); }
   }
+
+  // ---- 物怪出没（encounter.js，docs/18）----
+  let shakeT = 0;
+  const enc = createEncounter({
+    scene, camera, player, P, audio, loc, texts, touch, mode: params.get("mononoke"), loader, assetUrl,
+    noRandom: ["selftest", "auto", "walktest"].some((k) => params.has(k)) && !params.has("mononoke"),   // 自测、自动拍图不随机出
+    zone: () => Z, col: () => col, cam: () => cam,
+    free: () => !busy && !card.isOpen && !sword && !box?.isOpen,
+    onCollect: (id) => { boxBtn.classList.add("new"); toast(touch ? "收进药箱了 · 点右上「箱」看" : "收进药箱了 · 按 I 打开", 3200); },
+    stopWalk: () => { path = null; },
+    turnToward, stat: (p, t) => stat(p, t, true),
+    shake: (s) => { shakeT = Math.max(shakeT, s); },
+    // 屋里暗一点：往紫灰压；雨夜区块本来就压着藍调，在那上面再加一点
+    gloom: (g) => { const wet = Z?.weather === "rain"; post.setTint(wet ? "#8C8CC8" : "#5A5480", wet ? 0.45 + 0.25 * g : 0.5 * g); },   // g = 0 时和区块原来的调色一样
+    drawSword,
+    // 现在按着的方向（按镜头算的世界 yaw），没按是 null：瞬移往这边
+    moveYaw: () => {
+      const f = cam.forward, v = new THREE.Vector3(), r = new THREE.Vector3(-f.z, 0, f.x), k = (a, b) => keys.has(a) || keys.has(b);
+      if (k("KeyW", "ArrowUp")) v.add(f); if (k("KeyS", "ArrowDown")) v.sub(f);
+      if (k("KeyD", "ArrowRight")) v.add(r); if (k("KeyA", "ArrowLeft")) v.sub(r);
+      if (Math.hypot(stick.x, stick.y) > 0.15) v.addScaledVector(f, stick.y).addScaledVector(r, stick.x);
+      return v.lengthSq() > 1e-4 ? Math.atan2(v.x, v.z) : null;
+    },
+    // 跟随镜头（不在固定机位、手没在拖）的 yaw，和往某个 yaw 慢慢转（时间常数约 0.7 秒）；泼溅区块的轨道镜头不转
+    camYaw: () => (cam === follow && !follow.fixedOn && !drag ? follow.yaw : null),
+    nudgeCam: (y, dt) => { follow.yaw += wrap(y - follow.yaw) * (1 - Math.exp(-1.4 * dt)); },
+  });
+  const mkBtn = document.getElementById("mkbtn");
+  const showMk = () => { mkBtn.classList.toggle("off", !enc.on); mkBtn.title = `物怪出没：${enc.on ? "开" : "关"}`; };
+  showMk();
+  // 药箱（medbox.js）：斩过的物怪和执念物。物怪出没时、说明卡开着时不开
+  const boxBtn = document.getElementById("boxbtn");
+  var box = createMedbox({ entries: () => enc.entries(), asset, audio, onOpen: () => { boxBtn.classList.remove("new"); keys.clear(); if (path) { path = null; P.play("idle"); } } });
+  function openBox() {
+    if (box.isOpen) { box.close(); return; }
+    if (enc.active) { toast("物怪还在，先别开箱"); return; }
+    if (busy || sword || card.isOpen) return;
+    box.open();
+  }
+  boxBtn.addEventListener("click", (e) => { e.stopPropagation(); openBox(); });
+  mkBtn.addEventListener("click", (e) => { e.stopPropagation(); enc.toggle(); showMk(); audio.play("tick"); toast(`物怪出没：${enc.on ? "开（逛着逛着偶尔会出来）" : "关"}`); });
 
   let exitsOff = false;   // 自动拍图时关掉：药郎被摆到出口旁边拍验收机位，会被自动传走，下一张拍成别的区块
   function checkExits() {
@@ -534,6 +596,7 @@ async function startLocation(id) {
   }
   function updatePrompt() {
     if (busy || card.isOpen) return;
+    if (enc.active) { prompt.set(""); return; }
     const v = nearView();
     prompt.set(v ? `${touch ? "点这里看" : "E 看看"} · ${viewText(v).title}` : "");
   }
@@ -611,12 +674,13 @@ async function startLocation(id) {
   const clock = new THREE.Clock(), tv = new THREE.Vector3();
   function frame(dt = Math.min(clock.getDelta(), 0.1)) {
     swordTick(dt);
-    if (Z) { const x0 = player.position.x, z0 = player.position.z; move(dt); footsteps(Math.hypot(player.position.x - x0, player.position.z - z0), dt); checkExits(); updatePrompt(); }
+    if (Z) { const x0 = player.position.x, z0 = player.position.z; move(dt); enc.update(dt); footsteps(Math.hypot(player.position.x - x0, player.position.z - z0), dt); checkExits(); updatePrompt(); }
     P.update(dt);
     for (const n of npcsOn) npcTick(n, dt);
     if (look.x || look.y) cam.turn(look.x * 2.4 * dt, look.y * 1.2 * dt);   // 视角摇杆：往右推镜头往右转，往上推往上看
-    cam.update(player, dt);
-    if (sword) { fitFov(); swordShot(camera, cam, player, P.time); }   // 拔剑运镜（sword_cam.js）：每帧从跟随镜头的结果上叠，fov 先复位再乘
+    cam.update(enc.camTarget(), dt, enc.takeCamSnap());   // 物怪出没时镜头看药郎和物怪之间（偏药郎）
+    if (sword) { fitFov(); if (!swordOpts.short) swordShot(camera, cam, player, P.time); }   // 拔剑运镜（sword_cam.js）：每帧从跟随镜头的结果上叠，fov 先复位再乘；短版不带运镜
+    if (shakeT > 0) { shakeT -= dt; const a = 0.06 * Math.min(1, shakeT / 0.12); camera.position.x += (Math.random() - 0.5) * a; camera.position.y += (Math.random() - 0.5) * a; camera.updateMatrixWorld(); }   // 袖挡、钉中：镜头一震
     rain.update(dt, camera);
     post.render();
     tags.update(camera, innerWidth, innerHeight, tv);
@@ -635,13 +699,14 @@ async function startLocation(id) {
   // 加载提示：泼溅（大奥）也要等下完，不然一进去房间是空的；最多等 2 分钟，网太慢就先让人进去
   if (splats.length) { loading.step("展开实景房间…"); await Promise.race([Promise.all(splats.map((m) => m.initialized)), new Promise((r) => setTimeout(r, 120000))]); }
   loading.done();
+  if (enc.on) enc.preload();   // 进去以后再在后台下这个地点的物怪（0.4~0.8 MB），不拖慢首次加载
 
   async function save(name) {
     frame(1 / 60);
     const data = renderer.domElement.toDataURL("image/jpeg", 0.92);
     return (await fetch("/__shot", { method: "POST", body: JSON.stringify({ name, data }) })).json();
   }
-  window.__tour = { loc, audio, get zone() { return Z; }, get col() { return col; }, player, P, get cam() { return cam; }, splats, setFilter, composePhoto, cyclePose, get pose() { return pose; }, camera, scene, renderer, post, enterZone, walkTo, openView, takeExit, keys, save, step: (n = 1, dt = 1 / 60) => { for (let i = 0; i < n; i++) frame(dt); }, card, tags };
+  window.__tour = { loc, audio, get zone() { return Z; }, get col() { return col; }, player, P, get cam() { return cam; }, splats, setFilter, composePhoto, cyclePose, get pose() { return pose; }, enc, camera, scene, renderer, post, enterZone, walkTo, openView, takeExit, keys, save, step: (n = 1, dt = 1 / 60) => { for (let i = 0; i < n; i++) frame(dt); }, card, tags };
   if (params.get("auto")) autoShots();
   if (params.get("selftest")) selfTest();
   if (params.get("walktest")) walkTest();
@@ -736,6 +801,65 @@ async function startLocation(id) {
     log(P.currentName === "exorcise_k" && red > 0.9 && chestDown !== false, `拔剑：4 秒时在退魔三拍里、描边变红、药箱放在地上（${P.currentName}，红 ${red.toFixed(2)}，药箱在地上 ${chestDown}）`);
     await save(`tour_${loc.id}_动作_拔剑`);
     run(7); log(!sword && P.currentName === "idle_k" && post.quadMat.uniforms.uRedMix.value < 0.01 && !!P.props.find((p) => p.id === "medicine_chest")?.prop.parent !== scene, `拔剑播完回待机、药箱挂回背上、描边回墨色（${P.currentName}）`);
+    // 物怪出没（docs/18）：在出发区块叫出一只（没标出生点就在镜头前方找空地），蓄力时闪避、落地时投札，钉齐三张后拔剑：
+    // 第一次完整退魔、第二次短版，看消散、掉卡；第三次什么都不按，60 秒后应自己退走
+    await enc.preload();   // 用角色线的物怪模型测（不是占位墨影）
+    for (const round of [1, 2, 3]) {
+      await enterZone(loc.start); run(1);
+      if (round === 1) try { localStorage.removeItem("mononoke_tour_exo"); } catch {}
+      if (!enc.start(true)) { log(false, "物怪出没：找不到出生点"); break; }
+      for (let i = 0; i < 600 && enc.state !== "fight" && !enc.tutorial; i++) frame(1 / 60);
+      if (round === 1) {   // 第一次遭遇：现身后停住弹教学卡，停着的时候物怪不动；空格关卡再开打
+        const T0 = enc.debug.T; run(1); const no = () => document.querySelector("#mktut .no")?.textContent;
+        const frozen = enc.tutorial && enc.debug.T === T0 && no() === "1 / 6";
+        act("ArrowRight"); const p2 = no() === "2 / 6" && document.querySelector("#mktut .key").textContent === "J";
+        act("KeyX"); const need = document.querySelector("#mk .need.show") === null && !sword;   // 卡开着按 X 不该亮"还差"、不拔剑
+        for (let i = 0; i < 4; i++) act("ArrowRight"); const last = document.querySelector("#mktut .next").textContent === "开打";
+        act("Space"); for (let i = 0; i < 10; i++) frame(1 / 60);
+        log(frozen && p2 && need && last && !enc.tutorial && enc.state === "fight", `物怪出没第 1 次：现身后停住弹教学卡，一页一个键翻到 6 / 6，开打（${enc.state}）`);
+        act("KeyX"); log(!!document.querySelector("#mk .need.show") && enc.state === "fight" && !sword, "形真理没齐按 X：中间亮三格提示，剑没拔");
+      }
+      for (let i = 0; i < 600 && enc.state !== "fight"; i++) frame(1 / 60);
+      if (round === 3) { run(62); log(enc.state === "idle" && !enc.monster, `物怪出没第 3 次：不理它，60 秒后自己退走（${enc.state}）`); break; }
+      // 第 2 次：蓄力时按 K 跳（不按空格），开打 1.5 秒按一次 L 瞬移
+      let dodged = 0, maxY = 0, guards = 0, blinkD = -1;
+      for (let i = 0; i < 60 * 55 && enc.state === "fight"; i++) {
+        const d = enc.debug;
+        if (d.sub === "charge" && d.subT > 0.55 && d.subT <= 0.57) { act(round === 2 ? "KeyK" : "Space"); dodged++; }
+        if (round === 2 && i === 90) { const p0 = player.position.clone(); act("KeyL"); run(0.6); blinkD = Math.hypot(player.position.x - p0.x, player.position.z - p0.z); }
+        if (round === 2) maxY = Math.max(maxY, player.position.y - (col.floorY(player.position.x, player.position.z) ?? 0));
+        if (d.sub === "land" && i % 10 === 0) act("KeyJ");
+        const g0 = P.currentName; frame(1 / 60); if (round === 2 && g0 !== "guard_k" && P.currentName === "guard_k") guards++;
+      }
+      if (round === 2) log(maxY > 0.6 && guards === 0 && blinkD > 1.5 && player.visible, `物怪出没第 2 次：K 跳 ${dodged} 次（最高 ${maxY.toFixed(2)} 米，被撞 ${guards} 次）、L 瞬移 ${blinkD.toFixed(2)} 米`);
+      log(enc.state === "sealed" && enc.pins === 3 && !!enc.monster?.real, `物怪出没第 ${round} 次：钉齐三张（${enc.monster?.real ? "原作模型" : "墨影"}，${enc.pins} 张，闪避 ${dodged} 次，${enc.debug.fightT} 秒）`);
+      run(0.8); if (round === 1) await save(`tour_${loc.id}_物怪_札阵`);
+      act("KeyX"); const anim = P.currentName;
+      for (let i = 0; i < 60 * 17 && enc.state !== "idle"; i++) frame(1 / 60);   // 退魔 10 秒 + 魂走 3~4 秒
+      log(anim === (round === 1 ? "exorcise_k" : "exorcise_short_k") && enc.state === "idle" && card.isOpen && !sword, `物怪出没第 ${round} 次：${anim} 退魔、消散、掉执念物卡（${document.querySelector("#card .title").textContent}）`);
+      card.close(); await wait(50); run(0.5);
+    }
+    // 药箱：前面退过的物怪收进去了。I 打开只有箱子；回车拉开那格出卡（有立绘）；Esc 先收卡、再关箱子；开着时人不走、物怪不出
+    {
+      const got = enc.entries().filter((e) => e.got);
+      act("KeyI"); const opened = box.isOpen && !box.cardOpen, cnt = document.querySelector("#medbox .mb-count").textContent, first = box.selected?.id;
+      act("Enter"); await wait(300); const img = document.querySelector("#medbox .tr-img img"), card1 = box.cardOpen;
+      act("Escape"); const back = box.isOpen && !box.cardOpen;
+      act("Escape");
+      log(opened && got.length > 0 && cnt === `已收 ${got.length} / 11` && first === got[0].id && card1 && img?.naturalWidth > 0 && back && !box.isOpen,
+        `药箱：开（只有箱子）、${cnt}、回车拉开 ${first} 出卡（立绘 ${img?.naturalWidth || 0} 像素）、Esc 收卡、Esc 关`);
+    }
+    // 这个地点能出的每一只（11-04 加到三~五只）：指定出场，等到缠斗，查是原作模型、身高对、动作在播，存一张图
+    for (const id of enc.rosterAll) {
+      await enc.preload(id); await enterZone(loc.start); run(0.5);
+      if (!enc.start(true, id)) { log(false, `物怪 ${id}：找不到出生点`); continue; }
+      for (let i = 0; i < 600 && enc.state !== "fight"; i++) frame(1 / 60);
+      run(1.5);
+      const m = enc.monster, box = new THREE.Box3().setFromObject(m.group), h = box.max.y - box.min.y;
+      log(m?.real && m.id === id && enc.state === "fight" && h > 0.4 && h < 2.6 && !!m.clip, `物怪 ${id}（${enc.current}）：原作模型、缠斗中，高 ${h.toFixed(2)} 米，动作 ${m.clip}${m.swarm ? "，一群" : ""}`);
+      await save(`tour_${loc.id}_物怪_${id}`);
+      enc.reset(); run(0.3);
+    }
     // 拍照姿势：先回到出发区块的出生点（前面按 W 可能走到墙角，镜头被挤到头顶），
     // O 切两次（抱臂、回头），各等 1 秒让下摆停下来再存图；再切一次回不摆
     await enterZone(loc.start); run(1);

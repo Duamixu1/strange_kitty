@@ -57,6 +57,7 @@ export class SpringBones {
     this.calibrate();
     this.count = this.chains.reduce((n, c) => n + c.joints.length, 0);
     this.rootPos = root.getWorldPosition(new THREE.Vector3()); this.rootPrev = this.rootPos.clone();
+    this.rootQ = root.getWorldQuaternion(new THREE.Quaternion()); this.rootQPrev = this.rootQ.clone();
   }
 
   // 绑定姿势下，给每一节单独算它允许的碰撞体半径：离腿远的关节用配置里的完整半径，
@@ -104,17 +105,22 @@ export class SpringBones {
   //（导出时每个动作都带全部骨头的轨道，没打帧的骨链轨道里就是绑定姿势，跟 rest 一样）。
   // 被驱动的关节用组配置里的 driven 参数（stiffness / drag / relative 覆盖默认值），没有 driven 就照旧。
   // relative：惯性里扣掉角色整体平移的比例（0 = 原来的世界惯性，走路会被"风"吹成披风；1 = 完全跟着身体走，只剩加减速和转身的甩动）
+  // 转身也按同一个比例扣（11-04 加）：原来只扣平移，药郎一边播动作一边转身（物怪出没时转向物怪），下摆被甩成一大片平摊在身后（翻车集 010）
   update(dt) {
     dt = Math.min(dt, 1 / 30);
     this.root.updateMatrixWorld(true);
     this.updateColliders();
     this.rootPrev.copy(this.rootPos); this.root.getWorldPosition(this.rootPos);
     const rootMove = _v3.subVectors(this.rootPos, this.rootPrev).clone();
+    this.rootQPrev.copy(this.rootQ); this.root.getWorldQuaternion(this.rootQ);
+    const turn = this.rootQ.clone().multiply(this.rootQPrev.clone().invert());   // 这一帧身体转了多少（世界坐标）
     for (const ch of this.chains) {
       // 先看整条链有没有被动作驱动（单节角度过零时不算，免得参数一帧一换）
       for (const j of ch.joints) if (!j.bone.quaternion.equals(j.out)) { j.base.copy(j.bone.quaternion); j.driven = Math.abs(j.base.dot(j.rest)) < 0.99999; }
       const driven = ch.joints.some((j) => j.driven);
       const cfg = driven && ch.cfg.driven ? { ...ch.cfg, ...ch.cfg.driven } : ch.cfg;
+      const rel = cfg.relative || 0, spin = rel ? new THREE.Quaternion().slerp(turn, rel) : null;
+      if (spin) for (const j of ch.joints) for (const p of [j.cur, j.prev]) p.sub(this.rootPrev).applyQuaternion(spin).add(this.rootPrev);   // 跟着身体转
       for (const j of ch.joints) {
         const radii = j.radii;
         const b = j.bone;
@@ -158,5 +164,5 @@ export class SpringBones {
   settle(steps = 120) { for (let i = 0; i < steps; i++) this.update(1 / 60); }
 
   // 跳动作时把速度清零，免得被甩飞
-  reset() { for (const ch of this.chains) for (const j of ch.joints) j.prev.copy(j.cur); }
+  reset() { for (const ch of this.chains) for (const j of ch.joints) j.prev.copy(j.cur); this.root.getWorldQuaternion(this.rootQ); }   // 朝向也对齐：瞬移、切姿势那一下的转身不算甩动
 }

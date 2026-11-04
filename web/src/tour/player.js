@@ -15,9 +15,9 @@ const CHAR_PATTERNS = [
   { color: "#49B3A6", tile: "ichimatsu", patColor: "#F1E9DA", mix: 0.5 },
   { color: "#F1E9DA" }, { color: "#D6D3EF" }, { color: "#6A4C8C" }, { color: "#E7A3B5" }, { color: "#4F74BF" }, { color: "#59B86A" }, { color: "#322D48" },
 ];
-const ALIAS = { exorcise: ["exorcise_k"], idle: ["idle_k", "idle"], walk: ["walk2_k", "walk_k", "walk"], run: ["walk_fast_k", "walk2_k", "walk_k"], sprint: ["run_k", "walk_fast_k", "walk2_k"], gaze: ["gaze_k", "idle_k"], look: ["look_up_k", "idle_k"],
+const ALIAS = { exorcise: ["exorcise_k"], exorcise_short: ["exorcise_short_k"], idle: ["idle_k", "idle"], walk: ["walk2_k", "walk_k", "walk"], run: ["walk_fast_k", "walk2_k", "walk_k"], sprint: ["run_k", "walk_fast_k", "walk2_k"], gaze: ["gaze_k", "idle_k"], look: ["look_up_k", "idle_k"],
   idle_alt: ["idle2_k"], turn: ["turn_k"], photo_fold: ["pose_fold_k"], photo_back: ["pose_back_k"] };
-const LOOPING = new Set(["idle_k", "idle", "walk_k", "walk", "walk2_k", "walk_fast_k", "run_k", "gaze_k", "pose_fold_k", "pose_back_k"]);
+const LOOPING = new Set(["ready_k", "idle_k", "idle", "walk_k", "walk", "walk2_k", "walk_fast_k", "run_k", "gaze_k", "pose_fold_k", "pose_back_k"]);
 // 走路动作本身的地面速度（米/秒，支撑脚往后蹬的速度，角色线在 Blender 里量的，1.7 米身高）。
 // 播放倍率 = 实际移动速度 ÷ 这个值，脚才不打滑。walk2_k / walk_fast_k 是 10-30 角色线用腿 IK 算的（一步 0.6 / 0.71 米），
 // walk_k 是探案版的旧走路（步子小、支撑脚还往前蹭），只在没有新动作的模型上兜底。
@@ -39,11 +39,14 @@ export async function loadPlayer(loader, assetUrl, { model = "processed/kusuriur
   const mixer = new THREE.AnimationMixer(m), actions = {};
   for (const clip of gltf.animations) actions[clip.name.replace(/^preset:(biped:)?/, "").replace(/\|.*$/, "").toLowerCase()] = mixer.clipAction(clip);
   let current = null, currentName = null;
-  function play(name, fade = 0.2) {
-    const key = (ALIAS[name] || [name]).find((k) => actions[k]); if (!key) return;
-    const a = actions[key]; if (a === current) return;
-    if (current) current.fadeOut(fade);
-    a.reset();
+  let idleOverride = null;   // 物怪出没时"待机"换成戒备 ready_k（setIdle）
+  const resolve = (name) => (name === "idle" && idleOverride && actions[idleOverride] ? idleOverride : null) || (ALIAS[name] || [name]).find((k) => actions[k]) || null;
+  // speed：播放倍率；from：从第几秒开始（物怪出没的占位动作用，角色线的新动作到了就不用）
+  function play(name, fade = 0.2, { speed = 1, from = 0 } = {}) {
+    const key = resolve(name); if (!key) return;
+    const a = actions[key]; if (a === current && speed === 1 && !from) return;
+    if (current && current !== a) current.fadeOut(fade);
+    a.reset(); a.timeScale = speed; a.time = from;
     if (LOOPING.has(key)) a.setLoop(THREE.LoopRepeat, Infinity); else { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; }
     a.fadeIn(fade).play(); current = a; currentName = key;
   }
@@ -53,9 +56,47 @@ export async function loadPlayer(loader, assetUrl, { model = "processed/kusuriur
   const pr = props ? await attachProps(m, loader, assetUrl, (o) => toonFor(o, null)).catch(() => null) : null;
   pr?.list.forEach((p) => { if (p.id !== "medicine_chest") p.prop.traverse((o) => o.layers.enable(3)); });   // 剑也跟着妖化变红（药箱拔剑时放在地上，不变红）
   const layer = useLayer ? new WalkLayer(m, group) : { restore() {}, apply() {}, reset() {}, target: null };   // 拐弯内倾、起停余摆、头先转（walk_layer.js）；?layer=0 关掉对比
+  // 上半身层（物怪出没，docs/18）：投札、袖挡这类动作只取 Spine01 往上的骨头（不含下摆、袖子、头发的弹簧骨）的转动，
+  // 叠在当前的全身动作上播，走路时腿照走。另开一个 mixer 算出上半身的姿势，再和全身动作的结果按权重插值，
+  // 头尾各 fade 秒淡入淡出；腰那两节只叠一部分，转身不会从腰上折断
+  const upperW = new Map();
+  m.getObjectByName("Spine01")?.traverse((o) => { if (o.isBone && !o.name.startsWith("chain_")) upperW.set(o, o.name === "Spine01" ? 0.5 : o.name === "Spine02" ? 0.8 : 1); });
+  const upperNames = new Set([...upperW.keys()].map((o) => o.name));
+  const upperMixer = new THREE.AnimationMixer(m), upperClips = {}, upperA = new Map(), _q = new THREE.Quaternion();
+  let upper = null;
+  function upperClip(key) {
+    if (!upperClips[key]) { const c = actions[key].getClip(); upperClips[key] = new THREE.AnimationClip(`${key}_upper`, c.duration, c.tracks.filter((t) => t.name.endsWith(".quaternion") && upperNames.has(t.name.split(".")[0]))); }
+    return upperClips[key];
+  }
+  function applyUpper(dt) {
+    if (!upper) return;
+    for (const b of upperW.keys()) upperA.set(b, b.quaternion.clone());
+    upperMixer.update(dt);
+    const a = upper.a, dur = a.getClip().duration / Math.abs(a.timeScale || 1), t = a.time / Math.abs(a.timeScale || 1);
+    const w = Math.max(0, Math.min(1, t / upper.fade, (dur - t) / upper.fade));
+    for (const [b, k] of upperW) { _q.copy(b.quaternion); b.quaternion.copy(upperA.get(b)).slerp(_q, w * k); }
+    if (a.time >= a.getClip().duration - 1e-4) { a.stop(); upper = null; }
+  }
   let last = new THREE.Vector3();
   return {
     group, play, get currentName() { return currentName; }, get time() { return current ? current.time : 0; }, props: pr ? pr.list : [],
+    /** 模型里有没有这个动作（别名也算）；duration 是它的秒数 */
+    has(name) { return !!resolve(name); },
+    /** 换"待机"用哪个动作（null = 默认 idle_k）；正在待机就顺手切过去 */
+    setIdle(clip) { const was = currentName === resolve("idle"); idleOverride = clip; if (was) play("idle", 0.3); },
+    duration(name) { const k = resolve(name); return k ? actions[k].getClip().duration : 0; },
+    /** 上半身层播一个一次性动作（只取上半身轨道）；speed 播放倍率，fade 淡入淡出秒数 */
+    playUpper(name, { speed = 1, fade = 0.12 } = {}) {
+      const key = resolve(name); if (!key) return false;
+      if (upper) upper.a.stop();
+      const a = upperMixer.clipAction(upperClip(key));
+      a.reset(); a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; a.timeScale = speed; a.play();
+      upper = { a, key, fade }; return true;
+    },
+    get upperName() { return upper ? upper.key : null; },
+    get upperTime() { return upper ? upper.a.time : 0; },
+    /** 右手（札从这里飞出去）：有挂点用挂点，没有用手骨 */
+    hand: m.getObjectByName("socket_R_Hand") || m.getObjectByName("R_Hand") || m,
     /** 走路时每帧调：按实际移动速度（米/秒）调走路动作的播放倍率，倍率限在 0.5 到 3 之间 */
     setMoveSpeed(v) {
       if (!current || !CLIP_SPEED[currentName]) return;
@@ -67,6 +108,7 @@ export async function loadPlayer(loader, assetUrl, { model = "processed/kusuriur
     update(dt) {
       layer.restore();
       mixer.update(dt);
+      applyUpper(dt);
       layer.apply(dt);
       if (pr && currentName) pr.update(currentName, current.time);
       if (sb && sb.count) {

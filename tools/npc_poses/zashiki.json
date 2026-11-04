@@ -1,0 +1,1080 @@
+{
+  "poses": {
+    "stand": {
+      "Spine01": {
+        "pitch": -1
+      },
+      "Spine02": {
+        "pitch": -1
+      },
+      "Head": {
+        "pitch": 4
+      },
+      "L_Upperarm": {
+        "pitch": -10,
+        "roll": -6
+      },
+      "R_Upperarm": {
+        "pitch": -10,
+        "roll": 6
+      },
+      "L_Forearm": {
+        "pitch": -55,
+        "yaw": -40,
+        "local": [
+          0,
+          70,
+          0
+        ]
+      },
+      "R_Forearm": {
+        "pitch": -55,
+        "yaw": 40,
+        "local": [
+          0,
+          -70,
+          0
+        ]
+      }
+    },
+    "breathe": {
+      "base": "stand",
+      "Spine02": {
+        "pitch": -2.2
+      },
+      "L_Clavicle": {
+        "roll": -1
+      },
+      "R_Clavicle": {
+        "roll": 1
+      },
+      "Head": {
+        "pitch": 4.8
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.003
+        ]
+      }
+    },
+    "glance": {
+      "base": "breathe",
+      "Head": {
+        "pitch": 3,
+        "yaw": 10
+      },
+      "NeckTwist02": {
+        "yaw": 4
+      }
+    },
+    "zw_idle_0": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          0.08
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": 7.904994627530495
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_idle_1": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.003826834323650898,
+          0,
+          0.09060660171779822
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": 11.725054464522133
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_idle_2": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0070710678118654745,
+          0,
+          0.095
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": 13.760081047173676
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_idle_3": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.009238795325112868,
+          0,
+          0.09060660171779822
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": 13.700260025838329
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_idle_4": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.01,
+          0,
+          0.08
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": 11.554698608735496
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_idle_5": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.009238795325112868,
+          0,
+          0.0693933982822018
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": 7.650039072056407
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_idle_6": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.007071067811865476,
+          0,
+          0.065
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": 2.580730434433596
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_idle_7": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.003826834323650899,
+          0,
+          0.06939339828220178
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": -2.8814710174520797
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_idle_8": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          1.2246467991473532e-18,
+          0,
+          0.08
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": -7.904994627530495
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_sunk": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          -0.7
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 30
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_rise": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          0.12
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": -8
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      }
+    },
+    "zw_charge": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          0.06
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": -14,
+        "roll": 22
+      },
+      "L_Upperarm": {
+        "pitch": -70,
+        "roll": 10
+      },
+      "R_Upperarm": {
+        "pitch": -70,
+        "roll": -10
+      },
+      "L_Forearm": {
+        "pitch": 0
+      },
+      "R_Forearm": {
+        "pitch": 0
+      },
+      "Spine01": {
+        "pitch": -10
+      },
+      "Spine02": {
+        "pitch": -6
+      }
+    },
+    "zw_charge2": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          0.06
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": -12,
+        "roll": 28
+      },
+      "L_Upperarm": {
+        "pitch": -74,
+        "roll": 14
+      },
+      "R_Upperarm": {
+        "pitch": -74,
+        "roll": -14
+      },
+      "L_Forearm": {
+        "pitch": 0
+      },
+      "R_Forearm": {
+        "pitch": 0
+      },
+      "Spine01": {
+        "pitch": -10
+      },
+      "Spine02": {
+        "pitch": -6
+      }
+    },
+    "zw_lunge": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          0.14
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 30
+      },
+      "R_Thigh": {
+        "pitch": 36
+      },
+      "L_Calf": {
+        "pitch": 30
+      },
+      "R_Calf": {
+        "pitch": 24
+      },
+      "Head": {
+        "pitch": 6,
+        "roll": 6
+      },
+      "L_Upperarm": {
+        "pitch": -95,
+        "roll": 4
+      },
+      "R_Upperarm": {
+        "pitch": -95,
+        "roll": -4
+      },
+      "L_Forearm": {
+        "pitch": 0
+      },
+      "R_Forearm": {
+        "pitch": 0
+      },
+      "Spine01": {
+        "pitch": 24
+      },
+      "Spine02": {
+        "pitch": 10
+      }
+    },
+    "zw_hit": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          0.1
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": -25,
+        "roll": -18
+      },
+      "L_Upperarm": {
+        "pitch": 30,
+        "roll": 20
+      },
+      "R_Upperarm": {
+        "pitch": 30,
+        "roll": -20
+      },
+      "L_Forearm": {
+        "pitch": -30
+      },
+      "R_Forearm": {
+        "pitch": -30
+      },
+      "Spine01": {
+        "pitch": -18
+      },
+      "Spine02": {
+        "pitch": -8
+      }
+    },
+    "zw_hit2": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          0.09
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": -6,
+        "roll": 12
+      },
+      "L_Upperarm": {
+        "pitch": -8,
+        "roll": 6
+      },
+      "R_Upperarm": {
+        "pitch": -8,
+        "roll": -6
+      },
+      "L_Forearm": {
+        "pitch": -20
+      },
+      "R_Forearm": {
+        "pitch": -20
+      },
+      "Spine01": {
+        "pitch": -6
+      }
+    },
+    "zw_vanish": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          0.45
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": -22
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": 70
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": -70
+      },
+      "L_Forearm": {
+        "pitch": 0
+      },
+      "R_Forearm": {
+        "pitch": 0
+      },
+      "Spine01": {
+        "pitch": -12
+      }
+    },
+    "zw_vanish2": {
+      "base": "stand",
+      "Hip": {
+        "move": [
+          0.0,
+          0,
+          0.7
+        ]
+      },
+      "L_Foot": {
+        "pitch": 25
+      },
+      "R_Foot": {
+        "pitch": 22
+      },
+      "L_Thigh": {
+        "pitch": 4
+      },
+      "R_Thigh": {
+        "pitch": -2
+      },
+      "L_Calf": {
+        "pitch": 8
+      },
+      "R_Calf": {
+        "pitch": 12
+      },
+      "Head": {
+        "pitch": -28
+      },
+      "L_Upperarm": {
+        "pitch": -30,
+        "roll": 85
+      },
+      "R_Upperarm": {
+        "pitch": -30,
+        "roll": -85
+      },
+      "L_Forearm": {
+        "pitch": 0
+      },
+      "R_Forearm": {
+        "pitch": 0
+      },
+      "Spine01": {
+        "pitch": -16
+      }
+    }
+  },
+  "animations": {
+    "idle_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "zw_idle_0",
+          0
+        ],
+        [
+          "zw_idle_1",
+          6
+        ],
+        [
+          "zw_idle_2",
+          12
+        ],
+        [
+          "zw_idle_3",
+          18
+        ],
+        [
+          "zw_idle_4",
+          24
+        ],
+        [
+          "zw_idle_5",
+          30
+        ],
+        [
+          "zw_idle_6",
+          36
+        ],
+        [
+          "zw_idle_7",
+          42
+        ],
+        [
+          "zw_idle_8",
+          48
+        ]
+      ]
+    },
+    "appear_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "zw_sunk",
+          0
+        ],
+        [
+          "zw_rise",
+          16
+        ],
+        [
+          "zw_idle_0",
+          24
+        ]
+      ]
+    },
+    "charge_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "zw_idle_0",
+          0
+        ],
+        [
+          "zw_charge",
+          7
+        ],
+        [
+          "zw_charge2",
+          13
+        ],
+        [
+          "zw_charge",
+          19
+        ]
+      ]
+    },
+    "lunge_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "zw_charge",
+          0
+        ],
+        [
+          "zw_lunge",
+          4
+        ],
+        [
+          "zw_lunge",
+          8
+        ],
+        [
+          "zw_idle_0",
+          14
+        ]
+      ]
+    },
+    "hit_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "zw_idle_0",
+          0
+        ],
+        [
+          "zw_hit",
+          3
+        ],
+        [
+          "zw_hit2",
+          8
+        ],
+        [
+          "zw_idle_0",
+          12
+        ]
+      ]
+    },
+    "vanish_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "zw_idle_0",
+          0
+        ],
+        [
+          "zw_vanish",
+          12
+        ],
+        [
+          "zw_vanish2",
+          30
+        ]
+      ]
+    }
+  },
+  "_说明": "zashiki 待机姿势（游14，tools/npc_setup.py 生成，女：同阿浅）。写法同 tools/poses/kusuriuri_v2.json：角度单位度、角色坐标系；朝下的骨头 pitch 负值 = 往前抬；roll 正值 = 远端往角色左边倒。bind_fix 按上臂张开角（左 50.9°、右 62.6°）减 9.5° 把 A 字手臂放下。前臂 local Y 扭 ±70° 让大袖下垂。",
+  "bind_fix": {
+    "L_Upperarm": {
+      "roll": -41
+    },
+    "R_Upperarm": {
+      "roll": 53
+    }
+  }
+}

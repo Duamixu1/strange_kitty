@@ -1,6 +1,6 @@
 {
   "_说明": "道具挂点表：角色模型里有对应名字的挂点（Blender 里 blender_pose_anim.py 按 tools/poses/*.json 的 sockets 生成）才会挂。道具 GLB 由 tools/blender_props.py 生成，单位和角色一致（身高 1.0），原点和朝向已对好挂点，查看器原样挂上不再调。show 写了就只在这些动作的这段时间（秒）里显示，不写一直显示。",
-  "sword":          {"url": "processed/props/sword.glb",          "socket": "socket_R_Hand",  "show": {"exorcise_k": [0.8, 9.8]}},
+  "sword":          {"url": "processed/props/sword.glb",          "socket": "socket_R_Hand",  "show": {"exorcise_k": [0.8, 9.8], "exorcise_short_k": [0.2, 2.85]}},
   "medicine_chest": {"url": "processed/props/medicine_chest.glb", "socket": "socket_Spine02"},
   "scale":          {"url": "processed/props/scale.glb",          "socket": "socket_Waist"}
 }

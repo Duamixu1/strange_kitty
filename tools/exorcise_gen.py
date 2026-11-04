@@ -124,7 +124,8 @@ def mono(ts, vs, t):
     return h00 * vs[i] + h10 * h * m[i] + h01 * vs[i + 1] + h11 * h * m[i + 1]
 
 
-def bake(lib, keys, f0, f1, step):
+def bake(lib, keys, f0, f1, step, prefix="exo", lead_k=1.0, breath=True):
+    """lead_k：错开的帧数按比例缩（短动作用 0.5，不然开头那帧腿已经走了一大半）；breath：叠不叠呼吸。没写 aim 的动作不瞄剑"""
     flat = [(resolve(lib, n), f) for n, f in keys]
     ts = [f for _, f in flat]
     bones = sorted({b for p, _ in flat for b in p if b != "aim"})
@@ -132,7 +133,7 @@ def bake(lib, keys, f0, f1, step):
     for f in range(f0, f1 + 1, step):
         pose = {}
         for b in bones:
-            tt = min(max(f + lead_of(b), f0), f1)
+            tt = min(max(f + lead_k * lead_of(b), f0), f1)
             spec = {}
             for ch in ("pitch", "yaw", "roll"):
                 vs = [p.get(b, {}).get(ch, 0.0) for p, _ in flat]
@@ -146,15 +147,16 @@ def bake(lib, keys, f0, f1, step):
             if spec: pose[b] = spec
         # 呼吸：2.6 秒一次，胸口先、头晚一点，剑尖跟着微微晃
         ph = 2 * math.pi * (f - f0) / 62
-        for b, amp, lag in (("Spine01", 0.9, 0), ("Spine02", 0.8, 0.4), ("Head", -0.7, 0.9)):
+        for b, amp, lag in () if not breath else (("Spine01", 0.9, 0), ("Spine02", 0.8, 0.4), ("Head", -0.7, 0.9)):
             pose.setdefault(b, {}); pose[b]["pitch"] = round(pose[b].get("pitch", 0) + amp * math.sin(ph - lag), 2)
-        for b, amp in (("L_Clavicle", -0.8), ("R_Clavicle", 0.8)):
+        for b, amp in () if not breath else (("L_Clavicle", -0.8), ("R_Clavicle", 0.8)):
             pose.setdefault(b, {}); pose[b]["roll"] = round(pose[b].get("roll", 0) + amp * math.sin(ph - 0.3), 2)
-        dirs = [p["aim"]["dir"] for p, _ in flat]
-        dv = [mono(ts, [d[k] for d in dirs], f) for k in range(3)]
-        dv[2] += 0.015 * math.sin(ph * 1.3 + 1)
-        nrm = math.sqrt(sum(x * x for x in dv)); pose["aim"] = {"socket": "socket_R_Hand", "dir": [round(x / nrm, 4) for x in dv]}
-        out[f"exo_{f:03d}"] = pose
+        if all("aim" in p for p, _ in flat):
+            dirs = [p["aim"]["dir"] for p, _ in flat]
+            dv = [mono(ts, [d[k] for d in dirs], f) for k in range(3)]
+            dv[2] += 0.015 * math.sin(ph * 1.3 + 1) * breath
+            nrm = math.sqrt(sum(x * x for x in dv)); pose["aim"] = {"socket": "socket_R_Hand", "dir": [round(x / nrm, 4) for x in dv]}
+        out[f"{prefix}_{f:03d}"] = pose
     return out
 
 

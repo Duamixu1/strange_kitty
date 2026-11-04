@@ -266,6 +266,46 @@ class Engine {
       const o = this.ctx.createOscillator(); o.frequency.value = 1800; const og = this.env(tt, 0.001, v * 0.3, 0.05, this.sfxBus); o.connect(og); o.start(tt); o.stop(tt + 0.1);
     }
   }
+  // ---- 物怪出没（docs/18）----
+  sweep(t, buf, f0, f1, dur, peak, q = 2) {   // 一阵噪声，带通从 f0 扫到 f1（嗖、呼）
+    const out = this.env(t, dur * 0.4, peak, dur * 0.6, this.sfxBus), f = this.filt("bandpass", f0, q);
+    f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    this.src(buf, t, { offset: Math.random() }).connect(this.chain(f, out)); return out;
+  }
+  omen(t) {   // 预兆：铃两下，底下一层低音慢慢涨起来
+    this.bell(t, 1320, 0.16); this.bell(t + 0.55, 1250, 0.12);
+    const d = this.ctx.createGain(); d.gain.setValueAtTime(0.0001, t); d.gain.linearRampToValueAtTime(0.1, t + 1.6); d.gain.linearRampToValueAtTime(0.0001, t + 3.2); d.connect(this.sfxBus);
+    for (const f of [62, 62.8]) { const o = this.ctx.createOscillator(); o.frequency.value = f; o.connect(d); o.start(t); o.stop(t + 3.3); }
+  }
+  appear(t) { this.send(this.sweep(t, this.brown, 160, 900, 0.9, 0.4, 1.2), 0.6); this.taiko(t + 0.85, 0.35); }   // 从墨里浮出来
+  charge(t) { this.sweep(t, this.white, 400, 1200, 0.7, 0.08, 6); }   // 蓄力：一点尖细的嘶声
+  lunge(t) { this.sweep(t, this.white, 300, 1600, 0.3, 0.3, 1.5); }   // 扑过来
+  ofuda(t) { this.sweep(t, this.white, 1500, 4500, 0.14, 0.22, 1.5); this.paper(t + 0.02); }   // 札甩出去：纸片划过空气
+  pin(t) {   // 钉中："啪"一下闷响 + 纸拍上去的脆声
+    const e = this.env(t, 0.001, 0.55, 0.08, this.sfxBus); this.src(this.brown, t, { offset: Math.random() }).connect(this.chain(this.filt("lowpass", 600), e));
+    const c = this.env(t, 0.001, 0.3, 0.03, this.sfxBus); this.src(this.white, t, { offset: Math.random() }).connect(this.chain(this.filt("highpass", 2500), c));
+    this.send(e, 0.4);
+  }
+  kanji(t, i = 0) { this.bell(t, [880, 990, 1175][i % 3], 0.18); }   // 形 / 真 / 理 浮起来：一个比一个高
+  guard(t) {   // 袖挡：布被撞了一下
+    const e = this.env(t, 0.002, 0.45, 0.1, this.sfxBus); this.src(this.brown, t, { offset: Math.random() }).connect(this.chain(this.filt("lowpass", 420), e));
+    this.sweep(t, this.white, 1800, 900, 0.12, 0.12, 2);
+  }
+  dodge(t) { this.sweep(t, this.white, 900, 500, 0.18, 0.12, 1.2); }   // 闪开：衣摆一甩
+  jump(t) { this.sweep(t, this.white, 500, 1400, 0.22, 0.14, 1.2); }   // 跳起来：衣摆往上一兜
+  land(t) { const e = this.env(t, 0.002, 0.3, 0.07, this.sfxBus); this.src(this.brown, t, { offset: Math.random() }).connect(this.chain(this.filt("lowpass", 380), e)); }   // 落地：一声闷的
+  blink(t) { this.sweep(t, this.white, 2400, 6000, 0.12, 0.2, 2); this.paper(t + 0.01); this.paper(t + 0.05); }   // 瞬移：札纸一散
+  blinkIn(t) { this.sweep(t, this.white, 5000, 1800, 0.16, 0.14, 2); this.bell(t + 0.02, 1660, 0.06); }   // 现身：纸片收回来
+  seal(t) { this.sheath(t); this.bell(t + 0.1, 590, 0.14); }
+  locked(t) {   // 形真理没齐按拔剑：刀镡磕在鞘口上一声，闷的，拔不出
+    this.sheath(t); const e = this.env(t, 0.002, 0.35, 0.09, this.sfxBus); this.src(this.brown, t, { offset: Math.random() }).connect(this.chain(this.filt("lowpass", 300), e));
+  }   // 形真理齐了：剑鞘"咔"一响
+  vanish(t) { this.send(this.sweep(t, this.brown, 1600, 180, 1.8, 0.35, 0.8), 0.7); this.bell(t + 0.3, 1480, 0.12); }   // 化墨散掉
+  release(t, n = 1) {   // 魂走了：铃一声一声往上走，很轻（小化猫是母猫一声、小的三声）
+    const f = [988, 1175, 1319, 1568];
+    for (let i = 0; i < n; i++) this.bell(t + 0.35 + i * 0.32, f[i % f.length], i ? 0.09 : 0.13);
+  }
+  retreat(t) { this.sweep(t, this.brown, 700, 120, 1.2, 0.3, 1); }   // 沉回墨里
   tick(t) { const e = this.env(t, 0.001, 0.15, 0.03, this.sfxBus); this.src(this.white, t, { offset: Math.random() }).connect(this.chain(this.filt("bandpass", 4000, 4), e)); }
   step(t, floor, v = 1) {
     const p = this.pan(rnd(-0.1, 0.1), this.sfxBus), n = (buf, f, q, peak, d, type = "bandpass") => {

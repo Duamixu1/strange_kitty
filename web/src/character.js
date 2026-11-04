@@ -62,6 +62,8 @@ const presets = {
   DigitU: { pos: [-0.45, 0.25, 0.35], target: [-0.25, 0.7, 0] },   // 右袖从下往上看
   DigitL: { pos: [4.2, 0.95, 0], target: [0, 0.85, 0] },          // 左正侧面（看剑从身前横过时离左袖多远）
   DigitV: { pos: [0, 2.4, 1.6], target: [0, 1.0, 0.3] },          // 前上方俯看（看剑在身前多远）
+  DigitG: { pos: [1.5, 1.45, 2.1], target: [0, 1.1, 0.4] },      // 四足物怪头颈斜前方近景（小化猫扭头）
+  DigitJ: { pos: [-2.3, 1.15, 0.4], target: [0, 1.05, 0.4] },     // 四足物怪头颈正侧面近景
 };
 function applyPreset(k) {
   const p = presets[k]; if (!p) return;
@@ -168,7 +170,7 @@ loader.load(modelUrl, (gltf) => {
   }
 
   if (gltf.animations.length) {
-    fixRootDrift(model, gltf.animations);
+    if (params.get("drift") !== "0") fixRootDrift(model, gltf.animations);   // &drift=0：物怪自己做的大位移（坐下、沉下去）不归零，游戏里本来就没这层
     mixer = new THREE.AnimationMixer(model);
     for (const clip of gltf.animations) {
       const name = clipKey(clip.name);
