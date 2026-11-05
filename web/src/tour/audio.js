@@ -305,6 +305,15 @@ class Engine {
     const f = [988, 1175, 1319, 1568];
     for (let i = 0; i < n; i++) this.bell(t + 0.35 + i * 0.32, f[i % f.length], i ? 0.09 : 0.13);
   }
+  burn(t) {   // 11-05 斩到怨念那团墨：一声"嗤"，像纸烧起来（高频噪声往下扫）
+    this.send(this.sweep(t + 0.04, this.white, 6000, 1500, 0.7, 0.18, 1.2), 0.5); this.bell(t + 0.5, 1480, 0.08);
+  }
+  sheathStill(t) {   // 送：剑在鞘里轻轻一响，没出来
+    const e = this.env(t, 0.001, 0.18, 0.05, this.sfxBus); this.src(this.white, t, { offset: Math.random() }).connect(this.chain(this.filt("bandpass", 2600, 5), e));
+  }
+  okuri(t) {   // 送：一声低铃，一张札落地的纸声，过一会儿再一声高的
+    this.bell(t + 0.15, 740, 0.14); this.paper(t + 1.7); this.bell(t + 2.2, 1175, 0.09);
+  }
   retreat(t) { this.sweep(t, this.brown, 700, 120, 1.2, 0.3, 1); }   // 沉回墨里
   tick(t) { const e = this.env(t, 0.001, 0.15, 0.03, this.sfxBus); this.src(this.white, t, { offset: Math.random() }).connect(this.chain(this.filt("bandpass", 4000, 4), e)); }
   step(t, floor, v = 1) {

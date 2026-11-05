@@ -103,7 +103,7 @@ export class FollowCam {
   update(player, dt, snap = false) {
     const t = this._t.set(player.position.x, player.position.y + this.targetH, player.position.z);
     const inRect = ({ rect: [x0, x1, z0, z1] }, m) => t.x >= x0 - m && t.x <= x1 + m && t.z >= z0 - m && t.z <= z1 + m;
-    let f = this.fixedOn && inRect(this.fixedOn, 0.35) ? this.fixedOn : (this.fixed || []).find((r) => inRect(r, 0)) || null;
+    let f = this.shot || (this.fixedOn && inRect(this.fixedOn, 0.35) ? this.fixedOn : (this.fixed || []).find((r) => inRect(r, 0)) || null);   // shot：act 临时机位（guide.js）
     this.cutT += dt;
     if (f !== this.fixedOn) { if (this.cutT < 0.6 && !snap) f = this.fixedOn; else { this.cutT = 0; this.cuts++; } }
     if (f) {

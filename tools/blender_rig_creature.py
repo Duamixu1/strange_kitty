@@ -220,6 +220,37 @@ if a.kind in QUAD:
                     # 低低地往后弧下去、尾尖往里勾（第四版第一次直直垂到两腿中间，侧面看像多了一条腿）
                     **{f"tail{i}": {"pitch": [-133, -62, 7, 30, 52][i] + (4 * sin(T * f / 32) if i == NT - 1 else 0), "yaw": 0} for i in range(NT)}}
         MOTIONS["idle_sit_k"] = loop(96, shy)
+        # 领路（docs/19 第四节，90 秒没找到线索时一只小化猫从画面边上跑过去、停在线索旁回头看）：run_k 原地小跑循环、look_back_k 停下回头
+        # 小跑是对角步：左前和右后一起、右前和左后一起；一圈 10 帧（0.42 秒），每只脚着地 40%，中间有一下四脚离地。
+        # 着地时脚掌往后匀速走 0.4 米（未缩放），所以游戏里 root 往前走 2.4 米/秒 × 缩放（0.55 倍 → 1.32 米/秒）脚不打滑
+        RUN_N, DUTY, A, LL = 10, 0.4, 0.2, 0.54   # 一圈帧数、着地占比、脚掌前后摆幅（米）、腿长（髋到脚掌）
+        def run_leg(ph):
+            ph %= 1.0
+            if ph < DUTY: x, fold = A - 2 * A * ph / DUTY, 0.0                         # 着地：脚掌从前往后
+            else: u = (ph - DUTY) / (1 - DUTY); x = -A + 2 * A * u * u * (3 - 2 * u); fold = 80 * math.sin(math.pi * u)   # 抬起：小腿往后折、往前送
+            return -math.degrees(math.asin(x / LL)) - 0.6 * fold, fold, x                 # 大腿（负 = 脚往前）、小腿（正 = 爪往后折）
+        def run(f):
+            ph = f / RUN_N; g = {}
+            zs = []
+            for leg, off in (("FL", 0.0), ("BR", 0.0), ("FR", 0.5), ("BL", 0.5)):
+                up, lo, x = run_leg(ph + off); g[f"leg{leg}0"] = {"pitch": up}; g[f"leg{leg}1"] = {"pitch": lo}
+                if (ph + off) % 1.0 < DUTY: zs.append(math.sqrt(LL * LL - x * x) - LL)
+            # 身子高低：有脚着地时按着地那条腿算（脚掌正好贴地），四脚离地时往上弹 1.5 厘米
+            z = min(zs) if zs else 0.015 * math.sin(math.pi * (((ph % 0.5) - DUTY) / (0.5 - DUTY)))
+            b = sin(T * ph * 2)
+            g.update({"root": {"move": [0, 0, z]}, "hips": {"pitch": 2 * b}, "spine": {"pitch": -3 - 2 * b},
+                      "neck": {"pitch": 18 + 2 * b, "rel": 1}, "head": {"pitch": -14 - 2 * b, "rel": 1},    # 脖子往前伸、头平着看前面
+                      "earL": {"pitch": -12}, "earR": {"pitch": -12},
+                      # 尾巴往后上方斜翘（五节目标离竖直 -35°、-45°、-50°、-55°、-60°；平举时节与节之间折得明显），随步子小摆
+                      **{f"tail{i}": {"pitch": [-43, -47, 22, 40, 72][i], "yaw": 6 * sin(T * ph - i * 0.8)} for i in range(NT)}})
+            return g
+        MOTIONS["run_k"] = loop(RUN_N, run, 1)
+        def look_back(f):   # 1.2 秒：停稳、往左后方回头看一眼（背、脖子、头三处一起转，约 110°）、转回前方；首尾和 idle_k 第一帧一样
+            t = win(f, 4, 26, 7); st = win(f, 0, 8, 4) if f > 0 else 0.0
+            return {"root": {"move": [0, 0, 0.02 - 0.012 * st]}, "hips": {"yaw": -5 * t}, "spine": {"pitch": 3 * st, "yaw": 16 * t},
+                    "neck": {"pitch": -4 * t, "yaw": 44 * t, "rel": 1}, "head": {"pitch": -6 * t, "yaw": 48 * t, "roll": 8 * t, "rel": 1},
+                    "earL": {"yaw": 15 * t}, "earR": {"yaw": 15 * t}, **tails(T * f / 28, 6 * t)}
+        MOTIONS["look_back_k"] = loop(28, look_back, 2)
     if snake:   # 扑的那一下蛇头跟着往前咬
         MOTIONS["lunge_k"][4].update({f"tail{NT - 2}": {"pitch": 35}, f"tail{NT - 1}": {"pitch": 45}})
 elif a.kind == "umibozu":

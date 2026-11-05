@@ -9,6 +9,8 @@ timber: 1.8
 fanlight: on
 bridge_rise: 0.6
 mat: wood=wood_dark, frame=wood_dark, plaster=plaster_coral, kokabe=plaster_white, earth=stone
+# 11-05 文案（soto.1）：桥边几个墨色人影抬头望楼上——南岸桥头两边三个仰着头的黑影
+place: kage_up 4.3,6.95; kage_up 10.3,7.15,-8; kage_up 9.7,7.95,10
 shot: 正面 | 6.8,3.2,15.8 | 6.8,6.8,0.0 | 6.83,11.4,3.14
 shot: 拱桥 | 12.3,1.5,9.4 | 6.4,0.9,4.0 | 6.4,4.55,3.14
 shot: 回望街对面 | 6.8,1.7,1.8 | 6.8,2.6,19.6 | 6.4,6.2,0

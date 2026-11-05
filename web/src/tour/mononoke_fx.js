@@ -170,8 +170,9 @@ export const MONSTERS = {
   karakasa: { file: "processed/karakasa_posed.glb", h: 1.3, mask: "umbrella" },
   karakasa_kuro: { file: "processed/karakasa_kuro_posed.glb", h: 1.3, mask: "umbrella" },
   hinezumi: { file: "processed/hinezumi_posed.glb", h: 1.0, mask: "cat" },
+  kitten_guide: { file: "processed/bakeneko_posed.glb", h: 1.15 * 0.55, mask: "cat" },   // 引导（guide.js）：90 秒没找到东西，一只小化猫跑过去领路（不是物怪，不进图鉴）
 };
-const ONCE = new Set(["appear_k", "hit_k", "vanish_k", "charge_k", "lunge_k"]);
+const ONCE = new Set(["appear_k", "hit_k", "vanish_k", "charge_k", "lunge_k", "look_back_k"]);
 
 /** 加载按原作做的物怪（id 见 MONSTERS）。接口和墨影一样，扑、蓄力、浮上来这些交给模型自己的动作，
  *  代码只管：squash（被钉压一下）、fade（消散、退走时缩没）、hover 低于 0 时整只往地下沉（退走、海坊主消散） */
@@ -307,6 +308,8 @@ export class MononokeFx {
     this.inkMat = new THREE.MeshBasicMaterial({ color: INK, transparent: true });
     this.dropGeo = new THREE.IcosahedronGeometry(0.035, 1);
     this.flying = []; this.pinned = []; this.drops = []; this.papers = []; this.lights = []; this.ring = null;
+    this.goldMat = new THREE.MeshBasicMaterial({ color: "#E8C15A", transparent: true });
+    this.grudge = null; this.cuts = []; this.drip = null;
     this.root = new THREE.Group(); scene.add(this.root);
     this.mk = document.getElementById("mk");
   }
@@ -331,9 +334,9 @@ export class MononokeFx {
     this.pinned.push({ m, t: 0 }); return m;
   }
   /** 一把墨点：n 个，从 pos 往外溅，有重力，落地前缩没 */
-  splat(pos, n = 14, { up = 1.5, spread = 2.2, rise = false } = {}) {
+  splat(pos, n = 14, { up = 1.5, spread = 2.2, rise = false, mat = null } = {}) {
     for (let i = 0; i < n; i++) {
-      const d = new THREE.Mesh(this.dropGeo, this.inkMat); d.position.copy(pos); d.frustumCulled = false;
+      const d = new THREE.Mesh(this.dropGeo, mat || this.inkMat); d.position.copy(pos); d.frustumCulled = false;
       const s = rnd(0.6, 1.8); d.scale.setScalar(s); this.root.add(d);
       const v = new THREE.Vector3(rnd(-1, 1), rnd(0.2, 1) * up, rnd(-1, 1)).normalize().multiplyScalar(rnd(0.5, 1) * spread);
       this.drops.push({ d, v, life: rnd(0.5, 0.9) * (rise ? 2.2 : 1), t: 0, s, rise });
@@ -365,6 +368,39 @@ export class MononokeFx {
     this.lights.push(...made);
     return Math.max(...made.map((m) => m.delay + m.life));
   }
+  // ---- 11-05 退魔收场（docs/19 第十节）：剑斩的是缠在它身上的怨念，不是它本身 ----
+  /** 怨念剥离：一团有面具的墨影从物怪身上被抽出来，dur 秒里浮到它头上方、越长越大；它本身由 encounter.js 褪色 */
+  peel(monster, dur = 1.4) {
+    this.clearGrudge();
+    const h = monster.height || 1, c = monster.center(new THREE.Vector3());
+    const g = makeInkMonster(monster.kind || "cat", { hover: 0 });
+    g.group.position.copy(c); g.fade = 0.05; g.glow = 0.5; this.root.add(g.group);
+    this.grudge = { g, from: c.clone(), to: c.clone().add(new THREE.Vector3(0, h * 0.45 + 0.5, 0)), t: 0, dur: Math.max(0.35, dur), size: Math.min(1.8, Math.max(0.85, h * 0.8)), cut: -1, monster, acc: 0 };
+    this.splat(c, 16, { up: 1, spread: 0.5, rise: true });
+  }
+  /** 横斩劈中那团墨：一道金光横着闪过，墨被压扁、烧成金色火星和墨点散掉 */
+  cutGrudge() {
+    const G = this.grudge; if (!G) return;
+    G.cut = 0;
+    const at = G.g.center(new THREE.Vector3());
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.035), new THREE.MeshBasicMaterial({ color: "#FFF1C4", transparent: true, depthTest: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+    m.position.copy(at); m.quaternion.copy(this.camera.quaternion); m.rotateZ(rnd(-0.35, -0.15)); m.scale.set(0.01, 1, 1); m.renderOrder = 10; m.frustumCulled = false;
+    this.root.add(m); this.cuts.push({ m, t: 0, len: G.size * 1.8 });
+    this.splat(at, 26, { up: 1, spread: 1.3, rise: true, mat: this.goldMat });
+    this.splat(at, 18, { up: 0.6, spread: 1.6 });
+  }
+  /** 钉在它身上的札散成纸片落下（斩完 / 送走：它已经不用再被钉着了） */
+  unpin() { const w = new THREE.Vector3(); for (const p of this.pinned) { p.m.getWorldPosition(w); p.m.parent?.remove(p.m); this.paper(w, 3); } this.pinned = []; }
+  clearGrudge() { if (this.grudge) { this.root.remove(this.grudge.g.group); this.grudge.g.dispose(); this.grudge = null; } }
+  /** 送：墨像水一样从它身上往下滴干净，dur 秒 */
+  dripOff(monster, dur = 1.8) { this.drip = { monster, t: 0, dur, acc: 0 }; }
+  /** 送：一张札从 from（药郎指尖）飘落到 floorY，0.35 秒、轻晃两下，落地后平躺、过一会儿淡掉 */
+  dropFuda(from, floorY) {
+    const m = this.ofudaMesh(); m.position.copy(from); this.root.add(m);
+    this.falling = { m, from: from.clone(), floorY, t: 0 };
+  }
+  /** 送：札阵落到地上摊平，红线换成金色，慢慢转着 */
+  ringToFloor(floorY) { if (this.ring) { this.ring.floor = 0; this.ring.floorY = floorY; this.ring.line.material.color.set("#E8C15A"); } }
   /** 札阵：count 张札绕着 center() 转，红线连起来；tighten 0→1 收紧 */
   makeRing(monster, count = 8) {
     this.clearRing();
@@ -441,13 +477,53 @@ export class MononokeFx {
       }
       if (k >= 1) { this.root.remove(m.sp); m.sp.material.dispose(); this.lights.splice(this.lights.indexOf(m), 1); }
     }
+    const G = this.grudge;
+    if (G) {
+      G.g.group.rotation.y = Math.atan2(this.camera.position.x - G.g.group.position.x, this.camera.position.z - G.g.group.position.z);   // 面具朝镜头
+      if (G.cut < 0) {
+        G.t += dt; const k = Math.min(1, G.t / G.dur), e = 1 - Math.pow(1 - k, 3);
+        G.g.group.position.lerpVectors(G.from, G.to, e); G.g.fade = 0.05 + (G.size - 0.05) * e; G.g.glow = 0.35 + 0.25 * Math.sin(G.t * 9);
+        // 抽出来的路上：墨点从它身上往上被吸过去
+        if (k < 1 && (G.acc += dt) > 0.05) { G.acc = 0; this.splat(G.monster.center(tmp), 2, { up: 1, spread: 0.35, rise: true }); }
+      } else {
+        G.cut += dt; const k = Math.min(1, G.cut / 0.55);
+        G.g.squash = Math.min(1, G.cut / 0.08); G.g.glow = 1; G.g.fade = G.size * (1 - k * k);
+        if (k >= 1) this.clearGrudge();
+      }
+      this.grudge?.g.update(dt);
+    }
+    for (const c of this.cuts.slice()) {
+      c.t += dt; const k = c.t / 0.45;
+      c.m.scale.x = c.len * Math.min(1, c.t / 0.07); c.m.material.opacity = k < 0.3 ? 1 : Math.max(0, 1 - (k - 0.3) / 0.7);
+      if (k >= 1) { this.root.remove(c.m); c.m.geometry.dispose(); c.m.material.dispose(); this.cuts.splice(this.cuts.indexOf(c), 1); }
+    }
+    if (this.falling) {
+      const F = this.falling; F.t += dt; const k = Math.min(1, F.t / 0.35);
+      F.m.position.set(F.from.x + Math.sin(k * Math.PI * 2) * 0.06, F.from.y + (F.floorY + 0.01 - F.from.y) * k * k, F.from.z);
+      F.m.rotation.set(-Math.PI / 2 * k, 0, Math.sin(k * Math.PI * 2) * 0.5 * (1 - k));
+      if (F.t > 3) F.m.material.opacity = Math.max(0, 1 - (F.t - 3) / 0.6);
+      if (F.t > 3.6) { this.root.remove(F.m); this.falling = null; }
+    }
+    if (this.drip) {
+      const D = this.drip; D.t += dt;
+      if ((D.acc += dt) > 0.045) {
+        D.acc = 0; const c = D.monster.center(tmp), r = (D.monster.radius || 0.3) * 0.8;
+        this.splat(c.add(new THREE.Vector3(rnd(-r, r), rnd(-0.2, 0.25), rnd(-r, r))), 1, { up: 0.05, spread: 0.12 });
+      }
+      if (D.t > D.dur) this.drip = null;
+    }
     const R = this.ring;
     if (R) {
-      R.t += dt; const c = R.monster.center(tmp), rad = 0.95 - 0.35 * R.tighten, pts = [];
+      R.t += dt; const c = R.monster.center(tmp);
+      if (R.floor != null) R.floor = Math.min(1, R.floor + dt / 0.9);
+      const fk = R.floor == null ? 0 : 1 - Math.pow(1 - R.floor, 3);   // 送：0.9 秒落到地上、转慢、圈放大
+      const rad = (0.95 - 0.35 * R.tighten) * (1 - fk) + 0.85 * fk, pts = [];
       R.cards.forEach((m, i) => {
-        const a = R.t * (0.9 + R.tighten * 2) + (i / R.count) * Math.PI * 2, y = Math.sin(R.t * 2 + i) * 0.06;
-        m.position.set(c.x + Math.cos(a) * rad, c.y + y, c.z + Math.sin(a) * rad);
-        m.lookAt(c.x, c.y + y, c.z); pts.push(m.position.clone());
+        const a = R.t * (0.9 + R.tighten * 2) * (1 - fk * 0.85) + (i / R.count) * Math.PI * 2, y0 = c.y + Math.sin(R.t * 2 + i) * 0.06;
+        const y = y0 + ((R.floorY ?? c.y) + 0.02 - y0) * fk;
+        m.position.set(c.x + Math.cos(a) * rad, y, c.z + Math.sin(a) * rad);
+        if (fk > 0.6) { m.rotation.set(-Math.PI / 2, 0, -a); } else m.lookAt(c.x, y, c.z);
+        pts.push(m.position.clone());
       });
       pts.push(pts[0]); R.line.geometry.setFromPoints(pts);
     }
@@ -465,6 +541,8 @@ export class MononokeFx {
     for (const d of this.drops) this.root.remove(d.d); this.drops = [];
     for (const p of this.papers) this.root.remove(p.m); this.papers = [];
     for (const m of this.lights) { this.root.remove(m.sp); m.sp.material.dispose(); } this.lights = [];
-    this.clearRing();
+    this.clearRing(); this.clearGrudge(); this.drip = null;
+    if (this.falling) { this.root.remove(this.falling.m); this.falling = null; }
+    for (const c of this.cuts) this.root.remove(c.m); this.cuts = [];
   }
 }

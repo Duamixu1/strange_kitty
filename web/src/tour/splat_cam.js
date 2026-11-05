@@ -55,7 +55,8 @@ export class SplatCam {
     const C = this.cfg, h = C.h ?? 1.5, t = this._t.set(player.position.x, player.position.y + 1.2, player.position.z);
     // 固定机位：药郎在某个矩形里就用那个机位（进出缓冲 0.35 米，update 里直接切，不滑过去）
     const inRect = ({ rect: [x0, x1, z0, z1] }, m) => t.x >= x0 - m && t.x <= x1 + m && t.z >= z0 - m && t.z <= z1 + m;
-    const f = hold ? this.fixedOn : this.fixedOn && inRect(this.fixedOn, 0.35) ? this.fixedOn : (C.fixed || []).find((r) => inRect(r, 0)) || null;
+    // shot：做 act 时临时换的机位（guide.js 的 act.cam，docs/20），有就压过下面的固定机位
+    const f = this.shot || (hold ? this.fixedOn : this.fixedOn && inRect(this.fixedOn, 0.35) ? this.fixedOn : (C.fixed || []).find((r) => inRect(r, 0)) || null);
     if (f) {   // 看点往药郎身上挪到他在画面里（follow_cam.js 的 frameLook；算完把镜头放回原处，update 里再平滑过去）
       const pos = new THREE.Vector3(...f.pos), cp = this.camera.position.clone(), cq = this.camera.quaternion.clone();
       const look = frameLook(this.camera, pos, f.look ? new THREE.Vector3(...f.look) : t.clone(), player);

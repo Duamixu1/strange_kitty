@@ -23,7 +23,7 @@ const LOOPING = new Set(["ready_k", "idle_k", "idle", "walk_k", "walk", "walk2_k
 // walk_k 是探案版的旧走路（步子小、支撑脚还往前蹭），只在没有新动作的模型上兜底。
 const CLIP_SPEED = { walk2_k: 0.962, walk_fast_k: 1.774, run_k: 2.829, walk_k: 0.3 };   // 10-31 角色线重量（tools/walk_measure.py，按绑定姿势 1.7 米算）；腿改按三维长度算后重做
 
-export const PLAYER_MODEL = "processed/kusuriuri_v2_posed_layered.glb";   // tour.js 进地点时先发 preload
+export const PLAYER_MODEL = "processed/kusuriuri_v2_posed_layered_lite.glb";   // 11-05 精简版（角色线，docs/17 第十九节）：线上 2.7 → 1.3 MB，动作、骨骼、morph 不变；原版（同名不带 _lite）留着给探案版和工具页；tour.js 进地点时先发 preload
 export async function loadPlayer(loader, assetUrl, { model = PLAYER_MODEL, springs = true, props = true, layer: useLayer = true } = {}) {
   const group = new THREE.Group();
   const toonFor = (o, pattern) => {

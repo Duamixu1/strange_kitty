@@ -230,6 +230,125 @@
     @keyframes mkshake { 0%, 100% { transform: translate(-50%, -50%); } 20% { transform: translate(calc(-50% - 9px), -50%); } 40% { transform: translate(calc(-50% + 8px), -50%); } 60% { transform: translate(calc(-50% - 5px), -50%); } 80% { transform: translate(calc(-50% + 3px), -50%); } }
     body.mk-ready #pad .b-sword { background: #C9A23A; color: var(--paper); animation: mkpulse 1s ease-in-out infinite; }
     @keyframes mkpulse { 50% { transform: scale(1.12); } }
+    /* 引导与探索（guide.js，docs/19）：右上三格（形真理）、找到一样时中间浮出的字、查毕 / 退魔印、配角冒话纸条、门札、拾遗、拍照点 */
+    #case { position: fixed; right: calc(max(12px, env(safe-area-inset-right)) + 44px); top: 52px; z-index: 6; display: flex; gap: 4px; pointer-events: none; }
+    #case .k { width: 26px; height: 26px; line-height: 24px; text-align: center; font: 15px/24px "Hiragino Mincho ProN", "Songti SC", serif; color: var(--ink); opacity: .55; border: 1.5px dashed var(--ink); background: rgba(241,233,218,.75); }
+    #case .k.got { opacity: 1; color: var(--paper); background: var(--crimson); border: 1.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+    body.map-mode #case { display: none; }
+    #clue { position: fixed; left: 50%; top: 34%; transform: translate(-50%, -50%); z-index: 7; text-align: center; pointer-events: none; opacity: 0; }
+    #clue.show { animation: clueIn 3.8s ease forwards; }
+    #clue .c { font: 88px/1 "Hiragino Mincho ProN", "Songti SC", serif; color: var(--crimson); text-shadow: 3px 3px 0 var(--paper), -1px -1px 0 var(--paper); }
+    #clue .l { display: inline-block; margin-top: 12px; padding: 6px 16px; font-size: 17px; letter-spacing: .08em; }
+    @keyframes clueIn { 0% { opacity: 0; transform: translate(-50%, -40%) scale(1.3); } 12% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -56%); } }
+    #stamp { position: fixed; right: 60px; top: 92px; z-index: 7; padding: 4px 10px; font: 22px/1.2 "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .2em; color: var(--crimson); border: 3px solid var(--crimson); border-radius: 4px; background: rgba(241,233,218,.6); opacity: 0; pointer-events: none; transform: rotate(-8deg); }
+    #stamp.go { animation: stampIn 2.8s ease forwards; }
+    @keyframes stampIn { 0% { opacity: 0; transform: rotate(-8deg) scale(2.2); } 10% { opacity: 1; transform: rotate(-8deg) scale(.95); } 16% { transform: rotate(-8deg) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
+    #bark { position: fixed; left: 0; top: 0; z-index: 5; max-width: 260px; padding: 6px 12px; font-size: 15px; line-height: 1.5; opacity: 0; transition: opacity .25s; pointer-events: none; }
+    #bark b { display: block; font-size: 12px; font-weight: normal; color: var(--crimson); letter-spacing: .1em; }
+    #bark.show { opacity: 1; }
+    .tag.exit.fuda::before { content: ""; position: absolute; left: 50%; top: -30px; width: 9px; height: 26px; margin-left: -4.5px; background: #F6EEDC; border: 1.5px solid var(--ink); box-shadow: 0 0 10px 3px rgba(255, 230, 160, .9); animation: fudaGlow 2.2s ease-in-out infinite; }
+    .tag.exit.boss::before { content: ""; position: absolute; left: 50%; top: -32px; width: 10px; height: 28px; margin-left: -5px; background: var(--crimson); border: 1.5px solid var(--ink); box-shadow: 0 0 12px 4px rgba(180, 42, 71, .8); animation: mkpulse 1s ease-in-out infinite; }
+    .tag.exit.dim { opacity: .55; filter: saturate(.3); }
+    @keyframes fudaGlow { 50% { box-shadow: 0 0 4px 1px rgba(255, 230, 160, .5); } }
+    .tag.find { width: 26px; height: 26px; line-height: 24px; text-align: center; font-size: 14px; border-radius: 50%; background: var(--paper); border: 1.5px dashed var(--ink); color: var(--ink); opacity: 0; pointer-events: none; transition: opacity .4s; }
+    .tag.find.near { opacity: .9; pointer-events: auto; }
+    body.photo-spot #pad .b-photo { animation: mkpulse 1.2s ease-in-out infinite; }
+    #case .k { position: relative; }
+    #case .k.part { opacity: .85; border-style: solid; }
+    #case .k[data-p]:not([data-p=""])::after { content: attr(data-p); position: absolute; left: 50%; top: 100%; transform: translateX(-50%); margin-top: 2px; font: 10px/1 -apple-system, sans-serif; color: var(--paper); text-shadow: 0 0 3px var(--navy); white-space: nowrap; }
+    #medbox .mb-book { position: absolute; left: 50%; top: 4px; transform: translateX(-50%) translateX(64px); border: 1px solid #C9A23A; background: none; color: #C9A23A; font: 13px/1 inherit; letter-spacing: .2em; padding: 4px 8px; cursor: pointer; }
+    #medbox .book .case-sec { margin-top: 12px; }
+    #medbox .book .case-sec .row b { color: var(--crimson); }
+    #medbox .book .case-sec:not(.lit) .row { color: #7A7088; }
+    #medbox .book ul { margin: 4px 0 0 26px; padding: 0; list-style: none; font-size: 14.5px; line-height: 1.6; }
+    #medbox .book li { margin: 3px 0; }
+    #medbox .book li b { font-weight: normal; color: var(--ink); margin-right: 8px; padding: 0 4px; border-bottom: 1px solid #C9A23A; }
+    #medbox .book li.un { color: #b0a8bb; letter-spacing: .3em; }
+    /* 案卷·宅图（casebook.js，草稿 web/case_drafts.html?v=C 搬过来，只在药箱的卡里生效） */
+    #medbox.book-on .mb-tray { width: min(900px, 96vw); background: #ECE4D4; padding: 14px 14px 16px; }
+    #medbox .book { --paper2: #E8DCC4; --gold: #C9A23A; --mute: #7A7088; --wisteria: #6A4C8C; --coral: #E6667A; display: flex; flex-direction: column; gap: 10px; font: 15px/1.7 "Songti SC", "Hiragino Mincho ProN", serif; }
+  #medbox .book .C-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 124px; background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); position: relative; }
+  #medbox .book .C-plan { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(5, 76px) 66px; gap: 9px; padding: 34px 18px 18px; position: relative;
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(0deg, transparent 0 17px, rgba(50,45,72,.07) 17px 18px), repeating-linear-gradient(90deg, transparent 0 17px, rgba(50,45,72,.07) 17px 18px); }
+  #medbox .book .C-plan .hd { position: absolute; left: 18px; top: 8px; font-size: 13px; letter-spacing: .25em; color: var(--ink); }
+  #medbox .book .C-plan .hd small { color: var(--mute); letter-spacing: .1em; margin-left: 8px; }
+  #medbox .book .C-plan .compass { position: absolute; right: 18px; top: 6px; font-size: 11px; color: var(--mute); letter-spacing: .15em; }
+  #medbox .book .C-room { position: relative; border: 3px solid var(--ink); overflow: hidden; background: var(--paper2); }
+  #medbox .book .C-room .tex { position: absolute; inset: 0; background-size: 110px; background-position: center; }
+  #medbox .book .C-room.v::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(42,42,78,.62), rgba(42,42,78,0) 55%); pointer-events: none; }
+  #medbox .book .C-room .nm { position: absolute; left: 7px; top: 5px; z-index: 2; color: var(--paper); font-size: 13.5px; letter-spacing: .14em; }
+  #medbox .book .C-room.tall .nm { writing-mode: vertical-rl; }
+  #medbox .book .C-room.small .tex { background-size: 64px; }
+  #medbox .book .C-room .tex.one { background-size: cover; background-repeat: no-repeat; }
+  #medbox .book .C-room.un { border: 2px dashed #9a92a6; }
+  #medbox .book .C-room.un .tex { filter: grayscale(1) brightness(1.25) contrast(.55); opacity: .4; }
+  #medbox .book .C-room.un .nm { color: var(--mute); }
+  #medbox .book .C-room .slip { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; writing-mode: vertical-rl; background: var(--paper); border: 1px solid #b9a98a; color: var(--mute); font-size: 12px; letter-spacing: .3em; padding: 6px 2px; white-space: nowrap; }
+  #medbox .book .C-pins { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; gap: 6px; flex-wrap: wrap-reverse; justify-content: flex-end; z-index: 2; }
+  #medbox .book .C-pin { width: 27px; height: 27px; border-radius: 50%; padding: 0; display: grid; place-items: center; font-family: inherit; font-size: 12px; line-height: 1; cursor: pointer; transition: opacity .2s, transform .15s;
+    background: var(--paper); color: var(--ink); border: 2px solid var(--ink); box-shadow: 1px 1px 0 var(--ink); }
+  #medbox .book .C-pin.k { background: var(--pc); color: var(--paper); border: 2px solid var(--paper); box-shadow: 0 0 0 2px var(--ink); }
+  #medbox .book .C-pin.f { border-radius: 3px; transform: rotate(45deg) scale(.86); background: var(--gold); }
+  #medbox .book .C-pin.f span { transform: rotate(-45deg); }
+  #medbox .book .C-pin:hover { transform: scale(1.15); } #medbox .book .C-pin.f:hover { transform: rotate(45deg) scale(1); }
+  #medbox .book .C-pin.dim { opacity: .28; }
+  #medbox .book .C-pin.sel { outline: 3px solid var(--gold); outline-offset: 2px; }
+  #medbox .book .C-stamp { position: absolute; right: 6px; top: 6px; z-index: 2; color: var(--crimson); border: 2px solid var(--crimson); background: rgba(241,233,218,.92); font-size: 12px; padding: 0 4px; transform: rotate(9deg); letter-spacing: .12em; }
+  #medbox .book .C-left { position: absolute; right: 6px; top: 6px; z-index: 2; background: var(--coral); color: var(--paper); font-size: 11.5px; padding: 1px 6px; letter-spacing: .1em; box-shadow: 1px 1px 0 var(--ink); }
+  #medbox .book .C-here { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 3; width: 30px; height: 30px; border-radius: 50%; background: var(--wisteria); color: var(--paper); display: grid; place-items: center; font-size: 13px;
+    box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink); animation: chere 1.8s ease-in-out infinite; }
+  @keyframes chere { 50% { box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink), 0 0 0 12px rgba(106,76,140,.35); } }
+  #medbox .book .C-deco { position: relative; overflow: hidden; border-radius: 6px; }
+  #medbox .book .C-deco .tex { position: absolute; inset: 0; background-size: 70px; opacity: .75; }
+  #medbox .book .C-deco span { position: absolute; left: 6px; top: 4px; font-size: 12px; color: var(--mute); letter-spacing: .2em; }
+  #medbox .book .C-side { background: var(--navy); border-left: 3px solid var(--ink); display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 30px 0 18px; position: relative; }
+  #medbox .book .C-side .hd { position: absolute; top: 8px; color: var(--gold); font-size: 12px; letter-spacing: .3em; }
+  #medbox .book .C-node { width: 62px; height: 96px; background: var(--paper); border: 3px solid #b7ad9c; color: #c9bfae; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    font-family: inherit; font-size: 34px; line-height: 1; cursor: pointer; position: relative; padding: 0; transition: transform .15s; }
+  #medbox .book .C-node::before { content: ""; position: absolute; inset: 4px; border: 1px solid currentColor; opacity: .5; pointer-events: none; }
+  #medbox .book .C-node .n { font-size: 11px; letter-spacing: .1em; }
+  #medbox .book .C-node.lit { background: var(--cc); color: var(--paper); border-color: var(--gold); box-shadow: 0 0 18px rgba(201,162,58,.55); }
+  #medbox .book .C-node.held { color: var(--cc); border: 3px dashed var(--cc); }
+  #medbox .book .C-node.on { transform: translateX(-6px); outline: 2px solid var(--gold); outline-offset: 4px; }
+  #medbox .book .C-sword { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #6b6280; font-size: 11px; letter-spacing: .25em; }
+  #medbox .book .C-sword svg { width: 26px; height: 96px; }
+  #medbox .book .C-sword.on { color: var(--gold); filter: drop-shadow(0 0 6px rgba(201,162,58,.8)); }
+  #medbox .book .C-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; overflow: visible; }
+  #medbox .book .C-svg .th { fill: none; stroke-linecap: round; transition: opacity .2s; }
+  #medbox .book .C-svg .dim { opacity: .1; }
+  #medbox .book .C-legend { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 12px; color: var(--mute); }
+  #medbox .book .C-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -1px; margin-right: 4px; border: 1px solid var(--ink); }
+  #medbox .book .C-notes { background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+  #medbox .book .C-tabs { display: flex; border-bottom: 2px solid var(--ink); overflow-x: auto; }
+  #medbox .book .C-tabs button { font: inherit; font-size: 14px; letter-spacing: .12em; border: 0; border-right: 1px solid rgba(50,45,72,.25); background: none; color: var(--mute); padding: 6px 14px; cursor: pointer; white-space: nowrap; }
+  #medbox .book .C-tabs button b { font-weight: normal; color: var(--tc, var(--ink)); margin-right: 4px; }
+  #medbox .book .C-tabs button.on { background: var(--ink); color: var(--paper); }
+  #medbox .book .C-tabs button.on b { color: var(--paper); }
+  #medbox .book .C-body { padding: 10px 16px 14px; }
+  #medbox .book .C-body .ln { font-size: 16px; padding: 2px 0 8px; border-bottom: 1px dotted #b9a98a; margin-bottom: 6px; }
+  #medbox .book .C-body .ln.lit { color: var(--crimson); }
+  #medbox .book .C-body .ln.held { color: var(--coral); }
+  #medbox .book .C-body .ln.none { color: #b0a8bb; }
+  #medbox .book .C-body ul { list-style: none; margin: 0; padding: 0; }
+  #medbox .book .C-body li { display: grid; grid-template-columns: 30px 1fr; gap: 0 8px; padding: 5px 4px; font-size: 14.5px; line-height: 1.55; border-radius: 2px; }
+  #medbox .book .C-body li .ic { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; background: var(--pc, var(--paper)); color: var(--paper); border: 2px solid var(--ink); grid-row: span 2; }
+  #medbox .book .C-body li .ic.s { background: var(--paper); color: var(--ink); } #medbox .book .C-body li .ic.f { background: var(--gold); border-radius: 3px; }
+  #medbox .book .C-body li small { color: var(--mute); font-size: 12px; letter-spacing: .06em; }
+  #medbox .book .C-body li.un { color: #b8b0c2; letter-spacing: .3em; }
+  #medbox .book .C-body li.un .ic { background: none; border: 2px dashed #c9bfae; }
+  #medbox .book .C-body li.sel { background: rgba(201,162,58,.18); }
+  
+@media (max-width: 700px) {
+    #medbox .book .C-wrap { grid-template-columns: 1fr; }
+    #medbox .book .C-plan { grid-template-rows: repeat(5, 64px) 58px; gap: 6px; padding: 30px 10px 12px; }
+    #medbox .book .C-side { flex-direction: row; justify-content: center; border-left: 0; border-top: 3px solid var(--ink); padding: 26px 8px 12px; gap: 14px; }
+    #medbox .book .C-node { width: 54px; height: 72px; font-size: 26px; }
+    #medbox .book .C-sword { margin: 0 0 0 6px; } #medbox .book .C-sword svg { height: 64px; }
+    #medbox .book .C-pin { width: 22px; height: 22px; font-size: 10px; }
+    #medbox .book .C-room .nm { font-size: 12px; }
+  }
+    #map .tag-name .prog { display: block; margin-top: 3px; font-size: 11px; letter-spacing: .05em; color: var(--crimson); }
   </style>
 </head>
 <body>
@@ -262,7 +381,7 @@
   <button id="snd" title="声音开关（B）">音</button>
   <button id="mkbtn" title="物怪出没：开">怪</button>
   <button id="boxbtn" title="药箱：斩过的物怪和执念物（I）">箱</button>
-  <div id="medbox" role="dialog" aria-label="药箱"><div class="mb-box"><div class="mb-count"></div><button class="mb-x" aria-label="关上药箱">×</button><div class="mb-grid"></div></div><div class="mb-tray"></div></div>
+  <div id="medbox" role="dialog" aria-label="药箱"><div class="mb-box"><div class="mb-count"></div><button class="mb-book" aria-label="翻开案卷">案卷</button><button class="mb-x" aria-label="关上药箱">×</button><div class="mb-grid"></div></div><div class="mb-tray"></div></div>
   <div id="mkink"></div>
   <div id="mk"></div>
   <div id="help"><span class="keys">点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · P 拍照 · F 换滤镜 · O 换姿势 · X 拔剑 · M 总地图 · B 声音 · 物怪出没时 J 投札、空格闪避、K 跳、L 瞬移 · I 药箱</span><span class="fingers">左边摇杆走路 · 右边摇杆转视角 · 两指缩放</span></div>

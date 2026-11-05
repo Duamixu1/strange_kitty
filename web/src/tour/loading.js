@@ -10,7 +10,7 @@ const SPLAT_MB = 7.45;   // 大奥每块泼溅 7.2~7.8 MB
 
 const $ = (s) => document.querySelector(s);
 const el = $("#loading");
-let got = 0, splatGot = 0, total = 0, timer = null, done = false;
+let got = 0, splatGot = 0, total = 0, timer = null, done = false, splatMB = SPLAT_MB;
 
 function render() {
   if (done || !el) return;
@@ -33,9 +33,9 @@ function countingFetch(input, init) {
 
 export const loading = {
   /** 开始：kind = "map" 或地点 id，name = 显示的名字，splats = 这个地点有几块泼溅 */
-  start(kind, name, splats = 0) {
+  start(kind, name, splats = 0, mb = SPLAT_MB) {   // mb：每块泼溅多大（轻量档 lite 约 3.5）
     if (!el) return;
-    total = (EST_MB[kind] ?? 5) + splats * SPLAT_MB;
+    splatMB = mb; total = (EST_MB[kind] ?? 5) + splats * splatMB;
     el.querySelector(".where").textContent = kind === "map" ? "正在展开绘卷" : `正在进入「${name}」`;
     el.querySelector(".big").textContent = total > 15 ? "这里有实景扫描的房间，第一次进入会久一点，请多等一会儿。" : "";
     el.classList.add("counting");
@@ -43,7 +43,7 @@ export const loading = {
     render(); timer = setInterval(render, 250);
   },
   /** 一块泼溅加载完 */
-  splatDone() { splatGot += SPLAT_MB; render(); },
+  splatDone() { splatGot += splatMB; render(); },
   /** 当前步骤（"加载药郎…"之类），显示在进度条下面 */
   step(text) { const s = el?.querySelector(".step"); if (s) s.textContent = text; },
   /** 加载完：进度条走满，淡出 */

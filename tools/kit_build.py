@@ -678,9 +678,11 @@ def sakai_prop(ch, cx, cz, P, block, seed):
         face("water", [(cx - 0.45, 0.45, cz - 0.4), (cx + 0.45, 0.45, cz - 0.4), (cx + 0.45, 0.45, cz + 0.4), (cx - 0.45, 0.45, cz + 0.4)], [(0, 0)] * 4, want=(0, 1, 0))
         gz = cz + 0.85
         box("stone", (cx, 0.3, gz), (0.28, 0.6, 0.2)); box("stone", (cx, 0.04, gz), (0.5, 0.08, 0.35))
-        for k in range(7):   # 鲜花
-            a = 2 * math.pi * k / 7; sphere(rnd.choice(["coral", "ochre", "pink", "crimson", "lavender"]), (cx + math.cos(a) * 0.2, 0.12, gz + 0.22 + math.sin(a) * 0.1), 0.07, seg=8, rings=5)
-        block.append((cx - 0.6, cz - 0.55, cx + 0.6, gz + 0.35))
+        for sx in (-1, 1):   # 鲜花分两边（游29 第二轮：正中让给香炉）
+            for k in range(4):
+                a = 2 * math.pi * k / 4 + sx; sphere(rnd.choice(["coral", "ochre", "pink", "crimson", "lavender"]), (cx + sx * 0.24 + math.cos(a) * 0.06, 0.1, gz + 0.2 + math.sin(a) * 0.06), 0.065, seg=8, rings=5)
+        grave_offering(cx, gz + 0.3)
+        block.append((cx - 0.6, cz - 0.55, cx + 0.6, gz + 0.5))
     elif ch == "Q":   # 吊架（05 厨房）：天花垂下的焦茶横杆，挂着锅、勺、干菜
         y = P.H - 0.9
         for dx in (-0.55, 0.55): box("ink", (cx + dx, (y + P.H) / 2, cz), (0.02, P.H - y, 0.02))
@@ -702,6 +704,146 @@ def sakai_prop(ch, cx, cz, P, block, seed):
         face("shiromuku", [(cx - 0.6, 0.15, cz + 0.02), (cx + 0.6, 0.15, cz + 0.02), (cx + 0.6, 1.62, cz + 0.02), (cx - 0.6, 1.62, cz + 0.02)], [(0, 0), (1, 0), (1, 1), (0, 1)], want=(0, 0, 1))
         face("shiromuku", [(cx + 0.6, 0.15, cz - 0.02), (cx - 0.6, 0.15, cz - 0.02), (cx - 0.6, 1.62, cz - 0.02), (cx + 0.6, 1.62, cz - 0.02)], [(0, 0), (1, 0), (1, 1), (0, 1)], want=(0, 0, -1))
         block.append((cx - 0.7, cz - 0.25, cx + 0.7, cz + 0.25))
+
+
+def grave_offering(cx, cz):
+    """坟前（游29 第二轮，合掌互动的地方）：藏青小香炉插三根线香（香头朱红），前面一小朱漆碟放一条鱼干"""
+    cylinder("navy", (cx, 0.03, cz), 0.075, 0.07, seg=14); cylinder("navy", (cx, 0.1, cz), 0.085, 0.015, seg=14)
+    for k in range(3): cylinder("navy", (cx + math.cos(2.1 * k) * 0.06, 0, cz + math.sin(2.1 * k) * 0.06), 0.012, 0.03, seg=6)
+    for k, (dx, lean) in enumerate(((-0.025, -0.05), (0.0, 0.0), (0.025, 0.05))):
+        tbox("green", (cx + dx, 0.1, cz), (cx + dx + lean, 0.3, cz - 0.01), 0.008)
+        tbox("coral", (cx + dx + lean, 0.3, cz - 0.01), (cx + dx + lean * 1.06, 0.315, cz - 0.01), 0.011)
+    cz2 = cz + 0.17
+    cylinder("crimson", (cx, 0, cz2), 0.085, 0.018, seg=16)
+    dried_fish((cx - 0.065, 0.024, cz2), (cx + 0.065, 0.024, cz2), (0, 1, 0), 0.04)
+
+
+def tbox(key, p0, p1, w):
+    """两点之间一根方截面细杆（任意方向），截面边长 w"""
+    a, b = V(p0), V(p1); d = (b - a).normalized()
+    up = V(0, 1, 0) if abs(d.y) < 0.9 else V(1, 0, 0)
+    u = d.cross(up).normalized() * (w / 2); v = d.cross(u).normalized() * (w / 2)
+    c = [a + u + v, a - u + v, a - u - v, a + u - v]; e = [b + u + v, b - u + v, b - u - v, b + u - v]
+    mid = (a + b) / 2
+    for k in range(4):
+        q = [c[k], c[(k + 1) % 4], e[(k + 1) % 4], e[k]]
+        face(key, q, [(0, 0), (1, 0), (1, 1), (0, 1)], want=tuple(sum(q, V(0, 0, 0)) / 4 - mid))
+    face(key, c, [(0, 0)] * 4, want=tuple(-d)); face(key, e, [(0, 0)] * 4, want=tuple(d))
+
+
+def dried_fish(head, tail, normal, h):
+    """一条鱼干（平的，两面）：head→tail 是身长，normal 是鱼身朝的方向，h 是身高；焦茶色（贴着白障子、朱红碟子都看得清），用 bead_ 材质（镜头射线不撞它）"""
+    a, b, n = V(head), V(tail), V(normal).normalized(); L = (b - a).length; d = (b - a).normalized(); up = n.cross(d).normalized()
+    P_ = lambda s, t: a + d * (s * L) + up * (t * h)
+    body = [P_(0, 0), P_(0.15, 0.45), P_(0.55, 0.5), P_(0.82, 0.18), P_(0.82, -0.18), P_(0.55, -0.45), P_(0.15, -0.4)]
+    tail_ = [P_(0.8, 0), P_(1.0, 0.45), P_(0.95, 0), P_(1.0, -0.45)]
+    for sg in (1, -1):
+        face("bead_kogecha", body, [(0, 0)] * len(body), want=tuple(n * sg)); face("bead_kogecha", tail_, [(0, 0)] * 4, want=tuple(n * sg))
+    for sg in (1, -1): sphere("paper", P_(0.12, 0.12) + n * sg * 0.003, h * 0.1, seg=6, rings=3)   # 白眼点
+
+
+def hand_print(key, w=1.0):
+    """一个小孩的手印（平的，原点在掌心，贴在 x = 0 的面上、朝 +x）：掌 + 五指，宽约 0.07 米"""
+    def blob(cy, cz, ry, rz, n=10):
+        return [(0.0, cy + math.sin(2 * math.pi * k / n) * ry, cz + math.cos(2 * math.pi * k / n) * rz) for k in range(n)]
+    face(key, blob(0, 0, 0.03 * w, 0.028 * w, 12), [(0, 0)] * 12, want=(1, 0, 0))
+    for k, (ang, L) in enumerate(((-1.25, 0.03), (-0.45, 0.042), (0, 0.046), (0.42, 0.043), (0.8, 0.036))):
+        cy, cz = math.cos(ang) * (0.026 + L / 2) * w, math.sin(ang) * (0.026 + L / 2) * w
+        pts = blob(cy, cz, L / 2 * w, 0.007 * w, 8)
+        rot = [(0.0, cy + (py - cy) * math.cos(ang) - (pz - cz) * math.sin(ang), cz + (py - cy) * math.sin(ang) + (pz - cz) * math.cos(ang)) for _, py, pz in pts]
+        face(key, rot, [(0, 0)] * 8, want=(1, 0, 0))
+
+
+def jizo(h, seed):
+    """一尊小地藏（原点脚下，朝 +z）：灰石身子、圆头、红围兜、红帽，高约 h"""
+    k = h / 0.36
+    box("lavender", (0, 0.025 * k, 0), (0.22 * k, 0.05 * k, 0.18 * k))
+    cone("lavender", (0, 0.05 * k, 0), 0.09 * k, 0.075 * k, 0.17 * k, seg=12)
+    sphere("lavender", (0, 0.27 * k, 0), 0.07 * k, seg=12, rings=6)
+    cone("crimson", (0, 0.315 * k, 0), 0.06 * k, 0.0, 0.07 * k, seg=10)   # 红帽
+    zf = 0.085 * k   # 红围兜：挂在胸前的一块倒梯形
+    face("crimson", [(-0.075 * k, 0.21 * k, zf - 0.012 * k), (0.075 * k, 0.21 * k, zf - 0.012 * k), (0.05 * k, 0.11 * k, zf + 0.004), (-0.05 * k, 0.11 * k, zf + 0.004)], [(0, 0)] * 4, want=(0, 0.3, 1))
+    for sx in (-1, 1): sphere("ink", (sx * 0.022 * k, 0.28 * k, 0.062 * k), 0.007 * k, seg=5, rings=3)   # 眯眼
+
+
+def placed(kind, x, z, yaw, P, block, y=0.0):
+    """平面图 place: 按米摆的小东西（游29 第二轮，坂井家厨房："这家明明该有猫"）。yaw 度，0 = 长边顺 x；y 抬高（手印的高度）"""
+    acc("rock" if kind == "rock" else "kage")
+    before = {k: len(g["v"]) for k, g in G.items()}
+    if kind == "kage_up":   # 万屋门前桥边抬头望楼上的黑影人（11-05 文案）：身子往后仰、头抬起来，原点脚下，朝 -z（楼在北边）
+        hgt = 1.6
+        n0 = {kk: len(g["v"]) for kk, g in G.items()}
+        cone("kage", (0, 0, 0), 0.23, 0.13, hgt * 0.74, seg=10)
+        for kk, g in G.items():   # 身子往后（+z）仰 13°
+            for i in range(n0.get(kk, 0), len(g["v"])): v_ = g["v"][i]; g["v"][i] = V(v_.x, v_.y, v_.z + v_.y * 0.24)
+        tbox("kage", (0, hgt * 0.72, 0.17), (0, hgt * 0.8, 0.25), 0.09)   # 脖子往后
+        sphere("kage", (0, hgt * 0.85, 0.28), hgt * 0.085, seg=10, rings=6)
+        sphere("kage", (0, hgt * 0.91, 0.2), hgt * 0.05, seg=8, rings=5)   # 下巴朝前上方翘出一点：仰着脸
+        for k in range(5): sphere("pink", (math.cos(2 * math.pi * k / 5) * 0.06, hgt + 0.02, 0.32 + math.sin(2 * math.pi * k / 5) * 0.06), 0.045, seg=6, rings=4)
+        sphere("ochre", (0, hgt + 0.03, 0.32), 0.03, seg=6, rings=4)
+    elif kind == "rock":   # 庭石（yaw 那一位当放大倍数用：rock x,z,倍数）
+        rock(0, 0, int(x * 31 + z * 7), k=yaw); yaw = 0.0
+    elif kind == "hand":   # 襖下沿的小手印（万屋二楼长廊）：墨色，贴在 x = 0 朝 +x，yaw 180 就朝 -x
+        hand_print("kage")
+    elif kind == "jizo":   # 一排四尊小地藏（万屋室内庭庭石后），排在 x 方向，朝 +z
+        for k, (dx, h) in enumerate(((-0.6, 0.34), (-0.2, 0.3), (0.2, 0.36), (0.6, 0.28))):
+            n0 = {kk: len(g["v"]) for kk, g in G.items()}; jizo(h, k)
+            for kk, g in G.items():
+                for i in range(n0.get(kk, 0), len(g["v"])): g["v"][i] = g["v"][i] + V(dx, 0, (k % 2) * 0.04)
+    elif kind == "pinwheel_stick":   # 纸风车的竹竿（轮子是 act_pinwheel，代码转它），轴心在 y 0.55、竿前 0.02
+        tbox("wood_dark", (0, 0, 0), (0, 0.56, 0), 0.016)
+    elif kind in ("trap", "trap_open"):
+        # 捕鼠夹（比实物大一号、颜色对比强：浅木底板、墨色弹簧夹、朱红诱饵）：长 0.32 顺 x、宽 0.16
+        box("ochre", (0, 0.015, 0), (0.32, 0.03, 0.16)); box("wood_dark", (0, 0.031, 0), (0.3, 0.002, 0.14))
+        tbox("ink", (-0.02, 0.04, -0.07), (-0.02, 0.04, 0.07), 0.014)   # 弹簧轴
+        for sz in (-0.06, 0.06): cylinder("ink", (-0.02, 0.03, sz), 0.022, 0.02, seg=8)   # 两头的弹簧卷
+        if kind == "trap_open":   # 张开：夹杆翻起 70°，压杆顺着底板伸到诱饵，诱饵是一小块朱红
+            ang = math.radians(70); L = 0.13
+            tip = lambda sz: (-0.02 - math.cos(ang) * L, 0.04 + math.sin(ang) * L, sz)
+            for sz in (-0.06, 0.06): tbox("ink", (-0.02, 0.04, sz), tip(sz), 0.012)
+            tbox("ink", tip(-0.06), tip(0.06), 0.012)
+            tbox("ink", (-0.02, 0.036, 0), (0.09, 0.036, 0), 0.008); box("coral", (0.1, 0.045, 0), (0.05, 0.03, 0.05))
+        else:   # 合上：夹杆拍在前头，什么也没夹到
+            for sz in (-0.06, 0.06): tbox("ink", (-0.02, 0.04, sz), (0.12, 0.04, sz), 0.012)
+            tbox("ink", (0.12, 0.04, -0.06), (0.12, 0.04, 0.06), 0.012); box("coral", (0.06, 0.04, 0), (0.04, 0.02, 0.04))
+    elif kind == "fish":   # 梁上垂下一串鱼干，六条，一条也没少
+        tbox("ink", (0, P.H, 0), (0, 1.95, 0), 0.012)
+        for k in range(6):   # 一条朝左一条朝右交错着挂，哪个方向看过去都有几条是正面
+            y = 2.7 - k * 0.13; a = 0.75 if k % 2 else -0.75
+            dried_fish((0, y, 0), (0, y - 0.26, 0.0), (math.cos(a), 0, math.sin(a)), 0.095)
+    elif kind == "ricebag":   # 两个米俵摞着（横放的草包、两道绳），稻草色
+        for k, (dx, y) in enumerate(((0, 0.2), (0.0, 0.56))):
+            n0 = {kk: len(g["v"]) for kk, g in G.items()}
+            cylinder("ochre", (0, -0.32, 0), 0.2, 0.64, seg=14)
+            for bz in (-0.18, 0.18): cylinder("ink", (0, bz - 0.02, 0), 0.205, 0.04, seg=14, caps=False)
+            for kk, g in G.items():   # 竖着做好再放倒：绕 x 转 90°，抬到 y
+                for i in range(n0.get(kk, 0), len(g["v"])): v_ = g["v"][i]; g["v"][i] = V(v_.x + dx, -v_.z + y, v_.y)
+    elif kind == "basket":   # 空的旧竹篮：扁圆筐 + 一圈竹编带 + 提手，竹青褪成灰绿
+        cone("teal", (0, 0, 0), 0.17, 0.22, 0.18, seg=14); cylinder("green", (0, 0.17, 0), 0.225, 0.025, seg=14, caps=False)
+        face("ink", [(math.cos(2 * math.pi * k / 14) * 0.165, 0.012, math.sin(2 * math.pi * k / 14) * 0.165) for k in range(14)], [(0, 0)] * 14, want=(0, 1, 0))   # 筐里头空的，看得到黑底
+        for k in range(12):   # 提手：半圈竹条
+            a, b_ = math.pi * k / 12, math.pi * (k + 1) / 12
+            tbox("teal", (math.cos(a) * 0.2, 0.18 + math.sin(a) * 0.2, 0), (math.cos(b_) * 0.2, 0.18 + math.sin(b_) * 0.2, 0), 0.02)
+    else:
+        raise ValueError(f"place: 不认识 {kind}")
+    c, s_ = math.cos(math.radians(yaw)), math.sin(math.radians(yaw)); xs, zs = [], []
+    sc = 1.25 if kind.startswith("trap") else 1.0   # 捕鼠夹放大一号，从厨房观点那么远也认得出
+    c, s_ = c * sc, s_ * sc
+    for k, g in G.items():   # 原点做好，转 yaw、挪到 (x, z)
+        for i in range(before.get(k, 0), len(g["v"])):
+            v_ = g["v"][i]; g["v"][i] = V(x + v_.x * c - v_.z * s_, v_.y * sc, z + v_.x * s_ + v_.z * c)
+            if v_.y < 1.0: xs.append(g["v"][i].x); zs.append(g["v"][i].z)
+    if y:
+        for k, g in G.items():
+            for i in range(before.get(k, 0), len(g["v"])): g["v"][i] = g["v"][i] + V(0, y, 0)
+    if kind in ("ricebag", "basket", "jizo", "kage_up", "rock"): block.append((min(xs), min(zs), max(xs), max(zs)))   # 捕鼠夹不挡路（踩得过去），鱼干挂在头顶
+
+
+def plan_places(P, block):
+    for spec in filter(None, (t.strip() for t in P.cfg.get("place", "").split(";"))):
+        kind, nums = spec.split(None, 1)   # place: 种类 x,z[,yaw 度]; …（米）
+        v = [float(t) for t in nums.split(",")]
+        placed(kind, v[0], v[1], v[2] if len(v) > 2 else 0.0, P, block, y=v[3] if len(v) > 3 else 0.0)
 
 
 def bamboo(cx, cz, seed):
@@ -793,7 +935,10 @@ def facade(P, block):
     for k in range(n_bay + 1): box(P.R("wood"), (x0 + Wd * k / n_bay, (f3 + ytop) / 2, zf), (0.16, ytop - f3, 0.16))
     for k in range(n_bay):
         xa, xb = x0 + Wd * k / n_bay + 0.14, x0 + Wd * (k + 1) / n_bay - 0.14
-        face("shoji", [(xa, f3 + 0.55, zf + 0.01), (xb, f3 + 0.55, zf + 0.01), (xb, f3 + 2.3, zf + 0.01), (xa, f3 + 2.3, zf + 0.01)], [(0, 0), (1, 0), (1, 1), (0, 1)], want=(0, 0, 1))
+        # 顶层的窗不亮（11-05 文案：楼上外廊提灯都亮着，只有顶层黑着）：墨色窗面 + 焦茶窗格
+        face("kage", [(xa, f3 + 0.55, zf + 0.01), (xb, f3 + 0.55, zf + 0.01), (xb, f3 + 2.3, zf + 0.01), (xa, f3 + 2.3, zf + 0.01)], [(0, 0)] * 4, want=(0, 0, 1))
+        for q in range(1, 4): box(P.R("wood"), (xa + (xb - xa) * q / 4, f3 + 1.425, zf + 0.025), (0.04, 1.75, 0.03))
+        for q in range(1, 4): box(P.R("wood"), ((xa + xb) / 2, f3 + 0.55 + 1.75 * q / 4, zf + 0.025), (xb - xa, 0.04, 0.03))
     box(P.R("wood"), (cxm, f3 + 0.45, zw + 1.0), (Wd, 0.1, 1.0))          # 外廊地板（压在出檐上面）
     for k in range(n_bay * 2 + 1): box("crimson", (x0 + Wd * k / (n_bay * 2), f3 + 0.9, zw + 1.48), (0.07, 0.8, 0.07))
     box("crimson", (cxm, f3 + 1.3, zw + 1.48), (Wd, 0.07, 0.09)); box("crimson", (cxm, f3 + 0.85, zw + 1.48), (Wd, 0.05, 0.06))
@@ -1344,7 +1489,7 @@ def walk_grid(P, walk, block, segs, cell=0.1, radius=0.25):
 def build_plan(name):
     G.clear()
     P = Plan(name); walk, block, segs = [], [], []
-    plan_floors(P, walk, block); plan_walls(P, block, segs); plan_furniture(P, block); plan_ceiling(P); plan_rugs(P)
+    plan_floors(P, walk, block); plan_walls(P, block, segs); plan_furniture(P, block); plan_ceiling(P); plan_rugs(P); plan_places(P, block)
     if P.cfg.get("facade") == "wanya": facade(P, block)
     if P.cfg.get("facade") == "sakai": facade_sakai(P, block)
     if P.cfg.get("surround") == "machi": surroundings(P)
@@ -1502,7 +1647,223 @@ def build_map_diorama():
     print("   地点中心 x：", {pid: MAP_STEP * (i + 0.5) for i, (pid, _) in enumerate(MAP_PLACES)})
 
 
-CUSTOM = {"ooku_doors": build_ooku_doors, "map_diorama": build_map_diorama}
+# ---------------------------------------------------------------- 拾遗小物件（游29，docs/19 第五节）
+# 原点就是地点 JSON finds 里的 pos（y = 0 落在地面），朝向烘在模型里；都小于 0.4 米，要走近才看得清
+def build_find_candy():
+    """坂井家门前：地上撒落的喜糖纸，红、白、山吹、粉几张，两头拧着"""
+    import random
+    rnd = random.Random(29)
+    for k in range(7):
+        a = rnd.uniform(0, math.pi); r = rnd.uniform(0, 0.15); t = rnd.uniform(0, 2 * math.pi)
+        cx, cz = math.cos(t) * r, math.sin(t) * r; y = 0.004 + k * 0.0015
+        key = ["crimson", "paper", "ochre", "pink", "crimson", "paper", "ochre"][k]
+        ux, uz = math.cos(a), math.sin(a); vx, vz = -uz, ux
+        P_ = lambda s_, w_: (cx + ux * s_ + vx * w_, y, cz + uz * s_ + vz * w_)
+        face(key, [P_(-0.03, -0.02), P_(0.03, -0.02), P_(0.03, 0.02), P_(-0.03, 0.02)], [(0, 0)] * 4, want=(0, 1, 0))   # 糖纸身
+        for sg in (-1, 1):   # 两头拧出来的小耳朵
+            face(key, [P_(sg * 0.03, 0), P_(sg * 0.055, -0.018), P_(sg * 0.055, 0.018)], [(0, 0)] * 3, want=(0, 1, 0))
+    export(OUT / "find_candy.glb")
+
+
+def build_find_claw():
+    """坂井家红色廊下：西墙一根朱红柱子朝廊下那面，离地 0.08~0.27 米四道斜抓痕（原点在柱面脚下，痕朝 +x）"""
+    for k in range(4):
+        z0 = -0.05 + k * 0.028; y0, y1 = 0.08 + k * 0.012, 0.27 - (k % 2) * 0.03
+        pts = [(0.004, y0, z0 + 0.04), (0.004, y0 + 0.01, z0 + 0.046), (0.004, y1, z0 + 0.006), (0.004, y1 + 0.004, z0)]
+        face("kage", [pts[0], pts[1], pts[3], pts[2]], [(0, 0)] * 4, want=(1, 0, 0))
+    export(OUT / "find_claw.glb")
+
+
+def build_find_bowl():
+    """坂井家密室：角落一只倒扣的空猫碗，白瓷，碗口一圈藍边，底足朝天"""
+    cone("blue", (0, 0, 0), 0.09, 0.087, 0.012, seg=20)
+    cone("paper", (0, 0.012, 0), 0.087, 0.062, 0.045, seg=20)
+    face("paper", [(math.cos(2 * math.pi * i / 20) * 0.062, 0.057, math.sin(2 * math.pi * i / 20) * 0.062) for i in range(20)], [(0, 0)] * 20, want=(0, 1, 0))
+    cylinder("blue", (0, 0.057, 0), 0.038, 0.012, seg=20)
+    export(OUT / "find_bowl.glb")
+
+
+def build_find_zori():
+    """万屋门前：红桥边一只小孩的草鞋（长 0.15），只有一只、泡湿了：草色压成焦茶、底下一滩水，朱红鞋带，歪着放"""
+    face("blue", [(math.cos(2 * math.pi * k / 14) * 0.13 + 0.01, 0.003, math.sin(2 * math.pi * k / 14) * 0.085) for k in range(14)], [(0, 0)] * 14, want=(0, 1, 0))
+    n0 = {k: len(g["v"]) for k, g in G.items()}
+    pts = [(math.cos(2 * math.pi * k / 16) * 0.075, 0, math.sin(2 * math.pi * k / 16) * (0.032 if math.cos(2 * math.pi * k / 16) < 0 else 0.036)) for k in range(16)]
+    face("kogecha", [(px, 0.016, pz) for px, _, pz in pts], [(0, 0)] * 16, want=(0, 1, 0))
+    for k in range(16):
+        a, b = pts[k], pts[(k + 1) % 16]
+        face("ink", [(a[0], 0, a[2]), (b[0], 0, b[2]), (b[0], 0.016, b[2]), (a[0], 0.016, a[2])], [(0, 0)] * 4, want=((a[0] + b[0]) / 2, 0, (a[2] + b[2]) / 2))
+    for sz in (-0.026, 0.026): tbox("crimson", (0.045, 0.018, 0), (-0.02, 0.04, sz), 0.012)   # 前绪 + 两边鼻绪
+    tbox("crimson", (-0.02, 0.04, -0.026), (-0.03, 0.018, -0.03), 0.01); tbox("crimson", (-0.02, 0.04, 0.026), (-0.03, 0.018, 0.03), 0.01)
+    c, s_ = math.cos(0.5), math.sin(0.5)
+    for k, g in G.items():
+        for i in range(n0.get(k, 0), len(g["v"])): v_ = g["v"][i]; g["v"][i] = V(v_.x * c - v_.z * s_, v_.y, v_.x * s_ + v_.z * c)
+    export(OUT / "find_zori.glb")
+
+
+def build_find_hand():
+    """万屋二楼长廊：襖下沿一个很矮的小手印（原点掌心，贴面朝 +x；放在东侧襖上要转 180°，代码按 finds 的 yaw 转，或者直接用朝 -x 的版本）"""
+    hand_print("kage", 0.9)
+    for g in G.values(): g["v"] = [V(-v_.x, v_.y, -v_.z) for v_ in g["v"]]   # 转 180°：朝 -x（东侧襖朝廊下那面）
+    export(OUT / "find_hand.glb")
+
+
+def build_find_rattle():
+    """万屋门厅账台：一只没人认领的拨浪鼓（でんでん太鼓），躺在台面上：朱红鼓身、纸白鼓面、焦茶柄、两颗墨珠"""
+    n0 = {k: len(g["v"]) for k, g in G.items()}
+    cylinder("crimson", (0, -0.016, 0), 0.05, 0.032, seg=16, caps=False)   # 先竖着做，再放倒（鼓轴顺 z）
+    for y, n in ((-0.016, -1), (0.016, 1)):   # 鼓面朱红漆，磨掉一半露出木色（11-05 文案）
+        rim = lambda a0, a1: [(0, y, 0)] + [(math.cos(a) * 0.05, y, math.sin(a) * 0.05) for a in (a0 + (a1 - a0) * t / 8 for t in range(9))]
+        face("crimson", rim(0.4, 0.4 + math.pi), [(0, 0)] * 10, want=(0, n, 0))
+        face("ochre", rim(0.4 + math.pi, 0.4 + 2 * math.pi), [(0, 0)] * 10, want=(0, n, 0))
+    for k, g in G.items():
+        for i in range(n0.get(k, 0), len(g["v"])): v_ = g["v"][i]; g["v"][i] = V(v_.x, v_.z + 0.05, v_.y)
+    tbox("wood_dark", (0.05, 0.05, 0), (0.2, 0.012, 0), 0.014)   # 柄斜着搭在台面上
+    for sz in (-1, 1):
+        tbox("ink", (0, 0.05, sz * 0.016), (-0.02, 0.008, sz * 0.07), 0.003); sphere("ink", (-0.02, 0.008, sz * 0.07), 0.009, seg=6, rings=4)
+    export(OUT / "find_rattle.glb")
+
+
+def build_act_pinwheel():
+    """万屋室内庭小地藏旁的纸风车轮（act props，move: spin）：原点在轴心，轮面在 XY、朝 +z，代码绕 Z 转"""
+    cols = ["crimson", "ochre", "teal", "pink"]
+    for k in range(4):
+        a = math.pi / 2 * k; r = 0.11
+        p0 = (0, 0, 0.004); p1 = (math.cos(a) * r, math.sin(a) * r, 0.004); p2 = (math.cos(a + 0.9) * r * 0.75, math.sin(a + 0.9) * r * 0.75, 0.012)
+        face(cols[k], [p0, p1, p2], [(0, 0)] * 3, want=(0, 0, 1)); face(cols[k], [p0, p1, p2], [(0, 0)] * 3, want=(0, 0, -1))
+    sphere("ochre", (0, 0, 0.016), 0.012, seg=6, rings=4)
+    export(OUT / "act_pinwheel.glb")
+
+
+# ---------------------------------------------------------------- 大奥叠在扫描房间上的小积木（游29，docs/20 第三节）
+def two_sided(key, pts, n):
+    face(key, pts, [(0, 0)] * len(pts), want=n); face(key, pts, [(0, 0)] * len(pts), want=tuple(-v for v in n))
+
+
+def build_act_kasa():
+    """主廊墙边的旧唐伞·伞面（act props，move: kasa）：原点在伞顶尖，伞面往下张开，半径 0.45、垂 0.28；
+    朱红油纸 + 一圈纸白蛇目、山吹伞骨。代码平时把它 XZ 缩到 0.2 当收着，做的时候撑开"""
+    N, R = 16, 0.45
+    prof = [(0.0, 0.0), (0.1, -0.03), (0.2, -0.08), (0.28, -0.13), (0.37, -0.2), (R, -0.28)]   # (半径, 高)
+    for i in range(N):
+        a0, a1 = 2 * math.pi * i / N, 2 * math.pi * (i + 1) / N
+        for k in range(len(prof) - 1):
+            (r0, y0), (r1, y1) = prof[k], prof[k + 1]
+            key = "paper" if k == 2 else "crimson"
+            pts = [(math.cos(a0) * r0, y0, math.sin(a0) * r0), (math.cos(a1) * r0, y0, math.sin(a1) * r0), (math.cos(a1) * r1, y1, math.sin(a1) * r1), (math.cos(a0) * r1, y1, math.sin(a0) * r1)]
+            if r0 == 0: pts = pts[1:]
+            mid = sum((V(p_) for p_ in pts), V(0, 0, 0)) / len(pts)
+            face(key, pts, [(0, 0)] * len(pts), want=tuple(V(mid.x, 0.6, mid.z))); face(key, pts, [(0, 0)] * len(pts), want=tuple(V(-mid.x, -0.6, -mid.z)))
+        a = a0; tbox("ochre", (0, -0.2, 0), (math.cos(a) * (R - 0.01), -0.275, math.sin(a) * (R - 0.01)), 0.008)   # 伞骨（下面的撑骨）
+    cylinder("ink", (0, -0.005, 0), 0.03, 0.04, seg=10)   # 顶上的头纸
+    cylinder("ochre", (0, -0.23, 0), 0.025, 0.05, seg=10)   # 轆轤
+    export(OUT / "act_kasa.glb")
+
+
+def build_act_kasa_e():
+    """唐伞的伞柄（静态，原点地面）：竹柄立到 1.2 米接伞面顶尖，下面一截藤缠的握把"""
+    tbox("wood_dark", (0, 0.0, 0), (0, 1.2, 0), 0.026)
+    tbox("ochre", (0, 0.02, 0), (0, 0.28, 0), 0.034)
+    for k in range(5): cylinder("kogecha", (0, 0.04 + k * 0.05, 0), 0.019, 0.01, seg=8)
+    export(OUT / "act_kasa_e.glb")
+
+
+CL_W, CL_H, CL_D = 1.8, 1.23, 0.26   # 阿雪空房东墙壁橱（扫描里那对红百叶门，门面 x≈6.37，z -11.9~-10.1，离地 0.77~2.0）
+
+
+def closet_door(x0, z0):
+    """一扇红百叶门（局部：x 顺墙 0.9、y 往上、门面朝 +z），焦茶框、朱红百叶、墨色缝、山吹拉手"""
+    w, h, t = CL_W / 2, CL_H, 0.025
+    box("kogecha", (x0 + w / 2, h / 2, z0 + t / 2), (w, h, t))
+    for k in range(13):
+        y = 0.08 + k * (h - 0.16) / 12
+        box("crimson", (x0 + w / 2, y, z0 + t + 0.004), (w - 0.1, 0.06, 0.008))
+    box("ochre", (x0 + (w - 0.08 if x0 == 0 else 0.08), h / 2, z0 + t + 0.012), (0.03, 0.12, 0.012))
+
+
+def build_act_closet():
+    """壁橱静态部分（原点：壁橱左下贴墙那个角；局部 x 顺墙、y 往上、z 朝屋里；props yaw -π/2 摆到东墙）：
+    黑里子、两侧红板、中间一层搁板、右扇门（不动）。左扇门 act_closet_door 在它前面滑开"""
+    W, H, D = CL_W, CL_H, CL_D
+    face("ink", [(0, 0, 0.012), (W, 0, 0.012), (W, H, 0.012), (0, H, 0.012)], [(0, 0)] * 4, want=(0, 0, 1))
+    box("kogecha", (W / 2, 0.015, D / 2), (W, 0.03, D)); box("kogecha", (W / 2, H - 0.015, D / 2), (W, 0.03, D))
+    box("kogecha", (W / 2, 0.62, D / 2), (W - 0.06, 0.025, D - 0.02))
+    for x in (0.015, W - 0.015): box("crimson", (x, H / 2, D / 2), (0.03, H, D))
+    closet_door(W / 2, D)
+    export(OUT / "act_closet.glb")
+
+
+def build_act_closet_door():
+    """壁橱左扇拉门（move: slide）：原点在门左下，门宽 0.9 顺 +x，拉开时沿 +x 滑到右扇门前面"""
+    closet_door(0, 0)
+    export(OUT / "act_closet_door.glb")
+
+
+def build_act_closet_wet():
+    """壁橱里一排湿东西（show: after，原点和 act_closet 一样：左下贴墙角，x 顺墙、z 朝屋里）：
+    梳子、木屐、小人偶、布包（11-05 文案），底下连成一滩水，水还顺着柜沿滴到地上。左扇门拉开只露左半边（x 0~0.9），东西都摆在左半边"""
+    yb = 0.03
+    face("blue", [(0.45 + math.cos(2 * math.pi * k / 20) * 0.42, yb + 0.001, 0.13 + math.sin(2 * math.pi * k / 20) * 0.11) for k in range(20)], [(0, 0)] * 20, want=(0, 1, 0))   # 一滩水
+    for k in range(4): box("blue", (0.25 + k * 0.17, yb - 0.06 - (k % 2) * 0.05, CL_D + 0.004), (0.012, 0.12 + (k % 2) * 0.1, 0.004))   # 顺着柜沿往下淌
+    face("blue", [(0.45 + math.cos(2 * math.pi * k / 18) * 0.38, -0.765, 0.45 + math.sin(2 * math.pi * k / 18) * 0.18) for k in range(18)], [(0, 0)] * 18, want=(0, 1, 0))   # 地上一滩（柜底离地 0.77）
+    # 梳子（半月梳）
+    pts = [(0.15 + math.cos(math.pi * k / 12) * 0.08, yb + 0.006, 0.12 - math.sin(math.pi * k / 12) * 0.05) for k in range(13)]
+    face("kogecha", pts, [(0, 0)] * 13, want=(0, 1, 0))
+    for k in range(14): box("kogecha", (0.08 + k * 0.011, yb + 0.006, 0.145), (0.005, 0.006, 0.05))
+    # 木屐一只，侧翻着：木底 + 两个齿 + 红鼻绪
+    box("ochre", (0.36, yb + 0.06, 0.13), (0.1, 0.12, 0.022)); box("ochre", (0.33, yb + 0.06, 0.15), (0.018, 0.1, 0.04)); box("ochre", (0.4, yb + 0.06, 0.15), (0.018, 0.1, 0.04))
+    tbox("crimson", (0.36, yb + 0.1, 0.12), (0.36, yb + 0.03, 0.105), 0.01)
+    # 小人偶
+    x = 0.55
+    cylinder("crimson", (x, yb, 0.13), 0.045, 0.12, seg=12); box("ochre", (x, yb + 0.085, 0.13), (0.1, 0.02, 0.1))
+    sphere("paper", (x, yb + 0.16, 0.13), 0.045, seg=10, rings=6); sphere("ink", (x, yb + 0.175, 0.118), 0.047, seg=10, rings=6); sphere("paper", (x, yb + 0.16, 0.142), 0.04, seg=10, rings=6)
+    # 布包（风吕敷，藤紫，结打在上面）
+    sphere("wisteria", (0.75, yb + 0.07, 0.13), 0.09, seg=12, rings=6)
+    sphere("wisteria", (0.75, yb + 0.16, 0.13), 0.025, seg=8, rings=5)   # 顶上一个平结，两只布角往两边横着垂（原来两只尖角像猫耳朵）
+    for sx in (-1, 1): tbox("wisteria", (0.75, yb + 0.16, 0.13), (0.75 + sx * 0.07, yb + 0.13, 0.15), 0.022)
+    export(OUT / "act_closet_wet.glb")
+
+
+def build_find_kanzashi():
+    """大奥主廊：地上一根掉落的发簪（长 0.2）：山吹簪脚 + 朱红小花 + 两串垂珠"""
+    tbox("ochre", (-0.1, 0.006, 0), (0.07, 0.006, 0.0), 0.009)
+    for k in range(4): sphere("crimson", (0.085 + math.cos(2 * math.pi * k / 5) * 0.02, 0.012, math.sin(2 * math.pi * k / 5) * 0.02), 0.016, seg=6, rings=4)   # 五颗少了一颗（11-05 文案）
+    sphere("ochre", (0.085, 0.02, 0), 0.01, seg=6, rings=4)
+    for sz in (-1, 1):
+        for k in range(3): sphere("pink" if k % 2 else "paper", (0.11 + k * 0.02, 0.006, sz * (0.025 + k * 0.012)), 0.007, seg=5, rings=3)
+    export(OUT / "find_kanzashi.glb")
+
+
+def build_find_crane():
+    """女中房：圆窗下一只纸鹤（宽 0.16）：两片翅膀、长脖子尖嘴、尾巴，纸白带一点粉"""
+    two_sided("paper", [(0, 0.04, 0), (-0.02, 0.045, -0.08), (0.03, 0.05, -0.02)], (0, 1, 0))
+    two_sided("paper", [(0, 0.04, 0), (-0.02, 0.045, 0.08), (0.03, 0.05, 0.02)], (0, 1, 0))
+    two_sided("pink", [(-0.04, 0.0, 0), (0.0, 0.04, 0), (0.04, 0.0, 0)], (0, 0, 1))   # 身子
+    two_sided("paper", [(0.03, 0.02, 0), (0.07, 0.09, 0), (0.08, 0.085, 0)], (0, 0, 1))   # 脖子
+    two_sided("paper", [(0.075, 0.09, 0), (0.1, 0.08, 0), (0.08, 0.083, 0)], (0, 0, 1))   # 嘴
+    two_sided("paper", [(-0.03, 0.02, 0), (-0.08, 0.07, 0), (-0.07, 0.075, 0)], (0, 0, 1))   # 尾
+    for k, (r, a) in enumerate(((0.012, 0), (0.008, 1.3), (0.007, 2.6), (0.006, 4.0), (0.009, 5.1))):   # 右翅上一个洇开的墨字（11-05 文案）
+        cx_, cz_ = 0.004 + math.cos(a) * 0.008, 0.045 + math.sin(a) * 0.008
+        face("ink", [(cx_ + math.cos(2 * math.pi * q / 8) * r, 0.0465, cz_ + math.sin(2 * math.pi * q / 8) * r) for q in range(8)], [(0, 0)] * 8, want=(0, 1, 0))
+    for g in G.values(): g["v"] = [v_ * 1.7 for v_ in g["v"]]   # 放大一号（0.16 宽在女中房里几乎看不见）
+    export(OUT / "find_crane.glb")
+
+
+def build_find_letter():
+    """歌山房文机：一封没写完的信，只写了一行（展开的卷纸 0.22×0.12），旁边一方墨砚，笔搁在砚边（11-05 文案）"""
+    box("paper", (0, 0.002, 0), (0.22, 0.004, 0.12))
+    box("ink", (0.08, 0.0045, -0.01), (0.006, 0.001, 0.08))   # 一行字
+    box("ink", (0.08, 0.0045, 0.042), (0.008, 0.001, 0.008))   # 末尾一滴墨
+    box("ink", (0.0, 0.012, 0.13), (0.09, 0.024, 0.06)); box("navy", (0.0, 0.0245, 0.12), (0.07, 0.002, 0.035))   # 墨砚 + 墨池
+    tbox("kogecha", (-0.06, 0.026, 0.16), (0.05, 0.026, 0.155), 0.008); cone("ink", (0.05, 0.026, 0.155), 0.005, 0.0, 0.0001, seg=6)   # 笔，笔头搁在砚边
+    tbox("ink", (0.05, 0.026, 0.155), (0.065, 0.025, 0.154), 0.01)
+    export(OUT / "find_letter.glb")
+
+
+CUSTOM = {"ooku_doors": build_ooku_doors, "map_diorama": build_map_diorama,
+          "act_kasa": build_act_kasa, "act_kasa_e": build_act_kasa_e, "act_closet": build_act_closet, "act_closet_door": build_act_closet_door,
+          "act_closet_wet": build_act_closet_wet, "find_kanzashi": build_find_kanzashi, "find_crane": build_find_crane, "find_letter": build_find_letter,
+          "find_zori": build_find_zori, "find_hand": build_find_hand, "find_rattle": build_find_rattle, "act_pinwheel": build_act_pinwheel,
+          "find_candy": build_find_candy, "find_claw": build_find_claw, "find_bowl": build_find_bowl}
 
 
 # ---------------------------------------------------------------- 输出

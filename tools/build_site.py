@@ -20,7 +20,7 @@ REPO_URL = "https://github.com/Duamixu1/strange_kitty.git"
 
 
 def needed_assets():
-    need = {"processed/kusuriuri_v2_posed_layered.glb"}                       # player.js 默认模型
+    need = set(re.findall(r"processed/kusuriuri[\w./-]*\.glb", (WEB / "src/tour/player.js").read_text()))   # player.js 里写的药郎模型（含精简版）
     props = json.loads((WEB / "src/data/props.json").read_text())
     need |= {d["url"] for k, d in props.items() if not k.startswith("_")}
     need |= {f"processed/kit/{p.name}" for p in (ASSETS / "processed/kit").glob("*.glb")}   # 积木场景全带上（共约 10 MB）
@@ -28,7 +28,9 @@ def needed_assets():
     def walk(o):
         if isinstance(o, dict):
             if "splats" in o and isinstance(o["splats"], list):
-                for S in o["splats"]: need.add(f"worldlabs/{S['name']}/splat_{S.get('quality', '500k')}.spz")
+                for S in o["splats"]:
+                    need.add(f"worldlabs/{S['name']}/splat_{S.get('quality', '500k')}.spz")
+                    if S.get("lite"): need.add(f"worldlabs/{S['name']}/splat_{S['lite']}.spz")   # 手机 / 慢网的轻量档（11-05）
             for v in o.values(): walk(v)
         elif isinstance(o, list):
             for v in o: walk(v)

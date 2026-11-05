@@ -8,7 +8,7 @@
 const SEEN = "mononoke_tour_boxseen";
 const ls = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 
-export function createMedbox({ entries, asset, audio, onOpen, onClose }) {
+export function createMedbox({ entries, asset, audio, onOpen, onClose, book }) {
   const root = document.getElementById("medbox");
   const grid = root.querySelector(".mb-grid"), tray = root.querySelector(".mb-tray"), count = root.querySelector(".mb-count");
   let open = false, cardOn = false, list = [], sel = -1;
@@ -45,7 +45,7 @@ export function createMedbox({ entries, asset, audio, onOpen, onClose }) {
   }
   function closeCard() {
     if (!cardOn) return;
-    cardOn = false; root.classList.remove("card");
+    cardOn = false; root.classList.remove("card", "book-on");
     grid.querySelectorAll(".mb-dr.on").forEach((x) => x.classList.remove("on"));
     audio?.play("tick");
   }
@@ -64,6 +64,16 @@ export function createMedbox({ entries, asset, audio, onOpen, onClose }) {
   }
   grid.addEventListener("click", (ev) => { const d = ev.target.closest(".mb-dr"); if (d?.dataset.i) pull(+d.dataset.i); });
   root.querySelector(".mb-x").addEventListener("click", closeBox);
+  // 案卷（guide.js 的 book()，11-05 第二轮）：箱子左上的"案卷"钮 / Tab 键，用同一张卡翻开
+  function openBook() {
+    if (!book) return;
+    grid.querySelectorAll(".mb-dr.on").forEach((x) => x.classList.remove("on"));
+    tray.innerHTML = `<button class="tr-x" aria-label="合上案卷">×</button><div class="book"></div>`;
+    tray.scrollTop = 0; cardOn = true; root.classList.add("card", "book-on"); audio?.play("paper");
+    book(tray.querySelector(".book"));   // guide.js mountBook：宅图（casebook.js）要量布局，卡显示出来以后再画
+    root.querySelector(".mb-book")?.classList.remove("new");
+  }
+  root.querySelector(".mb-book")?.addEventListener("click", (ev) => { ev.stopPropagation(); openBook(); });
   tray.addEventListener("click", (ev) => { if (ev.target.closest(".tr-x")) closeCard(); });
   root.addEventListener("pointerdown", (ev) => {
     ev.stopPropagation();
@@ -73,13 +83,14 @@ export function createMedbox({ entries, asset, audio, onOpen, onClose }) {
   return {
     get isOpen() { return open; },
     get cardOpen() { return cardOn; },
-    open: openBox, close: closeBox,
+    open: openBox, close: closeBox, openBook: () => { if (!open) openBox(); openBook(); },
     toggle(focusId) { open ? closeBox() : openBox(focusId); },
     /** 开着的时候吃掉按键；返回 true = 用掉了 */
     key(code) {
       if (!open) return false;
       if (code === "Escape") { cardOn ? closeCard() : closeBox(); return true; }
       if (code === "KeyI") { closeBox(); return true; }
+      if (code === "Tab" || code === "KeyQ") { cardOn ? closeCard() : openBook(); return true; }
       if (code === "Enter" || code === "Space" || code === "KeyE") { cardOn ? closeCard() : pull(sel); return true; }
       const n = list.length, mv = { ArrowLeft: -1, KeyA: -1, ArrowRight: 1, KeyD: 1, ArrowUp: -4, KeyW: -4, ArrowDown: 4, KeyS: 4 }[code];
       if (mv) {

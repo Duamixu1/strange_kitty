@@ -106,6 +106,23 @@ def poses():
         "R_Upperarm": {"pitch": -35, "roll": -45}, "R_Forearm": {"pitch": -120}, "L_Upperarm": {"pitch": -20, "roll": 45}, "L_Forearm": {"pitch": -30}}
     P["blink_rise"] = {**P["ready"], **legs(drop=0.04), "Spine01": {"pitch": 6}, "Head": {"pitch": -4},
         "R_Upperarm": {"pitch": -42, "roll": -8, "yaw": 18}, "R_Forearm": {"pitch": -155}}
+    # 送（docs/19 第十节，没有怨的物怪：剑不出鞘，送它走）。动作要静，跟退魔反着：结印 → 弯腰屈膝、右手两指夹一张札往身前地上放 →
+    # 札离手 → 直起身、退半步（右脚先、左脚跟，整个人往后 0.2 米由代码匀速给）→ 垂眼目送，手垂回袖里，回到 stand 接待机。
+    # 退步时脚在身体坐标里怎么挪：人匀速往后走，着地那只脚在身体坐标里就匀速往前，迈的那只脚到落点时在身体坐标里是 -0.1
+    P["ok_bow"] = {"base": "stand", **legs(drop=0.16, fwd=-0.02), "Spine01": {"pitch": 26}, "Spine02": {"pitch": 10}, "Head": {"pitch": 10},
+        "R_Upperarm": {"pitch": -40, "yaw": 16}, "R_Forearm": {"pitch": -80}, "L_Upperarm": {"pitch": -20, "roll": 4}, "L_Forearm": {"pitch": -45}, **PINCH, **FLAT_L}
+    # 最低处：屈膝、腰弯 64°，右臂往前下方伸直、往中线收，札在膝盖前松手飘到地上（第一次试深蹲手贴地，下摆底边塌成一片、人显得笨重）；左手搭在左膝上
+    P["ok_place"] = {"base": "stand", **legs(drop=0.26, fwd=-0.03), "Spine01": {"pitch": 46}, "Spine02": {"pitch": 18}, "Head": {"pitch": 8},
+        "R_Upperarm": {"pitch": -78, "yaw": 26}, "R_Forearm": {"pitch": -4}, "L_Upperarm": {"pitch": -66, "roll": 4}, "L_Forearm": {"pitch": -30}, **PINCH, **FLAT_L}
+    P["ok_release"] = {**P["ok_place"], "R_Upperarm": {"pitch": -76, "yaw": 26}, "R_Forearm": {"pitch": -12}, **OPEN}   # 手臂角度相对躯干：躯干弯了约 64°，-78 是朝前下方
+    P["ok_rise"] = {"base": "stand", **legs(drop=0.1), "Spine01": {"pitch": 14}, "Spine02": {"pitch": 5}, "Head": {"pitch": 10},
+        "R_Upperarm": {"pitch": -14, "roll": 4}, "R_Forearm": {"pitch": -40}, "L_Upperarm": {"pitch": -6, "roll": 4}, "L_Forearm": {"pitch": -25}, **OPEN}
+    up = {"Spine01": {"pitch": 6}, "Spine02": {"pitch": 2}, "Head": {"pitch": 12},
+          "R_Upperarm": {"pitch": -8, "roll": 4}, "R_Forearm": {"pitch": -30}, "L_Upperarm": {"pitch": -4, "roll": 4}, "L_Forearm": {"pitch": -20}}
+    P["ok_step1"] = {"base": "stand", **legs(drop=0.05, L=(0.05, 0, 0), R=(-0.05, 0, 0.06)), **up}      # 右脚抬起往后
+    P["ok_step2"] = {"base": "stand", **legs(drop=0.04, L=(0.1, 0, 0), R=(-0.1, 0, 0)), **up}
+    P["ok_step3"] = {"base": "stand", **legs(drop=0.04, L=(0.05, 0, 0.05), R=(-0.05, 0, 0)), **up}      # 左脚跟上
+    P["ok_watch"] = {"base": "stand", **legs(drop=0.01), "Spine01": {"pitch": 4}, "Head": {"pitch": 13}}   # 垂眼目送
     return P
 
 
@@ -129,6 +146,9 @@ CLIPS = {
     "jump_k":     dict(keys=[["ready", 0], ["jump_crouch", 3], ["jump_push", 4], ["jump_tuck", 8], ["jump_reach", 12], ["jump_land", 14], ["jump_rise", 16], ["ready", 18]],
                        lead=0.25, takeoff=4 / 24, land=13 / 24, note="跳跃，原地（0.75 秒）：0.17 秒离地、0.54 秒落地，抬高由代码给"),
     "settle_k":   dict(keys=[["ready", 0], ["settle_a", 10], ["settle_b", 18], ["stand", 29]], note="收势（1.2 秒）"),
+    "okuri_k":    dict(keys=[["ready", 0], ["seal", 8], ["seal_b", 22], ["ok_bow", 33], ["ok_place", 43], ["ok_release", 46], ["ok_rise", 55],
+                             ["ok_step1", 60], ["ok_step2", 66], ["ok_step3", 72], ["ok_watch", 78], ["ok_watch", 88], ["stand", 96]], lead=0.4,
+                       release=46 / 24, move=dict(dir="back", dist=0.2, t=[55 / 24, 78 / 24]), note="送（4.0 秒）：1.92 秒札离手，2.3~3.25 秒退半步"),
 }
 
 

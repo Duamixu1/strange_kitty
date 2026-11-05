@@ -72,7 +72,8 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       uPatMix: { value: p.mix ?? 0.4 }, uPatMaxY: { value: p.maxY ?? 1e6 },
       uPalN: { value: pal.n },
       uPalColor: { value: pal.color }, uPalTile: { value: pal.tile }, uPalPatColor: { value: pal.patColor }, uPalMix: { value: pal.mix },
-      uRim: { value: 0 }, uRimColor: { value: new THREE.Color("#F6E3B4") },   // 边缘透光：默认关；暗场景里的黑物怪用（encounter.js）
+      uRim: { value: 0 }, uRimColor: { value: new THREE.Color("#F6E3B4") },
+      uPale: { value: 0 }, uPaleColor: { value: new THREE.Color("#F7EFDF") },   // 褪成浅色（11-05 退魔"斩怨 / 送"：怨念抽走以后物怪本体褪成一团淡光），默认 0   // 边缘透光：默认关；暗场景里的黑物怪用（encounter.js）
       uCutout: { value: 0 }, uCutCenter: CUTOUT.center, uCutRadius: CUTOUT.radius, uCutDepth: CUTOUT.depth,
     },
     vertexShader: /* glsl */ `
@@ -122,6 +123,8 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       uniform int uCutout;
       uniform float uRim;
       uniform vec3 uRimColor;
+      uniform float uPale;
+      uniform vec3 uPaleColor;
       uniform vec2 uCutCenter;
       uniform float uCutRadius, uCutDepth;
 
@@ -179,6 +182,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
           float fres = 1.0 - abs(dot(normalize(vNormalW), normalize(cameraPosition - vWorldPos)));
           c = mix(c, uRimColor, pow(smoothstep(0.2, 1.0, fres), 1.6) * uRim);
         }
+        if (uPale > 0.0) c = mix(c, uPaleColor * (0.92 + 0.08 * lit), uPale);
         gl_FragColor = vec4(c, 1.0);
       }
     `,

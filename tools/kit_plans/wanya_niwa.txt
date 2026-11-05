@@ -8,13 +8,16 @@ bridge_rise: 0.55
 rock_scale: 1.6
 mural: ougi_wall
 mat: wood=wood_dark, frame=wood_dark, plaster=plaster_coral, kokabe=plaster_white, gravel=gravel
+# 游29（11-05，docs/20）：庭石后北墙脚一排四尊系红围兜的小地藏，东头插一支纸风车（轮子是 act_pinwheel，代码转）
+# 11-05 文案：四块大小不一的庭石——平面图两块 r（1.6 倍）+ 观景点 2 前面那块改小（1.15，地藏的头从石头后面露一点）+ 东南角水边一块更小的（0.85）
+place: jizo 9.15,0.78; pinwheel_stick 10.12,0.8; rock 7.75,6.95,0.85; rock 9.555,3.185,1.15
 shot: 拱桥 | 3.2,1.7,7.3 | 6.6,0.6,3.6 | 2.0,4.6,1.57
 shot: 桥上 | 10.6,1.9,2.2 | 5.0,0.8,4.6 | 6.0,4.55,-1.57
 ---
 ###MMMMMMM###
 #w,r,~~~~,,w#
 #r,,~~~~~~,,#
-#,,,~~~~~~r,#
+#,,,~~~~~~,,#
 #,,,bbbbb,,,#
 #,1,bbbbb,2,#
 #,,,~~~~~,,,#
