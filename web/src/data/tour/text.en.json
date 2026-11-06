@@ -564,5 +564,526 @@
     "verdict": "For a piece of wood long since rotten, they lived the same night over and over.",
     "question": "The thing wanted with everything one has. How many ever opened it?",
     "tag": "Rot"
+  },
+  "mononoke.bakeneko_shiro.fuenokouji": {
+    "name": "White Bakeneko",
+    "katachi": "White as the snow, only its eyes showing behind the blind: a White Bakeneko.",
+    "makoto": "On the night of the incense contest, everyone wanted the place beside the lady.",
+    "kotowari": "That place had always been its own. It would not be replaced.",
+    "itemTitle": "Scented white fur",
+    "itemBody": "A few white hairs caught in the tassels of the blind. Lean close, and they still carry that night's incense.",
+    "after": "The place behind the blind is empty now. There is nothing left to guard."
+  },
+  "mononoke.noppera.fuenokouji": {
+    "name": "Noppera-bō",
+    "katachi": "Lift the blind, and the face behind it is blank.",
+    "makoto": "None of the suitors ever saw the lady's face. Each imagined one of his own.",
+    "kotowari": "Given so many faces by others, she lost her own.",
+    "itemTitle": "A white silk veil",
+    "itemBody": "A thin square of silk that fell from the blind. No one ever saw clearly the face behind it.",
+    "after": "She gave back every face that others had given her."
+  },
+  "out.fuenokouji": "The incense has cleared. It looks brighter outside. Go and see.",
+  "intro.cards": [
+    {
+      "k": "The Tour",
+      "t": "Follow the Medicine Seller to places where something went wrong.",
+      "b": "Ōoku · Yorozuya · Sakai house",
+      "art": "yorozu"
+    },
+    {
+      "k": "Mononoke",
+      "t": "A feeling that can't be let go, clinging to a spirit, becomes a mononoke.",
+      "art": "sumi"
+    },
+    {
+      "k": "The Sword",
+      "t": "There is a sword in the medicine box. It can't be drawn at will.",
+      "art": "klimt"
+    },
+    {
+      "k": "Form · Truth · Reason",
+      "t": "Learn all three, and the sword leaves its sheath.",
+      "b": "What it is · what happened · why it stays",
+      "art": "noh"
+    },
+    {
+      "k": "Set out",
+      "t": "Every lit place on the scroll can be entered.",
+      "go": "Unroll the scroll",
+      "art": "taisho"
+    }
+  ],
+  "loc.solaris": {
+    "title": "The Solaris Maru",
+    "body": "A great ship of the Mikuniya, stacked tier on tier with pavilions in pink, blue-green and yellow, like a small town afloat on the sea. Episodes 3 to 5 of the TV series, \"Umibōzu\", take place here."
+  },
+  "solaris_kanpan.1": {
+    "title": "The sea beyond the rail",
+    "body": "Beyond the pink rail lies the sea. Banners swell in the wind. The fog grows thicker. On the water stands a shadow, taller than the ship's towers. Is it a wave, or has something stood up?"
+  },
+  "solaris_kanpan.2": {
+    "title": "Looking back at the towers",
+    "body": "Looking back, the towers rise tier on tier, pink, blue-green, lemon yellow, like a small town afloat on the sea. In the middle of the deck lies a pool of duckweed."
+  },
+  "solaris_nakaniwa.1": {
+    "title": "The whirlpool pond",
+    "body": "Tiers of galleries ring an open well. The pond at the bottom is painted with whirlpools, yet the water does not move at all. The yellow stairs are carpeted in large purple and green flowers."
+  },
+  "solaris_nakaniwa.2": {
+    "title": "The fish ceiling panel",
+    "body": "Overhead, a hanabishi lattice ceiling. At its centre, a lemon-yellow coffered ceiling panel patterned with fish, a large red fish swimming in the middle. The people of this ship painted the sea above their heads."
+  },
+  "solaris_rouka.1": {
+    "title": "The hanabishi corridor",
+    "body": "The hanabishi lattice ceiling runs all the way in. Red and white lanterns hang on the pink wall to the left, cabin doors line the right, and at the end stands a white shoji."
+  },
+  "solaris_rouka.2": {
+    "title": "The wall of charms",
+    "body": "Row on row of paper charms cover the left wall, painted with eyes and whirlpools, one pasted over another. So many eyes. Where are they all looking?"
+  },
+  "solaris_kyaku.1": {
+    "title": "The phoenix painting",
+    "body": "A phoenix hangs on the main wall of the cabin, lattice windows on either side. The ship has entered the Dragon's Triangle, and the people here are still gambling."
+  },
+  "solaris_kyaku.2": {
+    "title": "The cabin of red and white lanterns",
+    "body": "A pale blue-green floor, pink lattice framing it all around, a row of red and white lanterns overhead. The colours are so lively, yet the people sitting here hardly speak."
+  },
+  "solaris_tomo.1": {
+    "title": "The red whirlpool sail",
+    "body": "A single mast stands at the centre of the stern, flying a red sail painted with a whirlpool. Flowers cover the ship's side, and below them, a painted city on the sea floor."
+  },
+  "solaris_tomo.2": {
+    "title": "The utsuro-bune on the sea",
+    "body": "A small boat drifts on the sea to the northwest, nailed shut on all sides, no door, no window: an utsuro-bune, a sealed boat. Why does it keep following this ship?"
+  },
+  "mononoke.solaris": {
+    "name": "Umibōzu",
+    "katachi": "Rising from the sea in the fog: an Umibōzu.",
+    "makoto": "Oyō chose to take her brother's place in the sealed boat, and became the pillar that calms the sea.",
+    "kotowari": "What Genkei feared was never Oyō's hatred. It was his own heart.",
+    "itemTitle": "A nail from the utsuro-bune",
+    "itemBody": "A great iron nail, rusted through. Fifty years ago, this is what sealed the boards of the utsuro-bune.",
+    "after": "The fog lifts. He is young again, and seems to be smiling."
+  },
+  "npc.solaris.yanagi": {
+    "lines": [
+      "I am Yanagi Gen'yōsai, a shugendō ascetic. For the spirits of this sea, ask me.",
+      "A shadow that large. No mistake, it is an Umibōzu.",
+      "No ship that enters the Dragon's Triangle has ever come out."
+    ],
+    "clue": 1
+  },
+  "npc.solaris.sogen": {
+    "lines": [
+      "The master told us not to leave our cabins at night.",
+      "When the master was young, he had a sister. She took his place in the utsuro-bune.",
+      "The master never lets anyone speak of it."
+    ],
+    "clue": 1
+  },
+  "npc.solaris.genkei": {
+    "lines": [
+      "For fifty years I have chanted sutras every day, for one person.",
+      "The sea became like this because of her.",
+      "She ought to hate me. Yet what I have feared all these years, it seems, was not her."
+    ],
+    "clue": 2
+  },
+  "npc.solaris.kayo": {
+    "lines": [
+      "Medicine Seller? We meet again.",
+      "I was going to Edo to find a new house to serve. I never thought the voyage would go like this.",
+      "After what happened at the Sakai house, nothing frightens me. Probably."
+    ],
+    "clue": null
+  },
+  "npc.solaris.sasaki": {
+    "lines": [
+      "That sword. Draw it and let me see.",
+      "There's no wind on this sea, yet the ship keeps moving.",
+      "Kanesada is stirring in its sheath. It wants to cut something."
+    ],
+    "clue": null
+  },
+  "npc.solaris.mikuniya": {
+    "lines": [
+      "Every day lost is a day's silver lost.",
+      "The compass? I checked it myself before we set out. It was fine.",
+      "The ship isn't moving anyway. A few more rounds."
+    ],
+    "clue": null
+  },
+  "npc.solaris.goromaru": {
+    "lines": [
+      "Half my life at sea, and I've never seen water this still.",
+      "Someone has tampered with the compass. The needle keeps pointing the wrong way.",
+      "Until dawn, nobody goes up the mast."
+    ],
+    "clue": null
+  },
+  "act.solaris.biwa": {
+    "label": "Listen",
+    "line": "The biwa asks what one fears most. A girl rises from the pond."
+  },
+  "act.solaris.fuda": {
+    "label": "Study the charms",
+    "line": "The eyes on the charms all face Genkei's cabin door."
+  },
+  "act.solaris.utsuro": {
+    "label": "Examine the boat",
+    "line": "A crack has opened in the sealed boards. The utsuro-bune is empty."
+  },
+  "hint.solaris.形": "By the rail on the southwest side of the deck. Look out at the sea.",
+  "hint.solaris.真": "Off the stern, a sealed boat drifts in the waves.",
+  "hint.solaris.理": "By the whirlpool pond in the courtyard, something like the sound of a biwa.",
+  "hold.solaris.理": "What does Genkei fear? Who once sat in the utsuro-bune isn't clear yet.",
+  "pre.solaris.kanpan": "Off the bow, the sea swells once, then lies flat again.",
+  "find.solaris.1": {
+    "title": "Coins under the duckweed",
+    "body": "A few coins caught among the duckweed, green with age. Someone must have made a wish here."
+  },
+  "find.solaris.2": {
+    "title": "A pried compass lid",
+    "body": "A brass compass lid, pry marks along its edge. Someone has tampered with the ship's compass."
+  },
+  "find.solaris.3": {
+    "title": "A worn die",
+    "body": "A die rolls out from under the gaming table, its corners worn round. With the ship stopped in the fog, who knows how many times it has been thrown."
+  },
+  "case.solaris": {
+    "title": "The Solaris Maru adrift",
+    "hook": "In the night, the ship strays into the Dragon's Triangle. In the fog, something rises from the sea. Without Form, Truth and Reason, the sword stays sheathed."
+  },
+  "note.solaris": {
+    "kanpan/view:1": "On the foggy sea, a shadow taller than the ship's towers.",
+    "kanpan/npc:yanagi": "Yanagi Gen'yōsai says the shadow is an Umibōzu.",
+    "tomo/act:utsuro": "The utsuro-bune that drifted here is sealed tight, and empty inside.",
+    "rouka/npc:sogen": "Sōgen says the master's sister took his place in the utsuro-bune.",
+    "nakaniwa/act:biwa": "The biwa asked what one fears most; a girl rose from the pond.",
+    "rouka/act:fuda": "The eyes on the charms all face Genkei's cabin door.",
+    "kyaku/npc:genkei": "Genkei said that what he had feared all these years was perhaps not Oyō.",
+    "kanpan/view:2": "The towers rise tier on tier, like a small town afloat.",
+    "nakaniwa/view:1": "The water in the whirlpool pond does not move at all.",
+    "nakaniwa/view:2": "A large red fish swims on the coffered ceiling panel.",
+    "rouka/view:1": "At the end of the corridor, a white shoji.",
+    "rouka/view:2": "The wall is covered in charms painted with eyes.",
+    "kyaku/view:1": "The ship is in the Dragon's Triangle, and the cabin is still gambling.",
+    "kyaku/view:2": "The cabin is bright with colour, yet the people hardly speak.",
+    "tomo/view:1": "A red whirlpool sail flies at the stern.",
+    "tomo/view:2": "An utsuro-bune with no door or window drifts on the sea."
+  },
+  "end.solaris": "The ship leaves the Dragon's Triangle. Somewhere on the sea, a voice softly says: brother.",
+  "close.solaris": {
+    "verdict": "What he feared was never the sea, nor his sister. It was the heart he could not rein in.",
+    "question": "What people spend a lifetime running from: could it be only themselves?",
+    "tag": "Dread"
+  },
+  "loc.subway": {
+    "title": "The Subway",
+    "body": "A subway line just opened in the last years of Taishō. The first train is full of people who drew first-ride tickets. The last three episodes of the TV series, \"Bakeneko\", take place here, every frame like an old, faded poster."
+  },
+  "subway_homu.1": {
+    "title": "The platform under iron arches",
+    "body": "White tiled walls above a band of green wainscot. Overhead, a barrel vault held up by iron ribs. A single car waits at the platform. At both ends, the tunnel mouths are too dark to see into."
+  },
+  "subway_homu.2": {
+    "title": "The Fukuju Station sign",
+    "body": "The sign reads Fukuju Station. Beside it, a row of new posters, all celebrating the subway's opening. Before this line opened, what happened here?"
+  },
+  "subway_sharyo.1": {
+    "title": "The first train's carriage",
+    "body": "Long benches run along both walls. Overhead, two rows of brass hand straps and a row of milk-white globe lamps. Beyond the windows, only black. The train keeps moving. It doesn't stop once."
+  },
+  "subway_sharyo.2": {
+    "title": "The painting by the door",
+    "body": "By the carriage door hangs a painting of a beauty: a white-haired woman, a black cat in her arms. Everyone aboard says they have never seen it before. The cat in the painting. Who is it watching?"
+  },
+  "subway_kaisatsu.1": {
+    "title": "The wooden ticket gates",
+    "body": "Two wooden ticket gates, a row of wooden railings, a clock hanging from the ceiling. The ticket collector clips a corner off each first-ride ticket and lets people through, one by one."
+  },
+  "subway_kaisatsu.2": {
+    "title": "The poster wall",
+    "body": "Posters cover the wall: films, cosmetics, the subway's opening. Everyone in them is smiling. Everyone walking past keeps their head down."
+  },
+  "subway_kissa.1": {
+    "title": "The stained-glass windows",
+    "body": "A row of stained-glass windows, a half-moon of coloured glass above the door. The light falls on a black-and-white checkered floor. A café waitress carries coffee back and forth."
+  },
+  "subway_kissa.2": {
+    "title": "The counter",
+    "body": "Rows of bottles behind the counter, a clock on the wall. One café waitress is always at the end of the counter, practising expressions in the mirror. She wants to be in films."
+  },
+  "mononoke.subway": {
+    "name": "Bakeneko",
+    "katachi": "The woman holding a cat, whom only the child can see. She is the Bakeneko.",
+    "makoto": "Setsuko did not jump. She was pushed from the overpass.",
+    "kotowari": "All she wanted was one true word, and no one on the train would say it.",
+    "itemTitle": "A half-burned manuscript",
+    "itemBody": "A charred corner of manuscript paper, only half a line left: \"The Mayor... construction funds...\" The article never made it into print.",
+    "after": "The train stops. People walk out of the station. A bird has settled on the arched ceiling."
+  },
+  "npc.subway.masao": {
+    "lines": [
+      "The milk has to be delivered before dawn.",
+      "There's a lady in the carriage holding a cat. Only I can see her.",
+      "She keeps looking at the man in the flat cap."
+    ],
+    "clue": 1
+  },
+  "npc.subway.kinoshita": {
+    "lines": [
+      "This train... it won't stop. The brakes don't work.",
+      "That night, what I ran over was a cat. Wasn't it?",
+      "I wasn't asleep. I only closed my eyes for a moment."
+    ],
+    "clue": 1
+  },
+  "npc.subway.haru": {
+    "lines": [
+      "My mother-in-law thinks I'm at home saying the nembutsu.",
+      "That night I was under the overpass. I heard people arguing up above.",
+      "If I tell that, I'll have to tell what I was doing there too."
+    ],
+    "clue": 1
+  },
+  "npc.subway.chiyo": {
+    "lines": [
+      "Someday I'm going to be in films.",
+      "Setsuko came by the café. She said she'd put the truth in the paper.",
+      "When the police came asking, I said I didn't know her."
+    ],
+    "clue": 1
+  },
+  "npc.subway.moriya": {
+    "lines": [
+      "Moriya, of the Maiasa Daily. I'm on this train to write a story.",
+      "Setsuko? A shame. She was a good reporter.",
+      "An article? What article. She never turned one in."
+    ],
+    "clue": 2
+  },
+  "npc.subway.fukuda": {
+    "lines": [
+      "Today is a fine day for this city.",
+      "This subway is my doing, start to finish. Rest assured, all of you.",
+      "Dirty money? Something the papers made up."
+    ],
+    "clue": null
+  },
+  "act.subway.senro": {
+    "label": "Check the rails",
+    "line": "An old stain on a sleeper that won't wash out. Cat pawprints beside it."
+  },
+  "act.subway.shinbun": {
+    "label": "Read the paper",
+    "line": "A small item in the corner of an old paper: woman reporter leaps from bridge."
+  },
+  "hint.subway.形": "The cat in the painting by the carriage door. Its eyes are open.",
+  "hint.subway.真": "On the rails beside the platform, an old stain remains.",
+  "hint.subway.理": "The waitress at the café by the station seems to have met that reporter.",
+  "hold.subway.理": "What did she want? How she died isn't clear yet.",
+  "pre.subway.homu": "Deep in the tunnel, a cat cries once.",
+  "find.subway.1": {
+    "title": "An empty milk bottle",
+    "body": "An empty milk bottle, its paper cap still on. The milk boy dropped it. Not one bottle has been delivered today."
+  },
+  "find.subway.2": {
+    "title": "A clipped first-ride ticket",
+    "body": "A first-ride souvenir ticket printed 'First Ride, Fukuju Station, Opening Day', its corner clipped."
+  },
+  "find.subway.3": {
+    "title": "An actress's photograph",
+    "body": "A photograph of an actress, cut out, tucked under the sugar bowl. On the back is written: Someday."
+  },
+  "case.subway": {
+    "title": "The first train from Fukuju Station",
+    "hook": "The first train pulls out and never stops. Everyone aboard is tied to a woman reporter who died. Without Form, Truth and Reason, the sword stays sheathed."
+  },
+  "note.subway": {
+    "sharyo/view:2": "The painting of a beauty by the door, a black cat in her arms.",
+    "homu/npc:masao": "Masao says a lady holding a cat is in the carriage, and only he can see her.",
+    "homu/act:senro": "An old stain on the rails, a few cat pawprints beside it.",
+    "homu/npc:kinoshita": "The driver says what he ran over that night was a cat.",
+    "kaisatsu/npc:haru": "That night Haru was under the overpass, and heard people arguing above.",
+    "kissa/npc:chiyo": "Chiyo says Setsuko meant to put the truth in the paper.",
+    "kissa/act:shinbun": "In the corner of an old paper: woman reporter leaps from bridge.",
+    "sharyo/npc:moriya": "Moriya says Setsuko never turned in an article.",
+    "homu/view:1": "At both ends, the tunnel mouths are too dark to see into.",
+    "homu/view:2": "The posters all celebrate the opening. No one looks at the rails.",
+    "sharyo/view:1": "The train keeps moving. It doesn't stop once.",
+    "kaisatsu/view:1": "A corner clipped from each first-ride ticket, people pass in one by one.",
+    "kaisatsu/view:2": "The people on the posters smile. The people passing keep their heads down.",
+    "kissa/view:1": "The coloured light falls on the black-and-white checkered floor.",
+    "kissa/view:2": "A café waitress practises expressions in the mirror."
+  },
+  "end.subway": "Later, a few bunches of flowers appear on the overpass. The paper prints what the mayor did.",
+  "close.subway": {
+    "verdict": "Only one pair of hands pushed her. A whole train of people watched her die.",
+    "question": "The things people see and never say. How many do they gather in one lifetime?",
+    "tag": "Silence"
+  },
+  "loc.prison": {
+    "title": "The Prison",
+    "body": "The cell where Ochō is held. Condemned for killing her husband's family, she waits to be beheaded. Episodes 6 and 7 of the TV series, \"Noppera-bō\", take place here, half in the prison, half in a dream of her own."
+  },
+  "prison_ro.1": {
+    "title": "Ochō's cell",
+    "body": "Behind the wooden bars lies a straw mat. Ochō kneels on it, her back perfectly straight. Sentenced to death, she has never once cried that she was wronged."
+  },
+  "prison_ro.2": {
+    "title": "The cell to the north",
+    "body": "In the cell to the north sits a medicine chest. A lock hangs on every cell door, and each looks secure. But are they really locked?"
+  },
+  "prison_zashiki.1": {
+    "title": "The mural",
+    "body": "The whole west wall is a gold-ground mural of women in kimono, each one sitting properly. Not one of them is smiling."
+  },
+  "prison_zashiki.2": {
+    "title": "The Sasaki zashiki",
+    "body": "Dark wooden floor, a board ceiling, fusuma painted with plum branches and small birds. A pink cabinet in the corner, two boxes stacked. Ochō kneels in this room, waiting to be told what to do."
+  },
+  "prison_daidokoro.1": {
+    "title": "Rack and black door",
+    "body": "White jars and pink bowls on the red-lacquered rack, a green bamboo basket beside it. Next to the rack, a black board door that seems to lead somewhere else."
+  },
+  "prison_daidokoro.2": {
+    "title": "Stove and jars",
+    "body": "The fire in the stove went out long ago. A row of clay jars stands beside it; the oldest still has a label, the name scraped off. How many wives has this house had?"
+  },
+  "mononoke.prison": {
+    "name": "Noppera-bō",
+    "katachi": "One who lost her own face for the sake of others' wishes: a Noppera-bō.",
+    "makoto": "In that house, day by day, she killed her own self. The cell door was never locked.",
+    "kotowari": "She tried to carry her mother's wishes, and carrying them, her heart grew crooked.",
+    "itemTitle": "The fox mask",
+    "itemBody": "A white fox mask. Turned over, a woman's face is painted on the back, with Ochō's eyes and brows.",
+    "after": "The end of the long corridor opens. Coloured paper drifts down from the sky."
+  },
+  "npc.prison.ocho": {
+    "lines": [
+      "Medicine Seller, please don't trouble yourself over me.",
+      "Mother said to bear it, and all would be well. I have always borne it.",
+      "Who did I kill? ... I don't remember."
+    ],
+    "clue": 1
+  },
+  "npc.prison.kitsune": {
+    "lines": [
+      "Ochō, come with me. This cell door can't hold you.",
+      "I can wear any face. Whichever face Ochō wants, that is the face I'll be.",
+      "Marry me, Ochō. This time, all you need do is smile."
+    ],
+    "clue": 1
+  },
+  "npc.prison.haha": {
+    "lines": [
+      "Marrying into the Sasaki house is the greatest fortune our family could ask for.",
+      "Next time it must be a boy. The Sasakis need an heir.",
+      "No crying. Would a mother ever harm her own daughter?"
+    ],
+    "clue": 1
+  },
+  "npc.prison.shuto": {
+    "lines": [
+      "Supper still not ready? Dawdling again.",
+      "The last wife hanged herself, right here in this kitchen.",
+      "Whoever comes through this door keeps this house's rules."
+    ],
+    "clue": 1
+  },
+  "npc.prison.kazumasa": {
+    "lines": [
+      "Where's the tea?",
+      "Don't shame me in front of others.",
+      "I only married her as a favour to her mother."
+    ],
+    "clue": null
+  },
+  "act.prison.door": {
+    "label": "Push the door",
+    "line": "The cell door opens at a push. The lock was never fastened."
+  },
+  "hint.prison.形": "Look along the row of small Noh masks in the wedding room, one by one.",
+  "hint.prison.真": "Something is off about the lock on Ochō's cell door.",
+  "hint.prison.理": "The temari doors in the plum room look like something from someone's childhood.",
+  "hold.prison.理": "Why does she endure it? The life she led in that house isn't clear yet.",
+  "find.prison.1": {
+    "title": "An unlit pipe",
+    "body": "A long, slender pipe, its bowl clean. It has never been lit. The man in the fox mask carries one just like it."
+  },
+  "find.prison.2": {
+    "title": "A half-wound temari ball",
+    "body": "A temari ball, its coloured thread wound only halfway. Wound with great care, as if afraid of a scolding for a mistake."
+  },
+  "find.prison.3": {
+    "title": "A wedding notice, name blotted out",
+    "body": "A wedding notice. The bride's name has been blotted out in ink. Only the groom's side remains."
+  },
+  "case.prison": {
+    "title": "Ochō's cell",
+    "hook": "Condemned for killing the Sasakis, Ochō sits in her cell awaiting death. A man in a fox mask comes to take her out and marry her. Without Form, Truth and Reason, the sword stays sheathed."
+  },
+  "note.prison": {
+    "ro/act:door": "The lock on Ochō's cell door was never fastened.",
+    "daidokoro/npc:shuto": "Her mother-in-law says the last wife hanged herself in the kitchen.",
+    "daidokoro/view:2": "On the oldest jar, the name has been scraped off.",
+    "ro/npc:ocho": "Ochō says her mother told her to endure, and she always has.",
+    "zashiki/view:1": "Not one woman in the mural is smiling.",
+    "ro/view:1": "Sentenced to death, Ochō has never once said she was wronged.",
+    "ro/view:2": "A medicine chest sits in the cell to the north.",
+    "zashiki/view:2": "Ochō kneels in the zashiki, waiting for orders.",
+    "daidokoro/view:1": "A black door by the rack, leading somewhere else.",
+    "ume/npc:kitsune": "The man in the fox mask says whatever face Ochō wants, he will be.",
+    "konrei/npc:haha": "Her mother only frets: next time it must be a boy.",
+    "konrei/view:2": "A row of small Noh masks on the wall; one face after another.",
+    "ume/view:2": "Temari painted on the doors, like childhood toys.",
+    "konrei/view:1": "At this wedding, Ochō is smiling.",
+    "ume/view:1": "A sky-blue bird-shaped incense box.",
+    "owari/view:1": "At the end of the corridor, gold and purple clouds.",
+    "owari/view:2": "Sky overhead; the paper vanishes as it falls.",
+    "yume/view:1": "No walls in the plum grove, only blossoms.",
+    "yume/view:2": "A door among the blossoms, like the kitchen's."
+  },
+  "end.prison": "The cell door stands open. No one is inside.",
+  "close.prison": {
+    "verdict": "She killed no one. Each time she answered \"yes\", a little less of her remained.",
+    "question": "To please others, how many times will a person put away their own face?",
+    "tag": "Face"
+  },
+  "prison_konrei.1": {
+    "title": "Screen of Fuji and cranes",
+    "body": "A screen striped red and white, painted with Mount Fuji and cranes. Before it, two red cushions: the couple's seats. At this wedding, Ochō is smiling."
+  },
+  "prison_konrei.2": {
+    "title": "Small Noh masks",
+    "body": "Gold walls with a great tree and deer, and a row of small Noh masks: white, purple, red, blue. One mask after another. Where is the face?"
+  },
+  "prison_ume.1": {
+    "title": "The bird-shaped incense box",
+    "body": "Red and white plum blossoms cover the walls, with a row of pink lattice doors. In the middle stands a sky-blue incense box shaped like a great bird, big enough to sit on."
+  },
+  "prison_ume.2": {
+    "title": "The temari doors",
+    "body": "White sliding doors painted with temari balls of every size, like childhood toys. As a child, did Ochō ever once play for herself?"
+  },
+  "prison_owari.1": {
+    "title": "The end of the corridor",
+    "body": "Grey wooden corridors run on and on. At the far end the whole wall is sky: gold and purple clouds, a pine, a small temple."
+  },
+  "prison_owari.2": {
+    "title": "Falling paper",
+    "body": "Halfway down the corridor, there is sky overhead too. Coloured paper drifts down piece by piece and vanishes as it lands."
+  },
+  "pre.prison.konrei": "Behind the screen, someone laughs softly.",
+  "prison_yume.1": {
+    "title": "Painted plum grove",
+    "body": "No walls. Ground and sky are broad strokes of pastel. Dark twisted plum trees bloom red, pink and white."
+  },
+  "prison_yume.2": {
+    "title": "A door on its own",
+    "body": "Looking back, a black board door stands alone among the blossoms, just like the one in the kitchen. The kitchen can no longer be seen from here."
   }
 }
