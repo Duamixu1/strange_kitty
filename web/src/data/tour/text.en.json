@@ -587,29 +587,28 @@
   "intro.cards": [
     {
       "k": "The Tour",
-      "t": "Follow the Medicine Seller to places where something went wrong.",
-      "b": "Ōoku · Yorozuya · Sakai house",
+      "t": "He is only a medicine seller.\nYet wherever he goes, strange things happen.",
+      "b": "Ōoku · Yorozuya · Sakai house · Fuenokōji house",
       "art": "yorozu"
     },
     {
       "k": "Mononoke",
-      "t": "A feeling that can't be let go, clinging to a spirit, becomes a mononoke.",
+      "t": "Grudges, obsessions, things too dear to let go:\nwhen they meet a spirit, they become a mononoke.",
       "art": "sumi"
     },
     {
       "k": "The Sword",
-      "t": "There is a sword in the medicine box. It can't be drawn at will.",
+      "t": "In the Medicine Seller's box there is a sword,\nwaiting for an answer.",
       "art": "klimt"
     },
     {
       "k": "Form · Truth · Reason",
-      "t": "Learn all three, and the sword leaves its sheath.",
-      "b": "What it is · what happened · why it stays",
+      "t": "What it is, what happened, why it will not leave.\nOnly with all three does the sword leave its sheath.",
       "art": "noh"
     },
     {
       "k": "Set out",
-      "t": "Every lit place on the scroll can be entered.",
+      "t": "The rain is still falling.\nBut the story has already begun.",
       "go": "Unroll the scroll",
       "art": "taisho"
     }
@@ -1041,7 +1040,7 @@
     "konrei/view:2": "A row of small Noh masks on the wall; one face after another.",
     "ume/view:2": "Temari painted on the doors, like childhood toys.",
     "konrei/view:1": "At this wedding, Ochō is smiling.",
-    "ume/view:1": "A sky-blue bird-shaped incense box.",
+    "ume/view:1": "A sky-blue elephant-shaped incense box.",
     "owari/view:1": "At the end of the corridor, gold and purple clouds.",
     "owari/view:2": "Sky overhead; the paper vanishes as it falls.",
     "yume/view:1": "No walls in the plum grove, only blossoms.",
@@ -1062,8 +1061,8 @@
     "body": "Gold walls with a great tree and deer, and a row of small Noh masks: white, purple, red, blue. One mask after another. Where is the face?"
   },
   "prison_ume.1": {
-    "title": "The bird-shaped incense box",
-    "body": "Red and white plum blossoms cover the walls, with a row of pink lattice doors. In the middle stands a sky-blue incense box shaped like a great bird, big enough to sit on."
+    "title": "The elephant incense box",
+    "body": "Red and white plum blossoms cover the walls, with a row of pink lattice doors. In the middle lies a sky-blue incense box shaped like an elephant, its trunk curled upward, open at the back, big enough to sit in."
   },
   "prison_ume.2": {
     "title": "The temari doors",
@@ -1080,7 +1079,7 @@
   "pre.prison.konrei": "Behind the screen, someone laughs softly.",
   "prison_yume.1": {
     "title": "Painted plum grove",
-    "body": "No walls. Ground and sky are broad strokes of pastel. Dark twisted plum trees bloom red, pink and white."
+    "body": "No walls. Ground and sky are broad strokes of pastel. Dark red-brown plum trees twist, streaked with blue, red blossoms on their branches."
   },
   "prison_yume.2": {
     "title": "A door on its own",

@@ -9,11 +9,11 @@ import { asset } from "../paths.js";
 
 const SEEN = "mononoke_tour_intro";
 const DRAFT = [
-  { k: "怪化猫 · 游览", t: "跟着卖药郎，去出过事的地方。", b: "大奥 · 万屋 · 坂井家", art: "yorozu" },
-  { k: "物怪", t: "放不下的念头缠上了妖，就成了物怪。", art: "sumi" },
-  { k: "退魔剑", t: "药箱里有把剑，不是想拔就能拔。", art: "klimt" },
-  { k: "形 · 真 · 理", t: "查清这三样，剑才出鞘。", b: "它是什么 · 出过什么事 · 为什么不走", art: "noh" },
-  { k: "启程", t: "长卷上亮着的地方，都进得去。", go: "展开长卷", art: "taisho" },
+  { k: "怪化猫 · 游览", t: "他只是个卖药的\n他到的地方\n总有奇怪的事发生", b: "大奥 · 万屋 · 坂井家 · 笛小路家", art: "yorozu" },
+  { k: "物怪", t: "怨　执　舍不得\n这些念头遇见了妖\n就会变成物怪", art: "sumi" },
+  { k: "退魔剑", t: "药郎的药箱里有一把剑\n在等待答案", art: "klimt" },
+  { k: "形 · 真 · 理", t: "它是什么　出过什么事\n为何不走\n三样齐了　剑才出鞘", art: "noh" },
+  { k: "启程", t: "雨还在下\n但故事已经开始了", go: "展开长卷", art: "taisho" },
 ];
 
 import { ART, ORDER, DEFS, svg } from "./story_art.js";   // 插图（第三版：每页一种原作画风），见 story_art.js
@@ -37,7 +37,7 @@ function css() {
     border-left: 1.5px solid rgba(50,45,72,.3); padding-left: 6px; max-height: 46%; overflow: hidden; }
   #story-intro .si-art { width: 96%; margin: 14px 22px 0 0; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; }
   #story-intro .si-art svg { width: 100%; height: auto; max-height: 100%; display: block; box-shadow: 2px 3px 0 rgba(50,45,72,.25); }
-  #story-intro .si-t { font-size: clamp(15px, 2.6vh, 18px); line-height: 1.6; text-align: center; margin: 10px 4px 0; letter-spacing: .04em; text-wrap: balance; }
+  #story-intro .si-t { font-size: clamp(15px, 2.6vh, 18px); line-height: 1.6; text-align: center; margin: 10px 4px 0; letter-spacing: .04em; text-wrap: balance; white-space: pre-line; }   /* 文案里的 \n 在逗号后断行，手机上不会把一个词拆成两行 */
   #story-intro .si-b { font-size: 12px; opacity: .6; margin-top: 6px; letter-spacing: .08em; text-align: center; text-wrap: balance; }
   #story-intro .si-no { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font-size: 12px; letter-spacing: .3em; opacity: .45; }
   #story-intro .si-go { margin-top: 12px; border: 2px solid var(--ink); background: var(--crimson); color: var(--paper); font: inherit; font-size: 14px; letter-spacing: .2em; padding: 6px 18px; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
