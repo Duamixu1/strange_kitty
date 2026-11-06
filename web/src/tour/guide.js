@@ -178,7 +178,8 @@ export function createGuide(ctx) {
   // 领路的小化猫（角色线 run_k / look_back_k）：从药郎前面一点出发，顺着可走的路跑到那样东西旁边，停下回头看一眼，坐一会儿，淡掉。
   // 模型没下好就用上面那团小光
   let kit = null, kitRun = null;
-  const kitLoad = ctx.loader ? loadMonster(ctx.loader, ctx.assetUrl, "kitten_guide").then((m) => { kit = m; m.group.visible = false; ctx.scene.add(m.group); m.group.traverse((o) => { if (o.isMesh && o.material.uniforms?.uPale) o.material.uniforms.uPale.value = 0.45; }); }).catch(() => {}) : null;
+  // 11-06：领路小化猫 90 秒以后才用得上，进地点 10 秒后再下（原来一开始就下，跟进门那间的贴图抢网速）
+  const kitLoad = ctx.loader ? new Promise((r) => setTimeout(r, 10000)).then(() => loadMonster(ctx.loader, ctx.assetUrl, "kitten_guide")).then((m) => { kit = m; m.group.visible = false; ctx.scene.add(m.group); m.group.traverse((o) => { if (o.isMesh && o.material.uniforms?.uPale) o.material.uniforms.uPale.value = 0.45; }); }).catch(() => {}) : null;
   function kittenTo(it) {
     if (!kit || !ctx.route) return false;
     // 起点：镜头看过去药郎前方 1.6 米左右（要在画面里），从那儿顺着可走的路跑过去

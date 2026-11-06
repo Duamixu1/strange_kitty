@@ -18,7 +18,7 @@ import { fusumaWipe, prompt, toast, card, Tags, flash } from "./ui.js";
 import { createRain } from "./rain.js";
 import { createSnow } from "./snow.js";
 import { audio } from "./audio.js";
-import { loading } from "./loading.js";
+import { loading, lastFail } from "./loading.js";
 import { createEncounter, ROSTER } from "./encounter.js";
 import { createMedbox } from "./medbox.js";
 import { storyIntro, introSeen } from "./story_intro.js";
@@ -65,7 +65,15 @@ function stat(path, title, event = false) {
 if (statOn) { const t = setInterval(() => { if (window.goatcounter?.count) { clearInterval(t); statQ.splice(0).forEach((f) => f()); } }, 500); setTimeout(() => clearInterval(t), 30000); }
 if (!locId) stat("/", "总地图");
 
-if (!locId) showMap().catch((e) => { console.error(e); status.textContent = "总地图加载失败：" + e.message; loading.fail("总地图没加载出来"); }); else startLocation(locId).catch((e) => { console.error(e); status.textContent = "加载失败：" + e.message; loading.fail("场景没加载出来"); });
+// 加载失败：失败页上写出错在哪（哪个文件），也报一条访问统计事件（duami.goatcounter.com 里看 err/<地点>），手机上出错好查
+function failed(where, e) {
+  console.error(e);
+  const detail = [e?.message || String(e), lastFail && lastFail !== e?.message ? lastFail : ""].filter(Boolean).join(" · ").slice(0, 220);
+  status.textContent = "加载失败：" + detail;
+  stat(`err/${where}`, `加载失败 · ${detail}`.slice(0, 200), true);
+  loading.fail(where === "map" ? "总地图没加载出来" : "场景没加载出来", detail);
+}
+if (!locId) showMap().catch((e) => failed("map", e)); else startLocation(locId).catch((e) => failed(locId, e));
 
 // ---------------------------------------------------------------- 总地图（占位）
 // 总地图上每个地点的进度（guide.js 存的；没去过就不写）：形真理 2 / 3 · 観 6 / 8 · 物怪 1 / 5，本命退了写"已退魔"
@@ -174,6 +182,8 @@ async function startLocation(id) {
   }
   const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 200);
   const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
+  // 手机显存不够时浏览器会把画面收回（context lost）：报一条统计，提示刷新
+  renderer.domElement.addEventListener("webglcontextlost", (ev) => { ev.preventDefault(); stat(`err/${locId || "map"}`, "画面被浏览器收回（显存不够）", true); toast("画面出错了，刷新一下就好"); });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
   renderer.setSize(innerWidth, innerHeight);
   document.getElementById("stage").appendChild(renderer.domElement);
@@ -222,7 +232,8 @@ async function startLocation(id) {
   //   这里只发 <link rel=preload>，真正读文件的还是下面的 loader，拿的是同一份，不会多下
   {
     const z0 = loc.zones?.[firstZone] || {};
-    preloadFiles([PLAYER_MODEL, ...Object.values(PROPS).map((d) => d.url), z0.kit && `processed/kit/${z0.kit}.glb`, ...(z0.npcs || []).map((d) => d.model)].filter(Boolean).map((u) => assetUrl(u)));
+    // 11-06 地铁首次 14 秒：站台 11 个配角（3.9 MB）跟药郎抢网速，药郎拖到 12 秒才下完。配角不再预载，进场以后在后台下（attachNpcs）
+    preloadFiles([PLAYER_MODEL, ...Object.values(PROPS).map((d) => d.url), z0.kit && `processed/kit/${z0.kit}.glb`].filter(Boolean).map((u) => assetUrl(u)));
   }
   status.textContent = `${loc.name} · 加载药郎…`; loading.step("请药郎出场…");
   const P = await loadPlayer(loader, assetUrl, { springs: params.get("spring") !== "0", props: params.get("props") !== "0", layer: params.get("layer") !== "0" });
@@ -253,25 +264,45 @@ async function startLocation(id) {
         if (z.offset) g.position.set(...z.offset);
         zoneCache.set(zoneId, g);
       }),
-      z.npcs?.length && !npcCache.has(zoneId) && Promise.all(z.npcs.map(async (d) => {
-        // 模型还没做出来（そらりす丸配角在角色线建模中）或网太慢：最多等 6 秒就先不摆，别让整个区块卡住
-        const n = await Promise.race([loadNpc(loader, assetUrl, d), new Promise((_, no) => setTimeout(() => no(new Error("超时")), 6000))]).catch((e) => { console.warn("配角加载失败", d.model, e); return null; });
-        if (n) {
-          n.group.position.set(d.pos[0], 0, d.pos[1]); n.group.rotation.y = d.yaw || 0; n.pos = [...d.pos]; n.home = { pos: [...d.pos], yaw: d.yaw || 0 }; n.id = d.id; n.height = d.height; n.y = d.y || 0;   // y：坐在高台这类不算地面的东西上，比地面高多少（笛小路家瑠璃姫）
-          if (d.patrol?.length) n.patrol = { pts: [d.pos, ...d.patrol], i: 0, dir: 1, speed: d.speed ?? 0.7, pause: d.pause ?? 3, hold: 0, yield: 0 };
-        }
-        return n;
-      })).then((list) => npcCache.set(zoneId, list)),
+      // 配角不在这里下：等这间的积木和贴图到齐再下（attachNpcs / prefetchNext），不跟它们抢网速
       z.finds?.some((f) => f.kit) && !findCache.has(zoneId) && Promise.all(z.finds.filter((f) => f.kit).map((f) => loadKit(loader, assetUrl(`processed/kit/${f.kit}.glb`)).then((g) => { g.userData.find = f; return g; }).catch(() => null)))
         .then((list) => { const grp = new THREE.Group(); list.filter(Boolean).forEach((g) => grp.add(g)); findCache.set(zoneId, grp); }),
     ]).catch((e) => { prepping.delete(zoneId); throw e; });   // 失败了下次进门再试
     prepping.set(zoneId, job);
     return job;
   }
+  // 配角：一间只下一次；网慢时不挡进门，下好再摆上（11-06 改，原来进门要等配角全下完、最多 6 秒，超时就不摆了）
+  const npcJobs = new Map();
+  function prepNpcs(zoneId) {
+    if (npcJobs.has(zoneId)) return npcJobs.get(zoneId);
+    const z = loc.zones?.[zoneId] || {};
+    const job = !z.npcs?.length ? Promise.resolve([]) : Promise.all(z.npcs.map(async (d) => {
+        // 模型还没做出来或网太慢：最多等 60 秒，不摆这一个
+        const n = await Promise.race([loadNpc(loader, assetUrl, d), new Promise((_, no) => setTimeout(() => no(new Error("超时")), 60000))]).catch((e) => { console.warn("配角加载失败", d.model, e); return null; });
+        if (n) {
+          n.group.position.set(d.pos[0], 0, d.pos[1]); n.group.rotation.y = d.yaw || 0; n.pos = [...d.pos]; n.home = { pos: [...d.pos], yaw: d.yaw || 0 }; n.id = d.id; n.height = d.height; n.y = d.y || 0;   // y：坐在高台这类不算地面的东西上，比地面高多少（笛小路家瑠璃姫）
+          if (d.patrol?.length) n.patrol = { pts: [d.pos, ...d.patrol], i: 0, dir: 1, speed: d.speed ?? 0.7, pause: d.pause ?? 3, hold: 0, yield: 0 };
+        }
+        return n;
+      }));
+    job.then((list) => npcCache.set(zoneId, list));
+    npcJobs.set(zoneId, job);
+    return job;
+  }
+  function placeNpcs(zoneId) {
+    for (const n of npcsOn) scene.remove(n.group);
+    npcsOn = colored ? [] : (npcCache.get(zoneId) || []).filter(Boolean);   // 上过色的地点（笛小路家）人都散了：原作里宅里的人早就死了，点香以后散去
+    for (const n of npcsOn) { scene.add(n.group); n.group.position.y = (col.floorY(n.pos[0], n.pos[1]) ?? 0) + (n.y || 0); }
+  }
+  async function attachNpcs(zoneId) {
+    if (!npcCache.has(zoneId)) await Promise.race([prepNpcs(zoneId), new Promise((r) => setTimeout(r, 1200))]);   // 本机 / 快网：进门时就摆好；慢网最多多等 1.2 秒
+    if (npcCache.has(zoneId)) { placeNpcs(zoneId); return; }
+    prepNpcs(zoneId).then(() => { if (Z?.id === zoneId) placeNpcs(zoneId); });
+  }
   // 后台按出口顺序一间一间先下隔壁（不并发，免得跟眼前要用的抢网速）；出错不管，进门时 prepZone 会再试
   let prefetchChain = Promise.resolve();
   function prefetchNext(zoneId) {
-    for (const e of loc.zones?.[zoneId]?.exits || []) prefetchChain = prefetchChain.then(() => prepZone(e.to)).catch(() => {});
+    for (const e of loc.zones?.[zoneId]?.exits || []) prefetchChain = prefetchChain.then(() => prepZone(e.to)).then(() => prepNpcs(e.to)).catch(() => {});
   }
   async function enterZone(zoneId, arrive = null) {
     const sp = splatOf.get(zoneId);
@@ -283,14 +314,13 @@ async function startLocation(id) {
     if (z.kit) { world = zoneCache.get(zoneId); scene.add(world); }
     // 配角站桩：区块的 npcs 列表（格式见 14 第三节），换区块时摘掉上一个区块的；药郎绕着走（挡住半径 0.45 米）
     for (const n of npcsOn) scene.remove(n.group);
-    npcsOn = colored ? [] : (npcCache.get(zoneId) || []).filter(Boolean);   // 上过色的地点（笛小路家）人都散了：原作里宅里的人早就死了，点香以后散去
-    for (const n of npcsOn) scene.add(n.group);
+    npcsOn = [];
     Z = z; col = createCollision(z.walk);
-    if (npcsOn.length) {
+    if (z.npcs?.length) {   // 药郎绕着配角走；配角晚到也算（npcsOn 是活的）
       const base = col.canStand;
       col.canStand = (x, zz) => base(x, zz) && npcsOn.every((n) => (n.pos[0] - x) ** 2 + (n.pos[1] - zz) ** 2 > 0.45 * 0.45);
     }
-    for (const n of npcsOn) n.group.position.y = (col.floorY(n.pos[0], n.pos[1]) ?? 0) + (n.y || 0);
+    await attachNpcs(zoneId);
     if (findsOn) scene.remove(findsOn);
     findsOn = findCache.get(zoneId) || null;
     if (findsOn) { scene.add(findsOn); for (const g of findsOn.children) { const f = g.userData.find; g.position.set(f.pos[0], (col.floorY(f.pos[0], f.pos[1]) ?? 0) + (f.y || 0), f.pos[1]); g.rotation.y = f.yaw || 0; } }

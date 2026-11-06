@@ -22,8 +22,26 @@ function render() {
 
 // fetch 包一层数字节（只在加载期间；加载完换回原来的 fetch）
 const rawFetch = window.fetch.bind(window);
+// 11-06 手机上进そらりす丸"加载失败"：手机网一抖，一个文件没下来整个地点就进不去。下载失败（断网、5xx）隔一会儿自动再试两次；
+// 记下最后一个失败的文件，失败页上写出来（也报给访问统计），下次好查
+const urlOf = (input) => (typeof input === "string" ? input : input?.url || "");
+export let lastFail = "";
+async function retryFetch(input, init) {
+  for (let i = 0; ; i++) {
+    try {
+      const res = await rawFetch(input, init);
+      if (res.status >= 500 && i < 2) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) lastFail = `${res.status} ${urlOf(input).replace(/^.*\/strange_kitty\//, "")}`;
+      return res;
+    } catch (e) {
+      if (i >= 2 || init?.signal?.aborted) { lastFail = `${e.message} ${urlOf(input).replace(/^.*\/strange_kitty\//, "")}`; throw e; }
+      await new Promise((r) => setTimeout(r, 700 * (i + 1)));
+    }
+  }
+}
+window.fetch = retryFetch;
 function countingFetch(input, init) {
-  return rawFetch(input, init).then((res) => {
+  return retryFetch(input, init).then((res) => {
     const url = typeof input === "string" ? input : input.url || "";
     if (done || !res.body || /\.spz(\?|$)/.test(url)) return res;
     const counter = new TransformStream({ transform(chunk, ctl) { got += chunk.byteLength; ctl.enqueue(chunk); } });
@@ -51,15 +69,22 @@ export const loading = {
     if (done || !el) return;
     window.__loadMB = +(got / 1e6).toFixed(2);   // 调试：这次实际数到多少（不含泼溅），用来校准 EST_MB
     el.querySelector(".bar i").style.width = "100%";
-    done = true; clearInterval(timer); window.fetch = rawFetch;
+    done = true; clearInterval(timer); window.fetch = retryFetch;
     el.classList.add("out"); setTimeout(() => el.remove(), 600);
   },
   /** 出错：提示换网络或刷新 */
-  fail(msg) {
+  fail(msg, detail = "") {
     if (!el) return;
-    done = true; clearInterval(timer); window.fetch = rawFetch;
+    done = true; clearInterval(timer); window.fetch = retryFetch;
     el.classList.add("failed");
     el.querySelector(".where").textContent = "加载失败";
-    el.querySelector(".big").textContent = `${msg}。可以刷新再试一次，或者换个网络。`;
+    el.querySelector(".big").textContent = `${msg}。可以再试一次，或者换个网络。`;
+    if (!el.querySelector(".err")) {
+      const d = document.createElement("div"); d.className = "err"; d.textContent = detail;
+      d.style.cssText = "font: 11px/1.5 ui-monospace, Menlo, monospace; opacity: .6; margin-top: 10px; word-break: break-all;";
+      const b = document.createElement("button"); b.textContent = "再试一次"; b.onclick = () => location.reload();
+      b.style.cssText = "margin-top: 14px; padding: 8px 22px; font: 14px serif; color: #fff; background: #A23B3B; border: 0; border-radius: 3px;";
+      el.querySelector(".big").after(d, b);
+    }
   },
 };
