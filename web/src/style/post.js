@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { pub } from "../paths.js";
+import { BURN, BURN_GLSL } from "./toon.js";
 
 // 描边 + 和纸后期，一个合成 shader 做完：
 //   pass 1  场景法线 + 深度 → normalRT（scene.overrideMaterial = MeshNormalMaterial）
@@ -13,6 +14,14 @@ export class PaperOutlinePost {
     this.normalRT = new THREE.WebGLRenderTarget(size.x, size.y, { depthTexture: new THREE.DepthTexture(size.x, size.y, THREE.UnsignedIntType) });
     this.colorRT = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType });
     this.normalMat = new THREE.MeshNormalMaterial();
+    // 散华（toon.js BURN）：物怪那根圆柱里、地面以上、已经烧掉的部分不画法线，描边跟着一起没
+    this.normalMat.onBeforeCompile = (sh) => {
+      Object.assign(sh.uniforms, { uBurnOn: BURN.on, uBurnY: BURN.y, uBurnC: BURN.c, uBurnR: BURN.r, uBurnFloor: BURN.floor });
+      sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vBurnW;")
+        .replace("#include <project_vertex>", "#include <project_vertex>\nvBurnW = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+      // 法线材质的片元着色器里没有 <common>，声明直接放在 main 前面
+      sh.fragmentShader = sh.fragmentShader.replace("void main() {", `varying vec3 vBurnW;\nuniform float uBurnOn, uBurnY, uBurnR, uBurnFloor; uniform vec2 uBurnC;\n${BURN_GLSL}\nvoid main() {\n  if (uBurnOn > 0.5 && vBurnW.y > uBurnFloor + 0.04 && length(vBurnW.xz - uBurnC) < uBurnR && burnD(vBurnW, uBurnY) < 0.0) discard;`);
+    };
     const paper = new THREE.TextureLoader().load(pub(paperFile));
     paper.wrapS = paper.wrapT = THREE.RepeatWrapping;
     paper.colorSpace = THREE.NoColorSpace;

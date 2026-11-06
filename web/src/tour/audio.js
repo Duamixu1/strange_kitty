@@ -284,6 +284,28 @@ class Engine {
     const d = this.ctx.createGain(); d.gain.setValueAtTime(0.0001, t); d.gain.linearRampToValueAtTime(0.1, t + 1.6); d.gain.linearRampToValueAtTime(0.0001, t + 3.2); d.connect(this.sfxBus);
     for (const f of [62, 62.8]) { const o = this.ctx.createOscillator(); o.frequency.value = f; o.connect(d); o.start(t); o.stop(t + 3.3); }
   }
+  biwa(t) {   // 琵琶（海座头）：几下低沉的拨弦，带"さわり"的嗡响，一下比一下慢，最后一下拖长
+    [[0, 147, 0.7], [0.45, 110, 0.6], [0.8, 131, 0.55], [1.6, 98, 0.8], [2.5, 73.4, 0.9]].forEach(([d, f, v]) => {
+      const tt = t + d, out = this.env(tt, 0.002, v * 0.45, 2.2, this.sfxBus);
+      const peakF = this.filt("peaking", 1800, 2.5); peakF.gain.value = 8;
+      this.src(this.pluckBuf(f, "shamisen"), tt).connect(this.chain(peakF, out));
+      const click = this.env(tt, 0.001, v * 0.18, 0.03, out);   // 撥（バチ）打在弦上
+      this.src(this.white, tt, { offset: Math.random() }).connect(this.chain(this.filt("bandpass", 2400, 3), click));
+      this.send(out, 0.45);
+    });
+  }
+  nueCry(t, far = 0) {   // 鵺的叫声：像虎鸫（トラツグミ）夜里那种细长的口哨"ヒィ——……ヒョォ——"，一高一低，带一点颤；far 越大越远（更小、更多回响）
+    const ctx = this.ctx, out = ctx.createGain(); out.gain.value = 0.42 * (1 - far * 0.6); out.connect(this.sfxBus); this.send(out, 0.5 + far * 0.4);
+    [[0, 2480, 2380, 1.05], [1.55, 2150, 1980, 1.25]].forEach(([dt, f0, f1, dur]) => {
+      const tt = t + dt, o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.setValueAtTime(f0 * 0.97, tt); o.frequency.linearRampToValueAtTime(f0, tt + 0.12); o.frequency.exponentialRampToValueAtTime(f1, tt + dur);
+      const vib = ctx.createOscillator(), vg = ctx.createGain(); vib.frequency.value = 6.5; vg.gain.value = f0 * 0.006; vib.connect(vg); vg.connect(o.frequency); vib.start(tt); vib.stop(tt + dur + 0.1);
+      g.gain.setValueAtTime(0.0001, tt); g.gain.exponentialRampToValueAtTime(0.5, tt + 0.18); g.gain.setValueAtTime(0.5, tt + dur * 0.55); g.gain.exponentialRampToValueAtTime(0.0001, tt + dur);
+      const air = this.src(this.white, tt, { offset: Math.random() }), ag = this.env(tt, 0.15, 0.05, dur * 0.8, out);   // 一点气声
+      air.connect(this.chain(this.filt("bandpass", f0, 9), ag));
+      o.connect(g); g.connect(out); o.start(tt); o.stop(tt + dur + 0.05);
+    });
+  }
   appear(t) { this.send(this.sweep(t, this.brown, 160, 900, 0.9, 0.4, 1.2), 0.6); this.taiko(t + 0.85, 0.35); }   // 从墨里浮出来
   charge(t) { this.sweep(t, this.white, 400, 1200, 0.7, 0.08, 6); }   // 蓄力：一点尖细的嘶声
   lunge(t) { this.sweep(t, this.white, 300, 1600, 0.3, 0.3, 1.5); }   // 扑过来

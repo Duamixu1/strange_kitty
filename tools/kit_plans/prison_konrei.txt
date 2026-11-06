@@ -1,0 +1,25 @@
+# 心象·婚礼间（参考 p6_1452、p6_1631、p7_1525）：金红的房间——正面红白条富士鹤屏风（7 扇），两侧墙是金底大树、梅、鹿、流水（M 整面），
+# 上面一道红底彩花横楣，金底卷云天花，地上彩色大花地毯，两侧墙上挂一排小能面（白、紫、红、蓝），正中红台上新人中间一张黑漆低桌、一对朱杯。
+# 南 U 回梅林，东 U 去粉红梅花房。观景点：1 正中看屏风，2 东南角看能面和大树。
+name: prison_konrei
+height: 3.0
+ceiling: sao
+timber: 1.4
+dais_h: 0.12
+byobu_h: 2.0
+mural: pri_gold_tree
+mural_full: on
+mat: wood=pri_green, frame=pri_green, bars=pri_bars, plaster=pri_ume_wall, kokabe=pri_ume_wall, tatami=pri_straw, tatami_side=pri_beam, earth=pri_earth, engawa=pri_boards, ceiling=pri_ceil, fusuma=pri_ume_wall, udoor=pri_door, byobu=pri_jinbutsu, dais=pri_red, dais_side=pri_red_lacquer, dais_trim=pri_gold, rail=pri_beam, under=kage, wood=crimson, frame=crimson, plaster=pri_gold_plain, kokabe=pri_frieze, engawa=pri_flower_carpet, tatami=pri_flower_carpet, tatami_side=crimson, ceiling=pri_gold_ceiling, byobu=pri_fuji_byobu, udoor=pri_door
+place: noh_mask 0.53,2.3,0,2.05,0; noh_mask 0.53,3.3,0,2.05,1; noh_mask 0.53,4.3,0,2.05,2; noh_mask 0.53,5.6,0,2.05,3; noh_mask 0.53,6.6,0,2.05,4; noh_mask 9.48,2.3,180,2.05,1; noh_mask 9.48,3.3,180,2.05,2; noh_mask 9.48,5.6,180,2.05,3; noh_mask 9.48,6.6,180,2.05,4; lowtable 5.0,2.35,0,0.12
+shot: 富士屏风 | 5.0,1.6,7.4 | 5.0,1.2,1.0 | 4.2,6.2,3.14
+shot: 能面和大树 | 8.8,1.7,7.2 | 0.4,1.8,2.6 | 8.0,6.4,-2.2
+---
+###########
+M.YYYYYYY.M
+M...PPP...M
+M.........M
+M....1....U
+M.........M
+M..@...2..M
+M.........M
+#####U#####

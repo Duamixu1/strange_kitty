@@ -8,6 +8,8 @@
   旋转是在绑定姿势基础上追加的，父骨头转了子骨头跟着走。"base" 指向另一个姿势先套用再覆盖。
   "animations": { "idle_k": {"fps": 24, "keys": [["stand", 0], ["breathe", 48], ["stand", 96]]} }
   同一姿势连续两个关键帧 = 停顿。关键帧之间贝塞尔缓动。
+  动作里可以写 "lag": {"Head": 3, "R_Forearm": 4, ...}：中间的关键帧这些骨头晚几帧（负数 = 早几帧）到，最多挪到和邻帧的一半，
+  首尾帧不挪。用来做跟随（身子先动、头和手后到），见 tools/npc_acting.py
 
 用法：
   Blender -b --python tools/blender_pose_anim.py -- --in assets/processed/kusuriuri_v1_anim_lite.glb \
@@ -142,16 +144,22 @@ def capture_pose(name):
     apply_pose(name)
     return {pb.name: (pb.rotation_quaternion.copy(), pb.location.copy(), pb.scale.copy()) for pb in arm.pose.bones}
 
-def key_pose(basis, frame, scaled=(), chains=()):
+def key_pose(basis, frame, scaled=(), chains=(), lag=None, span=None):
+    """lag：{骨头: 帧数}，这根骨头晚几帧到这个姿势（头、手跟在身子后面，不机械）；span=(上一帧, 下一帧) 夹住，首尾帧不传就不挪"""
     for pb in arm.pose.bones:
         # 骨链（下摆、大袖、长发）默认不进关键帧，查看器里由弹簧骨驱动；动作的姿势里写了某节骨链（走路时下摆跟腿摆），
         # 就给这个动作打它的帧，弹簧骨把它当目标形状、在上面叠余摆（web/src/spring.js）
         if pb.name.startswith("chain_") and pb.name not in chains: continue
         q, loc, sc = basis[pb.name]
         pb.rotation_quaternion = q; pb.location = loc; pb.scale = sc
-        pb.keyframe_insert("rotation_quaternion", frame=frame)
-        pb.keyframe_insert("location", frame=frame)
-        if pb.name in scaled: pb.keyframe_insert("scale", frame=frame)   # 只有这个动作里缩放过的骨头才打缩放帧
+        f = frame
+        if lag and span:
+            d = lag.get(pb.name, 0)
+            if d > 0: f = min(frame + d, frame + max(0, (span[1] - frame) // 2))
+            elif d < 0: f = max(frame + d, frame - max(0, (frame - span[0]) // 2))
+        pb.keyframe_insert("rotation_quaternion", frame=f)
+        pb.keyframe_insert("location", frame=f)
+        if pb.name in scaled: pb.keyframe_insert("scale", frame=f)   # 只有这个动作里缩放过的骨头才打缩放帧
 
 # ---- 挂点 ----
 # spec["sockets"] 里每一项生成一个空节点，挂在指定骨头上（parent_type=BONE），导出成那根骨头的子节点。
@@ -262,8 +270,10 @@ for name in names:
     arm.animation_data.action = act
     scaled = {b for pn, _ in an["keys"] for b, s in resolve(pn).items() if isinstance(s, dict) and s.get("scale") is not None}
     chains = {b for pn, _ in an["keys"] for b in resolve(pn) if b.startswith("chain_")}
-    for pose_name, frame in an["keys"]:
-        key_pose(cache[pose_name], frame, scaled, chains)
+    ks = an["keys"]; lag = an.get("lag")   # "lag": {骨头: 帧}，中间的关键帧按骨头错开（首尾不动，循环接得上）
+    for i, (pose_name, frame) in enumerate(ks):
+        span = (ks[i - 1][1], ks[i + 1][1]) if lag and 0 < i < len(ks) - 1 else None
+        key_pose(cache[pose_name], frame, scaled, chains, lag, span)
     # 关键帧默认就是贝塞尔自动钳制，等于姿势间缓入缓出，不用再改插值（Blender 5 的 Action 没有 fcurves 属性）
     act.use_frame_range = True; act.frame_range = (an["keys"][0][1], an["keys"][-1][1])
     arm.animation_data.action = None

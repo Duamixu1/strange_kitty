@@ -131,6 +131,67 @@ Object.assign(KIT, {
   fue_ruin_crack: { hide: true }, fue_ruin_crack_color: { color: "kogecha", shadeMix: 0 },
   fue_grass: { hide: true }, fue_grass_color: { color: "#A7B86F", double: true }, fue_sakura: { hide: true }, fue_sakura_color: { color: "pink" },
 });
+// そらりす丸（游33）：满眼是色，sol_* 一套（tools/kit_textures.py sol_set；藻井、凤凰画、大幡三面、船身是出的图 scenes/53~55，天空 sol_sky / sol_sky_color 是 51、52）。退魔后只有海换（sol_sea → sol_sea_color 蓝底金线浪），天空换 sol_sky_color
+Object.assign(KIT, {
+  sol_deck: T("sol_deck.png", 0.2), sol_floor_ao: T("sol_floor_ao.png", 0.2), sol_hull: T("sol_hull.jpg", 0.15, { double: true }),
+  sol_sea: T("sol_sea.png", 0.05), sol_sea_color: T("sol_sea_color.png", 0.05), sol_pool: T("sol_pool.png", 0.1), sol_uzu: T("sol_uzu.png", 0.1),
+  sol_tile: T("sol_tile.png", 0.2), sol_koshi: T("sol_koshi.png", 0.1), sol_koshi_floor: T("sol_koshi.png", 0.15), sol_mojing: T("sol_mojing.jpg", 0.05),
+  sol_pillar: T("sol_pillar.png", 0.2), sol_wall_pink: T("sol_wall_pink.png", 0.15), sol_panel: T("sol_panel.png", 0.12), sol_panel_door: T("sol_panel_door.png", 0.12),
+  sol_door: T("sol_door.png", 0.12), sol_shoji: T("sol_shoji.png", 0.12), sol_lattice: T("sol_lattice.png", 0.1), sol_houou: T("sol_houou.jpg", 0.05),
+  sol_hata1: T("sol_hata1.png", 0.08, { double: true }), sol_hata2: T("sol_hata2.png", 0.08, { double: true }), sol_hata3: T("sol_hata3.png", 0.08, { double: true }),
+  sol_sail: T("sol_sail.png", 0.1, { double: true }), sol_fuda: T("sol_fuda.png", 0.08), sol_carpet: T("sol_carpet.png", 0.15), sol_tower: T("sol_tower.png", 0.15),
+  sol_lantern_r: T("sol_lantern_r.png", 0.15), sol_lantern_w: T("sol_lantern_w.png", 0.15),
+  sol_pink: { color: "pink" }, sol_red: { color: "crimson" }, sol_gold: { color: "ochre", shadeMix: 0.15 }, sol_finial: { color: "ochre", shadeMix: 0.15 },
+  sol_yellow: { color: "ochre" }, sol_stair: { color: "ochre" }, sol_deck_edge: { color: "pink" }, sol_mast: { color: "kogecha" },
+  sol_utsuro: { color: "lavender" }, sol_utsuro_top: { color: "pink" },
+  sol_zeni: { color: "#6E9A7E", shadeMix: 0.15 }, sol_brass_dark: { color: "#9C8A4E" },   // 拾遗：长铜绿的铜钱、罗盘盖里面暗一点的黄铜
+  sol_roof: { color: "teal", pattern: { tile: "seigaiha", space: "world", scale: 0.5, color: "#4F74BF", mix: 0.35 }, double: true },
+});
+// 地下铁（游34）：大正摩登，sub_* 一套（tools/kit_textures.py sub_set，程序画；参考帧到之前的第一版）
+Object.assign(KIT, {
+  sub_tile: T("sub_tile.png", 0.15), sub_tile_green: T("sub_tile_green.png", 0.15), sub_floor: T("sub_floor.png", 0.2), sub_edge: T("sub_edge.png", 0.25),
+  sub_ballast: T("sub_ballast.png", 0.2), sub_tunnel: T("sub_tunnel.png", 0.1), sub_posters: T("sub_posters.png", 0.05), sub_sign: T("sub_sign.png", 0.05, { double: true }),
+  sub_car_ext: T("sub_car_ext.png", 0.15), sub_car_door: T("sub_car_door.png", 0.12), sub_door: T("sub_door.png", 0.12), sub_car_wall: T("sub_car_wall.png", 0.15),
+  sub_ad: T("sub_ad.png", 0.1), sub_car_ceil: T("sub_car_ceil.png", 0.1), sub_car_floor: T("sub_car_floor.png", 0.2), sub_ceil: T("sub_ceil.png", 0.1),
+  sub_cafe_ceil: T("sub_cafe_ceil.png", 0.15), sub_checker: T("sub_checker.png", 0.2), sub_wall_cafe: T("sub_wall_cafe.png", 0.15), sub_wall_cafe_up: T("sub_wall_cafe_up.png", 0.12),
+  sub_stained: T("sub_stained.png", 0.05, { double: true }), sub_clock: T("sub_clock.png", 0.05), sub_kaisatsu_sign: T("sub_kaisatsu_sign.png", 0.05),
+  sub_wood: { color: "kogecha" }, sub_iron: { color: "#2C2A36" }, sub_brass: { color: "ochre", shadeMix: 0.15 }, sub_seat: { color: "#7A2A35" }, sub_strap: { color: "paper" },
+  sub_lamp: { color: "paper", shadeMix: 0.02 }, sub_marble: { color: "paper", shadeMix: 0.15 }, sub_safety: { color: "ochre", shadeMix: 0.05 }, sub_rail: { color: "#9A97B0" },
+  sub_sleeper: { color: "kogecha" }, sub_car_roof: { color: "#8C2F2F" },
+  // 第二版（按参考帧）：墨黑、米灰、酒红座椅、芥黄车身红顶；白人偶乘客，只有衣帽有色。美人画、人影广告墙是出的图（scenes/56、57）
+  sub_marble_black: T("sub_marble_black.png", 0.1), sub_stone_gray: T("sub_stone_gray.png", 0.15), sub_silhouette: T("sub_silhouette.jpg", 0.05),
+  sub_car_wall_up: T("sub_car_wall_up.png", 0.12), sub_car_koshi: T("sub_car_koshi.png", 0.15), sub_bijin: T("sub_bijin.jpg", 0.05), sub_harlequin: T("sub_harlequin.png", 0.15),
+  sub_window_dark: T("sub_window_dark.png", 0.05),
+  sub_white_brick: { color: "#E4DCCB" }, sub_doll: { color: "#ECE6DA", shadeMix: 0.2 }, sub_bulb: { color: "paper", shadeMix: 0 },
+  sub_c1: { color: "#7A2A35" }, sub_c2: { color: "#C9A23C" }, sub_c3: { color: "#3A4660" }, sub_c4: { color: "#6B5240" }, sub_c5: { color: "#8E7E92" },
+  sub_news: T("sub_news.png", 0.08, { double: true }), sub_kippu: T("sub_kippu.png", 0.05), sub_bromide: T("sub_bromide.png", 0.05),
+  sub_stain: { color: "#2A2024", shadeMix: 0 }, sub_paw: { color: "#B8AE9C", shadeMix: 0 }, sub_glass: { color: "#D6E0DE", shadeMix: 0.1 }, sub_milkcap: { color: "#E4D7B8" },
+  sub_frame: { color: "kogecha" }, sub_bottle1: { color: "#3E5A44" }, sub_bottle2: { color: "#6B4A30" }, sub_bottle3: { color: "#7A2A35" }, sub_leaf: { color: "#4E6B4A" },
+});
+// 牢房（のっぺらぼう，游35）：pri_* 一套（tools/kit_textures.py pri_set，程序画；参考帧到之前的第一版，老松镜板是占位）
+Object.assign(KIT, {
+  pri_wall: T("pri_wall.png", 0.2), pri_straw: T("pri_straw.png", 0.2), pri_earth: T("pri_earth.png", 0.2), pri_boards: T("pri_boards.png", 0.2),
+  pri_stage: T("pri_stage.png", 0.15), pri_ceil: T("pri_ceil.png", 0.1), pri_fusuma: T("pri_fusuma.png", 0.1), pri_byobu: T("pri_byobu.png", 0.08, { double: true }),
+  pri_red: T("pri_red.png", 0.15), pri_door: T("pri_door.png", 0.12), pri_kagami: T("pri_kagami.png", 0.05), pri_shirasu: T("pri_shirasu.png", 0.15),
+  pri_agemaku: T("pri_agemaku.png", 0.08),
+  pri_beam: { color: "#3A2E2A" }, pri_bars: { color: "#B09070" }, pri_gold: { color: "ochre" }, pri_skin: { color: "paper", shadeMix: 0.15 }, pri_mask: { color: "paper", shadeMix: 0.05 },
+  pri_c1: { color: "navy" }, pri_c2: { color: "#3A2E2A" }, pri_c3: { color: "wisteria" }, pri_c4: { color: "#5A2638" },
+  // 第二版（按参考帧）：墨绿牢、绿框梅鸟壁、金红婚礼间、粉红梅花房、手鞠拉门、结尾灰木长廊
+  pri_ume_wall: T("pri_ume_wall.png", 0.12), pri_ume_pink: T("pri_ume_pink.png", 0.1), pri_pink_lattice: T("pri_pink_lattice.png", 0.1), pri_temari: T("pri_temari.jpg", 0.06),
+  pri_gold_tree: T("pri_gold_tree.jpg", 0.05), pri_fuji_byobu: T("pri_fuji_byobu.jpg", 0.05, { double: true }), pri_frieze: T("pri_frieze.jpg", 0.1),
+  pri_flower_carpet: T("pri_flower_carpet.jpg", 0.15), pri_gold_ceiling: T("pri_gold_ceiling.png", 0.1), pri_jinbutsu: T("pri_jinbutsu.jpg", 0.05, { double: true }),
+  pri_sky_end: T("pri_sky_end.jpg", 0.02, { double: true }), pri_greywood: T("pri_greywood.png", 0.15),
+  pri_pink_floor: { color: "#E9B9C4", shadeMix: 0.2 },
+  // 第三版（11-06 用户"多还原原著场景"）：出图八张（scenes/80~87，pri_from_scenes）+ 厨房摆设、彩色梅林（pri_set4）
+  pri_ume_mural: T("pri_ume_mural.jpg", 0.05), pri_kacho: T("pri_kacho.jpg", 0.06), pri_gold_plain: { color: "#D8B44A", shadeMix: 0.1 },
+  pri_pinkbox: T("pri_pinkbox.png", 0.12), pri_tub: T("pri_tub.png", 0.12), pri_chest: T("pri_chest.png", 0.12), pri_zaru: T("pri_zaru.png", 0.1, { double: true }),
+  pri_plank_door: T("pri_plank_door.png", 0.12), pri_shoji_white: T("pri_shoji_white.png", 0.08), pri_koshi_win: T("pri_koshi_win.png", 0.08),
+  pri_zou: T("pri_zou.jpg", 0.05), pri_umetree: T("pri_umetree.jpg", 0.05, { double: true }),   // Tripo 模型（大象香盒、原片梅树），贴图 kit_build 导入时抽出来
+  pri_yume_ground: T("pri_yume_ground.png", 0.1), pri_yume_trunk: { color: "#5A2A2C" }, pri_bloom_r: { color: "#C8324A", shadeMix: 0.1 }, pri_bloom_p: { color: "#EE9AB0", shadeMix: 0.1 }, pri_bloom_w: { color: "#F6EEE8", shadeMix: 0.1 }, pri_bloom_b: { color: "#3E6FB8", shadeMix: 0.1 }, pri_bloom_t: { color: "#2E8C8A", shadeMix: 0.1 },
+  pri_kontei: T("pri_kontei.png", 0.05), pri_bamboo_pipe: { color: "#6B5240" },
+  pri_green: { color: "#6E9A4E" }, pri_red_lacquer: { color: "crimson" }, pri_kogo: { color: "#7EC4D8" }, pri_kogo_band: { color: "crimson" },
+  pri_mask_w: { color: "paper", shadeMix: 0.1 }, pri_mask_p: { color: "wisteria" }, pri_mask_r: { color: "coral" }, pri_mask_b: { color: "blue" },
+});
 const MATSETS = { ink: { map: INK_MAP, shade: inkGray(0.35), gray: inkGray }, color: { shade: C.wisteria } };
 let MAT = null, MATNAME = null;
 export function setKitMat(name) { MAT = (name && MATSETS[name]) || null; MATNAME = MAT ? name : null; }

@@ -22,7 +22,16 @@ OUT = ROOT / "assets/tripo_raw"
 
 def log(msg): print(f"[v2] {time.strftime('%H:%M:%S')} {msg}", flush=True)
 def load_state(): return json.loads(STATE.read_text()) if STATE.exists() else {}
-def save_state(s): STATE.write_text(json.dumps(s, ensure_ascii=False, indent=2))
+NAME = None
+def save_state(s):
+    """加锁、只写回本角色那一项：几个角色可以同时跑（11-06 起），不会互相盖掉进度"""
+    import fcntl
+    with open(str(STATE) + ".lock", "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        disk = load_state()
+        if NAME is not None: disk[NAME] = s.get(NAME, {})
+        else: disk.update(s)
+        tmp = STATE.with_suffix(".tmp"); tmp.write_text(json.dumps(disk, ensure_ascii=False, indent=2)); tmp.replace(STATE)
 
 
 def run(api, st, key, endpoint, payload, label):
@@ -47,6 +56,8 @@ def main():
     a = p.parse_args()
 
     api = Tripo(load_key())
+    global NAME
+    NAME = a.name
     STATE_ALL = load_state(); st = STATE_ALL.setdefault(a.name, {})
     bal0 = api.balance()["balance"]; log(f"余额 {bal0}")
 

@@ -31,13 +31,15 @@ const BLINK = { clip: "blink_k", out: 0.15, in: 0.25, dist: [2.4, 2, 1.6] };
 // 11-04：每个地点从原来一只加到三~五只（角色线的四只新物怪、三只变体），出哪只随机抽，见 choose()
 const MONO = {
   bakeneko: { name: "化猫", item: "猫铃", text: "sakai" },
+  bakeneko_tv: { name: "化猫", item: "烧剩的稿纸", text: "subway", zones: ["subway/homu"] },   // 地铁（TV 版）：只在站台出（车厢太窄）
   bakeneko_shiro: { name: "白化猫", item: "白猫的项圈", okuri: true },
   bakeneko_ko: { name: "小化猫", item: "三只小铃", okuri: true },
   nue: { name: "鵺", item: "黑羽" },
-  umibozu: { name: "海坊主", item: "断了的念珠", zones: ["sakai/omote", "wanya/soto"] },   // 只在外景（坂井家门前、万屋雨夜门前）：2.2 米在屋里顶到天花板
+  umibozu: { name: "海坊主", item: "断了的念珠", zones: ["sakai/omote", "wanya/soto", "solaris/kanpan", "solaris/tomo"] },   // そらりす丸：甲板、船尾   // 只在外景（坂井家门前、万屋雨夜门前）：2.2 米在屋里顶到天花板
   zashiki: { name: "座敷童子", item: "红手鞠", text: "wanya" },
   zashiki_ao: { name: "青座敷", item: "青手鞠", okuri: true },
   noppera: { name: "无面", item: "白漆面" },
+  kitsune_men: { name: "狐面男", item: "狐面", text: "prison", zones: ["prison/konrei"] },   // 牢房本命：原作里就是のっぺらぼう本体；只在婚礼间出
   karakasa: { name: "唐伞", item: "破纸伞", text: "ooku" },
   karakasa_kuro: { name: "黑唐伞", item: "黑伞骨", charge: 0.72 },   // 蓄力短一成（角色线建议）
   hinezumi: { name: "火鼠", item: "焦了的鼠皮" },
@@ -47,14 +49,17 @@ export const ROSTER = {   // 每个地点能出哪些；第一只是原作那只
   wanya: ["zashiki", "zashiki_ao", "noppera", "umibozu"],
   ooku: ["karakasa", "karakasa_kuro", "hinezumi"],
   fuenokouji: ["nue", "noppera", "bakeneko_shiro"],   // 笛小路家（docs/22）：本命鵺；打完以后随机出无面（"每个人看见的样子不一样"）、白化猫（雪）
+  solaris: ["umibozu"],
+  subway: ["bakeneko_tv"],   // 地铁（docs/22 第十一节）：本命 TV 版化猫（角色线 11-06），只在站台出；文字读 mononoke.subway
+  prison: ["kitsune_men"],   // 牢房（docs/22 第十二节）：本命狐面男（のっぺらぼう本体，面下无脸），只在婚礼间出；文字读 mononoke.prison
 };
 const LEGACY = { sakai: "bakeneko", wanya: "zashiki", ooku: "karakasa" };
-const LOC_NAME = { sakai: "坂井家", wanya: "万屋", ooku: "大奥", fuenokouji: "笛小路家" };   // 11-04 以前图鉴记的是地点
+const LOC_NAME = { sakai: "坂井家", wanya: "万屋", ooku: "大奥", fuenokouji: "笛小路家", solaris: "そらりす丸", subway: "地铁", prison: "牢房" };   // 11-04 以前图鉴记的是地点
 const SINK = new Set(["umibozu"]);   // 消散是沉回去，墨往下散
 // 地板、墙都暗的区块：物怪边缘透一层暖光、身后托一团淡光晕，不然黑猫和地板分不开（11-04 用户截图：坂井家客间；
 // 先做的硬勾边用户嫌生硬，改成光）。其他区块不加
 const RIM_ZONES = new Set(["sakai/kyakuma"]);
-const STORE = { on: "mononoke_tour_mk", exo: "mononoke_tour_exo", zukan: "mononoke_tour_zukan", tut: "mononoke_tour_tut", okuri: "mononoke_tour_okuri" };
+const STORE = { on: "mononoke_tour_mk", exo: "mononoke_tour_exo", zukan: "mononoke_tour_zukan", zukanTxt: "mononoke_tour_zukan_txt", tut: "mononoke_tour_tut", okuri: "mononoke_tour_okuri" };
 const ls = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 const rnd = (a, b) => a + Math.random() * (b - a);
 const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
@@ -98,7 +103,14 @@ export function createEncounter(ctx) {
   /** 进地点 / 自测：在后台下好下一只（传 id 就下那只） */
   const preload = (id) => { id ||= pinned; if (!id) nextId ||= choose(); return Promise.all([load(id || nextId), load(roster()[0])]).then(([m]) => m); };
   // 字：这个地点的本命（case.mononoke）用地点那份（鵺在笛小路家读 mononoke.fuenokouji，在坂井家随机出时读 mononoke.nue）
-  const textKey = () => { const d = MONO[cur] || MONO.bakeneko; return ctx.loc.case?.mononoke === cur && ctx.texts[`mononoke.${ctx.loc.id}`] ? ctx.loc.id : d.text || cur; };
+  // 文字：本命读 mononoke.<地点>；随机出的先找 mononoke.<id>.<地点>（11-06 用户：白化猫放进笛小路家违和，换一套这家的说法），没有再读通用的
+  const textKey = () => {
+    const d = MONO[cur] || MONO.bakeneko, base = d.text || cur;
+    if (ctx.loc.case?.mononoke === cur && ctx.texts[`mononoke.${ctx.loc.id}`]) return ctx.loc.id;
+    return ctx.texts[`mononoke.${base}.${ctx.loc.id}`] ? `${base}.${ctx.loc.id}` : base;
+  };
+  // 药箱里每只显示在哪收的那一版（最后一次收到的那版；本命那版优先）
+  const zukanTxt = () => { try { return JSON.parse(ls.get(STORE.zukanTxt) || "{}"); } catch { return {}; } };
   const M = () => { const d = MONO[cur] || MONO.bakeneko; return { ...d, kind: MONSTERS[cur]?.mask || "cat", ...(ctx.texts[`mononoke.${textKey()}`] || {}) }; };
   const has = (clip) => P.has(clip);
   const yawTo = (p) => Math.atan2(p.x - player.position.x, p.z - player.position.z);
@@ -107,6 +119,8 @@ export function createEncounter(ctx) {
     st = s; T = 0; document.body.classList.toggle("encounter", ["appear", "fight", "sealed"].includes(s)); document.body.classList.toggle("mk-ready", s === "sealed");
     const b = document.querySelector("#pad .b-sword"); if (b) b.textContent = s === "sealed" && M().okuri ? "送" : "拔剑";   // 手机：没有怨的那几只，钮上写"送"
   };
+  // 狐面男（MONSTERS.unmask）：蓄力到第 16 帧左右捏着面具摘下（底下是空脸），扑完落地一秒后戴回去；斩完不再戴
+  const setMask = (on) => { const n = MONSTERS[cur]?.unmask && mon?.group.getObjectByName(MONSTERS[cur].unmask); if (n) n.visible = on; };
   // 褪色：物怪本体（toon 材质的 uPale）0 = 原样，1 = 一团浅色的光
   let pale = 0, paleTo = 0;
   const setPale = (v) => { pale = v; mon?.group.traverse((o) => { if (o.isMesh && o.material.uniforms?.uPale) o.material.uniforms.uPale.value = v; }); };
@@ -138,7 +152,7 @@ export function createEncounter(ctx) {
     const glow = RIM_ZONES.has(`${ctx.loc.id}/${ctx.zone()?.id}`);
     mon.group.traverse((o) => { if (o.isMesh && o.material.uniforms?.uRim) o.material.uniforms.uRim.value = glow ? 0.75 : 0; });
     clearHalo(); if (glow) addHalo();
-    pale = paleTo = 0; setPale(0);
+    pale = paleTo = 0; setPale(0); setMask(true);
     mon.group.position.set(sp[0], floorAt(sp[0], sp[1]), sp[1]); mon.hover = mon.real ? 1.15 : -0.5; mon.fade = mon.real ? 1 : 0; mon.squash = mon.glow = mon.stretch = 0; mon.group.visible = false;
     ctx.scene.add(mon.group);
     pins = 0; fightT = 0; hold = 0; inv = 0; pendingThrow = null; slide = null; sub = "orbit"; subT = 0; land(); blinkCD = 0;
@@ -147,6 +161,9 @@ export function createEncounter(ctx) {
     setState("omen");
     P.play(has("sense_k") ? "sense_k" : PLACEHOLDER.sense, 0.3); hold = 1.5;
     audio.play("omen"); audio.play("scaleBell", 4, 0.1);   // 天秤上的小铃跟着抖响
+    // 鵺（11-06）：黑云先从四周聚过来，远处先叫一声；缠斗时隔几秒再叫
+    if (MONSTERS[cur]?.cloud) fx.cloudOn(mon);
+    if (MONSTERS[cur]?.cry) { audio.play(MONSTERS[cur].cry, 0.6); cryT = rnd(6, 9); }
     ctx.stat(`物怪/${ctx.loc.id}/${cur}`, `物怪出没 · ${m.name}`);
     return true;
   }
@@ -395,7 +412,7 @@ export function createEncounter(ctx) {
   // 横斩：斩的是浮在它头上的那团怨念（fx.cutGrudge），它本身不播消散，褪成浅色、安静下来，等收剑以后化成魂光走
   function vanish() {
     setState("vanish");
-    fx.clearRing(); flash(); fx.cutGrudge(); fx.unpin(); paleTo = 1;
+    fx.clearRing(); flash(); fx.cutGrudge(); fx.unpin(); fx.cloudOff(); setMask(false); paleTo = 1;
     mon.squash = 0; mon.glow = 0; mon.play("idle", 0.5);
     fx.splat(mon.center(new THREE.Vector3()), 10, SINK.has(cur) ? { up: 0.3, spread: 1.2 } : { up: 1, spread: 0.8, rise: true });
     audio.play("burn");
@@ -411,21 +428,25 @@ export function createEncounter(ctx) {
     // okuri_k（角色线 11-05，docs/17 第十八节）：1.92 秒札离手（札阵这时落地），2.3~3.25 秒往后退 0.2 米由代码给
     okuriDrop = has("okuri_k") ? 1.92 : 0.2;
     if (has("okuri_k")) slide = { dir: player.rotation.y + Math.PI, dist: 0.2, t: -2.3, dur: 0.95, linear: true };
-    fx.dripOff(mon, 1.9); mon.play("idle", 0.4);
+    fx.dripOff(mon, 1.9); fx.cloudOff(); mon.play("idle", 0.4);
     ctx.stat(`物怪/${ctx.loc.id}/${cur}/送`, `送 · ${M().name}`);
     return true;
   }
   let okuriSettle = 0, okuriDrop = 0;
   // 退魔以后不是一下就完：执念散了，魂光从它消散的地方升起来、慢慢飘走，铃响，底下一句余韵（text.json 的 after），
   // 再掉执念物卡。11-04 用户说"小猫那么可爱，斩杀它很心疼"：小化猫是先亮起一团大的（母猫），三团小的跟上去一起走
-  let relDur = 0, relLine = false;
+  let relDur = 0, relLine = false, burnT = 0, cryT = 0;
   function letGo() {
     setState("release"); relLine = false;
     fx.clearRing();
-    const c = mon.center(new THREE.Vector3()), p = mon.group.position, at = new THREE.Vector3(p.x, Math.max(p.y + 0.6, c.y), p.z);
+    const c = mon.center(new THREE.Vector3()), p = mon.group.position;
+    // 11-06 散华：先从脚往上烧成花瓣纸屑（mononoke_fx sanka），烧到头顶时魂光从那里升起来
+    burnT = mon.group.visible ? fx.sanka(mon, floorAt(p.x, p.z), mon.swarm ? 2.8 : 2.4) : 0;
+    const top = mon.group.visible ? new THREE.Box3().setFromObject(mon.group).max.y : c.y, d0 = burnT * 0.75;
+    const at = new THREE.Vector3(p.x, Math.max(p.y + 0.6, c.y, top - 0.15), p.z);
     const list = mon.swarm
-      ? [{ size: 0.85, rise: 0.2, offset: new THREE.Vector3(0, 0.35, 0), life: 4.2 }, ...[0, 1, 2].map((i) => ({ size: 0.4, delay: 0.7 + i * 0.3, follow: 0, life: 4.2 - 0.7 - i * 0.3 + 0.2 }))]
-      : [{ size: 0.7, delay: 0.1, life: 3.4, rise: 0.3 }];   // 升得慢一点，屋里也能在画面里多停一会儿
+      ? [{ size: 0.85, delay: d0, rise: 0.2, offset: new THREE.Vector3(0, 0.1, 0), life: 4.2 }, ...[0, 1, 2].map((i) => ({ size: 0.4, delay: d0 + 0.7 + i * 0.3, follow: 0, life: 4.2 - 0.7 - i * 0.3 + 0.2 }))]
+      : [{ size: 0.7, delay: d0, life: 3.4, rise: 0.3 }];   // 升得慢一点，屋里也能在画面里多停一会儿
     relDur = fx.souls(at, list);
     audio.play("release", mon.swarm ? 4 : 1);
   }
@@ -434,6 +455,10 @@ export function createEncounter(ctx) {
     ctx.stat(`物怪/${ctx.loc.id}/${cur}/${m.okuri ? "送走" : "退魔"}`, `${m.okuri ? "送走" : "退魔"} · ${m.name}`);
     const fresh = !z.includes(cur);
     if (fresh) { z.push(cur); ls.set(STORE.zukan, JSON.stringify(z)); }
+    {   // 记这只收的是哪一版；本命那版（key 是地点 id）收过就不被随机那版盖掉
+      const zt = zukanTxt(), k = textKey(), isBoss = (x) => !!x && !x.includes(".") && x !== (MONO[cur]?.text || cur);
+      if (!isBoss(zt[cur]) || isBoss(k)) { zt[cur] = k; ls.set(STORE.zukanTxt, JSON.stringify(zt)); }
+    }
     await card.open({ place: `执念物 · 收进药箱 ${z.length} / ${Object.keys(MONO).length}`, title: m.itemTitle || m.item, body: m.itemBody || `${m.name}留下的东西。（说明待文案线写：text.json 的 mononoke.${m.text || cur}）` });
     if (fresh) ctx.onCollect?.(cur);   // 药箱（medbox.js）：新收的那格亮一下、提示怎么打开
     ctx.onDone?.(cur);   // 引导（guide.js）：本命退了，地点盖"退魔"
@@ -518,6 +543,7 @@ export function createEncounter(ctx) {
       }
       case "fight":
         fightT += dt;
+        if (MONSTERS[cur]?.cry && (cryT -= dt) <= 0) { cryT = rnd(7, 11); audio.play(MONSTERS[cur].cry, 0); }
         if (fightT > LIMIT || toP > 9) { retreatWhy = toP > 9 ? "far" : "time"; setState("retreat"); audio.play("retreat"); fx.clear(); if (mon.real) mon.hover = 0; break; }
         fightTick(dt, mp, toP);
         break;
@@ -549,8 +575,8 @@ export function createEncounter(ctx) {
         if (T > 2.6) letGo();
         break;
       case "release":
-        mon.fade = Math.max(0, mon.fade - dt * 0.8); mon.hover += dt * 0.25; if (mon.fade <= 0) mon.group.visible = false;   // 褪成光的它慢慢缩没、往上飘，魂光同时升起
-        if (!relLine && T > 0.8) { relLine = true; ctx.onSoul?.(cur); const m = M(); fx.kanji("", m.after || "执念散了。它走了。", mon.group.position.clone().setY(mon.group.position.y + 1.2), 3200); }
+        // 散华：它不动，由 fx 从脚往上烧掉、烧完藏起来；海坊主那种已经沉下去了的不烧，直接升魂光
+        if (!relLine && T > Math.max(0.8, burnT * 0.8)) { relLine = true; ctx.onSoul?.(cur); const m = M(); fx.kanji("", m.after || "执念散了。它走了。", mon.group.position.clone().setY(mon.group.position.y + 1.2), 3200); }
         if (T > Math.max(3.4, relDur - 0.3)) { const id = cur; end("done"); ctx.onRelease?.(id); cardIn = ctx.recoloring?.() ? 4.2 : 0; if (!cardIn) dropCard(); return; }   // 要上色的地点等颜色洇满再掉卡
         break;
       case "retreat":
@@ -593,6 +619,7 @@ export function createEncounter(ctx) {
       }
     } else if (sub === "charge") {
       mp.x += Math.sin(subT * 60) * 0.004;   // 抖一下
+      if (subT > 0.53) setMask(false);
       if (subT > CH) {
         sub = "lunge"; subT = 0; audio.play("lunge"); mon.play("lunge");
         lungeFrom.copy(mp);
@@ -605,6 +632,7 @@ export function createEncounter(ctx) {
       if (k >= 1) { sub = "land"; subT = 0; mon.squash = 1; fx.splat(tmp.copy(mp).setY(mp.y + 0.2), 8, { up: 0.5, spread: 1 }); }
     } else if (sub === "land") {
       mon.hover += (0.55 - mon.hover) * Math.min(1, dt * 8);
+      if (subT > 1.0) setMask(true);
       if (subT > 1.5) { sub = "orbit"; subT = 0; nextCharge = rnd(2.2, 3.8); orbitA = Math.atan2(mp.x - player.position.x, mp.z - player.position.z); }
     } else if (sub === "hit") {
       if (subT > 0.6) {
@@ -629,9 +657,10 @@ export function createEncounter(ctx) {
     get holding() { return tutOpen || (st === "omen" ? hold > 0 : hold > 0 || !!slide); },
     /** 镜头看哪：遭遇时看药郎和物怪之间偏药郎那边（0.35） */
     camTarget() {
-      if (!mon || !["appear", "fight", "sealed", "vanish", "okuri"].includes(st)) return player;
+      if (!mon || !["appear", "fight", "sealed", "vanish", "okuri", "release"].includes(st)) return player;
       const fy = floorAt(player.position.x, player.position.z);   // 跳起来时镜头不跟着上下
-      proxy.position.set(player.position.x, fy, player.position.z).lerp(tmp.copy(mon.group.position).setY(fy), 0.35); proxy.rotation.copy(player.rotation);
+      // 散华（release）时镜头往物怪那边多靠一点，烧的那一下在画面中间
+      proxy.position.set(player.position.x, fy, player.position.z).lerp(tmp.copy(mon.group.position).setY(fy), st === "release" ? 0.6 : 0.35); proxy.rotation.copy(player.rotation);
       return proxy;
     },
     update,
@@ -661,7 +690,7 @@ export function createEncounter(ctx) {
       const z = zukan(), seen = new Set(), out = [];
       for (const loc of Object.keys(ROSTER)) for (const id of ROSTER[loc]) {
         if (seen.has(id)) continue; seen.add(id);
-        const d = MONO[id], t = ctx.texts[`mononoke.${d.text || id}`] || {};
+        const d = MONO[id], k = zukanTxt()[id], t = (k && ctx.texts[`mononoke.${k}`]) || ctx.texts[`mononoke.${d.text || id}`] || {};
         const places = Object.keys(ROSTER).filter((l) => ROSTER[l].includes(id)).map((l) => LOC_NAME[l]).join(" · ");
         out.push({ id, got: z.includes(id), place: places, name: t.name || d.name, itemTitle: t.itemTitle || d.item, itemBody: t.itemBody || "", katachi: t.katachi || "", makoto: t.makoto || "", kotowari: t.kotowari || "", after: t.after || "" });
       }

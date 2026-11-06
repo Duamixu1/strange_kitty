@@ -1,0 +1,23 @@
+# 地下铁·检票口和地下通道（原片没怎么拍到，借站台的黑大理石和米灰石做）：正中两座检票台和一排木栅，东墙人影广告，天花吊着一只钟，几个白人偶乘客。
+# 北 U 上地面（去站前咖啡馆），南 U 下站台。观景点：1 进来看检票口，2 海报墙前。
+name: subway_kaisatsu
+height: 3.0
+ceiling: sao
+koshi: 1.1
+timber: 1.4
+mural: sub_silhouette
+mat: wood=sub_iron, frame=sub_iron, plaster=sub_marble_black, kokabe=sub_marble_black, koshi=sub_stone_gray, engawa=sub_floor, tatami=sub_floor, ceiling=sub_ceil, vault=sub_marble_black, iron=sub_white_brick, udoor=sub_car_door, glassdoor=sub_window_dark, shoji=sub_car_door, fusuma=sub_car_door, sea=sub_ballast, hull=sub_stone_gray, edge=sub_stone_gray, safety=sub_white_brick, chair_wood=sub_iron, chair_seat=sub_seat, dais_side=sub_wood, painting=sub_bijin
+place: ; booth 2.4,5.4,0; booth 6.6,5.4,0; barrier 4.1,5.6,0,0,1.2; barrier 0.6,5.6,0,0,1.6; barrier 8.3,5.6,0,0,1.5; clock 5.0,3.0,0,2.3
+shot: 检票口 | 5.0,1.7,8.4 | 5.0,1.2,2.0 | 4.4,7.6,3.14
+shot: 海报墙 | 6.0,1.6,3.0 | 10.0,1.4,3.0 | 8.7,3.0,1.5708
+---
+######U####
+#=========M
+#=========M
+#========2M
+#=========#
+#=========#
+#=========#
+#===@=====#
+#===1=====#
+#####U#####

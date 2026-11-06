@@ -1,0 +1,21 @@
+# そらりす丸·客室（参考 1540）：大家聚着赌钱的那间——浅青地板，四周粉红格子框，墙上一排红白提灯，
+# 正面一幅凤凰画（M，sol_houou），两边格子窗 A，再外是红白漩涡的板。下 U 回走廊。观景点：1 正对凤凰画，2 东南角看整间。
+name: solaris_kyaku
+shot: 凤凰画 | 5.0,1.6,7.0 | 5.0,1.4,0.4 | 4.3,5.7,3.14
+shot: 整间 | 9.0,2.2,6.8 | 2.0,1.0,1.5 | 8.2,5.6,-2.4
+height: 3.2
+ceiling: sao
+timber: 1.5
+mural: sol_houou
+mat: wood=sol_pillar, frame=sol_pink, plaster=sol_wall_pink, kokabe=sol_panel, tatami=sol_floor_ao, tatami_side=sol_pink, engawa=sol_deck, shoji=sol_shoji, lattice_win=sol_lattice, fusuma=sol_panel_door, fusuma2=sol_panel, udoor=sol_door, rail=sol_pink, stair=sol_stair, ceiling=sol_koshi, sea=sol_sea, hull=sol_hull, prow=sol_red, finial=sol_gold, roof=sol_roof, tower=sol_tower, water=sol_pool, bank=sol_deck_edge, gallery=sol_koshi_floor, gallery_edge=sol_yellow, pillar=sol_pillar, mojing=sol_mojing, hata1=sol_hata1, hata2=sol_hata2, hata3=sol_hata3, koshi=sol_pink, lacquer=ink, engawa=sol_floor_ao, fusuma=sol_panel
+place: lantern_r 0.90,0.75,0,2.45; lantern_w 1.72,0.75,0,2.45; lantern_r 2.54,0.75,0,2.45; lantern_w 3.36,0.75,0,2.45; lantern_r 4.18,0.75,0,2.45; lantern_w 5.00,0.75,0,2.45; lantern_r 5.82,0.75,0,2.45; lantern_w 6.64,0.75,0,2.45; lantern_r 7.46,0.75,0,2.45; lantern_w 8.28,0.75,0,2.45; lantern_r 9.10,0.75,0,2.45; lantern_r 0.75,1.40,0,2.45; lantern_w 0.75,2.27,0,2.45; lantern_r 0.75,3.13,0,2.45; lantern_w 0.75,4.00,0,2.45; lantern_r 0.75,4.87,0,2.45; lantern_w 0.75,5.73,0,2.45; lantern_r 0.75,6.60,0,2.45; lantern_r 9.25,1.40,0,2.45; lantern_w 9.25,2.27,0,2.45; lantern_r 9.25,3.13,0,2.45; lantern_w 9.25,4.00,0,2.45; lantern_r 9.25,4.87,0,2.45; lantern_w 9.25,5.73,0,2.45; lantern_r 9.25,6.60,0,2.45
+---
+#FFAMMMAFF#
+F=========F
+F=========F
+F========2F
+F=========F
+F=========F
+F==@=1====F
+F=========F
+#####U#####

@@ -31,7 +31,7 @@ if (( ! seat )); then
   rm -rf $tmp
 fi
 echo "== 站姿动作"
-python3 tools/npc_gestures.py | grep "^$n "
+python3 tools/npc_gestures.py $n | grep "^$n "
 (( seat )) && python3 tools/npc_seat.py $n
 echo "== 出模型"
 q $B -b --python tools/blender_pose_anim.py -- --in assets/processed/${n}_lite.glb --poses tools/npc_poses/$n.json --out assets/processed/${n}_posed.glb

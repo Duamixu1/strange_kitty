@@ -3,6 +3,7 @@ import { toast, card, prompt } from "./ui.js";
 import { HALO_TEX, loadMonster } from "./mononoke_fx.js";
 import { mountCasebook } from "./casebook.js";
 import { drawCaseCard } from "./closing.js";
+import { loadNpc } from "./player.js";
 
 // 引导与探索（11-05，docs/19_引导与探索方案.md）：给目标、不给路线。
 //   每个地点一个小案子：查出这里物怪的形、真、理（地点 JSON 的 case）。线索散在観点、配角的话里，先找哪个都行；
@@ -264,10 +265,26 @@ export function createGuide(ctx) {
   }
 
   // ---- 门札：隔壁没去过 / 没查完贴札；查完的褪色；本命那间在形真理齐了以后贴朱红的、一跳一跳 ----
+  // 11-06 用户："笛小路家斩完物怪之后可以引导用户出到外面，看到彩色的景色之后再显示结案札"。
+  //   case 写 closeAt（区块 id 列表）：本命不在这些区块里退的，退完不弹结案札，记 S.outWait，出口里往外走的那一个亮金札、
+  //   别的压暗，浮一句往外走；走进 closeAt 的区块，停几秒让人看颜色，再弹
+  function outNext() {
+    if (!C?.closeAt) return null;
+    const goal = new Set(C.closeAt), q = [[zid(), null]], seen = new Set([zid()]);
+    while (q.length) {
+      const [z, first] = q.shift();
+      if (first && goal.has(z)) return first;
+      for (const e of loc.zones?.[z]?.exits || []) if (!seen.has(e.to)) { seen.add(e.to); q.push([e.to, first || e.to]); }
+    }
+    return null;
+  }
+  const OUT_LINE = () => texts[`out.${loc.id}`] || "香散了。到外面去看看。";
   function decorateExits() {
     const Z = ctx.zone(); if (!Z) return;
+    const out = S.outWait ? outNext() : null;
     (Z.exits || []).forEach((e, i) => {
       const it = ctx.tags.items.find((t) => t.id === `exit:${i}`); if (!it) return;
+      if (S.outWait) { const go = e.to === out; it.el.classList.toggle("fuda", go); it.el.classList.toggle("boss", false); it.el.classList.toggle("dim", !go); return; }
       const boss = C && S.ready && !S.done && e.to === C.boss;
       const open = boss || !zoneDone(e.to);   // 没去过的也算没查完
       it.el.classList.toggle("fuda", !!open && !boss); it.el.classList.toggle("boss", !!boss); it.el.classList.toggle("dim", !open);
@@ -309,7 +326,7 @@ export function createGuide(ctx) {
   //   props：[{ kit, pos: [x, z], y, yaw, move: kasa|slide|spin, dist, show: "after" }]，加载法跟拾遗一样（processed/kit/<kit>.glb）
   const DEF_LINE = { incense: "坟很小，小得不像是给人立的。", steps: "头顶的楼板上，有一串很轻的脚步跑过去。", pinwheel: "没有风，风车自己转了起来。",
     peek: "井水晃了一下，底下有东西浮上来，又沉下去了。", open: "柜子里是湿的。", kasa: "伞自己撑开了半圈，又慢慢合上。" };
-  const DEF_SEC = { steps: 3.4, peek: 3.6, open: 3.0, kasa: 3.2 };
+  const DEF_SEC = { steps: 3.4, peek: 3.6, open: 3.0, kasa: 3.2, biwa: 7.2, fuda: 3.2, utsuro: 3.4 };
   const tweens = [];
   const tween = (dur, fn, delay = 0) => new Promise((done) => tweens.push({ t: -delay, dur, fn, done }));
   function tweenTick(dt) { for (const w of tweens.slice()) { w.t += dt; if (w.t < 0) continue; const k = Math.min(1, w.t / w.dur); w.fn(k); if (k >= 1) { tweens.splice(tweens.indexOf(w), 1); w.done(); } } }
@@ -330,6 +347,21 @@ export function createGuide(ctx) {
   const floorAt = (x, z) => ctx.col()?.floorY(x, z) ?? 0;
   const at3v = (v, dy = 0) => v.length === 3 ? new THREE.Vector3(v[0], v[1] + dy, v[2]) : new THREE.Vector3(v[0], floorAt(v[0], v[1]) + dy, v[1]);
   const propsOf = (a) => (propsOn?.items || []).filter((it) => it.a === a);
+  // 池里浮起的人（听琵琶）：配角模型换成幽蓝半透明、不受光的材质；第一次用时才下，下过留着
+  const ghosts = new Map();
+  function ghostOf(a) {
+    const model = a.ghost || "processed/asa_posed_lite.glb";
+    if (!ghosts.has(model)) ghosts.set(model, ctx.loader ? loadNpc(ctx.loader, ctx.assetUrl, { model, height: a.ghostH || 1.45 }).then((n) => {
+      const mats = [];
+      n.group.traverse((o) => {
+        if (!o.isMesh) return;
+        const m = new THREE.MeshBasicMaterial({ map: o.material.uniforms?.map?.value || o.material.map || null, color: "#9CC2EC", transparent: true, opacity: 0, depthWrite: true });
+        o.material = m; o.renderOrder = 3; mats.push(m);
+      });
+      return { n, mats };
+    }).catch(() => null) : Promise.resolve(null));
+    return ghosts.get(model);
+  }
   const FX = {
     async incense(a, face) {   // 坂井家坟前合掌（原来那套）
       const fy = floorAt(face[0], face[1]);
@@ -382,6 +414,85 @@ export function createGuide(ctx) {
         if (it.p.show === "after") { it.g.visible = true; it.g.scale.setScalar(0.001); tween(0.5, (k) => it.g.scale.setScalar(0.85 + 0.15 * ease(k)), 0.5); }
       }
       await sleep(1400);
+    },
+    // ---- そらりす丸（11-06）----
+    async biwa(a, face) {   // 听琵琶：池边响起琵琶，池水里浮起一个女孩，晃一晃就沉回去（海座头是源慧的分身）
+      // 11-06 用户：先是"没看见女孩"，换成大一号的模糊贴图又说"太抽象太简陋，像个 icon"。改用真人模型（a.ghost，默认借大奥阿浅的模型），
+      // 去掉描边、染成半透明幽蓝，从水下一点点浮出来、在水面上站一会儿（播待机），再沉回去；act 带机位隔池对着拍（solaris.json）
+      audio.play("biwa");
+      const p = at3v(a.at || face, a.at?.length === 3 ? 0 : 0.1);
+      const gp = ghostOf(a);
+      await sleep(900);
+      for (let i = 0; i < 5; i++) motes.push({ sp: mote(0xCFE2F4, 0.5 + i * 0.3), at: p.clone().add(new THREE.Vector3(0, 0.22, 0)), t: -i * 0.5, life: 2.0, rise: 0.02, drift: 0 });
+      const g = await Promise.race([gp, sleep(2500).then(() => null)]);
+      if (g) {
+        const { n, mats } = g, root = n.group; root.position.copy(p); root.position.y = p.y - 1.5;
+        const cp = a.cam?.pos ? new THREE.Vector3(...a.cam.pos) : ctx.camera.position; root.rotation.y = Math.atan2(cp.x - p.x, cp.z - p.z);   // 朝着镜头，脸看得见
+        fxRoot.add(root); let lk = 0;
+        await tween(5.2, (k) => {
+          n.update((k - lk) * 5.2); lk = k;
+          const up = ease(Math.min(1, k / 0.35)), down = k > 0.8 ? ease((k - 0.8) / 0.2) : 0;
+          root.position.y = p.y - 1.5 + up * 1.45 - down * 1.2 + Math.sin(k * 7) * 0.02;
+          const o = Math.min(1, k / 0.2) * (1 - down) * 0.75; for (const m of mats) m.opacity = o;
+        });
+        fxRoot.remove(root);
+      } else {   // 模型没下来：退回原来的影子
+        const sp = inkSprite("child", 0.75, 1.25); sp.material.color.set("#DCE8F2"); fxRoot.add(sp);
+        await tween(4, (k) => { sp.position.copy(p).add(new THREE.Vector3(0, 0.3 + ease(k) * 0.5, 0)); sp.material.opacity = Math.sin(k * Math.PI) * 0.85; });
+        fxRoot.remove(sp); sp.material.dispose();
+      }
+      for (let i = 0; i < 8; i++) motes.push({ sp: mote(0xBFD8F0, 0.18), at: p.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.9, 0.3, (Math.random() - 0.5) * 0.9)), t: -i * 0.2, life: 2.2, rise: 0.25, drift: 0.04 });
+      await sleep(600);
+    },
+    async fuda(a, face) {   // 札墙：墙上的札一齐翻动，几张从墙上掀起来，朝 a.to（那扇门，源慧的房间）飘过去
+      const p = at3v(a.at || face, 0), to = a.to ? at3v(a.to, 1.2) : p.clone().add(new THREE.Vector3(1.5, 0, 0));
+      for (let i = 0; i < 4; i++) setTimeout(() => audio.play("paper"), i * 160);
+      ctx.shake?.(0.06);
+      for (let i = 0; i < 6; i++) {
+        const sp = inkSprite("letter", 0.16, 0.32); sp.material.color.set("#F3EAD6"); fxRoot.add(sp);
+        const from = p.clone().add(new THREE.Vector3(0, (Math.random() - 0.5) * 0.8, (Math.random() - 0.5) * 1.4));
+        tween(1.6, (k) => { sp.position.lerpVectors(from, to, ease(k)).add(new THREE.Vector3(0, Math.sin(k * 9 + i) * 0.08, 0)); sp.material.opacity = Math.sin(k * Math.PI) * 0.95; }, 0.2 + i * 0.12).then(() => { fxRoot.remove(sp); sp.material.dispose(); });
+      }
+      await sleep(2200);
+    },
+    async utsuro(a, face) {   // 看虚舟：封板的缝里吐出一口冷气，里面空空的，只有一点青光升起来又散了
+      const p = at3v(a.at || face, a.at?.length === 3 ? 0 : 0.4);
+      audio.play("slide", 0.9); await sleep(600);
+      audio.play("bell", 620, 0.1);
+      for (let i = 0; i < 12; i++) motes.push({ sp: mote(0x6E7F90, 0.35), at: p.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.6, 0, (Math.random() - 0.5) * 0.6)), t: -i * 0.12, life: 2.4, rise: 0.25, drift: 0.2 });
+      motes.push({ sp: mote(0xCFE6FF, 0.5), at: p.clone().add(new THREE.Vector3(0, 0.3, 0)), t: -0.8, life: 3, rise: 0.35, drift: 0.05, soul: true });
+      await sleep(1800);
+    },
+    // ---- 地铁（11-06）----
+    async senro(a, face) {   // 看铁轨：枕木上那块暗色旧印子慢慢渗出来，旁边一串小小的猫脚印一个个亮起、往南走远
+      const p = at3v(a.at || face, a.at?.length === 3 ? 0 : 0.02);
+      audio.play("bell", 520, 0.1);
+      const stain = inkSprite("doll", 0.7, 0.45); stain.material.color.set("#3A1418"); stain.position.copy(p).add(new THREE.Vector3(0, 0.03, 0)); fxRoot.add(stain);
+      tween(1.6, (k) => { stain.material.opacity = 0.75 * ease(k); }).then(() => sleep(2600)).then(() => tween(0.8, (k) => { stain.material.opacity = 0.75 * (1 - k); })).then(() => { fxRoot.remove(stain); stain.material.dispose(); });
+      for (let i = 0; i < 7; i++) {   // 猫脚印：左右交替，往 +z（南）走远
+        const sp = inkSprite("child", 0.09, 0.09); sp.material.color.set("#1A1622"); fxRoot.add(sp);
+        sp.position.copy(p).add(new THREE.Vector3((i % 2 ? 0.08 : -0.08) + 0.4, 0.04, 0.3 + i * 0.32));
+        tween(0.3, (k) => { sp.material.opacity = 0.8 * k; }, 0.9 + i * 0.25).then(() => sleep(2400 - i * 200)).then(() => tween(0.6, (k) => { sp.material.opacity = 0.8 * (1 - k); })).then(() => { fxRoot.remove(sp); sp.material.dispose(); });
+      }
+      await sleep(2400);
+    },
+    async shinbun(a, face) {   // 看报：报纸被一阵风掀开一角，左下角那一小块慢慢浮起来、发着冷光，又落回去
+      const p = at3v(a.at || face, a.at?.length === 3 ? 0 : 1.0);
+      audio.play("paper"); setTimeout(() => audio.play("paper"), 260);
+      const sp = inkSprite("letter", 0.3, 0.24); sp.material.color.set("#F3EEDF"); fxRoot.add(sp);
+      tween(2.6, (k) => { sp.position.copy(p).add(new THREE.Vector3(0, 0.05 + Math.sin(k * Math.PI) * 0.35, 0)); sp.material.opacity = Math.sin(k * Math.PI) * 0.95; }).then(() => { fxRoot.remove(sp); sp.material.dispose(); });
+      motes.push({ sp: mote(0xDDE6F2, 0.3), at: p.clone().add(new THREE.Vector3(0, 0.25, 0)), t: -0.4, life: 2.4, rise: 0.1, drift: 0.02 });
+      await sleep(2000);
+    },
+    // ---- 牢房（11-06）----
+    async door(a, face) {   // 推牢门：格子门吱呀一声自己让开半扇——锁从来没挂上；门缝里漏出一线白光，一点光尘往外飘
+      const p = at3v(a.at || face, a.at?.length === 3 ? 0 : 1.0);
+      audio.play("slide", 1.4); setTimeout(() => audio.play("slide", 0.6), 500);
+      for (const it of propsOf(a)) if (it.p.move === "slide") { const from = it.g.position.clone(), to = from.clone().add(slideVec(it.p)); tween(1.2, (k) => it.g.position.lerpVectors(from, to, ease(k))); }
+      await sleep(700);
+      for (let i = 0; i < 8; i++) motes.push({ sp: mote(0xF4EEDC, 0.16), at: p.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.8, (Math.random() - 0.5) * 0.3)), t: -i * 0.18, life: 2.6, rise: 0.08, drift: 0.25 });
+      motes.push({ sp: mote(0xFFF6E0, 0.7), at: p.clone(), t: -0.2, life: 2.8, rise: 0.02, drift: 0.02, soul: true });
+      await sleep(1600);
     },
     async kasa(a) {   // 收着的伞"啪"地撑开半圈，停一停，又慢慢合上
       const ks = propsOf(a).filter((x) => x.p.move === "kasa");
@@ -599,6 +710,10 @@ export function createGuide(ctx) {
       // 形真理没齐就先进了本命那间：上方浮一句，告诉人这里以后会出事、现在还没到时候（起点就是本命那间的不浮）
       if (C && !S.ready && zid() === C.boss && !C.bossReturn) { const t = texts[`pre.${loc.id}.${zid()}`]; setTimeout(() => toast(t || "远处的铃响了一下，又停了。", 3600), 900); }
       document.body.classList.toggle("zone-done", zoneDone(zid()));
+      if (S.outWait) {
+        if (C.closeAt.includes(zid())) { S.outWait = false; save(); decorateExits(); clearTimeout(endPending); endPending = setTimeout(openEnding, 5000); }   // 先看一会儿颜色
+        else setTimeout(() => S.outWait && toast(OUT_LINE(), 3000), 900);
+      }
     },
     /** 第一次进这个地点：一张小卡交代案子 */
     async intro() {
@@ -644,6 +759,11 @@ export function createGuide(ctx) {
       S.done = true; save(); decorateExits();
       setTimeout(() => stamp("退魔"), 400);
       ctx.stat(`本命/${loc.id}`, `本命 · ${loc.name}`);
+      if (C.closeAt && !C.closeAt.includes(zid())) {   // 要出去看了颜色再结案
+        S.outWait = true; save(); decorateExits();
+        endPending = setTimeout(() => toast(OUT_LINE(), 4200), 9000);   // 执念物卡（上色洇满后掉）大致看完了再说
+        return;
+      }
       endPending = setTimeout(openEnding, 2200);   // 「退魔」印盖完再弹结案卡
     },
     update(dt) {

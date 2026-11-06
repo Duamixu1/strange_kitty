@@ -475,9 +475,9 @@
           ],
           "yaw": -1.981,
           "idles": [
-            "fix_collar_k",
-            "look_around_k",
-            "nod_k"
+            "mirror_k",
+            "shy_bow_k",
+            "look_back_k"
           ]
         },
         {
@@ -490,9 +490,9 @@
           ],
           "yaw": 1.571,
           "idles": [
-            "fix_collar_k",
-            "look_around_k",
-            "nod_k"
+            "whisper_k",
+            "tsk_k",
+            "fix_collar_k"
           ],
           "patrol": [
             [
@@ -630,9 +630,9 @@
           ],
           "yaw": 0.993,
           "idles": [
+            "stern_k",
             "turn_slow_k",
-            "touch_hair_k",
-            "posture_k"
+            "touch_hair_k"
           ],
           "gap": [
             10,

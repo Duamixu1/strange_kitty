@@ -21,6 +21,7 @@ import { audio } from "./audio.js";
 import { loading } from "./loading.js";
 import { createEncounter, ROSTER } from "./encounter.js";
 import { createMedbox } from "./medbox.js";
+import { storyIntro, introSeen } from "./story_intro.js";
 import { startI18n, mountSettings } from "./i18n.js";   // 语言设置（文案w）：总地图右上「设」选中文 / English / 日本語
 
 // 游览版：药郎在原作地点里走走看看（docs/14_游览版方案.md）。
@@ -86,6 +87,13 @@ async function showMap() {
   loading.start("map", "绘卷"); loading.step("展开长卷…");
   const map = await loadMap();
   const texts = await loadText();
+  // 缘起卡（story_intro.js）：第一次来先翻几张讲故事，翻的时候后台先下药郎和小物件；左上「缘起」能再看
+  const warmUrls = [PLAYER_MODEL, ...Object.values(PROPS).map((d) => d.url)];
+  const playIntro = () => { stat("/缘起", "缘起卡"); try { storyIntro(texts, warmUrls); } catch (e) { console.warn("缘起卡", e); } };   // 出错也不挡总地图
+  if ((!introSeen() || params.get("intro") === "1") && !params.has("selftest") && !params.has("auto")) playIntro();
+  const replay = document.createElement("button"); replay.className = "intro-btn"; replay.textContent = "缘起"; replay.title = "再看一遍故事介绍";
+  replay.addEventListener("click", (e) => { e.stopPropagation(); playIntro(); });
+  document.querySelector("#map h1")?.appendChild(replay);
   const scroll = document.querySelector("#map .scroll"), paper = document.querySelector("#map .paper-roll");
   if (map) {
     // 长卷：图按窗口高度缩放，热区按图的像素比例换成百分比，图换成重画版也不用改
@@ -227,7 +235,7 @@ async function startLocation(id) {
   const stand = () => { player.position.y = col.floorY(player.position.x, player.position.z) ?? 0; };   // 泼溅可走图带地面高度，积木的全平
 
   // ---- 区块 ----
-  let Z = null, world = null, col = null, pf = null, path = null, arriveLock = false, busy = false;
+  let Z = null, world = null, col = null, pf = null, path = null, arriveLock = false, busy = false, busyBy = "";
   let baseFov = 50;   // 区块定的 fov（横屏），竖屏时 fitFov 在它基础上放大
   let shotFov = null;   // 拾遗特写时暂存的区块 fov
   const tags = new Tags((tid) => onTag(tid));
@@ -246,7 +254,8 @@ async function startLocation(id) {
         zoneCache.set(zoneId, g);
       }),
       z.npcs?.length && !npcCache.has(zoneId) && Promise.all(z.npcs.map(async (d) => {
-        const n = await loadNpc(loader, assetUrl, d).catch((e) => { console.warn("配角加载失败", d.model, e); return null; });
+        // 模型还没做出来（そらりす丸配角在角色线建模中）或网太慢：最多等 6 秒就先不摆，别让整个区块卡住
+        const n = await Promise.race([loadNpc(loader, assetUrl, d), new Promise((_, no) => setTimeout(() => no(new Error("超时")), 6000))]).catch((e) => { console.warn("配角加载失败", d.model, e); return null; });
         if (n) {
           n.group.position.set(d.pos[0], 0, d.pos[1]); n.group.rotation.y = d.yaw || 0; n.pos = [...d.pos]; n.home = { pos: [...d.pos], yaw: d.yaw || 0 }; n.id = d.id; n.height = d.height; n.y = d.y || 0;   // y：坐在高台这类不算地面的东西上，比地面高多少（笛小路家瑠璃姫）
           if (d.patrol?.length) n.patrol = { pts: [d.pos, ...d.patrol], i: 0, dir: 1, speed: d.speed ?? 0.7, pause: d.pause ?? 3, hold: 0, yield: 0 };
@@ -335,7 +344,7 @@ async function startLocation(id) {
   async function openView(n) {
     if (busy || enc.active) return;   // 物怪出没时不开说明卡
     stat(`说明卡/${Z.textKey}.${n}`, `说明卡 · ${viewText(n).title}`, true);
-    busy = true; path = null; pose = null;
+    busy = true; busyBy = `view:${n}`; path = null; pose = null;
     const p = Z.views[n]; player.rotation.y = Math.atan2(p[0] - player.position.x, p[1] - player.position.z) || player.rotation.y;
     P.play(Z.viewLook?.[n] === "up" ? "look" : "gaze", 0.4);   // 驻足看；高处的观景点（区块里写 viewLook: { "1": "up" }）抬头看
     prompt.set("");
@@ -348,7 +357,7 @@ async function startLocation(id) {
   }
   async function takeExit(i) {
     const e = Z.exits[i]; if (!e || busy) return;
-    busy = true; path = null; P.play("idle"); prompt.set("");
+    busy = true; busyBy = `exit:${i}`; path = null; P.play("idle"); prompt.set("");
     audio.play("hyoshigi"); audio.play("slide");
     const wipeEl = document.getElementById("wipe");
     await fusumaWipe(async () => {
@@ -721,7 +730,7 @@ async function startLocation(id) {
     loadKit: (kit) => loadKit(loader, assetUrl(`processed/kit/${kit}.glb`)), shake: (s) => { shakeT = Math.max(shakeT, s); },   // act 的小积木、镜头一抖（docs/20）
     // 原地做一个动作（坟前合掌）：sec 秒里不能走，转向 yaw，做完回待机
     perform: (clip, sec, yaw) => new Promise((done) => {
-      busy = true; path = null; prompt.set(""); if (yaw != null) { player.rotation.y = yaw; camAim = yaw + Math.PI; }   // 跟随镜头慢慢转到身后，看得见他看的东西
+      busy = true; busyBy = `perform:${clip}`; path = null; prompt.set(""); if (yaw != null) { player.rotation.y = yaw; camAim = yaw + Math.PI; }   // 跟随镜头慢慢转到身后，看得见他看的东西
       P.play(clip, 0.25, { from: 0.01 }); setTimeout(() => { P.play("idle", 0.4); stillT = 0; busy = false; done(); }, sec * 1000);
     }),
     route: (a, b, tol) => pf?.routeTo(a, b, tol)?.pts || null,
@@ -862,6 +871,7 @@ async function startLocation(id) {
     if (look.x || look.y) cam.turn(look.x * 2.4 * dt, look.y * 1.2 * dt);   // 视角摇杆：往右推镜头往右转，往上推往上看
     cam.update(enc.camTarget(), dt, enc.takeCamSnap());   // 物怪出没时镜头看药郎和物怪之间（偏药郎）
     if (sword) { fitFov(); if (!swordOpts.short) swordShot(camera, cam, player, P.time); }   // 拔剑运镜（sword_cam.js）：每帧从跟随镜头的结果上叠，fov 先复位再乘；短版不带运镜
+    sea(dt);
     if (shakeT > 0) { shakeT -= dt; const a = 0.06 * Math.min(1, shakeT / 0.12); camera.position.x += (Math.random() - 0.5) * a; camera.position.y += (Math.random() - 0.5) * a; camera.updateMatrixWorld(); }   // 袖挡、钉中：镜头一震
     rain.update(dt, camera); snow.update(dt, camera);
     if (reveal && reveal.t > -99) {   // 退魔后上色：颜色从画面中间往外洇开，4.5 秒铺满
@@ -870,6 +880,42 @@ async function startLocation(id) {
     }
     post.render();
     tags.update(camera, innerWidth, innerHeight, tv);
+  }
+  // 海和船摇（そらりす丸，地点写 "sway": 幅度倍数）：网格名（kit 的 kit_sol_sea）或材质名带 sol_sea 的海面贴图慢慢流、波纹晃；镜头随船轻轻左右倾、上下起伏。
+  //   镜头控制器每帧会重算朝向（跟随）或不动（固定机位），所以上一帧加的倾斜先确认还在、在的话先扣掉再加这一帧的，不会越叠越歪
+  let seaT = 0, seaScan = 0, seaMats = [], pondMeshes = [], swayPrev = { roll: 0, y: 0, q: null };
+  let glazeMat = null;
+  function glazePond(o) {
+    if (o.userData.glaze) return;
+    if (!glazeMat) {
+      const c = document.createElement("canvas"); c.width = c.height = 256; const g = c.getContext("2d");
+      g.fillStyle = "rgba(140,200,225,0.14)"; g.fillRect(0, 0, 256, 256);
+      g.filter = "blur(5px)"; g.strokeStyle = "rgba(235,248,255,0.30)";
+      // 45° 的斜反光，左右各画一份，一格一格拼起来是连着的（不露格子缝）
+      for (const [x, w] of [[30, 9], [58, 3], [150, 12], [178, 4]]) for (const d of [-256, 0, 256]) { g.lineWidth = w; g.beginPath(); g.moveTo(x + d, 256); g.lineTo(x + d + 256, 0); g.stroke(); }
+      const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace;
+      glazeMat = new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+    }
+    const m = new THREE.Mesh(o.geometry, glazeMat); m.position.y = 0.01; m.renderOrder = 2; m.name = "pond_glaze";
+    o.add(m); post.exclude.push(m); o.userData.glaze = m;
+  }
+  function sea(dt) {
+    seaT += dt;
+    if ((seaScan -= dt) <= 0) {   // 一秒找一次（换区块、退魔换材质都会变）
+      seaScan = 1; const set = new Set();
+      // 中庭漩涡池（sol_uzu / sol_pool）：11-06 用户说"没看见水池"——深色漩涡纹像块地毯。说明卡写"水却一点不动"，所以纹样不流，
+      // 只在上面盖一层不描边的水光（淡青、几道斜的反光），看得出是一池静水
+      pondMeshes = [];
+      scene.traverse((o) => { if (!o.isMesh || !o.visible || !o.material?.uniforms?.uUvOff) return; const n = `${o.name}|${o.material.name || ""}`; if (/sol_sea/.test(n)) set.add(o.material); else if (/sol_uzu|sol_pool/.test(n)) pondMeshes.push(o); });
+      seaMats = [...set];
+    }
+    for (const m of seaMats) { m.uniforms.uUvOff.value.set(seaT * 0.05, Math.sin(seaT * 0.4) * 0.03); m.uniforms.uWave.value.set(0.035, 1.6, seaT * 1.1); }
+    for (const o of pondMeshes) glazePond(o);
+    const amp = loc.sway || 0; if (!amp) return;
+    if (swayPrev.q && camera.quaternion.equals(swayPrev.q)) { camera.rotateZ(-swayPrev.roll); camera.position.y -= swayPrev.y; }
+    const roll = Math.sin(seaT * 0.55) * 0.012 * amp + Math.sin(seaT * 0.21) * 0.006 * amp, y = Math.sin(seaT * 0.8) * 0.035 * amp;
+    camera.rotateZ(roll); camera.position.y += y; camera.updateMatrixWorld();
+    swayPrev = { roll, y, q: camera.quaternion.clone() };
   }
   // 竖屏手机：区块的 fov 是按横屏定的，竖着横向只剩一条缝。窄于 1.2:1 时放大竖向 fov，让横向视野和 1.2:1 时一样，最多 75°
   function fitFov() {
@@ -1038,9 +1084,10 @@ async function startLocation(id) {
       if (round === 2) log(maxY > 0.6 && guards === 0 && blinkD > 1.5 && player.visible, `物怪出没第 2 次：K 跳 ${dodged} 次（最高 ${maxY.toFixed(2)} 米，被撞 ${guards} 次）、L 瞬移 ${blinkD.toFixed(2)} 米`);
       log(enc.state === "sealed" && enc.pins === 3 && !!enc.monster?.real, `物怪出没第 ${round} 次：钉齐三张（${enc.monster?.real ? "原作模型" : "墨影"}，${enc.pins} 张，闪避 ${dodged} 次，${enc.debug.fightT} 秒）`);
       run(0.8); if (round === 1) await save(`tour_${loc.id}_物怪_札阵`);
-      act("KeyX"); const anim = P.currentName; let grudge = false, cut = false, vis = true;
-      for (let i = 0; i < 60 * 23 && (enc.state !== "idle" || enc.cardPending); i++) { frame(1 / 60); grudge ||= !!enc.fx.grudge; cut ||= enc.fx.grudge?.cut >= 0; if (enc.state === "vanish") vis &&= !!enc.monster?.group.visible || enc.monster?.id === "umibozu"; }   // 退魔 10 秒 + 魂走 3~4 秒
-      log(anim === (round === 1 ? "exorcise_k" : "exorcise_short_k") && grudge && cut && vis && enc.state === "idle" && card.isOpen && !sword, `物怪出没第 ${round} 次：${anim} 退魔，斩的是抽出来的怨念团（抽出 ${grudge}、劈开 ${cut}、本体没被砍没 ${vis}），掉执念物卡（${document.querySelector("#card .title")?.textContent}）`);
+      act("KeyX"); const anim = P.currentName; let grudge = false, cut = false, vis = true, burned = false, burnShot = false;
+      for (let i = 0; i < 60 * 23 && (enc.state !== "idle" || enc.cardPending); i++) { frame(1 / 60); grudge ||= !!enc.fx.grudge; cut ||= enc.fx.grudge?.cut >= 0; burned ||= !!enc.fx.burn || enc.monster?.id === "umibozu";   // 海坊主是沉回海里，不烧
+        if (round === 1 && !burnShot && enc.fx.burn?.t > 1.0) { burnShot = true; await save(`tour_${loc.id}_物怪_散华`); } if (enc.state === "vanish") vis &&= !!enc.monster?.group.visible || enc.monster?.id === "umibozu"; }   // 退魔 10 秒 + 魂走 3~4 秒
+      log(anim === (round === 1 ? "exorcise_k" : "exorcise_short_k") && grudge && cut && vis && burned && enc.state === "idle" && card.isOpen && !sword, `物怪出没第 ${round} 次：${anim} 退魔，斩的是抽出来的怨念团（抽出 ${grudge}、劈开 ${cut}、本体没被砍没 ${vis}、散华 ${burned}），掉执念物卡（${document.querySelector("#card .title")?.textContent}）`);
       card.close(); await wait(50); run(0.5); guide.closeEnding("stay");   // 斩的是本命：结案卡（还没弹的也算）关掉再往下测
     }
     // 送（docs/19 第十节）：没有怨的那几只，形真理齐了剑不出鞘，X 改成送它走（坂井家小化猫、万屋青座敷；大奥没有）
@@ -1067,7 +1114,7 @@ async function startLocation(id) {
       await enterZone(hz); run(0.5); guide.quiet = 0;
       // 计时直接拨到每档前一点再走一秒（真跑 150 秒，扫描房间的大奥会把 GPU 跑崩）
       guide.quiet = 39.5; run(1); const h1 = guide.hintLv; guide.quiet = 89.5; run(1); const h2 = guide.hintLv; guide.quiet = 149.5; run(1); const h3 = guide.hintLv, ptxt = document.getElementById("prompt").textContent;
-      log(h1 === 1 && h2 === 2 && h3 === 3 && !!ptxt, `引导：${loc.zones[hz].name}站着不动，提示 40 秒第 ${h1} 档、90 秒第 ${h2} 档、150 秒第 ${h3} 档（${ptxt}）${h3 === 3 ? "" : `［busy ${busy} 卡 ${card.isOpen} 剑 ${!!sword} 箱 ${!!box?.isOpen} 物怪 ${enc.active}/${enc.state} 结案 ${guide.endOpen} 做 ${guide.acting}］`}`);
+      log(h1 === 1 && h2 === 2 && h3 === 3 && !!ptxt, `引导：${loc.zones[hz].name}站着不动，提示 40 秒第 ${h1} 档、90 秒第 ${h2} 档、150 秒第 ${h3} 档（${ptxt}）${h3 === 3 ? "" : `［busy ${busy}(${busyBy}) 卡 ${card.isOpen} 剑 ${!!sword} 箱 ${!!box?.isOpen} 物怪 ${enc.active}/${enc.state} 结案 ${guide.endOpen} 做 ${guide.acting}］`}`);
       const fuda = [...document.querySelectorAll(".tag.exit")].map((e) => (e.classList.contains("fuda") ? "札" : e.classList.contains("dim") ? "暗" : "-") + e.textContent);
       log(fuda.some((t) => t.startsWith("札")), `引导：${loc.zones[hz].name}的门札（${fuda.join(" ")}）`);
       // 放天秤（11-06）：按 T 沿路立起一串天秤指向要找的东西，6 秒多以后收掉，歇 8 秒
@@ -1105,9 +1152,15 @@ async function startLocation(id) {
       enc.reset(); if (C.bossReturn && Z.id === C.boss) { await enterZone(Object.keys(loc.zones).find((k) => k !== C.boss)); run(0.5); }
       await enterZone(C.boss); run(5);
       const boss = enc.current, bst = enc.state;
-      log(boss === C.mononoke && ["omen", "appear", "fight"].includes(bst) || enc.tutorial, `引导：形真理齐了进${loc.zones[C.boss].name}，本命现身（${boss}，${bst}）`);
+      log(boss === C.mononoke && ["omen", "appear", "fight"].includes(bst) || enc.tutorial, `引导：形真理齐了进${loc.zones[C.boss].name}，本命现身（${boss}，${bst}）${boss === C.mononoke && ["omen", "appear", "fight"].includes(bst) ? "" : `［ready ${guide.state.ready} done ${guide.state.done} busy ${busy}(${busyBy}) 卡 ${card.isOpen} 箱 ${!!box?.isOpen} 剑 ${!!sword} 区块 ${Z.id} 结案 ${guide.endOpen}］`}`);
       // 结案札（11-06 第二版）：本命退了 2.2 秒后弹一张画好的竖版札（1080×1440），第一下 E 落印，第二下 E 接着逛关掉
-      enc.reset(); guide.onExorcised(C.mononoke); await wait(2600); for (let t = 0; t < 3000 && !guide.endOpen; t += 100) await wait(100);
+      enc.reset(); guide.onExorcised(C.mononoke); await wait(2600);
+      if (C.closeAt) {   // 笛小路家：退完不马上结案，要先出去（guide.js outWait）；没出去时不弹，出去 5 秒后弹
+        const waitOk = guide.state.outWait && !guide.endOpen, lit = document.querySelector(".tag.exit.fuda")?.textContent;
+        await enterZone(C.closeAt[0]); run(0.5); const early = guide.endOpen; await wait(5400);
+        log(waitOk && !early && !guide.state.outWait, `引导：本命退了先不结案，出口金札「${lit || ""}」往外指，走到${loc.zones[C.closeAt[0]].name}看一会儿再弹结案札`);
+      }
+      for (let t = 0; t < 3000 && !guide.endOpen; t += 100) await wait(100);
       const cv = document.querySelector("#case-end canvas"), d = guide.endCard || {}, nextBtn = document.querySelector("#case-end button.main")?.textContent.replace(/[EN]$/, "");
       const opened = guide.endOpen; act("KeyE"); const sealed = !!d.sealed; act("KeyE"); await wait(50);
       log(opened && cv?.width === 1080 && cv?.height === 1440 && !!d.shot && !!d.portrait && !!d.title && sealed && !guide.endOpen && !!nextBtn,
@@ -1121,7 +1174,7 @@ async function startLocation(id) {
       act("Enter"); await wait(300); const img = document.querySelector("#medbox .tr-img img"), card1 = box.cardOpen;
       act("Escape"); const back = box.isOpen && !box.cardOpen;
       act("Escape");
-      log(opened && got.length > 0 && cnt === `已收 ${got.length} / 11` && first === got[0].id && card1 && img?.naturalWidth > 0 && back && !box.isOpen,
+      log(opened && got.length > 0 && cnt === `已收 ${got.length} / ${enc.entries().length}` && first === got[0].id && card1 && img?.naturalWidth > 0 && back && !box.isOpen,
         `药箱：开（只有箱子）、${cnt}、回车拉开 ${first} 出卡（立绘 ${img?.naturalWidth || 0} 像素）、Esc 收卡、Esc 关`);
     }
     // 这个地点能出的每一只（11-04 加到三~五只）：指定出场，等到缠斗，查是原作模型、身高对、动作在播，存一张图

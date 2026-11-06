@@ -212,9 +212,8 @@
           ],
           "yaw": -0.81,
           "idles": [
-            "nod_k",
-            "look_around_k",
-            "posture_k"
+            "welcome_k",
+            "evasive_k"
           ],
           "gap": [
             9,
@@ -239,9 +238,8 @@
           "speed": 0.861,
           "pause": 3.0,
           "idles": [
-            "look_around_k",
-            "nod_k",
-            "posture_k"
+            "scratch_k",
+            "listen_up_k"
           ]
         }
       ],
@@ -434,9 +432,9 @@
           ],
           "yaw": -0.38,
           "idles": [
-            "fix_collar_k",
-            "look_around_k",
-            "nod_k"
+            "cradle_k",
+            "thank_bow_k",
+            "look_back_k"
           ],
           "gap": [
             10,

@@ -2006,6 +2006,1071 @@
       "R_Clavicle": {
         "roll": 0.83
       }
+    },
+    "a_idle_rest": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 2,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 7,
+        "yaw": 0.0,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      }
+    },
+    "a_idle_in": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 0.2,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 7.7,
+        "yaw": 0.0,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "L_Clavicle": {
+        "roll": -1.0
+      },
+      "R_Clavicle": {
+        "roll": 1.0
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.0025
+        ]
+      }
+    },
+    "a_idle_out": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 2.45,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 7.62,
+        "yaw": 0.0,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "L_Clavicle": {
+        "roll": 0.25
+      },
+      "R_Clavicle": {
+        "roll": -0.25
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          -0.0006
+        ]
+      }
+    },
+    "a_idle_shin": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 0.0,
+        "roll": -0.97
+      },
+      "Spine02": {
+        "pitch": 0.2,
+        "yaw": 0.0,
+        "roll": -0.65
+      },
+      "Head": {
+        "pitch": 7.7,
+        "yaw": 0.0,
+        "roll": 1.08
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "Hip": {
+        "move": [
+          0.0063,
+          0,
+          0.0002
+        ]
+      },
+      "R_Thigh": {
+        "pitch": -3.6
+      },
+      "R_Calf": {
+        "pitch": 7.2
+      },
+      "R_Foot": {
+        "pitch": -2.7
+      },
+      "L_Clavicle": {
+        "roll": -1.0
+      },
+      "R_Clavicle": {
+        "roll": 1.0
+      }
+    },
+    "a_idle_sh": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 0.0,
+        "roll": -0.97
+      },
+      "Spine02": {
+        "pitch": 1.64,
+        "yaw": 0.0,
+        "roll": -0.65
+      },
+      "Head": {
+        "pitch": 7.14,
+        "yaw": 0.0,
+        "roll": 1.08
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "Hip": {
+        "move": [
+          0.0063,
+          0,
+          -0.0018
+        ]
+      },
+      "R_Thigh": {
+        "pitch": -3.6
+      },
+      "R_Calf": {
+        "pitch": 7.2
+      },
+      "R_Foot": {
+        "pitch": -2.7
+      },
+      "L_Clavicle": {
+        "roll": -0.2
+      },
+      "R_Clavicle": {
+        "roll": 0.2
+      }
+    },
+    "a_idle_gl": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 1.57,
+        "roll": -0.97
+      },
+      "Spine02": {
+        "pitch": 1.1,
+        "yaw": 1.93,
+        "roll": -0.65
+      },
+      "Head": {
+        "pitch": 7.35,
+        "yaw": 9.8,
+        "roll": 1.08
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 4.2
+      },
+      "Hip": {
+        "move": [
+          0.0063,
+          0,
+          -0.001
+        ]
+      },
+      "R_Thigh": {
+        "pitch": -3.6
+      },
+      "R_Calf": {
+        "pitch": 7.2
+      },
+      "R_Foot": {
+        "pitch": -2.7
+      },
+      "L_Clavicle": {
+        "roll": -0.5
+      },
+      "R_Clavicle": {
+        "roll": 0.5
+      }
+    },
+    "a_idle_glh": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 1.57,
+        "roll": -0.97
+      },
+      "Spine02": {
+        "pitch": 0.02,
+        "yaw": 1.93,
+        "roll": -0.65
+      },
+      "Head": {
+        "pitch": 9.17,
+        "yaw": 9.8,
+        "roll": 1.68
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 4.2
+      },
+      "Hip": {
+        "move": [
+          0.0063,
+          0,
+          0.0005
+        ]
+      },
+      "R_Thigh": {
+        "pitch": -3.6
+      },
+      "R_Calf": {
+        "pitch": 7.2
+      },
+      "R_Foot": {
+        "pitch": -2.7
+      },
+      "L_Clavicle": {
+        "roll": -1.1
+      },
+      "R_Clavicle": {
+        "roll": 1.1
+      }
+    },
+    "a_idle_fid": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 1.28,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 7.28,
+        "yaw": 0.0,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -57.9,
+        "yaw": -60.2,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -62.1,
+        "yaw": 60.2,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "L_Clavicle": {
+        "roll": -0.4
+      },
+      "R_Clavicle": {
+        "roll": 0.4
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.001
+        ]
+      }
+    },
+    "a_idle_in2": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 0.56,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 7.56,
+        "yaw": 0.0,
+        "roll": -1.0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "L_Clavicle": {
+        "roll": -0.8
+      },
+      "R_Clavicle": {
+        "roll": 0.8
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.002
+        ]
+      }
+    },
+    "a_rest": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 2,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 7,
+        "yaw": 0.0,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      }
+    },
+    "a_welcome_0": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": 4.0,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 5.5,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 9.5,
+        "yaw": 0.0,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -57,
+        "yaw": -62,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -63,
+        "yaw": 62,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "Hip": {
+        "move": [
+          0,
+          -0.003,
+          -0.002
+        ]
+      }
+    },
+    "a_welcome_1": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": 5.5,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 6.55,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 10.25,
+        "yaw": 0.0,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -63,
+        "yaw": -50,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -57,
+        "yaw": 50,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "Hip": {
+        "move": [
+          0,
+          -0.0039,
+          -0.0026
+        ]
+      }
+    },
+    "a_welcome_2": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": 5.0,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 6.2,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 10.0,
+        "yaw": 0.0,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -57,
+        "yaw": -62,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -63,
+        "yaw": 62,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "Hip": {
+        "move": [
+          0,
+          -0.0036,
+          -0.0024
+        ]
+      }
+    },
+    "a_welcome_3": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": 2.0,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 4.1,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 8.5,
+        "yaw": 0.0,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -61.5,
+        "yaw": -53.0,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -58.5,
+        "yaw": 53.0,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": 0.0
+      },
+      "Hip": {
+        "move": [
+          0,
+          -0.0018,
+          -0.0012
+        ]
+      }
+    },
+    "a_evasive_0": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": -2.93,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 2,
+        "yaw": -3.58,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 7.0,
+        "yaw": -18.2,
+        "roll": -5
+      },
+      "L_Upperarm": {
+        "pitch": -10,
+        "roll": -6,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -42,
+        "roll": 26,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -55,
+        "yaw": -40,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -122,
+        "yaw": 48,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": -7.8
+      }
+    },
+    "a_evasive_1": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": -2.93,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 0.92,
+        "yaw": -3.58,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 8.82,
+        "yaw": -18.2,
+        "roll": -4.4
+      },
+      "L_Upperarm": {
+        "pitch": -10,
+        "roll": -6,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -42,
+        "roll": 26,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -55,
+        "yaw": -40,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -122,
+        "yaw": 48,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": -7.8
+      },
+      "L_Clavicle": {
+        "roll": -0.6
+      },
+      "R_Clavicle": {
+        "roll": 0.6
+      },
+      "Hip": {
+        "move": [
+          0,
+          0,
+          0.0015
+        ]
+      }
+    },
+    "a_evasive_2": {
+      "base": "stand",
+      "Spine01": {
+        "pitch": -1,
+        "yaw": -0.9,
+        "roll": 0.0
+      },
+      "Spine02": {
+        "pitch": 2,
+        "yaw": -1.1,
+        "roll": 0.0
+      },
+      "Head": {
+        "pitch": 7.0,
+        "yaw": -5.6,
+        "roll": 0
+      },
+      "L_Upperarm": {
+        "pitch": -20,
+        "roll": -10,
+        "yaw": -0.0
+      },
+      "R_Upperarm": {
+        "pitch": -20,
+        "roll": 10,
+        "yaw": 0.0
+      },
+      "L_Forearm": {
+        "pitch": -60,
+        "yaw": -56,
+        "local": [
+          0,
+          70,
+          0
+        ],
+        "roll": 0
+      },
+      "R_Forearm": {
+        "pitch": -60,
+        "yaw": 56,
+        "local": [
+          0,
+          -70,
+          0
+        ],
+        "roll": 0
+      },
+      "NeckTwist02": {
+        "pitch": 0,
+        "yaw": -2.4
+      }
     }
   },
   "animations": {
@@ -2013,38 +3078,72 @@
       "fps": 24,
       "keys": [
         [
-          "stand",
+          "a_idle_rest",
           0
         ],
         [
-          "breathe",
-          54
+          "a_idle_in",
+          35
         ],
         [
-          "stand",
-          108
+          "a_idle_out",
+          77
         ],
         [
-          "breathe",
-          150
+          "a_idle_shin",
+          115
         ],
         [
-          "glance",
-          168
+          "a_idle_sh",
+          157
         ],
         [
-          "glance",
-          210
+          "a_idle_gl",
+          184
         ],
         [
-          "breathe",
-          228
+          "a_idle_glh",
+          238
         ],
         [
-          "stand",
-          264
+          "a_idle_shin",
+          273
+        ],
+        [
+          "a_idle_fid",
+          315
+        ],
+        [
+          "a_idle_fid",
+          342
+        ],
+        [
+          "a_idle_in2",
+          372
+        ],
+        [
+          "a_idle_out",
+          411
+        ],
+        [
+          "a_idle_rest",
+          445
         ]
-      ]
+      ],
+      "lag": {
+        "Spine02": 1,
+        "NeckTwist01": 2,
+        "NeckTwist02": 2,
+        "Head": 2,
+        "L_Clavicle": 1,
+        "R_Clavicle": 1,
+        "L_Upperarm": 2,
+        "R_Upperarm": 2,
+        "L_Forearm": 4,
+        "R_Forearm": 4,
+        "L_Hand": 5,
+        "R_Hand": 5
+      }
     },
     "walk_k": {
       "fps": 24,
@@ -2225,6 +3324,89 @@
           120
         ]
       ]
+    },
+    "welcome_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "a_rest",
+          0
+        ],
+        [
+          "a_welcome_0",
+          11
+        ],
+        [
+          "a_welcome_1",
+          18
+        ],
+        [
+          "a_welcome_2",
+          25
+        ],
+        [
+          "a_welcome_3",
+          34
+        ],
+        [
+          "a_rest",
+          47
+        ]
+      ],
+      "lag": {
+        "Spine02": 1,
+        "NeckTwist01": 2,
+        "NeckTwist02": 2,
+        "Head": 3,
+        "L_Clavicle": 1,
+        "R_Clavicle": 1,
+        "L_Upperarm": 2,
+        "R_Upperarm": 2,
+        "L_Forearm": 4,
+        "R_Forearm": 4,
+        "L_Hand": 5,
+        "R_Hand": 5
+      }
+    },
+    "evasive_k": {
+      "fps": 24,
+      "keys": [
+        [
+          "a_rest",
+          0
+        ],
+        [
+          "a_evasive_0",
+          13
+        ],
+        [
+          "a_evasive_1",
+          37
+        ],
+        [
+          "a_evasive_2",
+          46
+        ],
+        [
+          "a_rest",
+          60
+        ]
+      ],
+      "lag": {
+        "Head": 0,
+        "NeckTwist02": 1,
+        "NeckTwist01": 1,
+        "Spine02": 3,
+        "Spine01": 5,
+        "Waist": 6,
+        "Hip": 6,
+        "L_Upperarm": 5,
+        "R_Upperarm": 5,
+        "L_Forearm": 7,
+        "R_Forearm": 7,
+        "L_Hand": 8,
+        "R_Hand": 8
+      }
     }
   },
   "_说明": "hisayo 待机姿势（游14，tools/npc_setup.py 生成，女：同阿浅）。写法同 tools/poses/kusuriuri_v2.json：角度单位度、角色坐标系；朝下的骨头 pitch 负值 = 往前抬；roll 正值 = 远端往角色左边倒。bind_fix 按上臂张开角（左 45.0°、右 45.0°）减 9.5° 把 A 字手臂放下。前臂 local Y 扭 ±70° 让大袖下垂。",
@@ -2235,5 +3417,12 @@
     "R_Upperarm": {
       "roll": 36
     }
+  },
+  "acting": {
+    "note": "老板娘，笑脸迎客，一问起楼里的旧事就躲",
+    "idles": [
+      "welcome_k",
+      "evasive_k"
+    ]
   }
 }

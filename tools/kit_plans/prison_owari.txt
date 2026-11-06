@@ -1,0 +1,29 @@
+# 心象·结尾（参考 p7_2055）：两侧灰木长廊一直往里，天花整个是开着的——头顶和尽头那面都是天空（金色、紫色的云，松和一座小寺）；空中飘着彩色纸片。南 U 回粉红梅花房。
+# 观景点：1 走廊南头往尽头看，2 走廊中段。
+name: prison_owari
+height: 3.2
+ceiling: none
+timber: 1.6
+mural: pri_sky_end
+mural_full: on
+mat: wood=pri_green, frame=pri_green, bars=pri_bars, plaster=pri_ume_wall, kokabe=pri_ume_wall, tatami=pri_straw, tatami_side=pri_beam, earth=pri_earth, engawa=pri_boards, ceiling=pri_ceil, fusuma=pri_ume_wall, udoor=pri_door, byobu=pri_jinbutsu, dais=pri_red, dais_side=pri_red_lacquer, dais_trim=pri_gold, rail=pri_beam, under=kage, wood=pri_beam, frame=pri_beam, plaster=pri_greywood, kokabe=pri_greywood, engawa=pri_greywood, canopy=pri_sky_end
+place: confetti 2.3,4.0,0,0,3; confetti 2.3,8.0,0,0,5; confetti 2.3,11.5,0,0,9; canopy 2.275,7.28,0,3.2,2.9,13.7
+shot: 尽头 | 2.3,1.6,14.0 | 2.3,2.4,0.0 | 2.0,12.6,3.14
+shot: 走廊中段 | 2.3,1.6,8.6 | 2.3,2.6,0.0 | 2.2,7.4,3.14
+---
+#MMM#
+#===#
+#===#
+#===#
+#=2=#
+#===#
+#===#
+#===#
+#===#
+#===#
+#=1=#
+#===#
+#===#
+#=@=#
+#===#
+##U##

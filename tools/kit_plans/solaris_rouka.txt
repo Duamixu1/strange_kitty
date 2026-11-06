@@ -1,0 +1,27 @@
+# そらりす丸·走廊（参考 p4_0428、p5_0428）：花菱格子天井一路往里，左边粉红墙上一排红白提灯，右边天青柱和一扇扇舱门，尽头白障子；
+# 左墙中段贴满一排排札（fuda_wall，可以做 act）。下 U 回中庭，右边中段 U 进客室，尽头 U 去船尾。
+# 观景点：1 南头顺着走廊看，2 札墙前。
+name: solaris_rouka
+shot: 顺着走廊 | 1.8,1.6,13.2 | 1.4,1.2,0.5 | 1.4,12.0,3.14
+shot: 札墙 | 2.6,1.5,7.8 | 0.5,1.2,5.8 | 1.7,7.0,-1.57
+height: 2.8
+ceiling: sao
+timber: 1.5
+mat: wood=sol_pillar, frame=sol_pink, plaster=sol_wall_pink, kokabe=sol_panel, tatami=sol_floor_ao, tatami_side=sol_pink, engawa=sol_deck, shoji=sol_shoji, lattice_win=sol_lattice, fusuma=sol_panel_door, fusuma2=sol_panel, udoor=sol_door, rail=sol_pink, stair=sol_stair, ceiling=sol_koshi, sea=sol_sea, hull=sol_hull, prow=sol_red, finial=sol_gold, roof=sol_roof, tower=sol_tower, water=sol_pool, bank=sol_deck_edge, gallery=sol_koshi_floor, gallery_edge=sol_yellow, pillar=sol_pillar, mojing=sol_mojing, hata1=sol_hata1, hata2=sol_hata2, hata3=sol_hata3, koshi=sol_pink, lacquer=ink, udoor=sol_shoji
+place: lantern_r 0.75,1.30,0,1.95; lantern_w 0.75,2.09,0,1.95; lantern_r 0.75,2.89,0,1.95; lantern_w 0.75,3.68,0,1.95; lantern_r 0.75,4.47,0,1.95; lantern_w 0.75,5.27,0,1.95; lantern_r 0.75,6.06,0,1.95; lantern_w 0.75,6.85,0,1.95; lantern_r 0.75,7.65,0,1.95; lantern_w 0.75,8.44,0,1.95; lantern_r 0.75,9.23,0,1.95; lantern_w 0.75,10.03,0,1.95; lantern_r 0.75,10.82,0,1.95; lantern_w 0.75,11.61,0,1.95; lantern_r 0.75,12.41,0,1.95; lantern_w 0.75,13.20,0,1.95; fuda_wall 0.53,6.4,0,0.55
+---
+#U##
+#==F
+#==F
+#==F
+#==F
+#==F
+#=2F
+#==U
+#==F
+#@=F
+#==F
+#==F
+#1=F
+#==F
+##U#

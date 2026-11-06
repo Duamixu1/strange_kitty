@@ -1,0 +1,694 @@
+{
+  "_说明": "そらりす丸（TV《海坊主》），场景线游33，11-06 第一版。五个积木区块 tools/kit_plans/solaris_*.txt，参考 assets/concept/ref/solaris/（只看不裁）。满眼是色（sol_* 一套，程序画）；甲板、船尾比海面高 2.4 米（海是 % 格 + 四周海面，y -2.4）。退魔前在龙之三角（sol_sea 青灰、sol_sky 雾海），recolorKit(root, \"color\") 换 sol_sea_color 蓝底金线浪、天空换 sol_sky_color。案子、配角、拾遗物件等文案线 / 角色线；说明卡 key 按 kit 名：solaris_kanpan.1 …",
+  "id": "solaris",
+  "name": "そらりす丸",
+  "start": "kanpan",
+  "recolor": "color",
+  "sway": 1,
+  "sky": "sol_sky",
+  "background": "#8FA3A8",
+  "camera": {
+    "dist": 3.0,
+    "pitch": 0.2,
+    "fov": 50
+  },
+  "zones": {
+    "kanpan": {
+      "name": "甲板",
+      "kit": "solaris_kanpan",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "nakaniwa",
+          "arrive": 1,
+          "label": "中庭"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              1.82,
+              2.73,
+              10.02,
+              10.91
+            ],
+            "pos": [
+              1.4,
+              1.7,
+              11.4
+            ],
+            "look": [
+              -6.0,
+              -0.6,
+              5.0
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：西南角栏杆边往外看海，左边是大幡"
+          },
+          {
+            "rect": [
+              4.55,
+              5.46,
+              9.11,
+              10.0
+            ],
+            "pos": [
+              5.0,
+              1.6,
+              12.8
+            ],
+            "look": [
+              5.0,
+              4.8,
+              0.0
+            ],
+            "_view": 2,
+            "_说明": "观景点 2：甲板正中回头仰看船楼和两排大幡"
+          }
+        ]
+      },
+      "bossAt": [
+        7.25,
+        11.05
+      ],
+      "_bossAt说明": "海坊主从船头那边的海里起来：甲板南头、靠船头栏杆的空地",
+      "mononoke": [
+        [
+          6.65,
+          9.25
+        ],
+        [
+          2.65,
+          1.85
+        ],
+        [
+          7.65,
+          3.65
+        ]
+      ],
+      "finds": [
+        {
+          "id": "1",
+          "pos": [
+            7.0,
+            7.95
+          ],
+          "y": -0.21,
+          "yaw": 0.3,
+          "kit": "find_zeni"
+        }
+      ],
+      "_finds说明": "拾遗 1：浮萍池东南角，池面浮萍下几枚长铜绿的铜钱（池面比甲板低 0.22）",
+      "npcs": [
+        {
+          "id": "yanagi",
+          "model": "processed/yanagi_posed_lite.glb",
+          "height": 1.68,
+          "pos": [
+            3.4,
+            2.6
+          ],
+          "yaw": 0.0,
+          "idles": [
+            "flourish_k",
+            "boast_k"
+          ]
+        }
+      ],
+      "_npcs说明": "柳幻殃斉站船楼门前西侧面朝甲板；五浪丸是墨影（不是模型），建议在东侧栏杆边 [8.4,6.4]，做法请总指挥定"
+    },
+    "nakaniwa": {
+      "name": "中庭",
+      "kit": "solaris_nakaniwa",
+      "sky": null,
+      "exits": [
+        {
+          "stair": 0,
+          "to": "rouka",
+          "arrive": 2,
+          "label": "走廊"
+        },
+        {
+          "stair": 1,
+          "to": "kanpan",
+          "arrive": 0,
+          "label": "甲板"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              7.29,
+              8.19,
+              6.38,
+              7.28
+            ],
+            "pos": [
+              6.9,
+              1.8,
+              9.4
+            ],
+            "look": [
+              3.0,
+              0.3,
+              4.8
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：池边看漩涡池和西边的黄楼梯"
+          },
+          {
+            "rect": [
+              8.2,
+              9.09,
+              4.55,
+              5.46
+            ],
+            "pos": [
+              6.3,
+              1.5,
+              5.0
+            ],
+            "look": [
+              4.7,
+              9.0,
+              5.0
+            ],
+            "_view": 2,
+            "_说明": "观景点 2：鱼纹藻井仰拍特写（close：不往药郎身上挪看点，药郎在机位身后不入画）",
+            "close": true
+          }
+        ]
+      },
+      "mononoke": [
+        [
+          5.85,
+          7.65
+        ],
+        [
+          1.25,
+          1.25
+        ],
+        [
+          8.85,
+          1.25
+        ]
+      ],
+      "acts": [
+        {
+          "id": "biwa",
+          "pos": [
+            2.5,
+            5.4
+          ],
+          "face": [
+            5.0,
+            5.0
+          ],
+          "fx": "biwa",
+          "at": [
+            4.0,
+            -0.2,
+            5.0
+          ],
+          "cam": {
+            "pos": [
+              6.3,
+              1.7,
+              6.2
+            ],
+            "look": [
+              3.6,
+              0.55,
+              5.0
+            ],
+            "close": true
+          },
+          "ghost": "processed/oyo_posed_lite.glb",
+          "ghostH": 1.48
+        }
+      ],
+      "_acts说明": "侧耳听（文案线）：站漩涡池西边（黄楼梯和池子之间），面朝池心；离两个出口站点都 4 米以上。做完池面浮出一个女孩的影子，琵琶声请总指挥配"
+    },
+    "rouka": {
+      "name": "走廊",
+      "kit": "solaris_rouka",
+      "sky": null,
+      "exits": [
+        {
+          "stair": 0,
+          "to": "tomo",
+          "arrive": 0,
+          "label": "船尾"
+        },
+        {
+          "stair": 1,
+          "to": "kyaku",
+          "arrive": 0,
+          "label": "客室"
+        },
+        {
+          "stair": 2,
+          "to": "nakaniwa",
+          "arrive": 0,
+          "label": "中庭"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              0.92,
+              1.81,
+              10.93,
+              11.82
+            ],
+            "pos": [
+              1.8,
+              1.6,
+              13.2
+            ],
+            "look": [
+              1.4,
+              1.2,
+              0.5
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：南头顺着走廊看，左边提灯一路往里"
+          },
+          {
+            "rect": [
+              1.82,
+              2.73,
+              5.46,
+              6.37
+            ],
+            "pos": [
+              2.6,
+              1.5,
+              7.8
+            ],
+            "look": [
+              0.5,
+              1.2,
+              5.8
+            ],
+            "_view": 2,
+            "_说明": "观景点 2：左墙贴满札的那一段"
+          }
+        ]
+      },
+      "mononoke": [
+        [
+          1.85,
+          8.25
+        ],
+        [
+          1.85,
+          2.65
+        ]
+      ],
+      "acts": [
+        {
+          "id": "fuda",
+          "pos": [
+            1.6,
+            5.4
+          ],
+          "face": [
+            0.55,
+            5.6
+          ],
+          "fx": "fuda",
+          "to": [
+            2.685,
+            6.825
+          ],
+          "at": [
+            0.55,
+            1.2,
+            5.6
+          ]
+        }
+      ],
+      "_acts说明": "细看札：左墙 x≈0.5、z 5.2~7.6 贴满札（眼睛、漩涡），正对面右墙那扇 U（z 6.8）就是去客室、源慧的舱门——札上的眼睛朝着它",
+      "finds": [
+        {
+          "id": "2",
+          "pos": [
+            2.4,
+            2.4
+          ],
+          "y": 0,
+          "yaw": 0.6,
+          "kit": "find_rabanfuta"
+        }
+      ],
+      "_finds说明": "拾遗 2：尽头白障子前，一块撬过的黄铜罗盘盖",
+      "npcs": [
+        {
+          "id": "sogen",
+          "model": "processed/sogen_posed_lite.glb",
+          "height": 1.75,
+          "pos": [
+            2.35,
+            10.2
+          ],
+          "yaw": -1.5708,
+          "idles": [
+            "gassho_bow_k",
+            "nervous_look_k"
+          ]
+        }
+      ],
+      "_npcs说明": "菖源站走廊南段靠舱门那边、面朝提灯墙（离两个观景点机位都远，不挡）"
+    },
+    "kyaku": {
+      "name": "客室",
+      "kit": "solaris_kyaku",
+      "sky": null,
+      "exits": [
+        {
+          "stair": 0,
+          "to": "rouka",
+          "arrive": 1,
+          "label": "走廊"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              4.55,
+              5.46,
+              5.46,
+              6.37
+            ],
+            "pos": [
+              5.0,
+              1.6,
+              7.0
+            ],
+            "look": [
+              5.0,
+              1.4,
+              0.4
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：正对凤凰画，两边格子窗，上面一排红白提灯"
+          },
+          {
+            "rect": [
+              8.2,
+              9.09,
+              2.73,
+              3.64
+            ],
+            "pos": [
+              9.0,
+              2.2,
+              6.8
+            ],
+            "look": [
+              2.0,
+              1.0,
+              1.5
+            ],
+            "_view": 2,
+            "_说明": "观景点 2：东南角看整间"
+          }
+        ]
+      },
+      "mononoke": [
+        [
+          5.05,
+          4.05
+        ],
+        [
+          1.85,
+          1.85
+        ],
+        [
+          1.85,
+          6.25
+        ]
+      ],
+      "finds": [
+        {
+          "id": "3",
+          "pos": [
+            1.6,
+            1.6
+          ],
+          "y": 0,
+          "yaw": 0.4,
+          "kit": "find_saikoro"
+        }
+      ],
+      "_finds说明": "拾遗 3：凤凰画下西边角，一枚角磨圆的骰子",
+      "npcs": [
+        {
+          "id": "genkei",
+          "model": "processed/genkei_posed_lite.glb",
+          "height": 1.45,
+          "pos": [
+            3.2,
+            2.4
+          ],
+          "yaw": 0.0,
+          "idles": [
+            "pray_k",
+            "grief_k"
+          ]
+        },
+        {
+          "id": "kayo",
+          "model": "processed/kayo_posed_lite.glb",
+          "height": 1.45,
+          "pos": [
+            7.2,
+            4.6
+          ],
+          "yaw": -1.5708,
+          "idles": [
+            "shoulder_k",
+            "stretch_neck_k",
+            "fix_collar_k"
+          ]
+        }
+      ],
+      "_npcs说明": "源慧跪坐在凤凰画前西边的地板上、面朝房间（不用 y，跪坐没有 walk_k，不给 patrol）；加世用坂井家的模型，站东边；三國屋多门是墨影，建议在房间正中 [5.0,3.4]"
+    },
+    "tomo": {
+      "name": "船尾",
+      "kit": "solaris_tomo",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "rouka",
+          "arrive": 0,
+          "label": "走廊"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              4.55,
+              5.46,
+              5.46,
+              6.37
+            ],
+            "pos": [
+              5.0,
+              1.7,
+              8.4
+            ],
+            "look": [
+              5.0,
+              4.2,
+              1.0
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：南头仰看桅杆和红漩涡帆"
+          },
+          {
+            "rect": [
+              0.92,
+              1.81,
+              0.92,
+              1.81
+            ],
+            "pos": [
+              2.2,
+              1.6,
+              2.8
+            ],
+            "look": [
+              -9.0,
+              -1.5,
+              -10.0
+            ],
+            "_view": 2,
+            "_说明": "观景点 2：西北角栏杆边看海上漂着的虚舟"
+          }
+        ]
+      },
+      "mononoke": [
+        [
+          5.65,
+          4.45
+        ],
+        [
+          2.45,
+          7.25
+        ],
+        [
+          2.45,
+          3.05
+        ]
+      ],
+      "acts": [
+        {
+          "id": "utsuro",
+          "pos": [
+            1.6,
+            1.6
+          ],
+          "face": [
+            -3.6,
+            -4.4
+          ],
+          "fx": "utsuro",
+          "at": [
+            -3.6,
+            -1.4,
+            -4.4
+          ]
+        }
+      ],
+      "_acts说明": "看虚舟：西北角栏杆边看海上漂着的虚舟（[-3.6,-4.4]，离栏杆约 7 米），朝船这边那面封板裂开一道缝，缝里是黑的——里面是空的",
+      "npcs": [
+        {
+          "id": "sasaki",
+          "model": "processed/sasaki_posed_lite.glb",
+          "height": 1.78,
+          "pos": [
+            8.2,
+            2.2
+          ],
+          "yaw": 3.1416,
+          "idles": [
+            "hilt_k",
+            "scan_k"
+          ]
+        }
+      ],
+      "_npcs说明": "佐々木兵衛站船尾东北角栏杆边，背对甲板看海；待机就是左手按刀（角色线做进去了）"
+    }
+  },
+  "case": {
+    "_说明": "照坂井家格式（docs/19），文案线 11-06。形真理三句暂定，总指挥在核原片，键不变",
+    "mononoke": "umibozu",
+    "boss": "kanpan",
+    "firstRandom": null,
+    "npcNames": {
+      "yanagi": "柳幻殃斉",
+      "goromaru": "五浪丸",
+      "sogen": "菖源",
+      "genkei": "源慧",
+      "kayo": "加世",
+      "mikuniya": "三國屋多门",
+      "sasaki": "佐々木兵衛"
+    },
+    "clues": [
+      {
+        "char": "形",
+        "need": [
+          "kanpan/view:1",
+          "kanpan/npc:yanagi"
+        ]
+      },
+      {
+        "char": "真",
+        "need": [
+          "tomo/act:utsuro",
+          "rouka/npc:sogen"
+        ]
+      },
+      {
+        "char": "理",
+        "need": [
+          "nakaniwa/act:biwa",
+          "rouka/act:fuda",
+          "kyaku/npc:genkei"
+        ],
+        "after": "真"
+      }
+    ],
+    "plan": {
+      "_说明": "案卷·宅图：rooms 每间 [列, 行, 跨列, 跨行, 贴图, tall/small]，门按出口自动画",
+      "cols": 5,
+      "rows": 5,
+      "compass": "↑ 船尾　↓ 船头",
+      "rooms": {
+        "tomo": [
+          2,
+          1,
+          3,
+          1,
+          "sol_sail.png"
+        ],
+        "kyaku": [
+          4,
+          2,
+          2,
+          2,
+          "sol_floor_ao.png",
+          "small"
+        ],
+        "rouka": [
+          3,
+          2,
+          1,
+          2,
+          "sol_wall_pink.png",
+          "tall"
+        ],
+        "nakaniwa": [
+          2,
+          4,
+          2,
+          1,
+          "sol_uzu.png"
+        ],
+        "kanpan": [
+          1,
+          5,
+          5,
+          1,
+          "sol_deck.png"
+        ]
+      },
+      "deco": [
+        [
+          1,
+          1,
+          1,
+          4,
+          "sol_sea.png",
+          "海"
+        ],
+        [
+          5,
+          4,
+          1,
+          1,
+          "sol_sea.png",
+          ""
+        ]
+      ]
+    }
+  }
+}

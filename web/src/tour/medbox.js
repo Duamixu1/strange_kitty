@@ -1,5 +1,5 @@
 // 药箱（docs/18 第九节 6，11-04 用户在五版方案里选了"药箱"）：药郎背的那只箱子，一格一格的小抽屉，斩下的执念物收进去。
-//   4×3 十二格：十一只物怪各一格（按坂井家 / 万屋 / 大奥排），最后一格固定放天秤。收过的抽屉贴竖写的签条（执念物名）。
+//   一只物怪一格（按地点排），最后一格固定放天秤；原来 4×3 十二格，11-06 起列数跟着物怪数加。收过的抽屉贴竖写的签条（执念物名）。
 //   打开时只有一只大箱子（11-04 用户改的）；点一格收过的抽屉，抽屉拉出来，上面弹一张卡：立绘、执念物、形真理、
 //   物卡那两句、魂走那句；点卡右上的叉回到箱子，再点箱子的叉关掉。没收的签条空白，点了只抖一下。
 //   新收的、还没打开看过的那格签条上点一个朱点。I 键或右上"箱"钮开关；← → ↑ ↓ 换格，回车 / 空格 / E 打开那格，
@@ -15,10 +15,14 @@ export function createMedbox({ entries, asset, audio, onOpen, onClose, book }) {
   const seen = () => { try { return new Set(JSON.parse(ls.get(SEEN) || "[]")); } catch { return new Set(); } };
   const markSeen = (id) => { const s = seen(); if (!s.has(id)) { s.add(id); ls.set(SEEN, JSON.stringify([...s])); } };
 
+  let cols = 4;
   function draw() {
     list = entries();
     const s = seen();
     count.textContent = `已收 ${list.filter((e) => e.got).length} / ${list.length}`;
+    // 11-06 物怪多了（地铁 TV 化猫、牢房狐面男）：格数 = 物怪 + 天秤，列数跟着加（≤12 四列，≤15 五列，再多六列），抽屉宽按列行数重算
+    cols = list.length + 1 <= 12 ? 4 : list.length + 1 <= 15 ? 5 : 6;
+    root.style.setProperty("--cols", cols); root.style.setProperty("--rows", Math.ceil((list.length + 1) / cols));
     grid.innerHTML = list.map((e, i) => `<button class="mb-dr${e.got ? "" : " empty"}" data-i="${i}" aria-label="${e.got ? e.itemTitle : "空抽屉"}">`
       + `<span class="lbl">${e.got ? e.itemTitle : ""}</span>${e.got && !s.has(e.id) ? `<span class="new"></span>` : ""}<span class="ring"></span></button>`).join("")
       + `<div class="mb-dr scale">天秤</div>`;
@@ -92,7 +96,7 @@ export function createMedbox({ entries, asset, audio, onOpen, onClose, book }) {
       if (code === "KeyI") { closeBox(); return true; }
       if (code === "Tab" || code === "KeyQ") { cardOn ? closeCard() : openBook(); return true; }
       if (code === "Enter" || code === "Space" || code === "KeyE") { cardOn ? closeCard() : pull(sel); return true; }
-      const n = list.length, mv = { ArrowLeft: -1, KeyA: -1, ArrowRight: 1, KeyD: 1, ArrowUp: -4, KeyW: -4, ArrowDown: 4, KeyS: 4 }[code];
+      const n = list.length, mv = { ArrowLeft: -1, KeyA: -1, ArrowRight: 1, KeyD: 1, ArrowUp: -cols, KeyW: -cols, ArrowDown: cols, KeyS: cols }[code];
       if (mv) {
         if (cardOn) {   // 卡开着：左右翻到上 / 下一只收过的
           const step = mv > 0 ? 1 : -1;

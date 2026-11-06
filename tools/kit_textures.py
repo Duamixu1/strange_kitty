@@ -70,6 +70,17 @@
   fue_snow 雪地（彩色版落樱）            fue_gate_roof 门顶（彩色版茅草）  fue_gate_door 门里            fue_dais 高台白台面   fue_dais_edge 黑白格边（彩色版繧繝缘）
   fue_genji_wall 源氏香纹墙（参考 13，占位）  fue_kicho 几帐帘           fue_aka_* 红色之间（参考 10）：墙、襖、榻榻米、天花、台、帘
   墨云、墨溅、虎、葡萄、源氏香纹墙这五张是程序画的占位，正式的等出图（docs/22 第四节）
+そらりす丸（TV《海坊主》，游33，参考 assets/concept/ref/solaris/，只看不裁，图案自己画）：满眼是色（粉红、天青、柠黄、薄紫、朱红），sol_* 一套
+  sol_deck 甲板板   sol_hull 船舷（上粉红大花、下天青海底城）   sol_sea / sol_sea_color 海（退魔前青灰起雾 / 退魔后蓝底金线浪）
+  sol_pool 浮萍池   sol_uzu 漩涡池   sol_tile 红青格子地砖   sol_koshi 花菱格子天井   sol_mojing 柠黄鱼纹藻井（占位）   sol_pillar 天青花纹柱
+  sol_wall_pink 粉红墙   sol_panel 红白漩涡板   sol_panel_door / sol_door 舱门   sol_shoji 白障子   sol_lattice 格子窗   sol_floor_ao 浅青地板
+  sol_houou 凤凰画（占位）   sol_hata1~3 大幡（寿字、花菱、几何纹）   sol_sail 红漩涡帆   sol_fuda 贴满札的墙   sol_carpet 楼梯地毯   sol_tower 船楼板
+  sol_lantern_r / _w 红白提灯
+地下铁（TV《化猫》，大正末年，游34，参考帧待定，图案自己画）：sub_* 一套，大正摩登——白瓷砖、绿腰板、深红车身、黄铜、彩色玻璃
+  sub_tile 白瓷砖   sub_tile_green 绿瓷砖腰板   sub_floor 站台水磨石   sub_edge 站台边水泥   sub_ballast 道砟   sub_tunnel 隧道口
+  sub_posters 海报墙（占位）   sub_sign 站名牌   sub_car_ext 车身   sub_car_door 车门   sub_car_wall 车厢窗带（窗外黑）   sub_ad 车厢广告带
+  sub_car_ceil / sub_car_floor 车厢天花、地板   sub_ceil 通道天花   sub_checker 黑白格地砖   sub_wall_cafe / _up 咖啡馆墙   sub_cafe_ceil
+  sub_stained 彩色玻璃窗   sub_door 木门   sub_clock 钟面   sub_kaisatsu_sign 改札牌
 """
 import math
 from pathlib import Path
@@ -1407,6 +1418,735 @@ def fue_set():
     fue_sky_spring()    # 退魔后的天：去雪片、往春天靠
 
 
+# ---------- そらりす丸（游33）：满眼是色 ----------
+def spiral(d, cx, cy, r, turns, width, fill):
+    pts = [(cx + r * (1 - k / 90) * math.cos(turns * 2 * math.pi * k / 90), cy + r * (1 - k / 90) * math.sin(turns * 2 * math.pi * k / 90)) for k in range(91)]
+    d.line(pts, fill=fill, width=width, joint="curve")
+
+
+def hanabishi(d, cx, cy, r, petal, center):
+    for k in range(4):
+        a = math.pi / 2 * k + math.pi / 4
+        d.ellipse((cx + math.cos(a) * r * 0.5 - r * 0.32, cy + math.sin(a) * r * 0.5 - r * 0.32, cx + math.cos(a) * r * 0.5 + r * 0.32, cy + math.sin(a) * r * 0.5 + r * 0.32), fill=petal)
+    d.ellipse((cx - r * 0.18, cy - r * 0.18, cx + r * 0.18, cy + r * 0.18), fill=center)
+
+
+def sol_save(im, name, size): im.resize(size, Image.LANCZOS).save(OUT / name)
+
+
+def sol_set():
+    rng = np.random.default_rng(101)
+    # 甲板 / 地板：浅木板、浅青地板
+    for name, base, line in (("sol_deck", mixc("paper", "ochre", 0.3), mixc("ochre", "kogecha", 0.35)), ("sol_floor_ao", mixc("teal", "paper", 0.62), mixc("teal", "paper", 0.3))):
+        def f(d, w, h, im, base=base, line=line):
+            d.rectangle((0, 0, w * 3, h * 3), fill=base)
+            for k in range(18): y = h * k / 6; d.line((0, y, w * 3, y), fill=line, width=SS * 2)
+        tiled((512, 512), f).save(OUT / f"{name}.png")
+    # 船舷：上半粉红底大花，下半天青海底城（楼阁剪影 + 鱼），一格 = 船舷高（u 按米 / 高）
+    w = 1024 * SS; im = Image.new("RGB", (w, w), C["pink"]); d = ImageDraw.Draw(im)
+    d.rectangle((0, w * 0.5, w, w), fill=C["teal"]); d.rectangle((0, w * 0.47, w, w * 0.5), fill=C["crimson"])
+    for k in range(9):
+        x = w * (k + 0.5) / 9; y = w * (0.2 + 0.12 * (k % 2))
+        petal_flower(d, x, y, w * 0.07, 8, [C["coral"], C["ochre"], C["wisteria"]][k % 3], inner=C["paper"], ratio=0.5)
+        for q in range(3): petal_flower(d, x + w * 0.05 * (q - 1), y + w * 0.09, w * 0.025, 5, C["green"], ratio=0.6)
+    for k in range(6):   # 海底城：楼阁剪影
+        x = w * (0.08 + 0.16 * k); bw = w * 0.07; by = w * (0.86 - 0.04 * (k % 3))
+        d.rectangle((x, by, x + bw, w * 0.96), fill=C["blue"]); d.polygon([(x - bw * 0.2, by), (x + bw * 1.2, by), (x + bw / 2, by - bw * 0.45)], fill=C["navy"])
+    for k in range(10):
+        fx, fy = rng.uniform(0, w), rng.uniform(0.56, 0.78) * w; d.ellipse((fx, fy, fx + w * 0.035, fy + w * 0.015), fill=C["ochre"]); d.polygon([(fx, fy + w * 0.0075), (fx - w * 0.012, fy), (fx - w * 0.012, fy + w * 0.015)], fill=C["ochre"])
+    for k in range(4): y = w * (0.55 + 0.1 * k); d.arc((-w * 0.1, y - w * 0.05, w * 1.1, y + w * 0.05), 0, 180, fill=C["lavender"], width=SS * 3)
+    sol_save(im, "sol_hull.png", (1024, 1024))
+    # 海：琳派浪线（一格 4 米）。退魔前青灰起雾、退魔后蓝底金线
+    for name, base, l1, l2 in (("sol_sea", "#7F9AA0", "#A9BCBE", "#5E7A82"), ("sol_sea_color", C["navy"], C["ochre"], C["blue"])):
+        def f(d, w, h, im, base=base, l1=l1, l2=l2):
+            d.rectangle((0, 0, w * 3, h * 3), fill=base)
+            for row in range(18):
+                y0 = h * row / 6
+                for k in range(-1, 13):
+                    x = w * k / 4 + (w / 8 if row % 2 else 0)
+                    for q, col in ((0.0, l1), (0.035, l2), (0.07, l1)):
+                        d.arc((x - w * 0.13, y0 - h * 0.06 + h * q, x + w * 0.13, y0 + h * 0.14 + h * q), 200, 340, fill=col, width=SS * 3)
+        tiled((512, 512), f).save(OUT / f"{name}.png")
+    # 浮萍池
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=mixc("teal", "navy", 0.35)); r2 = np.random.default_rng(103)
+        for _ in range(220):
+            x, y, r = r2.uniform(0, w * 3), r2.uniform(0, h * 3), r2.uniform(8, 22) * SS
+            d.ellipse((x - r, y - r * 0.8, x + r, y + r * 0.8), fill=[C["green"], mixc("green", "teal", 0.4), mixc("green", "ochre", 0.3)][r2.integers(3)])
+        for _ in range(14): x, y = r2.uniform(0, w * 3), r2.uniform(0, h * 3); petal_flower(d, x, y, 14 * SS, 6, C["pink"], inner=C["ochre"], ratio=0.5)
+    tiled((512, 512), f).save(OUT / "sol_pool.png")
+    # 漩涡池（参考 0510）
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["navy"]); r2 = np.random.default_rng(107)
+        for _ in range(130):
+            spiral(d, r2.uniform(0, w * 3), r2.uniform(0, h * 3), r2.uniform(40, 110) * SS, 2.4, SS * 9, [C["ochre"], C["pink"], C["teal"], C["wisteria"], C["coral"]][r2.integers(5)])
+    tiled((512, 512), f).save(OUT / "sol_uzu.png")
+    # 红青格子地砖（一格 0.91 米 2×2）
+    w = 512 * SS; im = Image.new("RGB", (w, w), C["paper"]); d = ImageDraw.Draw(im)
+    for i in range(2):
+        for j in range(2):
+            col = C["teal"] if (i + j) % 2 else C["coral"]; x0, y0 = w * i / 2, w * j / 2
+            d.rectangle((x0, y0, x0 + w / 2, y0 + w / 2), fill=col, outline=C["ink"], width=SS * 3)
+            hanabishi(d, x0 + w / 4, y0 + w / 4, w * 0.13, C["paper"], C["ochre"])
+    sol_save(im, "sol_tile.png", (512, 512))
+    # 花菱格子天井（一格 0.91 米）：粉红格梁、纸白格心、朱红天青花菱
+    w = 512 * SS; im = Image.new("RGB", (w, w), C["pink"]); d = ImageDraw.Draw(im); m = w * 0.08
+    d.rectangle((m, m, w - m, w - m), fill=C["paper"], outline=C["crimson"], width=SS * 4)
+    d.polygon([(w / 2, m * 1.8), (w - m * 1.8, w / 2), (w / 2, w - m * 1.8), (m * 1.8, w / 2)], fill=C["crimson"])
+    d.polygon([(w / 2, m * 2.8), (w - m * 2.8, w / 2), (w / 2, w - m * 2.8), (m * 2.8, w / 2)], fill=C["paper"])
+    hanabishi(d, w / 2, w / 2, w * 0.16, C["teal"], C["ochre"])
+    for x in (m / 2, w - m / 2):
+        for y in (m / 2, w - m / 2): d.ellipse((x - m * 0.3, y - m * 0.3, x + m * 0.3, y + m * 0.3), fill=C["ochre"])
+    sol_save(im, "sol_koshi.png", (512, 512))
+    # 柠黄鱼纹藻井（占位，参考 0600、1224 的感觉）：柠黄底鳞纹，中间一条大红鱼
+    w = 1024 * SS; im = Image.new("RGB", (w, w), C["ochre"]); d = ImageDraw.Draw(im)
+    for row in range(26):
+        for k in range(27):
+            cx_, cy_ = w * k / 26 + (w / 52 if row % 2 else 0), w * row / 26
+            d.arc((cx_ - w / 52, cy_ - w / 52, cx_ + w / 52, cy_ + w / 52), 0, 180, fill=mixc("ochre", "kogecha", 0.3), width=SS * 2)
+    d.ellipse((w * 0.2, w * 0.36, w * 0.72, w * 0.64), fill=C["crimson"], outline=C["ink"], width=SS * 5)
+    d.polygon([(w * 0.7, w * 0.5), (w * 0.86, w * 0.36), (w * 0.86, w * 0.64)], fill=C["crimson"], outline=C["ink"])
+    d.ellipse((w * 0.27, w * 0.45, w * 0.31, w * 0.49), fill=C["paper"]); d.ellipse((w * 0.28, w * 0.46, w * 0.3, w * 0.48), fill=C["ink"])
+    for k in range(5): d.arc((w * (0.35 + 0.06 * k), w * 0.4, w * (0.45 + 0.06 * k), w * 0.6), 280, 80, fill=C["coral"], width=SS * 4)
+    d.rectangle((0, 0, w - 1, w - 1), outline=C["pink"], width=int(w * 0.04))
+    sol_save(im, "sol_mojing.png", (1024, 1024))
+    # 天青花纹柱（一格 1 米）
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["teal"])
+        for ox in range(3):
+            for oy in range(3):
+                X, Y = ox * w, oy * h
+                d.line([(X + w * 0.5 + w * 0.3 * math.sin(t / 10 * math.pi * 2), Y + h * t / 10) for t in range(11)], fill=C["green"], width=SS * 5)
+                for q in range(3): petal_flower(d, X + w * (0.3 + 0.2 * q), Y + h * (0.2 + 0.3 * q), w * 0.08, 5, [C["pink"], C["ochre"], C["coral"]][q], inner=C["paper"])
+    tiled((256, 256), f).save(OUT / "sol_pillar.png")
+    # 粉红墙：小花菱撒点
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["pink"])
+        for i in range(12):
+            for j in range(12): hanabishi(d, w * i / 4 + (w / 8 if j % 2 else 0), h * j / 4, w * 0.05, C["lavender"], C["coral"])
+    tiled((512, 512), f).save(OUT / "sol_wall_pink.png")
+    # 红白漩涡板（参考 1540 窗下那一排）
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["paper"]); r2 = np.random.default_rng(109)
+        for _ in range(30):
+            x, y = r2.uniform(0, w * 3), r2.uniform(0, h * 3); spiral(d, x, y, r2.uniform(40, 90) * SS, 1.6, SS * 12, [C["coral"], C["crimson"]][r2.integers(2)])
+        for k in range(9): d.line((0, h * k / 3 + h * 0.15, w * 3, h * k / 3 + h * 0.15), fill=C["teal"], width=SS * 4)
+    tiled((512, 512), f).save(OUT / "sol_panel.png")
+    # 舱门（一扇）：粉红框、天青心、柠黄金具
+    for name, core in (("sol_panel_door", C["teal"]), ("sol_door", C["lavender"])):
+        w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), C["pink"]); d = ImageDraw.Draw(im)
+        d.rectangle((w * 0.12, h * 0.08, w * 0.88, h * 0.62), fill=core, outline=C["crimson"], width=SS * 4)
+        d.rectangle((w * 0.12, h * 0.68, w * 0.88, h * 0.92), fill=C["paper"], outline=C["crimson"], width=SS * 4)
+        hanabishi(d, w * 0.5, h * 0.35, w * 0.2, C["ochre"], C["crimson"]); d.ellipse((w * 0.78, h * 0.45, w * 0.86, h * 0.5), fill=C["ochre"])
+        sol_save(im, f"{name}.png", (256, 496))
+    # 白障子（尽头）
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), C["paper"]); d = ImageDraw.Draw(im)
+    for k in range(1, 4): d.line((w * k / 4, 0, w * k / 4, h), fill=C["pink"], width=SS * 2)
+    for k in range(1, 8): d.line((0, h * k / 8, w, h * k / 8), fill=C["pink"], width=SS * 2)
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["crimson"], width=int(w * 0.06)); sol_save(im, "sol_shoji.png", (256, 496))
+    # 格子窗（参考 1540 凤凰画两边）：深色细格，格里透出天青
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), C["ink"]); d = ImageDraw.Draw(im)
+    for i in range(7):
+        for j in range(13): d.rectangle((w * (0.08 + 0.12 * i), h * (0.06 + 0.068 * j), w * (0.08 + 0.12 * i) + w * 0.08, h * (0.06 + 0.068 * j) + h * 0.045), fill=mixc("teal", "navy", 0.3))
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["pink"], width=int(w * 0.06)); sol_save(im, "sol_lattice.png", (256, 496))
+    # 凤凰画（占位）：纸白底，一只柠黄焦茶的鸟
+    w, h = 768 * SS, 512 * SS; im = Image.new("RGB", (w, h), mixc("paper", "ochre", 0.15)); d = ImageDraw.Draw(im)
+    d.ellipse((w * 0.35, h * 0.3, w * 0.62, h * 0.72), fill=C["ochre"], outline=C["kogecha"], width=SS * 4)
+    d.ellipse((w * 0.52, h * 0.18, w * 0.66, h * 0.36), fill=C["ochre"], outline=C["kogecha"], width=SS * 4)
+    for k in range(7): d.arc((w * (0.1 + 0.03 * k), h * (0.4 + 0.02 * k), w * (0.45 + 0.02 * k), h * (0.95 - 0.01 * k)), 180, 300, fill=[C["coral"], C["teal"], C["wisteria"]][k % 3], width=SS * 8)
+    d.polygon([(w * 0.66, h * 0.26), (w * 0.72, h * 0.28), (w * 0.66, h * 0.3)], fill=C["crimson"])
+    sol_save(im, "sol_houou.png", (768, 512))
+    # 大幡三面（1:3）
+    for k, (bg, kind) in enumerate(((C["teal"], "ju"), (C["coral"], "hana"), (C["navy"], "geo")), 1):
+        w, h = 256 * SS, 768 * SS; im = Image.new("RGB", (w, h), bg); d = ImageDraw.Draw(im)
+        for i in range(4):   # 下半菱格
+            for j in range(10):
+                x, y = w * (i + 0.5 * (j % 2)) / 4, h * (0.45 + 0.055 * j)
+                d.polygon([(x, y - h * 0.027), (x + w * 0.12, y), (x, y + h * 0.027), (x - w * 0.12, y)], fill=[C["crimson"], C["green"], C["ochre"]][(i + j + k) % 3])
+        if kind == "ju":
+            d.rectangle((w * 0.1, h * 0.05, w * 0.9, h * 0.38), fill=C["paper"])
+            try:
+                from PIL import ImageFont
+                fnt = ImageFont.truetype("/System/Library/Fonts/Supplemental/Songti.ttc", int(w * 0.62)); d.text((w * 0.5, h * 0.215), "寿", fill=C["ink"], font=fnt, anchor="mm")
+            except Exception: pass
+        elif kind == "hana": hanabishi(d, w * 0.5, h * 0.2, w * 0.36, C["paper"], C["crimson"]); hanabishi(d, w * 0.5, h * 0.2, w * 0.18, C["ochre"], C["teal"])
+        else:
+            for q in range(5): r_ = w * (0.38 - 0.07 * q); d.ellipse((w * 0.5 - r_, h * 0.2 - r_, w * 0.5 + r_, h * 0.2 + r_), outline=[C["ochre"], C["pink"]][q % 2], width=SS * 8)
+        d.rectangle((0, 0, w - 1, h - 1), outline=C["ochre"], width=SS * 6)
+        sol_save(im, f"sol_hata{k}.png", (256, 768))
+    # 红漩涡帆（参考 1350）
+    w = 512 * SS; im = Image.new("RGB", (w, w), C["crimson"]); d = ImageDraw.Draw(im)
+    for q in range(7): spiral(d, w / 2, w / 2, w * (0.46 - 0.0 * q), 3.2, SS * 10, C["coral"] if q % 2 == 0 else C["ochre"]) if q == 0 else None
+    spiral(d, w / 2, w / 2, w * 0.44, 3.0, SS * 14, C["ochre"]); spiral(d, w / 2, w / 2, w * 0.4, 3.0, SS * 6, C["coral"])
+    for k in range(1, 4): d.line((0, w * k / 4, w, w * k / 4), fill=mixc("crimson", "ink", 0.3), width=SS * 3)
+    sol_save(im, "sol_sail.png", (512, 512))
+    # 贴满札的墙（参考 p5_0428）：土色墙上一排排纸札，札上眼睛 / 漩涡
+    w, h = 1024 * SS, 600 * SS; im = Image.new("RGB", (w, h), mixc("ochre", "kogecha", 0.25)); d = ImageDraw.Draw(im); r2 = np.random.default_rng(113)
+    for row in range(2):
+        for k in range(7):
+            x, y = w * (0.03 + 0.138 * k) + r2.uniform(-8, 8) * SS, h * (0.06 + 0.48 * row) + r2.uniform(-6, 6) * SS; fw, fh = w * 0.1, h * 0.4
+            d.rectangle((x, y, x + fw, y + fh), fill=C["paper"], outline=mixc("paper", "ink", 0.3))
+            if (k + row) % 2: d.ellipse((x + fw * 0.2, y + fh * 0.2, x + fw * 0.8, y + fh * 0.36), outline=C["ink"], width=SS * 4); d.ellipse((x + fw * 0.42, y + fh * 0.24, x + fw * 0.58, y + fh * 0.32), fill=C["ink"])
+            else: spiral(d, x + fw * 0.5, y + fh * 0.28, fw * 0.3, 2.0, SS * 4, C["ink"])
+            for q in range(3): d.line((x + fw * 0.2, y + fh * (0.5 + 0.12 * q), x + fw * 0.8, y + fh * (0.5 + 0.12 * q)), fill=C["ink"], width=SS * 5)
+    sol_save(im, "sol_fuda.png", (1024, 600))
+    # 楼梯地毯：紫绿大花
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["wisteria"])
+        for i in range(9):
+            for j in range(9): petal_flower(d, w * i / 3 + (w / 6 if j % 2 else 0), h * j / 3, w * 0.13, 6, C["green"] if (i + j) % 2 else C["lavender"], inner=C["ochre"], ratio=0.5)
+    tiled((512, 512), f).save(OUT / "sol_carpet.png")
+    # 船楼板：粉红 / 天青 / 柠黄格子板（一格 1 米）
+    w = 512 * SS; im = Image.new("RGB", (w, w), C["pink"]); d = ImageDraw.Draw(im)
+    for i in range(3):
+        for j in range(3): d.rectangle((w * i / 3 + w * 0.02, w * j / 3 + w * 0.02, w * (i + 1) / 3 - w * 0.02, w * (j + 1) / 3 - w * 0.02), fill=[C["teal"], C["ochre"], C["lavender"]][(i + 2 * j) % 3], outline=C["crimson"], width=SS * 3)
+    sol_save(im, "sol_tower.png", (512, 512))
+    # 提灯：红 / 白
+    for name, base, band in (("sol_lantern_r", C["crimson"], C["coral"]), ("sol_lantern_w", C["paper"], C["pink"])):
+        def f(d, w, h, im, base=base, band=band):
+            d.rectangle((0, 0, w * 3, h * 3), fill=base)
+            for k in range(24): y = h * k / 8; d.line((0, y, w * 3, y), fill=band, width=SS * 2)
+        tiled((256, 256), f).save(OUT / f"{name}.png")
+
+
+def sol_from_scenes():
+    """そらりす丸出的五张（scenes/51~55，游33，11-06 用户确认花积分）→ 贴图。55 是场景线自己出的版式图，切成三面大幡和一条船身花纹（自动找色块）"""
+    def bg_mask(a):   # 和纸底（浅米色）以外的像素
+        return ~((a[..., 0] > 205) & (a[..., 1] > 195) & (a[..., 2] > 170) & (np.abs(a[..., 0].astype(int) - a[..., 2].astype(int)) < 60))
+    jobs = (("51_そらりす丸_雾海全景", "sol_sky.jpg", (3840, 1920)), ("52_そらりす丸_金云海全景", "sol_sky_color.jpg", (3840, 1920)),
+            ("53_そらりす丸_鱼纹藻井", "sol_mojing.jpg", (1024, 1024)), ("54_そらりす丸_凤凰画", "sol_houou.jpg", (2048, 1120)))
+    for sid, name, size in jobs:
+        src = SC / f"{sid}.png"
+        if src.exists(): Image.open(src).convert("RGB").resize(size, Image.LANCZOS).save(OUT / name, quality=88); print("→", name)
+    src = SC / "55_そらりす丸_大幡和船身.png"
+    if not src.exists(): return
+    im = Image.open(src).convert("RGB"); a = np.asarray(im); H, W = a.shape[:2]; m = bg_mask(a)
+    top = m[int(H * 0.2):int(H * 0.5)]; cols = top.mean(0) > 0.6   # 三面幡：上半截里大部分不是纸底的列
+    segs, x = [], 0
+    while x < W:
+        if cols[x]:
+            x0 = x
+            while x < W and cols[x]: x += 1
+            if x - x0 > W * 0.05: segs.append((x0, x))
+        x += 1
+    for k, (x0, x1) in enumerate(segs[:3], 1):
+        rows = m[:int(H * 0.66), x0:x1].mean(1) > 0.9
+        ys = np.where(rows)[0]; y0, y1 = ys.min(), ys.max(); y0 += int((y1 - y0) * 0.06)   # 去掉顶上挂杆那一截
+        im.crop((x0 + 4, y0 + 4, x1 - 4, y1 - 4)).resize((256, 768), Image.LANCZOS).save(OUT / f"sol_hata{k}.png"); print("→ sol_hata", k, (x0, y0, x1, y1))
+    rows = m[:, int(W * 0.1):int(W * 0.9)].mean(1) > 0.95; ys = np.where(rows[int(H * 0.6):])[0] + int(H * 0.6)
+    band = im.crop((0, ys.min(), W, ys.max())); band.resize((2048, 1024), Image.LANCZOS).save(OUT / "sol_hull.jpg", quality=88); print("→ sol_hull", band.size)
+
+
+# ---------- 地下铁（游34）：大正摩登 ----------
+def sub_set():
+    from PIL import ImageFont
+    font = lambda n: ImageFont.truetype("/System/Library/Fonts/Supplemental/Songti.ttc", n)
+    cream, green, wine, brass = mixc("paper", "ochre", 0.12), mixc("green", "navy", 0.45), mixc("crimson", "ink", 0.35), C["ochre"]
+    # 白瓷砖（一格 1 米：横 6 竖 4 块，细灰缝，偶尔一块旧一点）
+    w = 512 * SS; im = Image.new("RGB", (w, w), cream); d = ImageDraw.Draw(im); r2 = np.random.default_rng(201)
+    for i in range(6):
+        for j in range(4):
+            if r2.random() < 0.15: d.rectangle((w * i / 6, w * j / 4, w * (i + 1) / 6, w * (j + 1) / 4), fill=mixc("paper", "ochre", 0.22))
+    for i in range(7): d.line((w * i / 6, 0, w * i / 6, w), fill=mixc("paper", "ink", 0.25), width=SS * 2)
+    for j in range(5): d.line((0, w * j / 4, w, w * j / 4), fill=mixc("paper", "ink", 0.25), width=SS * 2)
+    sol_save(im, "sub_tile.png", (512, 512))
+    w = 512 * SS; im = Image.new("RGB", (w, w), green); d = ImageDraw.Draw(im)
+    for i in range(9): d.line((w * i / 8, 0, w * i / 8, w), fill=mixc("green", "ink", 0.6), width=SS * 2)
+    for j in range(5): d.line((0, w * j / 4, w, w * j / 4), fill=mixc("green", "ink", 0.6), width=SS * 2)
+    d.rectangle((0, 0, w, w * 0.04), fill=cream); sol_save(im, "sub_tile_green.png", (512, 512))
+    # 站台水磨石、站台边、道砟、隧道口
+    def terrazzo(name, base, dots, n, grid=None):
+        def f(d, w, h, im):
+            d.rectangle((0, 0, w * 3, h * 3), fill=base); r3 = np.random.default_rng(203)
+            for _ in range(n):
+                x, y, r = r3.uniform(0, w * 3), r3.uniform(0, h * 3), r3.uniform(1.5, 5) * SS; d.ellipse((x - r, y - r, x + r, y + r), fill=dots[r3.integers(len(dots))])
+            if grid:
+                for k in range(4): d.line((0, h * k, w * 3, h * k), fill=grid, width=SS * 2); d.line((w * k, 0, w * k, h * 3), fill=grid, width=SS * 2)
+        tiled((512, 512), f).save(OUT / f"{name}.png")
+    terrazzo("sub_floor", mixc("paper", "lavender", 0.35), [C["lavender"], mixc("paper", "ink", 0.3), C["paper"]], 2500, mixc("paper", "ink", 0.35))
+    terrazzo("sub_edge", mixc("paper", "ink", 0.35), [mixc("paper", "ink", 0.5), mixc("paper", "ink", 0.2)], 1500)
+    terrazzo("sub_ballast", mixc("ink", "kogecha", 0.3), [mixc("paper", "ink", 0.55), mixc("kogecha", "ink", 0.4), mixc("paper", "ink", 0.7)], 4000)
+    w = 512 * SS; im = Image.new("RGB", (w, w), mixc("ink", "navy", 0.3)); d = ImageDraw.Draw(im)
+    for j in range(8):
+        for i in range(5): d.rectangle((w * (i + 0.5 * (j % 2)) / 4, w * j / 8, w * (i + 0.5 * (j % 2) + 1) / 4 - SS * 3, w * (j + 1) / 8 - SS * 3), outline=mixc("navy", "ink", 0.2), width=SS * 2)
+    sol_save(im, "sub_tunnel.png", (512, 512))
+    # 站名牌
+    w, h = 1024 * SS, 300 * SS; im = Image.new("RGB", (w, h), cream); d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["navy"], width=SS * 14); d.rectangle((0, h * 0.72, w, h * 0.78), fill=wine)
+    d.text((w / 2, h * 0.38), "上 野", fill=C["navy"], font=font(int(h * 0.5)), anchor="mm"); d.text((w / 2, h * 0.88), "UYENO", fill=C["navy"], font=font(int(h * 0.12)), anchor="mm")
+    sol_save(im, "sub_sign.png", (1024, 300))
+    # 海报墙（占位）：瓷砖墙上三张竖海报，大正浪漫的女人剪影和花
+    w, h = 2048 * SS // 2, 1120 * SS // 2; im = Image.new("RGB", (w, h), cream); d = ImageDraw.Draw(im)
+    for k, (bg, fg) in enumerate(((C["teal"], C["pink"]), (wine, brass), (C["wisteria"], C["paper"]))):
+        x0 = w * (0.06 + 0.31 * k); x1 = x0 + w * 0.26; y0, y1 = h * 0.08, h * 0.92
+        d.rectangle((x0, y0, x1, y1), fill=bg, outline=C["ink"], width=SS * 4)
+        cx = (x0 + x1) / 2; d.ellipse((cx - w * 0.04, y0 + h * 0.18, cx + w * 0.04, y0 + h * 0.34), fill=C["paper"])   # 脸
+        d.polygon([(cx - w * 0.09, y1 - h * 0.08), (cx + w * 0.09, y1 - h * 0.08), (cx + w * 0.03, y0 + h * 0.34), (cx - w * 0.03, y0 + h * 0.34)], fill=fg)
+        d.ellipse((cx - w * 0.06, y0 + h * 0.12, cx + w * 0.06, y0 + h * 0.24), fill=C["ink"])   # 头发
+        for q in range(4): petal_flower(d, x0 + w * 0.04 + q * w * 0.06, y0 + h * 0.08, w * 0.02, 5, fg, inner=C["ochre"])
+        d.rectangle((x0 + w * 0.02, y1 - h * 0.07, x1 - w * 0.02, y1 - h * 0.03), fill=C["paper"])
+    sol_save(im, "sub_posters.png", (2048, 1120))
+    # 车身（一格 = 车身高 2.6 米，横两扇窗）：下深红、窗带纸白、窗里黑、上深红、腰线黄铜
+    w = 512 * SS; im = Image.new("RGB", (w, w), wine); d = ImageDraw.Draw(im)
+    d.rectangle((0, w * 0.2, w, w * 0.52), fill=cream)
+    for k in range(2): x0 = w * (0.08 + 0.5 * k); d.rectangle((x0, w * 0.24, x0 + w * 0.34, w * 0.48), fill=C["ink"], outline=C["kogecha"], width=SS * 5)
+    d.rectangle((0, w * 0.55, w, w * 0.57), fill=brass); d.rectangle((0, w * 0.17, w, w * 0.19), fill=brass)
+    sol_save(im, "sub_car_ext.png", (512, 512))
+    # 车门（木门、上半窗黑）、普通木门（检票口、咖啡馆）
+    for name, win in (("sub_car_door", C["ink"]), ("sub_door", mixc("teal", "paper", 0.5))):
+        w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), mixc("kogecha", "crimson", 0.25)); d = ImageDraw.Draw(im)
+        d.rectangle((w * 0.15, h * 0.08, w * 0.85, h * 0.42), fill=win, outline=brass, width=SS * 4)
+        d.rectangle((w * 0.15, h * 0.5, w * 0.85, h * 0.9), outline=mixc("kogecha", "ink", 0.3), width=SS * 4)
+        d.ellipse((w * 0.78, h * 0.52, w * 0.86, h * 0.56), fill=brass); d.rectangle((0, 0, w - 1, h - 1), outline=C["ink"], width=SS * 3)
+        sol_save(im, f"{name}.png", (256, 496))
+    # 车厢窗带（一格 1 米：一扇窗，窗外黑）、广告带
+    w = 512 * SS; im = Image.new("RGB", (w, w), mixc("kogecha", "ochre", 0.25)); d = ImageDraw.Draw(im)
+    d.rectangle((w * 0.08, w * 0.12, w * 0.92, w * 0.82), fill=mixc("ink", "navy", 0.4), outline=mixc("kogecha", "ink", 0.2), width=SS * 8)
+    d.line((w * 0.08, w * 0.47, w * 0.92, w * 0.47), fill=mixc("kogecha", "ink", 0.2), width=SS * 4)
+    sol_save(im, "sub_car_wall.png", (512, 512))
+    w = 512 * SS; im = Image.new("RGB", (w, w), cream); d = ImageDraw.Draw(im)
+    for row in range(2):
+        for k in range(2):
+            x0, y0 = w * (0.04 + 0.5 * k), w * (0.06 + 0.5 * row); bg = [C["teal"], wine, C["wisteria"], C["ochre"]][(row * 2 + k) % 4]
+            d.rectangle((x0, y0, x0 + w * 0.42, y0 + w * 0.38), fill=bg, outline=brass, width=SS * 3)
+            petal_flower(d, x0 + w * 0.12, y0 + w * 0.19, w * 0.07, 6, C["paper"], inner=C["pink"])
+            for q in range(3): d.line((x0 + w * 0.24, y0 + w * (0.12 + 0.07 * q), x0 + w * 0.38, y0 + w * (0.12 + 0.07 * q)), fill=C["paper"], width=SS * 4)
+    sol_save(im, "sub_ad.png", (512, 512))
+    # 天花、地板
+    def boards(name, base, line, n=6):
+        def f(d, w, h, im):
+            d.rectangle((0, 0, w * 3, h * 3), fill=base)
+            for k in range(n * 3): y = h * k / n; d.line((0, y, w * 3, y), fill=line, width=SS * 2)
+        tiled((512, 512), f).save(OUT / f"{name}.png")
+    boards("sub_car_ceil", cream, mixc("paper", "ochre", 0.4), 3); boards("sub_car_floor", mixc("kogecha", "ink", 0.15), mixc("kogecha", "ink", 0.45), 8)
+    boards("sub_ceil", cream, mixc("paper", "ink", 0.2), 2); boards("sub_cafe_ceil", C["kogecha"], mixc("kogecha", "ochre", 0.4), 3)
+    # 黑白格地砖（一格 0.91 米 4×4）
+    w = 512 * SS; im = Image.new("RGB", (w, w), cream); d = ImageDraw.Draw(im)
+    for i in range(4):
+        for j in range(4):
+            if (i + j) % 2: d.rectangle((w * i / 4, w * j / 4, w * (i + 1) / 4, w * (j + 1) / 4), fill=C["ink"])
+    sol_save(im, "sub_checker.png", (512, 512))
+    # 咖啡馆墙：下深红 + 金细线；上纸白 + 新艺术藤蔓
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=wine)
+        for k in range(12): d.line((w * k / 4, 0, w * k / 4, h * 3), fill=mixc("crimson", "ochre", 0.3), width=SS * 2)
+    tiled((512, 512), f).save(OUT / "sub_wall_cafe.png")
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=cream)
+        for ox in range(3):
+            d.line([(ox * w + w * (0.5 + 0.3 * math.sin(t / 12 * math.pi * 2)), h * t / 12 * 3) for t in range(13)], fill=C["teal"], width=SS * 4)
+            for q in range(4): petal_flower(d, ox * w + w * (0.3 + 0.4 * (q % 2)), h * (0.4 + 0.75 * q), w * 0.06, 5, C["pink"], inner=C["ochre"])
+    tiled((512, 512), f).save(OUT / "sub_wall_cafe_up.png")
+    # 彩色玻璃窗（一扇 256×496）：铅条几何花
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), C["lavender"]); d = ImageDraw.Draw(im); r4 = np.random.default_rng(207)
+    for i in range(4):
+        for j in range(8):
+            d.rectangle((w * i / 4, h * j / 8, w * (i + 1) / 4, h * (j + 1) / 8), fill=[C["lavender"], C["teal"], C["ochre"], C["pink"], mixc("lavender", "paper", 0.5)][r4.integers(5)])
+    petal_flower(d, w / 2, h * 0.3, w * 0.3, 8, C["crimson"], inner=C["ochre"], outline=C["ink"])
+    for i in range(5): d.line((w * i / 4, 0, w * i / 4, h), fill=C["ink"], width=SS * 3)
+    for j in range(9): d.line((0, h * j / 8, w, h * j / 8), fill=C["ink"], width=SS * 3)
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["kogecha"], width=int(w * 0.05)); sol_save(im, "sub_stained.png", (256, 496))
+    # 钟面、改札牌
+    w = 256 * SS; im = Image.new("RGB", (w, w), cream); d = ImageDraw.Draw(im)
+    for k in range(12): a = 2 * math.pi * k / 12; d.line((w / 2 + math.cos(a) * w * 0.36, w / 2 + math.sin(a) * w * 0.36, w / 2 + math.cos(a) * w * 0.44, w / 2 + math.sin(a) * w * 0.44), fill=C["ink"], width=SS * 5)
+    d.line((w / 2, w / 2, w / 2, w * 0.2), fill=C["ink"], width=SS * 6); d.line((w / 2, w / 2, w * 0.68, w * 0.56), fill=C["ink"], width=SS * 8)
+    sol_save(im, "sub_clock.png", (256, 256))
+    w, h = 256 * SS, 120 * SS; im = Image.new("RGB", (w, h), cream); d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["navy"], width=SS * 6); d.text((w / 2, h / 2), "改 札", fill=C["navy"], font=font(int(h * 0.6)), anchor="mm")
+    sol_save(im, "sub_kaisatsu_sign.png", (256, 120))
+
+
+def sub_set2():
+    """地下铁第二版（11-06 按参考帧，assets/concept/ref/subway/，只看不裁）：灰褐纸底、做旧划痕，大面积墨黑和米灰；点色只有酒红座椅、芥黄车身红顶、紫色挂钟。
+    覆盖第一版里同名的几张（sub_floor、sub_sign、sub_car_*、sub_ceil、sub_cafe_ceil），新加黑大理石、人影广告墙、美人画（占位）、酒红黑菱格布等"""
+    from PIL import ImageFont
+    font = lambda n: ImageFont.truetype("/System/Library/Fonts/Supplemental/Songti.ttc", n)
+    beige, paperb, ink, wine, mustard, gold = "#C9BBA0", "#DCD1BC", "#26232C", "#7A2A35", "#C9A23C", "#B89A4E"
+    def grunge(im, seed, amt=1.0):   # 做旧：几道细划痕、一些斑点
+        d = ImageDraw.Draw(im); r = np.random.default_rng(seed); w, h = im.size
+        for _ in range(int(40 * amt)):
+            x, y = r.uniform(0, w), r.uniform(0, h); L = r.uniform(20, 120) * SS; a = r.uniform(-0.4, 0.4) + (math.pi / 2 if r.random() < 0.5 else 0)
+            d.line((x, y, x + math.cos(a) * L, y + math.sin(a) * L), fill=(255, 250, 240) if r.random() < 0.5 else (40, 36, 40), width=1)
+        for _ in range(int(300 * amt)):
+            x, y, rr = r.uniform(0, w), r.uniform(0, h), r.uniform(1, 3) * SS; d.ellipse((x - rr, y - rr, x + rr, y + rr), fill=mixc(beige, "kogecha", r.uniform(0.2, 0.6)))
+        return im
+    def marble(name, base, vein, seed, size=512):
+        w = size * SS; im = Image.new("RGB", (w, w), base); d = ImageDraw.Draw(im); r = np.random.default_rng(seed)
+        for _ in range(14):
+            x, y = r.uniform(0, w), r.uniform(0, w); pts = [(x, y)]
+            for _ in range(10): x += r.uniform(-60, 60) * SS; y += r.uniform(10, 70) * SS; pts.append((x, y))
+            d.line(pts, fill=vein, width=int(r.uniform(1, 3) * SS))
+        sol_save(grunge(im, seed, 0.5), f"{name}.png", (size, size))
+    marble("sub_marble_black", ink, mixc(ink, "paper", 0.45), 301); marble("sub_ceil", mixc(ink, "kogecha", 0.2), mixc(ink, "paper", 0.35), 303)
+    marble("sub_stone_gray", "#8E877B", "#B3AC9F", 305)
+    # 站台地面：米灰石板、划痕
+    w = 512 * SS; im = Image.new("RGB", (w, w), "#BDB3A2"); d = ImageDraw.Draw(im)
+    for k in range(3): d.line((0, w * k / 2, w, w * k / 2), fill="#8E877B", width=SS * 3); d.line((w * k / 2, 0, w * k / 2, w), fill="#8E877B", width=SS * 3)
+    sol_save(grunge(im, 307), "sub_floor.png", (512, 512))
+    # 站名牌（参考 p10_0216）：米白板、墨字从右往左写"駅寿福"，下面一行小字，左右黑底金线装饰板
+    w, h = 1024 * SS, 300 * SS; im = Image.new("RGB", (w, h), ink); d = ImageDraw.Draw(im)
+    for x0 in (0, w * 0.82):
+        for k in range(4): d.arc((x0 + w * 0.01, h * (0.1 + 0.2 * k), x0 + w * 0.17, h * (0.4 + 0.2 * k)), 200, 340, fill=gold, width=SS * 2)
+    d.rectangle((w * 0.2, h * 0.08, w * 0.8, h * 0.92), fill=paperb, outline=ink, width=SS * 8)
+    jfont = lambda n: ImageFont.truetype("/System/Library/Fonts/ヒラギノ明朝 ProN.ttc", n)   # 宋体没有"駅""鉄"这两个日文字形，站名牌用日文明朝
+    d.text((w * 0.5, h * 0.38), "駅寿福", fill=ink, font=jfont(int(h * 0.42)), anchor="mm")
+    d.text((w * 0.5, h * 0.78), "駅寿福鉄下地", fill=ink, font=jfont(int(h * 0.15)), anchor="mm")
+    sol_save(grunge(im, 309, 0.4), "sub_sign.png", (1024, 300))
+    # 站台广告墙（参考 p11_0955）：浅紫灰底，拱廊下一排人影剪影（和服、洋装、学生、绅士），墨黑和淡紫
+    w, h = 2048 * SS // 2, 1120 * SS // 2; im = Image.new("RGB", (w, h), "#B9AEBC"); d = ImageDraw.Draw(im); r = np.random.default_rng(311)
+    for k in range(18):
+        x = w * (0.03 + 0.055 * k) + r.uniform(-8, 8); hh = h * r.uniform(0.55, 0.72); col = [ink, "#A88FAE", "#8E7E92"][k % 3]
+        d.ellipse((x - w * 0.012, h * 0.95 - hh, x + w * 0.012, h * 0.95 - hh + h * 0.06), fill=col)
+        d.polygon([(x - w * 0.018, h * 0.95 - hh + h * 0.06), (x + w * 0.018, h * 0.95 - hh + h * 0.06), (x + w * (0.02 + 0.012 * (k % 2)), h * 0.95), (x - w * (0.02 + 0.012 * (k % 2)), h * 0.95)], fill=col)
+        if k % 4 == 1: d.rectangle((x - w * 0.014, h * 0.95 - hh - h * 0.03, x + w * 0.014, h * 0.95 - hh + h * 0.005), fill=ink)   # 礼帽
+    d.rectangle((0, h * 0.95, w, h), fill="#8E7E92")
+    for k in range(5): x = w * k / 4; d.rectangle((x - w * 0.01, 0, x + w * 0.01, h), fill=ink); d.arc((x, -h * 0.25, x + w / 4, h * 0.35), 0, 180, fill=ink, width=SS * 5)
+    sol_save(grunge(im, 313, 0.6), "sub_silhouette.png", (2048, 1120))
+    # 车身：芥黄、窗黑、腰线墨（一格 = 车身高，两扇窗）
+    w = 512 * SS; im = Image.new("RGB", (w, w), mustard); d = ImageDraw.Draw(im)
+    for k in range(2): x0 = w * (0.08 + 0.5 * k); d.rectangle((x0, w * 0.22, x0 + w * 0.34, w * 0.5), fill=ink, outline=mixc(mustard, "kogecha", 0.5), width=SS * 5)
+    d.rectangle((0, w * 0.55, w, w * 0.58), fill=mixc(mustard, "kogecha", 0.6)); d.rectangle((0, 0, w, w * 0.1), fill="#8C2F2F")
+    sol_save(grunge(im, 315, 0.5), "sub_car_ext.png", (512, 512))
+    # 车厢：米色板墙、黑玻璃窗带金线花角（一格 1 米）
+    def gold_corners(d, x0, y0, x1, y1, r):
+        for (cx, cy, a0) in ((x0, y0, 0), (x1, y0, 90), (x1, y1, 180), (x0, y1, 270)):
+            d.arc((cx - r, cy - r, cx + r, cy + r), a0, a0 + 90, fill=gold, width=SS * 3)
+    w = 512 * SS; im = Image.new("RGB", (w, w), beige); d = ImageDraw.Draw(im)
+    d.rectangle((w * 0.08, w * 0.1, w * 0.92, w * 0.86), fill=ink, outline=mixc(beige, "kogecha", 0.5), width=SS * 8); gold_corners(d, w * 0.12, w * 0.14, w * 0.88, w * 0.82, w * 0.09)
+    sol_save(grunge(im, 317, 0.5), "sub_car_wall.png", (512, 512))
+    w = 512 * SS; im = Image.new("RGB", (w, w), beige); d = ImageDraw.Draw(im)
+    for k in range(3): x0 = w * (0.05 + 0.33 * k); d.rectangle((x0, w * 0.1, x0 + w * 0.26, w * 0.45), fill=ink, outline=gold, width=SS * 3)
+    sol_save(grunge(im, 319, 0.4), "sub_car_wall_up.png", (512, 512))
+    w = 512 * SS; im = Image.new("RGB", (w, w), mixc(beige, "kogecha", 0.25)); d = ImageDraw.Draw(im)
+    for k in range(5): d.line((w * k / 4, 0, w * k / 4, w), fill=mixc(beige, "kogecha", 0.55), width=SS * 3)
+    sol_save(grunge(im, 321, 0.4), "sub_car_koshi.png", (512, 512))
+    w = 512 * SS; im = Image.new("RGB", (w, w), "#D2C6AF"); d = ImageDraw.Draw(im)
+    for k in range(4): d.line((0, w * k / 3, w, w * k / 3), fill="#BFB29A", width=SS * 2)
+    sol_save(grunge(im, 323, 0.3), "sub_car_ceil.png", (512, 512))
+    w = 512 * SS; im = Image.new("RGB", (w, w), "#CFC3A8"); d = ImageDraw.Draw(im)
+    for k in range(3): d.line((0, w * k / 2, w, w * k / 2), fill="#9C907A", width=SS * 4); d.line((w * k / 2, 0, w * k / 2, w), fill="#9C907A", width=SS * 4)
+    sol_save(grunge(im, 325), "sub_car_floor.png", (512, 512))
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), mixc(beige, "kogecha", 0.3)); d = ImageDraw.Draw(im)
+    d.rectangle((w * 0.12, h * 0.06, w * 0.88, h * 0.7), fill=ink, outline=gold, width=SS * 3); gold_corners(d, w * 0.16, h * 0.09, w * 0.84, h * 0.67, w * 0.14)
+    d.rectangle((0, 0, w - 1, h - 1), outline=ink, width=SS * 4); sol_save(grunge(im, 327, 0.4), "sub_car_door.png", (256, 496))
+    # 美人画（占位，参考 p11_0213 的感觉）：白发女子侧脸、一只黑猫
+    w, h = 512 * SS, 420 * SS; im = Image.new("RGB", (w, h), "#2E3A52"); d = ImageDraw.Draw(im)
+    d.ellipse((w * 0.25, h * 0.18, w * 0.6, h * 0.75), fill="#F1E9DA"); d.ellipse((w * 0.36, h * 0.3, w * 0.62, h * 0.82), fill="#F3DDD3")
+    d.ellipse((w * 0.48, h * 0.62, w * 0.53, h * 0.66), fill="#B42A47")
+    d.ellipse((w * 0.62, h * 0.45, w * 0.9, h * 0.9), fill=ink); d.polygon([(w * 0.66, h * 0.5), (w * 0.69, h * 0.38), (w * 0.72, h * 0.48)], fill=ink); d.polygon([(w * 0.8, h * 0.48), (w * 0.84, h * 0.38), (w * 0.86, h * 0.5)], fill=ink)
+    for x_ in (0.71, 0.8): d.ellipse((w * x_, h * 0.58, w * (x_ + 0.04), h * 0.62), fill=gold)
+    sol_save(grunge(im, 329, 0.4), "sub_bijin.png", (512, 420))
+    # 酒红黑菱格布（参考 p11_1704）、咖啡馆天花、深色窗
+    w = 512 * SS; im = Image.new("RGB", (w, w), ink); d = ImageDraw.Draw(im)
+    for i in range(-1, 5):
+        for j in range(-1, 5):
+            if (i + j) % 2 == 0:
+                cx, cy = w * (i + 0.5) / 4, w * (j + 0.5) / 4; d.polygon([(cx, cy - w / 8), (cx + w / 8, cy), (cx, cy + w / 8), (cx - w / 8, cy)], fill=wine)
+    sol_save(grunge(im, 331, 0.5), "sub_harlequin.png", (512, 512))
+    w = 512 * SS; im = Image.new("RGB", (w, w), mixc(ink, "kogecha", 0.3)); d = ImageDraw.Draw(im)
+    for k in range(4): d.line((0, w * k / 3, w, w * k / 3), fill=ink, width=SS * 4)
+    sol_save(grunge(im, 333, 0.4), "sub_cafe_ceil.png", (512, 512))
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), mixc(ink, "navy", 0.3)); d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, w - 1, h - 1), outline=gold, width=int(w * 0.05)); d.line((w / 2, 0, w / 2, h), fill=gold, width=SS * 3); d.line((0, h * 0.45, w, h * 0.45), fill=gold, width=SS * 3)
+    sol_save(grunge(im, 335, 0.3), "sub_window_dark.png", (256, 496))
+    # 咖啡馆黑白方格墙（参考 p11_1558，一格 1 米 6×6）、挂钟改紫色
+    w = 512 * SS; im = Image.new("RGB", (w, w), paperb); d = ImageDraw.Draw(im)
+    for i in range(6):
+        for j in range(6):
+            if (i + j) % 2: d.rectangle((w * i / 6, w * j / 6, w * (i + 1) / 6, w * (j + 1) / 6), fill=ink)
+    sol_save(grunge(im, 337, 0.5), "sub_checker.png", (512, 512))
+    w = 256 * SS; im = Image.new("RGB", (w, w), "#8E6FA8"); d = ImageDraw.Draw(im); d.ellipse((w * 0.08, w * 0.08, w * 0.92, w * 0.92), fill=paperb)
+    for k in range(12): a = 2 * math.pi * k / 12; d.line((w / 2 + math.cos(a) * w * 0.32, w / 2 + math.sin(a) * w * 0.32, w / 2 + math.cos(a) * w * 0.4, w / 2 + math.sin(a) * w * 0.4), fill=ink, width=SS * 5)
+    d.line((w / 2, w / 2, w / 2, w * 0.22), fill=ink, width=SS * 6); d.line((w / 2, w / 2, w * 0.68, w * 0.56), fill=ink, width=SS * 8)
+    sol_save(im, "sub_clock.png", (256, 256))
+
+
+def sub_set3():
+    """地下铁的 act / 拾遗小物（游34，文案线 11-06）：旧报纸（角落一小块"女记者跳桥自尽"）、初乘券、女演员剧照"""
+    from PIL import ImageFont
+    jf = lambda n: ImageFont.truetype("/System/Library/Fonts/ヒラギノ明朝 ProN.ttc", n)
+    w, h = 1100 * SS // 2, 800 * SS // 2; im = Image.new("RGB", (w, h), "#D8CDB4"); d = ImageDraw.Draw(im); r = np.random.default_rng(401)
+    d.text((w * 0.97, h * 0.04), "毎朝日報", fill="#26232C", font=jf(int(h * 0.09)), anchor="ra")
+    for col in range(14):   # 竖排的字行（用细线代替），从右往左
+        x = w * (0.9 - 0.06 * col)
+        for k in range(int(r.integers(3, 6))):
+            y0 = h * r.uniform(0.18, 0.6); d.line((x, y0, x, y0 + h * r.uniform(0.1, 0.3)), fill="#5A5248", width=SS * 2)
+    d.rectangle((w * 0.04, h * 0.66, w * 0.36, h * 0.96), outline="#26232C", width=SS * 2)   # 角落那一小块
+    d.text((w * 0.2, h * 0.73), "婦人記者", fill="#26232C", font=jf(int(h * 0.06)), anchor="mm")
+    d.text((w * 0.2, h * 0.83), "橋より身を投ぐ", fill="#26232C", font=jf(int(h * 0.045)), anchor="mm")
+    sol_save(im, "sub_news.png", (1100, 800))
+    w, h = 400 * SS // 2, 200 * SS // 2; im = Image.new("RGB", (w, h), "#E4D7B8"); d = ImageDraw.Draw(im)
+    d.rectangle((w * 0.04, h * 0.08, w * 0.96, h * 0.92), outline="#7A2A35", width=SS * 2)
+    d.text((w * 0.5, h * 0.36), "初 乗", fill="#7A2A35", font=jf(int(h * 0.3)), anchor="mm"); d.text((w * 0.5, h * 0.72), "福寿駅 ─ 開通記念", fill="#26232C", font=jf(int(h * 0.13)), anchor="mm")
+    sol_save(im, "sub_kippu.png", (400, 200))
+    w, h = 300 * SS // 2, 450 * SS // 2; im = Image.new("RGB", (w, h), "#E8E0CE"); d = ImageDraw.Draw(im)
+    d.rectangle((w * 0.06, h * 0.05, w * 0.94, h * 0.8), fill="#8A8072")
+    d.ellipse((w * 0.32, h * 0.15, w * 0.68, h * 0.48), fill="#E9DCCB"); d.ellipse((w * 0.26, h * 0.1, w * 0.74, h * 0.34), fill="#26232C")
+    d.polygon([(w * 0.2, h * 0.8), (w * 0.8, h * 0.8), (w * 0.64, h * 0.48), (w * 0.36, h * 0.48)], fill="#7A2A35")
+    d.text((w * 0.5, h * 0.9), "銀幕の花", fill="#26232C", font=jf(int(h * 0.06)), anchor="mm")
+    sol_save(im, "sub_bromide.png", (300, 450))
+
+
+def pri_set():
+    """牢房（のっぺらぼう，游35，参考帧到之前按方案画）：暗灰泥墙、草席、暗泥地；记忆里的座敷是表现主义笔触的襖、金屏风；心象是能舞台——桧木板、老松镜板（占位）、白洲、五色揚幕"""
+    def save(im, name, size): im.resize(size, Image.LANCZOS).save(OUT / name)
+    rng = np.random.default_rng(501)
+    w = 512 * SS; im = Image.new("RGB", (w, w), mixc("kogecha", "paper", 0.4)); d = ImageDraw.Draw(im)   # 灰褐泥墙（第一版太黑，牢栅看不出来，提亮）
+    for _ in range(400):
+        x, y, r = rng.uniform(0, w), rng.uniform(0, w), rng.uniform(3, 14) * SS; d.ellipse((x - r, y - r * 0.6, x + r, y + r * 0.6), fill=mixc("kogecha", "paper", rng.uniform(0.25, 0.5)))
+    save(im, "pri_wall.png", (512, 512))
+    w, h = 512 * SS, 256 * SS; im = Image.new("RGB", (w, h), mixc("ochre", "kogecha", 0.45)); d = ImageDraw.Draw(im)   # 草席
+    for k in range(60): y = h * k / 60; d.line((0, y, w, y), fill=mixc("ochre", "kogecha", 0.6 if k % 2 else 0.3), width=SS)
+    for y0 in (0, h * 0.94): d.rectangle((0, y0, w, y0 + h * 0.06), fill=mixc("kogecha", "ink", 0.3))
+    save(im, "pri_straw.png", (512, 256))
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=mixc("kogecha", "paper", 0.15)); r2 = np.random.default_rng(503)
+        for _ in range(1500): x, y, r = r2.uniform(0, w * 3), r2.uniform(0, h * 3), r2.uniform(1, 4) * SS; d.ellipse((x - r, y - r, x + r, y + r), fill=mixc("kogecha", "ink", r2.uniform(0.1, 0.6)))
+    tiled((512, 512), f).save(OUT / "pri_earth.png")
+    def boards(name, base, line):
+        def f(d, w, h, im):
+            d.rectangle((0, 0, w * 3, h * 3), fill=base)
+            for k in range(18): d.line((0, h * k / 6, w * 3, h * k / 6), fill=line, width=SS * 2)
+        tiled((512, 512), f).save(OUT / f"{name}.png")
+    boards("pri_boards", mixc("kogecha", "ochre", 0.3), mixc("kogecha", "ink", 0.3)); boards("pri_stage", mixc("ochre", "paper", 0.35), mixc("ochre", "kogecha", 0.4))
+    boards("pri_ceil", mixc("kogecha", "paper", 0.2), mixc("kogecha", "ink", 0.3))
+    # 表现主义笔触的襖（4 扇一幅，横向连续）：粗重的扭曲笔触，藤紫、珊瑚、山吹压在纸白上
+    W, H = 2048, 990
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=mixc("paper", "lavender", 0.3)); r2 = np.random.default_rng(505)
+        for _ in range(60):
+            x, y = r2.uniform(0, w * 3), h + r2.uniform(0, h); col = [C["wisteria"], C["coral"], C["ochre"], C["ink"], C["teal"]][r2.integers(5)]
+            pts = [(x, y)]
+            for _ in range(8): x += r2.uniform(-60, 60) * SS / 2; y += r2.uniform(-50, 50) * SS / 2; pts.append((x, y))
+            d.line(pts, fill=col, width=int(r2.uniform(6, 20) * SS / 2), joint="curve")
+    tiled((W, H), f).save(OUT / "pri_fusuma.png")
+    # 金屏风（暗金底、墨色枯枝）、红毡、门
+    w, h = 2048 * SS // 2, 640 * SS // 2; im = Image.new("RGB", (w, h), mixc("ochre", "kogecha", 0.25)); d = ImageDraw.Draw(im)
+    for k in range(5):
+        x = w * (0.1 + 0.2 * k); pts = [(x, h)]
+        for q in range(6): x += rng.uniform(-40, 40); pts.append((x, h * (1 - 0.15 * (q + 1))))
+        d.line(pts, fill=C["ink"], width=SS * 6, joint="curve")
+    save(im, "pri_byobu.png", (2048, 640))
+    w = 256 * SS; im = Image.new("RGB", (w, w), C["crimson"]); d = ImageDraw.Draw(im)
+    for k in range(12): d.line((0, w * k / 12, w, w * k / 12), fill=mixc("crimson", "ink", 0.2), width=SS)
+    save(im, "pri_red.png", (256, 256))
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), mixc("kogecha", "ink", 0.2)); d = ImageDraw.Draw(im)
+    for k in range(1, 6): d.line((w * k / 6, 0, w * k / 6, h), fill=C["ink"], width=SS * 3)
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["ink"], width=SS * 5); save(im, "pri_door.png", (256, 496))
+    # 老松镜板（占位）：桧木板底上一株老松（萌葱针团、焦茶干），整面墙一幅
+    w, h = 1024 * SS, 1200 * SS // 2; im = Image.new("RGB", (w, h), mixc("ochre", "paper", 0.3)); d = ImageDraw.Draw(im)
+    for k in range(9): d.line((w * k / 8, 0, w * k / 8, h), fill=mixc("ochre", "kogecha", 0.3), width=SS * 2)
+    d.line([(w * 0.45, h), (w * 0.5, h * 0.7), (w * 0.4, h * 0.5), (w * 0.55, h * 0.3)], fill=C["kogecha"], width=SS * 28, joint="curve")
+    for (x, y, r) in ((0.25, 0.45, 0.16), (0.7, 0.35, 0.18), (0.5, 0.22, 0.14), (0.3, 0.25, 0.1), (0.78, 0.55, 0.12)):
+        d.ellipse((w * (x - r), h * (y - r * 0.45), w * (x + r), h * (y + r * 0.45)), fill=C["green"], outline=mixc("green", "ink", 0.4), width=SS * 3)
+    save(im, "pri_kagami.png", (1024, 600))
+    # 白洲（白色小卵石）、五色揚幕
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["paper"]); r2 = np.random.default_rng(507)
+        for _ in range(1800): x, y, r = r2.uniform(0, w * 3), r2.uniform(0, h * 3), r2.uniform(2, 6) * SS; d.ellipse((x - r, y - r * 0.8, x + r, y + r * 0.8), fill=mixc("paper", "lavender", r2.uniform(0.2, 0.8)))
+    tiled((512, 512), f).save(OUT / "pri_shirasu.png")
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), C["paper"]); d = ImageDraw.Draw(im)
+    for k, col in enumerate((C["wisteria"], C["paper"], C["crimson"], C["ochre"], C["green"])): d.rectangle((w * k / 5, 0, w * (k + 1) / 5, h), fill=col)
+    save(im, "pri_agemaku.png", (256, 496))
+
+
+def pri_set2():
+    """牢房第二版（11-06 按参考帧 assets/concept/ref/prison/，只看不裁）：现实是墨绿牢墙、浅褐木格子，佐佐木家绿框白壁满是梅枝小鸟；
+    心象是金红婚礼间（红白条富士鹤屏风、金底大树鹿流水、彩色大花地毯、花卉横楣）、粉红梅花房、彩色手鞠白拉门；结尾灰木长廊尽头金紫云和松"""
+    def save(im, name, size): im.resize(size, Image.LANCZOS).save(OUT / name)
+    rng = np.random.default_rng(601)
+    green_d, green, gold = "#2F4A3C", "#6E9A4E", "#D8B44A"
+    w = 512 * SS; im = Image.new("RGB", (w, w), green_d); d = ImageDraw.Draw(im)   # 墨绿牢墙
+    for _ in range(500):
+        x, y, r = rng.uniform(0, w), rng.uniform(0, w), rng.uniform(3, 12) * SS; d.ellipse((x - r, y - r * 0.6, x + r, y + r * 0.6), fill=mixc(green_d, "ink", rng.uniform(0.1, 0.5)))
+    save(im, "pri_wall.png", (512, 512))
+    def branches(d, w, h, X, Y, n, col, bloom, birds, r2):
+        for _ in range(n):
+            x, y = X + r2.uniform(0, w), Y + r2.uniform(0, h); pts = [(x, y)]
+            for _ in range(5): x += r2.uniform(-50, 50) * SS; y += r2.uniform(-40, 10) * SS; pts.append((x, y))
+            d.line(pts, fill=col, width=int(r2.uniform(3, 7) * SS), joint="curve")
+            for (px, py) in pts[1:]:
+                for _ in range(2): petal_flower(d, px + r2.uniform(-12, 12) * SS, py + r2.uniform(-12, 12) * SS, r2.uniform(5, 9) * SS, 5, bloom[r2.integers(len(bloom))], inner=C["ochre"])
+        for _ in range(birds):
+            bx, by = X + r2.uniform(0, w), Y + r2.uniform(0, h); d.ellipse((bx - 10 * SS, by - 6 * SS, bx + 10 * SS, by + 6 * SS), fill=C["kogecha"]); d.polygon([(bx + 8 * SS, by), (bx + 16 * SS, by - 3 * SS), (bx + 16 * SS, by + 2 * SS)], fill=C["ochre"])
+    # 绿框白壁上的梅枝小鸟工笔（一格 1 米能平铺）
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=mixc("paper", "ochre", 0.15)); r2 = np.random.default_rng(603)
+        for ox in range(3):
+            for oy in range(3): branches(d, w, h, ox * w, oy * h, 2, C["kogecha"], [C["paper"], C["pink"], C["coral"]], 1, r2)
+    tiled((512, 512), f).save(OUT / "pri_ume_wall.png")
+    # 粉红梅花房（墙）：粉底、满墙红白梅
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["pink"]); r2 = np.random.default_rng(605)
+        for ox in range(3):
+            for oy in range(3): branches(d, w, h, ox * w, oy * h, 4, C["crimson"], [C["paper"], C["crimson"], C["coral"]], 0, r2)
+    tiled((512, 512), f).save(OUT / "pri_ume_pink.png")
+    # 粉格子拉门（一扇）
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), mixc("pink", "paper", 0.4)); d = ImageDraw.Draw(im)
+    for k in range(1, 4): d.line((w * k / 4, 0, w * k / 4, h), fill=C["wisteria"], width=SS * 4)
+    for k in range(1, 6): d.line((0, h * k / 6, w, h * k / 6), fill=C["wisteria"], width=SS * 4)
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["crimson"], width=int(w * 0.05)); save(im, "pri_pink_lattice.png", (256, 496))
+    # 彩色手鞠白拉门（4 扇一幅，参考 p7_0955）
+    W_, H_ = 2048 * SS // 2, 990 * SS // 2; im = Image.new("RGB", (W_, H_), C["paper"]); d = ImageDraw.Draw(im)
+    for (x, y, r) in ((0.15, 0.45, 0.2), (0.42, 0.62, 0.14), (0.66, 0.4, 0.17), (0.88, 0.7, 0.1), (0.3, 0.15, 0.06), (0.78, 0.12, 0.07), (0.55, 0.88, 0.05)):
+        cx, cy, rr = W_ * x, H_ * y, H_ * r; d.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), fill=C["teal"], outline=C["ink"], width=SS * 3)
+        for k in range(8):
+            a0 = 2 * math.pi * k / 8; col = [C["blue"], C["coral"], C["ochre"], C["green"], C["wisteria"], C["crimson"]][(k + int(x * 10)) % 6]
+            d.pieslice((cx - rr, cy - rr, cx + rr, cy + rr), math.degrees(a0), math.degrees(a0) + 22, fill=col)
+        d.ellipse((cx - rr * 0.35, cy - rr * 0.35, cx + rr * 0.35, cy + rr * 0.35), fill=C["paper"], outline=C["ink"], width=SS * 2)
+    for k in range(1, 4): d.line((W_ * k / 4, 0, W_ * k / 4, H_), fill=C["ink"], width=SS * 4)
+    save(im, "pri_temari.png", (2048, 990))
+    # 金底大树、梅、鹿、流水（婚礼间两侧墙，M 整面一幅）
+    W_, H_ = 1600 * SS // 2, 900 * SS // 2; im = Image.new("RGB", (W_, H_), gold); d = ImageDraw.Draw(im)
+    for k in range(4): y = H_ * (0.7 + 0.07 * k); d.line([(x, y + 14 * SS * math.sin(x / 80)) for x in range(0, W_, 20)], fill=C["blue"], width=SS * 10)
+    d.line([(W_ * 0.3, H_), (W_ * 0.28, H_ * 0.6), (W_ * 0.35, H_ * 0.35), (W_ * 0.3, 0)], fill=C["kogecha"], width=SS * 40, joint="curve")
+    for k in range(6): d.line([(W_ * 0.32, H_ * (0.2 + 0.1 * k)), (W_ * (0.55 + 0.05 * (k % 2)), H_ * (0.1 + 0.1 * k))], fill=C["kogecha"], width=SS * 10)
+    branches(d, W_ * 0.6, H_ * 0.6, W_ * 0.35, 0, 6, C["kogecha"], [C["paper"], C["pink"]], 2, rng)
+    for (x, y) in ((0.72, 0.55), (0.85, 0.6)):   # 鹿
+        cx, cy = W_ * x, H_ * y; d.ellipse((cx - 50 * SS, cy - 22 * SS, cx + 50 * SS, cy + 22 * SS), fill=mixc("ochre", "kogecha", 0.5))
+        for dx in (-35, -15, 20, 40): d.line((cx + dx * SS, cy + 15 * SS, cx + dx * SS, cy + 70 * SS), fill=mixc("ochre", "kogecha", 0.6), width=SS * 6)
+        d.line((cx + 45 * SS, cy - 10 * SS, cx + 70 * SS, cy - 50 * SS), fill=mixc("ochre", "kogecha", 0.5), width=SS * 12); d.ellipse((cx + 60 * SS, cy - 70 * SS, cx + 90 * SS, cy - 45 * SS), fill=mixc("ochre", "kogecha", 0.5))
+    save(im, "pri_gold_tree.png", (1600, 900))
+    # 红白条富士鹤屏风（婚礼间正面）
+    W_, H_ = 2048 * SS // 2, 640 * SS // 2; im = Image.new("RGB", (W_, H_), C["paper"]); d = ImageDraw.Draw(im)
+    for k in range(10):
+        if k % 2: d.rectangle((W_ * k / 10, 0, W_ * (k + 1) / 10, H_), fill=C["crimson"])
+    d.polygon([(W_ * 0.3, H_ * 0.85), (W_ * 0.5, H_ * 0.25), (W_ * 0.7, H_ * 0.85)], fill=C["blue"]); d.polygon([(W_ * 0.44, H_ * 0.43), (W_ * 0.5, H_ * 0.25), (W_ * 0.56, H_ * 0.43)], fill=C["paper"])
+    for (x, y) in ((0.15, 0.4), (0.85, 0.35)):
+        cx, cy = W_ * x, H_ * y; d.ellipse((cx - 40 * SS, cy - 18 * SS, cx + 40 * SS, cy + 18 * SS), fill=C["paper"], outline=C["ink"], width=SS * 2)
+        d.line((cx + 30 * SS, cy - 5 * SS, cx + 55 * SS, cy - 60 * SS), fill=C["paper"], width=SS * 8); d.ellipse((cx + 48 * SS, cy - 72 * SS, cx + 64 * SS, cy - 58 * SS), fill=C["crimson"])
+    save(im, "pri_fuji_byobu.png", (2048, 640))
+    # 花卉横楣（红底彩色大花）、彩色大花地毯、金云天花
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["crimson"]); r2 = np.random.default_rng(607)
+        for _ in range(40): x, y = r2.uniform(0, w * 3), r2.uniform(0, h * 3); petal_flower(d, x, y, r2.uniform(18, 32) * SS, 8, [C["teal"], C["blue"], C["ochre"], C["wisteria"]][r2.integers(4)], inner=C["paper"], ratio=0.5)
+    tiled((512, 512), f).save(OUT / "pri_frieze.png")
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=gold); r2 = np.random.default_rng(609)
+        for _ in range(30): x, y, r = r2.uniform(0, w * 3), r2.uniform(0, h * 3), r2.uniform(30, 60) * SS; d.ellipse((x - r, y - r, x + r, y + r), fill=C["crimson"])
+        for _ in range(60): x, y = r2.uniform(0, w * 3), r2.uniform(0, h * 3); petal_flower(d, x, y, r2.uniform(20, 40) * SS, 8, [C["teal"], C["blue"], C["pink"], C["green"], C["wisteria"]][r2.integers(5)], inner=C["ochre"], ratio=0.55)
+    tiled((512, 512), f).save(OUT / "pri_flower_carpet.png")
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=gold); r2 = np.random.default_rng(611)
+        for _ in range(40): spiral(d, r2.uniform(0, w * 3), r2.uniform(0, h * 3), r2.uniform(30, 70) * SS, 1.5, SS * 6, mixc("ochre", "kogecha", 0.3))
+    tiled((512, 512), f).save(OUT / "pri_gold_ceiling.png")
+    # 人物屏风（佐佐木家座敷，占位）：米底上几个小人物（和服），淡彩
+    W_, H_ = 2048 * SS // 2, 640 * SS // 2; im = Image.new("RGB", (W_, H_), mixc("paper", "ochre", 0.25)); d = ImageDraw.Draw(im)
+    for k in range(7):
+        cx = W_ * (0.08 + 0.14 * k); col = [C["blue"], C["crimson"], C["wisteria"], C["green"]][k % 4]
+        d.polygon([(cx - 30 * SS, H_ * 0.85), (cx + 30 * SS, H_ * 0.85), (cx + 15 * SS, H_ * 0.4), (cx - 15 * SS, H_ * 0.4)], fill=col); d.ellipse((cx - 12 * SS, H_ * 0.3, cx + 12 * SS, H_ * 0.4), fill=C["paper"]); d.ellipse((cx - 14 * SS, H_ * 0.25, cx + 14 * SS, H_ * 0.33), fill=C["ink"])
+    for k in range(1, 6): d.line((W_ * k / 6, 0, W_ * k / 6, H_), fill=mixc("ochre", "kogecha", 0.4), width=SS * 3)
+    save(im, "pri_jinbutsu.png", (2048, 640))
+    # 结尾：天空金紫云、松、寺（长廊尽头 M 整面）、灰木板墙
+    W_, H_ = 1024 * SS // 2, 1200 * SS // 2; im = Image.new("RGB", (W_, H_), gold); d = ImageDraw.Draw(im)
+    for k in range(6): y = H_ * (0.08 + 0.12 * k); kumo(d, W_ * rng.uniform(0.2, 0.8), y, W_ * rng.uniform(0.4, 0.8), H_ * 0.05, C["wisteria"] if k % 2 else mixc("wisteria", "pink", 0.5), C["wisteria"])
+    d.rectangle((W_ * 0.4, H_ * 0.55, W_ * 0.6, H_ * 0.75), fill=C["crimson"]); d.polygon([(W_ * 0.34, H_ * 0.56), (W_ * 0.66, H_ * 0.56), (W_ * 0.5, H_ * 0.45)], fill=C["navy"])
+    for (x, y, r) in ((0.15, 0.62, 0.14), (0.85, 0.58, 0.16), (0.3, 0.8, 0.12), (0.72, 0.82, 0.13)): d.ellipse((W_ * (x - r), H_ * (y - r * 0.4), W_ * (x + r), H_ * (y + r * 0.4)), fill=C["green"], outline=mixc("green", "ink", 0.5), width=SS * 3)
+    d.rectangle((0, H_ * 0.88, W_, H_), fill=C["teal"]); save(im, "pri_sky_end.png", (1024, 1200))
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill="#7E7A74")
+        for k in range(18): d.line((w * k / 6, 0, w * k / 6, h * 3), fill="#5E5A56", width=SS * 2)
+    tiled((512, 512), f).save(OUT / "pri_greywood.png")
+
+
+def pri_set3():
+    """牢房拾遗：婚帖（竖写几行，新娘名字那一行被墨涂掉）"""
+    from PIL import ImageFont
+    jf = lambda n: ImageFont.truetype("/System/Library/Fonts/ヒラギノ明朝 ProN.ttc", n)
+    w, h = 480 * SS // 2, 320 * SS // 2; im = Image.new("RGB", (w, h), mixc("paper", "pink", 0.2)); d = ImageDraw.Draw(im)
+    d.rectangle((w * 0.04, h * 0.06, w * 0.96, h * 0.94), outline=C["crimson"], width=SS * 3)
+    for k, t in enumerate(("婚礼之儀", "佐々木和正", "", "右 目出度く")):
+        x = w * (0.82 - 0.2 * k)
+        if t: d.text((x, h * 0.5), "\n".join(t), fill=C["ink"], font=jf(int(h * 0.1)), anchor="mm", spacing=2)
+    x = w * 0.42; d.rectangle((x - w * 0.05, h * 0.14, x + w * 0.05, h * 0.86), fill=C["ink"])   # 新娘名字涂掉
+    im.resize((480, 320), Image.LANCZOS).save(OUT / "pri_kontei.png")
+
+
+def pri_set4():
+    """牢房第三版（11-06 用户"多还原原著场景"，参考帧只看不裁）：厨房的粉柜、青灰箱 / 红褐箱（白家纹）、绿竹筐、黑木板门、白格子窗；
+    座敷的小格子窗；彩色梅林（p6_0922）的彩点地和天"""
+    def save(im, name, size): im.resize(size, Image.LANCZOS).save(OUT / name)
+    w = 512 * SS // 2; im = Image.new("RGB", (w, w), "#E7B8C3"); d = ImageDraw.Draw(im)   # 粉柜：粉底白卷云
+    for (x, y, r) in ((0.25, 0.7, 0.12), (0.5, 0.75, 0.1), (0.75, 0.7, 0.12), (0.35, 0.3, 0.08), (0.68, 0.32, 0.09)):
+        spiral(d, w * x, w * y, w * r, 1.6, SS * 4, C["paper"])
+    save(im, "pri_pinkbox.png", (512, 512))
+    def mon_box(name, base, line):
+        w = 512 * SS // 2; im = Image.new("RGB", (w, w), base); d = ImageDraw.Draw(im)
+        d.rectangle((0, 0, w - 1, w - 1), outline=mixc(base, "ink", 0.4), width=SS * 6)
+        cx = cy = w / 2; r = w * 0.2; d.ellipse((cx - r, cy - r, cx + r, cy + r), outline=line, width=SS * 7)
+        for k in range(3):   # 白家纹：圆里三枚叶
+            a = 2 * math.pi * k / 3 - math.pi / 2; d.ellipse((cx + math.cos(a) * r * 0.45 - r * 0.28, cy + math.sin(a) * r * 0.45 - r * 0.28, cx + math.cos(a) * r * 0.45 + r * 0.28, cy + math.sin(a) * r * 0.45 + r * 0.28), fill=line)
+        save(im, name, (512, 512))
+    mon_box("pri_tub.png", "#7F96A6", C["paper"]); mon_box("pri_chest.png", "#7A3A34", mixc("paper", "pink", 0.3))
+    w = 256 * SS; im = Image.new("RGB", (w, w), "#5E8A4A"); d = ImageDraw.Draw(im)   # 绿竹筐：斜编格
+    for k in range(-12, 13):
+        x = w * k / 12; d.line((x, 0, x + w, w), fill=mixc("#5E8A4A", "ink", 0.35), width=SS * 3); d.line((x + w, 0, x, w), fill=mixc("#5E8A4A", "paper", 0.25), width=SS * 2)
+    save(im, "pri_zaru.png", (256, 256))
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), "#4B4642"); d = ImageDraw.Draw(im)   # 黑木板门：竖板 + 三道横档
+    for k in range(1, 7): d.line((w * k / 7, 0, w * k / 7, h), fill="#2E2A28", width=SS * 2)
+    for y in (0.12, 0.5, 0.88): d.rectangle((0, h * y - SS * 6, w, h * y + SS * 6), fill="#3A3532")
+    d.rectangle((0, 0, w - 1, h - 1), outline="#2A2624", width=SS * 6); save(im, "pri_plank_door.png", (256, 496))
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), "#F1EEE8"); d = ImageDraw.Draw(im)   # 白格子窗（障子）：灰框
+    for k in range(1, 4): d.line((w * k / 4, 0, w * k / 4, h), fill="#7D7A76", width=SS * 3)
+    for k in range(1, 8): d.line((0, h * k / 8, w, h * k / 8), fill="#7D7A76", width=SS * 3)
+    d.rectangle((0, 0, w - 1, h - 1), outline="#5E5A56", width=SS * 6); save(im, "pri_shoji_white.png", (256, 496))
+    w, h = 256 * SS, 496 * SS; im = Image.new("RGB", (w, h), "#ECE8DE"); d = ImageDraw.Draw(im)   # 座敷的小格子窗：白底、青灰竖格
+    for k in range(1, 9): d.rectangle((w * k / 9 - SS * 4, 0, w * k / 9 + SS * 4, h), fill="#6F8496")
+    d.rectangle((0, 0, w - 1, h - 1), outline="#6E9A4E", width=SS * 10); save(im, "pri_koshi_win.png", (256, 496))
+    pastel = ["#F3C6CF", "#C9D7EE", "#F5E6A8", "#D8C6EA", "#CFE6D2", "#F6D9B8"]
+    splat = ["#C8324A", "#3E6FB8", "#E58AA0", "#7A5AA8", "#2E8C8A", "#E8B23A"]
+    def f(d, w, h, im):   # 彩点地：粉彩大色块 + 小溅点
+        d.rectangle((0, 0, w * 3, h * 3), fill="#F2E4DA"); r2 = np.random.default_rng(701)
+        for _ in range(120): x, y, r = r2.uniform(0, w * 3), r2.uniform(0, h * 3), r2.uniform(30, 90) * SS; d.ellipse((x - r, y - r * 0.6, x + r, y + r * 0.6), fill=pastel[r2.integers(len(pastel))])
+        for _ in range(500): x, y, r = r2.uniform(0, w * 3), r2.uniform(0, h * 3), r2.uniform(2, 7) * SS; d.ellipse((x - r, y - r, x + r, y + r), fill=splat[r2.integers(len(splat))])
+    tiled((512, 512), f).save(OUT / "pri_yume_ground.png")
+    W_, H_ = 2048, 1024; im = Image.new("RGB", (W_, H_), "#F4E9D8"); d = ImageDraw.Draw(im); r2 = np.random.default_rng(703)   # 天：等距柱状，左右接缝（每笔左右各画一遍）
+    for k in range(H_):
+        t = k / H_; c = mixc("#CFE0F0", "#F7E7C4", min(1, t * 1.6)) if t < 0.5 else mixc("#F7E7C4", "#F2C9CF", (t - 0.5) * 2); d.line((0, k, W_, k), fill=c)
+    def both(fn, x, *a):
+        for ox in (-W_, 0, W_): fn(x + ox, *a)
+    for _ in range(260):   # 粉彩大笔触
+        x, y = r2.uniform(0, W_), r2.uniform(H_ * 0.15, H_ * 0.85); ww, hh = r2.uniform(60, 220), r2.uniform(14, 40); col = pastel[r2.integers(len(pastel))]
+        both(lambda xx, yy, a, b, c_: d.ellipse((xx - a, yy - b, xx + a, yy + b), fill=c_), x, y, ww, hh, col)
+    for _ in range(1600):   # 溅点
+        x, y, r = r2.uniform(0, W_), r2.uniform(H_ * 0.1, H_ * 0.95), r2.uniform(1.5, 6); col = splat[r2.integers(len(splat))]
+        both(lambda xx, yy, rr, c_: d.ellipse((xx - rr, yy - rr, xx + rr, yy + rr), fill=c_), x, y, r, col)
+    im.save(OUT / "pri_yume_sky.jpg", quality=88)
+
+
+def pri_from_scenes():
+    """牢房出的八张（scenes/80~87，游35，11-06 用户确认花积分）→ 贴图。82 是两块方的花样（左地毯、右横楣），按纸底切开再做成能平铺"""
+    def seamless(im):
+        a = np.asarray(im, float); h, w = a.shape[:2]
+        b = np.roll(np.roll(a, w // 2, 1), h // 2, 0)
+        yy, xx = np.mgrid[0:h, 0:w]; m = np.clip(np.minimum(np.minimum(xx, w - 1 - xx), np.minimum(yy, h - 1 - yy)) / (0.22 * w), 0, 1)[..., None]
+        return Image.fromarray((a * m + b * (1 - m)).astype(np.uint8))
+    jobs = (("80_牢房_金底大树鹿流水墙", "pri_gold_tree.jpg", (2048, 944)), ("81_牢房_富士鹤屏风", "pri_fuji_byobu.jpg", (2048, 683)),
+            ("83_牢房_粉墙红白梅", "pri_ume_mural.jpg", (2048, 944)), ("84_牢房_手鞠白拉门", "pri_temari.jpg", (2048, 683)),
+            ("85_牢房_梅枝小鸟工笔壁", "pri_kacho.jpg", (2048, 683)), ("86_牢房_人物屏风", "pri_jinbutsu.jpg", (2048, 853)),
+            ("87_牢房_结尾金紫云松寺天空", "pri_sky_end.jpg", (1024, 1170)))
+    for sid, name, size in jobs:
+        src = SC / f"{sid}.png"
+        if src.exists(): Image.open(src).convert("RGB").resize(size, Image.LANCZOS).save(OUT / name, quality=88); print("→", name)
+        else: print("还没有", src.name)
+    src = SC / "82_牢房_大花地毯和花卉横楣.png"
+    if not src.exists(): print("还没有", src.name); return
+    im = Image.open(src).convert("RGB"); a = np.asarray(im); H, W = a.shape[:2]
+    paper = (a[..., 0] > 200) & (a[..., 1] > 190) & (a[..., 2] > 165) & (np.abs(a[..., 0].astype(int) - a[..., 2].astype(int)) < 60)
+    cols = (~paper).mean(0) > 0.5; segs, x = [], 0
+    while x < W:
+        if cols[x]:
+            x0 = x
+            while x < W and cols[x]: x += 1
+            if x - x0 > W * 0.2: segs.append((x0, x))
+        x += 1
+    if len(segs) < 2: segs = [(int(W * 0.03), int(W * 0.48)), (int(W * 0.52), int(W * 0.97))]; print("82 没切出两块，按比例切")
+    for (x0, x1), name in zip(segs[:2], ("pri_flower_carpet.jpg", "pri_frieze.jpg")):
+        rows = (~paper[:, x0:x1]).mean(1) > 0.5; ys = np.where(rows)[0]; y0, y1 = ys.min(), ys.max()
+        m_ = int(min(x1 - x0, y1 - y0) * 0.03)
+        seamless(im.crop((x0 + m_, y0 + m_, x1 - m_, y1 - m_)).resize((1024, 1024), Image.LANCZOS)).save(OUT / name, quality=88); print("→", name, (x0, y0, x1, y1))
+
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:   # 只重画点名的几张：uv run tools/kit_textures.py ink_set fusuma_ink …
@@ -1420,5 +2160,5 @@ if __name__ == "__main__":
     noren_kamon(); fusuma_kamon(); maku_sanshoku(); maku_green(); chochin_kamon(); itado(); fusuma_nami(); rug_tsuru()
     zabuton_maru(); floor_black(); panels_color(); goten_blue(); wall_darkred(); lattice_red(); shiromuku()
     dotted("wall_gray", 0.55); dotted("earth_dark", 0.74); goten_black(); panels_ybg()
-    ink_set(); fue_set()
+    ink_set(); fue_set(); sol_set(); sol_from_scenes(); sub_set(); sub_set2(); sub_set3(); pri_set(); pri_set2(); pri_set3(); pri_set4(); pri_from_scenes()
     print("→", OUT)

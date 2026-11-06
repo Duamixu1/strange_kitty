@@ -47,6 +47,8 @@
     body.map-mode #map { display: flex; flex-direction: column; justify-content: center; }
     body.map-mode #help { display: none; }
     #map h1 { color: var(--paper); font-weight: normal; letter-spacing: .5em; margin: 0 0 4px 48px; font-size: 26px; }
+    #map .intro-btn { margin-left: 18px; vertical-align: middle; background: transparent; border: 1px solid rgba(241,233,218,.45); color: var(--paper); font: 13px -apple-system, "PingFang SC", sans-serif; letter-spacing: .2em; padding: 4px 10px 4px 12px; cursor: pointer; opacity: .75; }
+    #map .intro-btn:hover { opacity: 1; }
     #map .hint { color: var(--paper); opacity: .55; margin: 0 0 14px 50px; font: 13px -apple-system, "Hiragino Sans GB", sans-serif; letter-spacing: .08em; }
     #map .scroll { overflow-x: auto; overflow-y: hidden; padding: 10px 0 18px; cursor: grab; scrollbar-width: thin; scrollbar-color: var(--wisteria) transparent; user-select: none; }
     #map .scroll:active { cursor: grabbing; }
@@ -142,14 +144,14 @@
     #boxbtn.new::after { content: ""; position: absolute; right: -2px; top: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--crimson); border: 1.5px solid var(--paper); }
     body.map-mode #boxbtn { display: none; }
     /* 抽屉宽按屏幕宽、高里小的那个算（一只箱子占满大半屏，11-04 用户要"先显示药箱的大图"），卡宽 --tw */
-    #medbox { --dw: max(64px, min(calc((100vw - 70px) / 4.3), calc((100vh - 140px) / 2.9), 210px)); --tw: min(580px, 92vw);
+    #medbox { --cols: 4; --rows: 3; --dw: max(56px, min(calc((100vw - 70px) / (var(--cols) + .3)), calc((100vh - 140px) / (var(--rows) - .1)), 210px)); --tw: min(580px, 92vw);
       position: fixed; inset: 0; z-index: 9; display: none; align-items: center; justify-content: center; gap: 22px; padding: 16px; background: rgba(20, 16, 31, .62); font-family: "Hiragino Mincho ProN", "Songti SC", serif; }
     #medbox.show { display: flex; }
     #medbox .mb-box { position: relative; background: #1B1622; padding: 34px 14px 14px; border: 3px solid #0d0a12; box-shadow: 5px 5px 0 #0d0a12; flex: none; }
     #medbox .mb-box::before { content: "藥"; position: absolute; left: 50%; top: -20px; transform: translateX(-50%); width: 38px; height: 38px; display: grid; place-items: center; background: var(--crimson); color: var(--paper); border: 2px solid #C9A23A; font-size: 20px; }
     #medbox .mb-count { position: absolute; left: 16px; top: 9px; color: #C9A23A; font-size: 13px; letter-spacing: .12em; }
     #medbox .mb-x { position: absolute; right: 8px; top: 4px; border: 0; background: none; color: #C9A23A; font: 22px/1 serif; cursor: pointer; padding: 2px 6px; }
-    #medbox .mb-grid { display: grid; grid-template-columns: repeat(4, var(--dw)); gap: calc(var(--dw) * .08); }
+    #medbox .mb-grid { display: grid; grid-template-columns: repeat(var(--cols), var(--dw)); gap: calc(var(--dw) * .08); }
     #medbox .mb-dr { position: relative; height: calc(var(--dw) * .86); padding: 0; background: linear-gradient(#2c2433, #211a28); border: 2px solid #8a6d26; cursor: pointer; font: inherit; transition: transform .18s, box-shadow .18s; -webkit-tap-highlight-color: transparent; }
     #medbox .mb-dr::before { content: ""; position: absolute; inset: 4px; border: 1px solid rgba(201, 162, 58, .35); background: radial-gradient(circle at 50% 50%, rgba(201, 162, 58, .18) 1px, transparent 1.5px) 0 0 / 9px 9px; pointer-events: none; }
     #medbox .mb-dr .lbl { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); writing-mode: vertical-rl; white-space: nowrap; background: var(--paper); color: var(--ink); padding: 3px 2px; font-size: calc(var(--dw) * .115); line-height: 1.05; min-height: calc(var(--dw) * .48); border: 1px solid #b9a98a; }   /* 六个字（褪色的红手鞠）也要在拉环上面收住 */

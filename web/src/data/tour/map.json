@@ -74,7 +74,7 @@
    "id": "solaris",
    "name": "そらりす丸",
    "sub": "海坊主",
-   "open": false,
+   "open": true,
    "rect": [
     2207,
     505,
@@ -90,7 +90,7 @@
    "id": "subway",
    "name": "地下铁",
    "sub": "化猫",
-   "open": false,
+   "open": true,
    "rect": [
     2727,
     505,
@@ -106,7 +106,7 @@
    "id": "prison",
    "name": "牢房",
    "sub": "のっぺらぼう",
-   "open": false,
+   "open": true,
    "rect": [
     3248,
     505,

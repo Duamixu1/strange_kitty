@@ -1,0 +1,23 @@
+# そらりす丸·船尾（参考 1350）：比海面高 2.4 米的尾甲板，四周粉红栏杆、船舷贴花纹；正中一根桅杆挂红色漩涡帆；
+# 往西北的海上漂着一只虚舟（utsuro）。南边 U 回走廊。观景点：1 甲板南头看帆，2 西北角栏杆边看虚舟。
+name: solaris_tomo
+shot: 帆 | 5.0,1.7,7.6 | 5.0,4.0,2.0 | 4.3,6.4,3.14
+shot: 虚舟 | 2.2,1.6,2.8 | -3.6,-1.4,-4.4 | 1.6,1.8,-2.5
+height: 3.0
+doma: 2.4
+ceiling: none
+hull: on
+surround: sea
+mat: wood=sol_pillar, frame=sol_pink, plaster=sol_wall_pink, kokabe=sol_panel, tatami=sol_floor_ao, tatami_side=sol_pink, engawa=sol_deck, shoji=sol_shoji, lattice_win=sol_lattice, fusuma=sol_panel_door, fusuma2=sol_panel, udoor=sol_door, rail=sol_pink, stair=sol_stair, ceiling=sol_koshi, sea=sol_sea, hull=sol_hull, prow=sol_red, finial=sol_gold, roof=sol_roof, tower=sol_tower, water=sol_pool, bank=sol_deck_edge, gallery=sol_koshi_floor, gallery_edge=sol_yellow, pillar=sol_pillar, mojing=sol_mojing, hata1=sol_hata1, hata2=sol_hata2, hata3=sol_hata3, koshi=sol_pink, lacquer=ink
+place: sail 5.0,3.2,7.5; utsuro -3.6,-4.4,45,-2.3
+---
+%%%%%%%%%%%
+%2========%
+%=========%
+%=========%
+%=========%
+%=========%
+%====1====%
+%===@=====%
+%=========%
+%####U####%

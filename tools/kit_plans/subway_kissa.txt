@@ -1,0 +1,24 @@
+# 地下铁·站前咖啡馆（参考 p11_1558、p12_0849、p11_1704）：黑白方格墙、深色木腰板、一排黑玻璃窗金框，地上一大块酒红黑菱格布；
+# 圆桌、洋椅、吧台和三张高凳，吧台后两层酒瓶，紫色挂钟、壁挂电话、绿植、墙上一幅画。
+# 南 U 回检票口。观景点：1 窗边看彩玻窗，2 吧台前。
+name: subway_kissa
+height: 2.9
+ceiling: sao
+koshi: 0.9
+timber: 1.4
+rug: 1.5,1.4,6.6,6.6
+rug_tex: sub_harlequin
+mat: wood=sub_iron, frame=sub_iron, plaster=sub_marble_black, kokabe=sub_marble_black, koshi=sub_stone_gray, engawa=sub_floor, tatami=sub_floor, ceiling=sub_ceil, vault=sub_marble_black, iron=sub_white_brick, udoor=sub_car_door, glassdoor=sub_window_dark, shoji=sub_car_door, fusuma=sub_car_door, sea=sub_ballast, hull=sub_stone_gray, edge=sub_stone_gray, safety=sub_white_brick, chair_wood=sub_iron, chair_seat=sub_seat, dais_side=sub_wood, painting=sub_bijin, plaster=sub_checker, kokabe=sub_checker, koshi=sub_wood, engawa=sub_car_floor, ceiling=sub_cafe_ceil, glassdoor=sub_window_dark, wood=sub_wood, frame=sub_wood, painting=sub_silhouette
+place: table_round 2.3,2.6; table_round 5.0,2.6; table_round 2.3,5.0; table_round 5.0,5.0; lamp 2.3,2.6,0,2.75; lamp 5.0,2.6,0,2.75; lamp 2.3,5.0,0,2.75; lamp 5.0,5.0,0,2.75; bottles 8.45,2.8,90,1.35,2.6; bottles 8.45,2.8,90,1.75,2.6; stool 7.0,3.0; stool 7.0,3.8; stool 7.0,4.6; stool 7.0,5.4; plant 1.0,1.0; plant 8.4,7.0; clock 6.0,0.75,0,2.2; phone 0.5,4.2,0,1.2; painting 0.5,2.2,0,1.2,0.8,0.6; newspaper 7.45,4.2,0,0.995
+shot: 彩玻窗 | 6.6,1.6,6.6 | 2.0,1.5,0.4 | 5.8,5.8,-2.4
+shot: 吧台 | 3.4,1.6,6.8 | 8.4,1.2,3.2 | 5.9,5.0,1.2
+---
+#GGGGGGGG#
+#========#
+#=h=h====#
+#=======R#
+#=h=h===R#
+#===1=2=R#
+#=======R#
+#=@======#
+####U#####

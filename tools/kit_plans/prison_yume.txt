@@ -1,0 +1,24 @@
+# 心象·彩色梅林（参考 p6_0922）：狐面男的梦从这里开始——没有墙，地上和天上都是粉彩的大笔触和溅点，一株照原片建的梅树（Tripo 模型 pri_umetree）当主树，其余是程序画的墨红褐梅树，枝头红花夹青蓝点；
+# 南北各一扇孤零零立着的黑木板门（U，和厨房那扇一样）：南回厨房，北进婚礼间。观景点：1 正中看梅树，2 西南看那扇门。
+name: prison_yume
+height: 2.2
+ceiling: none
+surround: yume
+mat: wood=pri_green, frame=pri_green, bars=pri_bars, plaster=pri_ume_wall, kokabe=pri_ume_wall, tatami=pri_straw, tatami_side=pri_beam, earth=pri_earth, engawa=pri_boards, ceiling=pri_ceil, fusuma=pri_ume_wall, udoor=pri_door, byobu=pri_jinbutsu, dais=pri_red, dais_side=pri_red_lacquer, dais_trim=pri_gold, rail=pri_beam, under=kage, earth=pri_yume_ground, tree=pri_yume_trunk, udoor=pri_plank_door, wood=pri_beam, frame=pri_beam, kokabe=pri_beam, plaster=pri_beam
+place: umetree3d 3.4,3.4,116,0,4.8; umetree 7.6,2.6,3.8; umetree 1.2,8.7,3.4; umetree 8.4,7.0,4.4; umetree 6.6,4.0,3.0; umetree 1.4,1.6,3.2; umetree 9.4,9.6,3.0
+shot: 梅树 | 5.0,1.6,9.6 | 5.0,1.6,3.0 | 5.0,8.6,3.14
+shot: 那扇门 | 2.4,1.6,8.6 | 5.0,1.2,11.6 | 2.2,7.4,0.8
+---
+     U     
+  _______  
+ _________ 
+___________
+___________
+_____1_____
+___________
+___________
+__2________
+___________
+ ____@____ 
+  _______  
+     U     

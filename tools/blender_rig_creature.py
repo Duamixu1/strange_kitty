@@ -21,7 +21,7 @@ from mathutils import Matrix, Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 ap = argparse.ArgumentParser()
-ap.add_argument("--kind", choices=["bakeneko", "hinezumi", "nue", "karakasa", "umibozu"], required=True)
+ap.add_argument("--kind", choices=["bakeneko", "bakeneko_tv", "hinezumi", "nue", "karakasa", "umibozu"], required=True)
 ap.add_argument("--in", dest="inp", required=True)
 ap.add_argument("--out")
 ap.add_argument("--render")
@@ -55,6 +55,12 @@ QUAD = {
                      legF=(0.56, 0.3), legB=(0.56, 0.3), feet_back=None,
                      tail=[(-0.36, 0.66, 0.19), (-0.34, 0.80, 0.17), (-0.24, 0.90, 0.11), (-0.20, 1.02, 0.08), (-0.25, 1.12, 0.14), (-0.33, 1.10, 0.18)],
                      ears={"L": (-0.03, 0.29), "R": (-0.17, 0.25)}, ear_z=(0.955, 0.985), smooth=12),   # 耳尖的 (左右, 前后)，高 1.03；耳朵只带 0.955 米以上的顶点
+    # TV 版化猫（地铁，游32）：比坂井家那只高大、腿长，尾巴往上卷过头顶再往前弯。身子也是斜的：头偏右 9 厘米、屁股居中。
+    # 按 bakeneko_tv_lite.glb（高 1.0、已转成朝 -Y）的侧面、俯视点云量的
+    "bakeneko_tv": dict(hips=[(-0.33, 0.52, 0.03), (-0.10, 0.55, 0.03)], spine=(0.10, 0.58, -0.03), neck=(0.22, 0.66, -0.08), head=(0.30, 0.80, -0.09),
+                        legF=(0.45, 0.22), legB=(0.47, 0.24), feet_back=None,
+                        tail=[(-0.40, 0.52, 0.0), (-0.42, 0.66, 0.0), (-0.38, 0.80, 0.03), (-0.31, 0.92, 0.08), (-0.22, 0.97, 0.08), (-0.13, 0.88, -0.10)],
+                        ears={"L": (-0.035, 0.295), "R": (-0.149, 0.294)}, ear_z=(0.80, 0.84), ear_h=(0.82, 0.90), smooth=12),
     "hinezumi": dict(hips=[(-0.36, 0.5), (-0.12, 0.52)], spine=(0.26, 0.55), neck=(0.38, 0.52), head=(0.53, 0.46),
                      legF=(0.48, 0.25), legB=(0.45, 0.24), feet_back=-0.45,      # 尾巴尖拖在地上，找后爪时不算它
                      tail=[(-0.40, 0.58), (-0.48, 0.65), (-0.53, 0.52), (-0.53, 0.32), (-0.51, 0.15), (-0.5, 0.04)],
@@ -81,7 +87,8 @@ if a.kind in QUAD:
     tail = [J(t) for t in Q["tail"]]; NT = len(tail) - 1
     for i in range(NT): BONES.append((f"tail{i}", "hips" if i == 0 else f"tail{i - 1}", tail[i], tail[i + 1]))
     if "crest" in Q: BONES.append(("crest", "spine", V(0, *Q["crest"][0]), V(0, *Q["crest"][1])))
-    for side, (x, f) in Q.get("ears", {}).items(): BONES.append((f"ear{side}", "head", V(x, f - 0.02, 0.95), V(x, f, 1.03)))   # 耳根到耳尖，小猫待机时耳朵会转
+    eh0, eh1 = Q.get("ear_h", (0.95, 1.03))   # 耳根、耳尖高度（坂井家化猫 0.95~1.03）
+    for side, (x, f) in Q.get("ears", {}).items(): BONES.append((f"ear{side}", "head", V(x, f - 0.02, eh0), V(x, f, eh1)))   # 耳根到耳尖，小猫待机时耳朵会转
     for side, sn in (("L", True), ("R", False)):
         for end, fr, par in (("F", True, "spine"), ("B", False, "hips")):
             x, f = foot(fr, sn); top, knee = Q["leg" + end]

@@ -64,7 +64,8 @@ def main():
     for s in scenes:  # 图片任务账号并发为 1，一张张来
         dest = OUT / (f"{s['id']}__{args.tag}.png" if args.tag else f"{s['id']}.png")
         suffix = spec.get(s["suffix"] + "_suffix", spec["style_suffix"]) if s.get("suffix") else spec["style_suffix"]  # 建模参考图用 model_suffix：不画纸纹和阴影
-        prompt = f"{s['prompt']} {spec.get('canon', '')} {suffix}"
+        canon = "" if s.get("no_canon") else spec.get("canon", "")   # no_canon：照原片裁图画的人物，配色跟原片，不套色板
+        prompt = f"{s['prompt']} {canon} {suffix}"
         if len(prompt) > 1800:  # Tripo 的上限，超了会直接被拒
             failed.append(s["id"])
             log(s["id"], f"提示词 {len(prompt)} 字符，超过 1800 上限，先删短")

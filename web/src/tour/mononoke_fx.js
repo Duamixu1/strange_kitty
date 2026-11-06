@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
-import { makeToonMaterial } from "../style/toon.js";
+import { makeToonMaterial, BURN } from "../style/toon.js";
 
 // 物怪出没的特效和占位物怪（docs/18，总指挥）。都是程序生成，不用贴图文件：
 //   札：纸条 + 红框 + 墨字，飞出去带几张残影，钉中时啪地贴在物怪身上、抖一下
@@ -30,6 +30,20 @@ const SOUL_TEX = () => canvasTex(128, 128, (g, w) => {
 });
 
 // 光晕：物怪身后一团很淡的暖光，暗区块里把黑色的身形托出来（encounter.js 的 RIM_ZONES）
+// 散华的花瓣 / 纸屑：白色剪影，颜色由材质给（纸白、淡樱、旧金、一点朱）
+// 黑云：几团墨糊糊叠成一块，边缘软，中间深；颜色由材质给
+const CLOUD_TEX = () => canvasTex(128, 128, (g, w) => {
+  for (let i = 0; i < 7; i++) {
+    const x = 64 + rnd(-22, 22), y = 64 + rnd(-14, 14), r = rnd(24, 40), gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, "rgba(255,255,255,.55)"); gr.addColorStop(0.6, "rgba(255,255,255,.25)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+  }
+});
+const PETAL_TEX = () => canvasTex(64, 64, (g, w) => {
+  g.fillStyle = "#fff"; g.beginPath();
+  g.moveTo(32, 60); g.bezierCurveTo(6, 44, 8, 14, 24, 6); g.lineTo(32, 14); g.lineTo(40, 6); g.bezierCurveTo(56, 14, 58, 44, 32, 60); g.fill();
+  g.globalCompositeOperation = "destination-out"; g.fillStyle = "rgba(0,0,0,.18)"; g.beginPath(); g.ellipse(32, 36, 5, 16, 0, 0, 7); g.fill();
+});
 export const HALO_TEX = () => canvasTex(128, 128, (g, w) => {
   const r = w / 2, gr = g.createRadialGradient(r, r, 0, r, r, r);
   // 到七成半径就淡没了：贴片外圈要是还有一点亮，碰到地板会被切出一条直边，看着像个方块
@@ -161,12 +175,14 @@ export function makeInkMonster(kind = "cat", { hover = 1.15 } = {}) {
 export const MONSTERS = {
   bakeneko: { file: "processed/bakeneko_posed.glb", h: 1.15, mask: "cat" },
   bakeneko_shiro: { file: "processed/bakeneko_shiro_posed.glb", h: 1.15, mask: "cat" },
+  bakeneko_tv: { file: "processed/bakeneko_tv_posed.glb", h: 1.7, mask: "cat" },   // 地铁本命（TV《化猫》，11-06 角色线）：原片里塞满整扇车门，比坂井家那只大得多
   bakeneko_ko: { file: "processed/bakeneko_posed.glb", h: 1.15 * 0.55, mask: "cat", speed: 1.4, count: 3 },
-  nue: { file: "processed/nue_posed.glb", h: 1.35, mask: "cat" },
+  nue: { file: "processed/nue_posed.glb", h: 1.35, mask: "cat", cloud: true, cry: "nueCry" },   // 11-06 用户：加黑云和叫声（《平家物语》：乘黑云而来，叫声像虎鸫）
   umibozu: { file: "processed/umibozu_posed.glb", h: 2.2, mask: "umbrella" },
   zashiki: { file: "processed/zashiki_posed.glb", h: 1.1, mask: "child" },   // 模型本身量出来 1.0 米，按角色线建议放到 1.1
   zashiki_ao: { file: "processed/zashiki_ao_posed.glb", h: 1.1, mask: "child" },
   noppera: { file: "processed/noppera_posed.glb", h: 1.85, mask: "child" },
+  kitsune_men: { file: "processed/kitsune_men_posed_lite.glb", h: 1.8, mask: "child", unmask: "kitsune_mask" },   // 牢房本命（TV《のっぺらぼう》，11-06 角色线）：狐面是单独网格，蓄力时摘下、底下是空脸
   karakasa: { file: "processed/karakasa_posed.glb", h: 1.3, mask: "umbrella" },
   karakasa_kuro: { file: "processed/karakasa_kuro_posed.glb", h: 1.3, mask: "umbrella" },
   hinezumi: { file: "processed/hinezumi_posed.glb", h: 1.0, mask: "cat" },
@@ -309,7 +325,7 @@ export class MononokeFx {
     this.dropGeo = new THREE.IcosahedronGeometry(0.035, 1);
     this.flying = []; this.pinned = []; this.drops = []; this.papers = []; this.lights = []; this.ring = null;
     this.goldMat = new THREE.MeshBasicMaterial({ color: "#E8C15A", transparent: true });
-    this.grudge = null; this.cuts = []; this.drip = null;
+    this.grudge = null; this.cuts = []; this.drip = null; this.burn = null; this.petals = []; this.cloud = null;
     this.root = new THREE.Group(); scene.add(this.root);
     this.mk = document.getElementById("mk");
   }
@@ -388,6 +404,60 @@ export class MononokeFx {
     this.root.add(m); this.cuts.push({ m, t: 0, len: G.size * 1.8 });
     this.splat(at, 26, { up: 1, spread: 1.3, rise: true, mat: this.goldMat });
     this.splat(at, 18, { up: 0.6, spread: 1.6 });
+  }
+  /** 散华（11-06 用户："祈福之后物怪消失的动画太普通了"）：地上先洇开一圈金线，物怪从脚往上烧成一道金边、烧过的地方没了
+   *  （toon.js BURN，描边跟着没），烧线上一路飘起花瓣、纸屑和金火星，打着旋往上走。dur 秒烧完，返回烧完的时间 */
+  sanka(monster, floorY, dur = 2.4) {
+    this.endBurn();
+    const box = new THREE.Box3().setFromObject(monster.group), c = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+    const y0 = box.min.y - 0.12, y1 = box.max.y + 0.16, r = Math.max(size.x, size.z) * 0.5;
+    monster.group.traverse((o) => { if (o.isMesh && o.material.uniforms?.uBurnSelf) o.material.uniforms.uBurnSelf.value = 1; });
+    BURN.on.value = 1; BURN.y.value = y0; BURN.c.value.set(c.x, c.z); BURN.r.value = r + 0.35; BURN.floor.value = floorY;
+    this.petalTex ||= PETAL_TEX();
+    // 地上一圈金线：从它脚下往外洇开、淡掉
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.96, 1, 64), new THREE.MeshBasicMaterial({ color: "#F3D27A", transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }));
+    ring.rotation.x = -Math.PI / 2; ring.position.set(c.x, floorY + 0.02, c.z); ring.frustumCulled = false; this.root.add(ring);
+    const ring2 = ring.clone(); ring2.material = ring.material.clone(); this.root.add(ring2);
+    // 跟着烧线往上走的一团暖光（烧到哪亮到哪）
+    this.haloTex ||= HALO_TEX();
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: this.haloTex, color: "#FFD98A", transparent: true, depthWrite: false, opacity: 0 }));   // 不叠加：浅色的雪地、墙上会看不见
+    glow.position.set(c.x, y0, c.z); glow.scale.setScalar(Math.max(1.2, r * 2.6)); glow.frustumCulled = false; this.root.add(glow);
+    this.burn = { monster, y0, y1, c, r, dur, t: 0, acc: 0, ring, ring2, glow, floorY };
+    return dur;
+  }
+  petal(at, { color = "#F6EEDC", size = 0.09, life = 2.2, up = 0.55, swirl = 1 } = {}) {
+    const m = new THREE.Mesh(this.petalGeo ||= new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: this.petalTex, color, transparent: true, depthWrite: false, side: THREE.DoubleSide, opacity: 0 }));
+    m.position.copy(at); m.scale.setScalar(size); m.rotation.set(rnd(0, 6), rnd(0, 6), rnd(0, 6)); m.frustumCulled = false; this.root.add(m);
+    const a0 = Math.atan2(at.z - (this.burn?.c.z ?? at.z), at.x - (this.burn?.c.x ?? at.x));
+    this.petals.push({ m, t: 0, life: life * rnd(0.8, 1.2), up: up * rnd(0.7, 1.3), swirl: swirl * rnd(0.6, 1.4) * (Math.random() < 0.5 ? -1 : 1), a: a0, rad: 0, spin: new THREE.Vector3(rnd(-4, 4), rnd(-4, 4), rnd(-4, 4)), cx: this.burn?.c.x ?? at.x, cz: this.burn?.c.z ?? at.z, r0: Math.hypot(at.x - (this.burn?.c.x ?? at.x), at.z - (this.burn?.c.z ?? at.z)) });
+  }
+  endBurn() {
+    const B = this.burn; if (!B) return;
+    B.monster.group.traverse((o) => { if (o.isMesh && o.material.uniforms?.uBurnSelf) o.material.uniforms.uBurnSelf.value = 0; });
+    BURN.on.value = 0;
+    for (const m of [B.ring, B.ring2]) { this.root.remove(m); m.geometry.dispose(); m.material.dispose(); }
+    this.root.remove(B.glow); B.glow.material.dispose();
+    this.burn = null;
+  }
+  /** 黑云（鵺）：十几团墨云绕在它脚下和身后，跟着它飘、拖在后面，慢慢翻滚。gather：预兆时先从四周聚过来 */
+  cloudOn(monster, { gather = true } = {}) {
+    this.cloudOff(true);
+    this.cloudTex ||= CLOUD_TEX();
+    const N = 16, puffs = [];
+    for (let i = 0; i < N; i++) {
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: this.cloudTex, color: i % 3 ? "#1E1828" : "#3A2F4A", transparent: true, depthWrite: false, opacity: 0 }));
+      sp.frustumCulled = false; this.root.add(sp);
+      const a = (i / N) * Math.PI * 2 + rnd(-0.3, 0.3);
+      puffs.push({ sp, a, r: rnd(0.35, 0.8), y: rnd(-0.1, 0.55), s: rnd(0.7, 1.3), seed: rnd(0, 6), lag: rnd(0.15, 0.6), pos: monster.group.position.clone().add(new THREE.Vector3(Math.cos(a) * (gather ? 3 : 0.6), 0.3, Math.sin(a) * (gather ? 3 : 0.6))) });
+    }
+    this.cloud = { monster, puffs, t: 0, k: 0, off: -1 };
+  }
+  /** 散：往外鼓开、淡掉（斩完 / 退走）；now 直接收掉 */
+  cloudOff(now = false) {
+    const C = this.cloud; if (!C) return;
+    if (!now) { if (C.off < 0) C.off = 0; return; }
+    for (const p of C.puffs) { this.root.remove(p.sp); p.sp.material.dispose(); }
+    this.cloud = null;
   }
   /** 钉在它身上的札散成纸片落下（斩完 / 送走：它已经不用再被钉着了） */
   unpin() { const w = new THREE.Vector3(); for (const p of this.pinned) { p.m.getWorldPosition(w); p.m.parent?.remove(p.m); this.paper(w, 3); } this.pinned = []; }
@@ -477,6 +547,54 @@ export class MononokeFx {
       }
       if (k >= 1) { this.root.remove(m.sp); m.sp.material.dispose(); this.lights.splice(this.lights.indexOf(m), 1); }
     }
+    const C = this.cloud;
+    if (C) {
+      C.t += dt; C.k = Math.min(1, C.k + dt / 1.4);
+      const mp = C.monster.group.position, h = (C.monster.height || 1.2);
+      if (C.off >= 0) C.off += dt;
+      const fade = C.off < 0 ? C.k : Math.max(0, 1 - C.off / 1.6), spread = C.off < 0 ? 1 : 1 + C.off * 1.4;
+      for (const p of C.puffs) {
+        const a = p.a + C.t * 0.35 * (p.seed > 3 ? 1 : -1);
+        const tx = mp.x + Math.cos(a) * p.r * spread, tz = mp.z + Math.sin(a) * p.r * spread, ty = mp.y + h * 0.12 + p.y * h * 0.5 + Math.sin(C.t * 1.3 + p.seed) * 0.06 + (C.off > 0 ? C.off * 0.3 : 0);
+        const kk = 1 - Math.exp(-dt / p.lag);   // 各团跟得快慢不一，它一动黑云就拖在后面
+        p.pos.x += (tx - p.pos.x) * kk; p.pos.y += (ty - p.pos.y) * kk; p.pos.z += (tz - p.pos.z) * kk;
+        p.sp.position.copy(p.pos);
+        p.sp.scale.setScalar(p.s * h * 0.75 * (1 + 0.08 * Math.sin(C.t * 0.9 + p.seed)) * spread);
+        p.sp.material.rotation = C.t * 0.2 * (p.seed > 3 ? 1 : -1) + p.seed;
+        p.sp.material.opacity = 0.82 * fade;
+      }
+      if (C.off > 1.7) this.cloudOff(true);
+    }
+    const B = this.burn;
+    if (B) {
+      B.t += dt; const k = Math.min(1, B.t / B.dur), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      const y = B.y0 + (B.y1 - B.y0) * e; BURN.y.value = y;
+      B.glow.position.y = y; B.glow.material.opacity = (k < 0.1 ? k / 0.1 : k < 1 ? 1 : Math.max(0, 1 - (B.t - B.dur) / 0.6)) * 0.55;
+      // 两圈金线：一圈快一圈慢，往外洇开淡掉
+      [[B.ring, 1.0], [B.ring2, 0.6]].forEach(([m, sp], i) => { const q = Math.min(1, B.t * sp / 1.4); m.scale.setScalar(0.2 + (B.r + 1.4 + i * 0.5) * (1 - Math.pow(1 - q, 3))); m.material.opacity = (1 - q) * 0.9; });
+      // 烧线上一路冒花瓣、纸屑、金火星（越往上越少）
+      if (k < 1 && (B.acc += dt) > 0.035) {
+        B.acc = 0;
+        const n = 3 + (Math.random() < 0.5 ? 1 : 0);
+        for (let i = 0; i < n; i++) {
+          const a = rnd(0, Math.PI * 2), rr = B.r * rnd(0.25, 0.85), p = new THREE.Vector3(B.c.x + Math.cos(a) * rr, y + rnd(-0.05, 0.05), B.c.z + Math.sin(a) * rr);
+          const pick = Math.random(), color = pick < 0.45 ? "#F6EEDC" : pick < 0.75 ? "#F2C9D2" : pick < 0.93 ? "#E9C877" : "#C9435C";
+          this.petal(p, { color, size: rnd(0.13, 0.24), up: 0.75 });
+        }
+        if (Math.random() < 0.6) this.splat(new THREE.Vector3(B.c.x + rnd(-B.r, B.r) * 0.6, y, B.c.z + rnd(-B.r, B.r) * 0.6), 1, { up: 1, spread: 0.4, rise: true, mat: this.goldMat });
+      }
+      if (B.t > B.dur + 1.4) this.endBurn();
+      else if (k >= 1 && B.monster.group.visible) B.monster.group.visible = false;
+    }
+    for (const p of this.petals.slice()) {
+      // 打着旋往上飘：绕着它原来站的地方转半圈多、越飘越开，翻着身，最后淡掉
+      p.t += dt; const k = p.t / p.life;
+      p.a += p.swirl * dt * (1.2 - k * 0.6); p.rad = p.r0 + k * 1.1;
+      p.m.position.x = p.cx + Math.cos(p.a) * p.rad; p.m.position.z = p.cz + Math.sin(p.a) * p.rad; p.m.position.y += p.up * dt * (1 - k * 0.4);
+      p.m.rotation.x += p.spin.x * dt; p.m.rotation.y += p.spin.y * dt; p.m.rotation.z += p.spin.z * dt;
+      p.m.material.opacity = (k < 0.12 ? k / 0.12 : k > 0.6 ? Math.max(0, 1 - (k - 0.6) / 0.4) : 1) * 0.95;
+      if (k >= 1) { this.root.remove(p.m); p.m.material.dispose(); this.petals.splice(this.petals.indexOf(p), 1); }
+    }
     const G = this.grudge;
     if (G) {
       G.g.group.rotation.y = Math.atan2(this.camera.position.x - G.g.group.position.x, this.camera.position.z - G.g.group.position.z);   // 面具朝镜头
@@ -541,6 +659,7 @@ export class MononokeFx {
     for (const d of this.drops) this.root.remove(d.d); this.drops = [];
     for (const p of this.papers) this.root.remove(p.m); this.papers = [];
     for (const m of this.lights) { this.root.remove(m.sp); m.sp.material.dispose(); } this.lights = [];
+    this.cloudOff(true); this.endBurn(); for (const p of this.petals) { this.root.remove(p.m); p.m.material.dispose(); } this.petals = [];
     this.clearRing(); this.clearGrudge(); this.drip = null;
     if (this.falling) { this.root.remove(this.falling.m); this.falling = null; }
     for (const c of this.cuts) this.root.remove(c.m); this.cuts = [];

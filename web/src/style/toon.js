@@ -18,6 +18,19 @@ import { pub } from "../paths.js";
 export const PATTERN_NAMES = ["asanoha", "ichimatsu", "seigaiha", "shippo"];   // 麻叶、市松、青海波、七宝（tools/patterns.py --set mononoke）
 const PATTERN_ASPECT = { asanoha: 0.8662, ichimatsu: 1, seigaiha: 0.5, shippo: 1 };   // 高/宽，和 tools/patterns.py 输出一致   // 高/宽，和 tools/patterns.py 输出一致
 const ENABLED = { value: 1 };
+// 11-06 散华（退魔 / 送走以后物怪从脚往上烧成纸灰）：全局一份。y 是烧到的高度（世界坐标），c / r 是物怪所在的圆柱（法线那一遍用：
+// 烧掉的部分也不画法线，不然描边会留个空壳）。只对 uBurnSelf=1 的材质生效（encounter.js 在散华开始时给物怪打上）
+export const BURN = { on: { value: 0 }, y: { value: 0 }, c: { value: new THREE.Vector2() }, r: { value: 1 }, floor: { value: 0 } };
+// 两边（toon 和法线）用同一段，保证烧出来的边一模一样；d < 0 烧没了，0..0.08 是金边
+export const BURN_GLSL = /* glsl */ `
+  float burnHash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+  float burnNoise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(burnHash(i), burnHash(i + vec2(1, 0)), f.x), mix(burnHash(i + vec2(0, 1)), burnHash(i + vec2(1, 1)), f.x), f.y); }
+  float burnD(vec3 w, float y) {
+    float a = atan(w.z - uBurnC.y, w.x - uBurnC.x);
+    float n = burnNoise(vec2(a * 3.0, w.y * 4.0)) * 0.6 + burnNoise(vec2(a * 9.0, w.y * 11.0)) * 0.4;
+    return w.y - y + (n - 0.5) * 0.28;
+  }`;
 const PIXEL_RATIO = { value: Math.min(devicePixelRatio || 1, 2) };
 let textures = null;
 function patternTextures() {
@@ -75,6 +88,8 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       uRim: { value: 0 }, uRimColor: { value: new THREE.Color("#F6E3B4") },
       uPale: { value: 0 }, uPaleColor: { value: new THREE.Color("#F7EFDF") },   // 褪成浅色（11-05 退魔"斩怨 / 送"：怨念抽走以后物怪本体褪成一团淡光），默认 0   // 边缘透光：默认关；暗场景里的黑物怪用（encounter.js）
       uCutout: { value: 0 }, uCutCenter: CUTOUT.center, uCutRadius: CUTOUT.radius, uCutDepth: CUTOUT.depth,
+      uBurnSelf: { value: 0 }, uBurnOn: BURN.on, uBurnY: BURN.y, uBurnC: BURN.c,
+      uUvOff: { value: new THREE.Vector2() }, uWave: { value: new THREE.Vector3() },   // 海面（そらりす丸）：贴图慢慢流、波纹晃（tour.js 每帧给），默认不动
     },
     vertexShader: /* glsl */ `
       #include <common>
@@ -127,6 +142,9 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
       uniform vec3 uPaleColor;
       uniform vec2 uCutCenter;
       uniform float uCutRadius, uCutDepth;
+      uniform int uBurnSelf; uniform float uBurnOn, uBurnY; uniform vec2 uBurnC;
+      uniform vec2 uUvOff; uniform vec3 uWave;
+      ${BURN_GLSL}
 
       // 4×4 有序抖动阈值 0..1（bayer2 递归一层）
       float bayer2(vec2 a) { a = floor(a); return fract(a.x / 2.0 + a.y * a.y * 0.75); }
@@ -154,12 +172,16 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
           float a = 1.0 - smoothstep(0.55, 1.0, length(q) / uCutRadius);
           if (bayer4(gl_FragCoord.xy / 2.0) < a * 0.9) discard;
         }
+        float burnE = 1.0;
+        if (uBurnSelf == 1 && uBurnOn > 0.5) { float d = burnD(vWorldPos, uBurnY); if (d < 0.0) discard; burnE = smoothstep(0.0, 0.08, d); }
         vec3 base = uColor;
-        if (uHasMap == 1) base *= texture2D(map, vUv).rgb;   // sRGB 贴图由 WebGL2 硬件解成线性
+        vec2 mUv = vUv + uUvOff;
+        if (uWave.x > 0.0) mUv += uWave.x * vec2(sin(vUv.y * uWave.y + uWave.z), cos(vUv.x * uWave.y * 0.8 + uWave.z * 1.3));
+        if (uHasMap == 1) base *= texture2D(map, mUv).rgb;   // sRGB 贴图由 WebGL2 硬件解成线性
         if (uPatEnabled == 1 && vObjY < uPatMaxY) {
           if (uPalN > 0) {
             // 按最接近的色板色选纹样。分类用低一级 mip 的模糊采样，否则 Tripo 贴图的噪点会让纹样碎成雪花
-            vec3 cls = uHasMap == 1 ? uColor * texture2D(map, vUv, 3.0).rgb : uColor;
+            vec3 cls = uHasMap == 1 ? uColor * texture2D(map, mUv, 3.0).rgb : uColor;
             int best = -1; float bd = 1e9;
             for (int i = 0; i < ${MAXPAL}; i++) {
               if (i >= uPalN) break;
@@ -183,6 +205,7 @@ export function makeToonMaterial({ map = null, color = "#ffffff", shadeColor = "
           c = mix(c, uRimColor, pow(smoothstep(0.2, 1.0, fres), 1.6) * uRim);
         }
         if (uPale > 0.0) c = mix(c, uPaleColor * (0.92 + 0.08 * lit), uPale);
+        if (burnE < 1.0) c = mix(burnE < 0.25 ? vec3(0.13, 0.1, 0.16) : vec3(1.0, 0.86, 0.5), c, burnE * burnE);   // 烧着的那道边：最外一丝焦黑，里面一圈金
         gl_FragColor = vec4(c, 1.0);
       }
     `,

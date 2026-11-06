@@ -1,0 +1,20 @@
+# 佐佐木家厨房（参考 p7_0604、p7_1240）：绿框、四面梅枝小鸟工笔的襖（同座敷，6 扇一幅），灰木地板；北墙一扇黑木板门（U，进"梦"）、旁边白格子窗（S）；
+# 北墙左边红漆碗架（白瓶粉碗）、下面一只绿竹筐、粉色小柜；西墙边青灰箱叠在红褐箱上；东北角陶罐，东南角灶台和陶罐。西 U 回座敷。观景点：1 看碗架、黑门和格子窗，2 看灶台。
+name: prison_daidokoro
+height: 2.8
+ceiling: sao
+timber: 1.6
+fusuma_span: 6
+mat: wood=pri_green, frame=pri_green, bars=pri_bars, plaster=pri_ume_wall, kokabe=pri_ume_wall, tatami=pri_straw, tatami_side=pri_beam, earth=pri_earth, engawa=pri_boards, ceiling=pri_ceil, fusuma=pri_ume_wall, udoor=pri_door, byobu=pri_jinbutsu, dais=pri_red, dais_side=pri_red_lacquer, dais_trim=pri_gold, rail=pri_beam, under=kage, fusuma=pri_kacho, shoji=pri_shoji_white, udoor=pri_plank_door, engawa=pri_greywood, ceiling=pri_boards
+place: bowlshelf 1.6,0.53,90,1.45; zaru 0.9,0.53,90,1.15; pinkbox 1.75,0.85,0; chest 0.85,2.4,-90
+shot: 碗架和黑门 | 4.6,1.7,3.0 | 1.4,1.2,0.4 | 3.2,3.2,-2.4
+shot: 灶台 | 2.6,1.6,3.6 | 5.4,0.6,5.6 | 3.2,4.4,1.6
+---
+#FFUSSFF#
+F======JF
+F=======F
+F==1====F
+U=======F
+F===2===F
+F=@==ZJJF
+#FFFFFFF#

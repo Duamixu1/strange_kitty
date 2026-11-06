@@ -1,0 +1,31 @@
+# そらりす丸·甲板（参考 0445、0945、1232）：比海面高 2.4 米的甲板，四周粉红栏杆，船舷下到海面贴花纹；
+# 两侧六面大幡（寿字、花菱、几何纹轮换），中间一片浮萍水池；北边是船楼（tower），U 进中庭；南边船头收尖、翘起朱红船首柱。
+# 观景点：1 西南角栏杆边看海和大幡，2 甲板正中回头仰看船楼。本命海坊主在这里出（从海里起来）。
+name: solaris_kanpan
+shot: 看海和大幡 | 1.4,1.7,10.4 | -6.0,-1.0,4.0 | 2.2,10.6,-2.4
+shot: 仰看船楼 | 5.0,1.6,12.8 | 5.0,4.8,0.0 | 5.0,10.0,3.14
+shot: 船头 | 5.0,2.4,9.0 | 5.0,0.4,18.0 | 5.0,11.6,0
+height: 3.0
+doma: 2.4
+ceiling: none
+hull: on
+bow: s,5.5
+tower: on
+surround: sea
+mat: wood=sol_pillar, frame=sol_pink, plaster=sol_wall_pink, kokabe=sol_panel, tatami=sol_floor_ao, tatami_side=sol_pink, engawa=sol_deck, shoji=sol_shoji, lattice_win=sol_lattice, fusuma=sol_panel_door, fusuma2=sol_panel, udoor=sol_door, rail=sol_pink, stair=sol_stair, ceiling=sol_koshi, sea=sol_sea, hull=sol_hull, prow=sol_red, finial=sol_gold, roof=sol_roof, tower=sol_tower, water=sol_pool, bank=sol_deck_edge, gallery=sol_koshi_floor, gallery_edge=sol_yellow, pillar=sol_pillar, mojing=sol_mojing, hata1=sol_hata1, hata2=sol_hata2, hata3=sol_hata3, koshi=sol_pink, lacquer=ink
+---
+%####U####%
+%=========%
+%!=======!%
+%=========%
+%=========%
+%!=~~~~~=!%
+%==~~~~~==%
+%==~~~~~==%
+%!=~~~~~=!%
+%=========%
+%====2====%
+%=1=======%
+%!===@===!%
+%=========%
+%%%%%%%%%%%

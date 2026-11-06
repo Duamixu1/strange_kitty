@@ -155,5 +155,180 @@
     "rigcheck_task": "8bc48529-1c19-4400-9860-804eda4fe5e8",
     "rig_task": "aa011b94-c556-40c3-80b9-8dfef4e5a9f6",
     "rig_file": "assets/tripo_raw/anims/ruri2_rigged.glb"
+  },
+  "genkei": {
+    "model_task": "9a2f4f51-ee38-47a7-b740-7e4027dbb4b9"
+  },
+  "genkei_v3": {
+    "model_task": "f03c1fa0-0c93-481b-b610-2ad5eca02f55",
+    "model_file": "assets/tripo_raw/genkei_v3.glb",
+    "rigcheck_task": "1b003584-f21d-4761-842b-d874febd8819",
+    "rig_task": "4c3c832c-4922-4ed0-9126-59e2288c332c",
+    "rig_file": "assets/tripo_raw/anims/genkei_v3_rigged.glb"
+  },
+  "sogen_v3": {
+    "model_task": "82db9e7d-36e4-472b-b3ab-5ad8979d3dd4",
+    "model_file": "assets/tripo_raw/sogen_v3.glb",
+    "rigcheck_task": "b9fe14c5-3b7a-4406-a2d5-2ef713296fcc",
+    "rig_task": "aa5fbfa1-b41c-45c1-9419-2bc77f5191ab",
+    "rig_file": "assets/tripo_raw/anims/sogen_v3_rigged.glb"
+  },
+  "yanagi_v3": {
+    "model_task": "3efb0975-7d1a-4d55-8b96-94abb4c047fb",
+    "model_file": "assets/tripo_raw/yanagi_v3.glb",
+    "rigcheck_task": "e3fbd0b7-d22a-4376-bd76-5be79f65108c",
+    "rig_task": "b43dbe93-0c3d-464d-a564-802b6b1e0e09",
+    "rig_file": "assets/tripo_raw/anims/yanagi_v3_rigged.glb"
+  },
+  "hyoe_v3": {
+    "model_task": "431246b8-25ba-41c0-b1fb-d19de54da7f1",
+    "model_file": "assets/tripo_raw/hyoe_v3.glb",
+    "rigcheck_task": "846cda49-805a-4b75-9bb9-6d4ded9a89b8",
+    "rig_task": "14b51568-956e-4958-bdd2-a8754557562d",
+    "rig_file": "assets/tripo_raw/anims/hyoe_v3_rigged.glb"
+  },
+  "osawa_v2": {
+    "model_task": "141e0a45-2bd9-408b-b4be-716eef6292b1",
+    "model_file": "assets/tripo_raw/osawa_v2.glb",
+    "rigcheck_task": "3c56a672-7df8-4d20-a8b1-93cae59b098c",
+    "rig_task": "d4c8b20f-ba45-4278-a2a1-25cd08e3ed49",
+    "rig_file": "assets/tripo_raw/anims/osawa_v2_rigged.glb"
+  },
+  "kayo_v2": {
+    "model_task": "035f5453-89d3-42e9-93b4-103cc4c103fd",
+    "model_file": "assets/tripo_raw/kayo_v2.glb",
+    "rigcheck_task": "67eb0a30-22df-430e-8cbd-f2bd182342da",
+    "rig_task": "481e3b98-60e6-45b3-b5ca-48e6e45f7650",
+    "rig_file": "assets/tripo_raw/anims/kayo_v2_rigged.glb"
+  },
+  "moriya": {
+    "model_task": "ee021532-78df-489e-9d68-0e8e596219f7",
+    "model_file": "assets/tripo_raw/moriya.glb",
+    "rigcheck_task": "d5c67643-209e-44e9-bb5b-2c6f9934bdc8",
+    "rig_task": "5f57c235-a450-45eb-8f13-3e900eb579c4",
+    "rig_file": "assets/tripo_raw/anims/moriya_rigged.glb"
+  },
+  "masao": {
+    "model_task": "9409f644-0bf0-4eb5-85fd-500b8a56c78d",
+    "model_file": "assets/tripo_raw/masao.glb",
+    "rigcheck_task": "713040cc-0983-4c46-8d37-f35c36557531",
+    "rig_task": "045101d4-e249-4ae3-9871-7f8b85876ee1",
+    "rig_file": "assets/tripo_raw/anims/masao_rigged.glb"
+  },
+  "chiyo": {
+    "model_task": "83c80fd9-3487-4111-8392-b6b46a20da69",
+    "model_file": "assets/tripo_raw/chiyo.glb",
+    "rigcheck_task": "3105808a-c15f-44ef-a532-f43f1eb6de42",
+    "rig_task": "287e190f-a46e-42e2-95d8-73554b5c0469",
+    "rig_file": "assets/tripo_raw/anims/chiyo_rigged.glb"
+  },
+  "haru": {
+    "model_task": "6d714756-d219-4617-972a-2c23ba8f96d1",
+    "model_file": "assets/tripo_raw/haru.glb",
+    "rigcheck_task": "418f2ab2-ac04-46db-824c-48e17a55e8c9",
+    "rig_task": "bab8216c-0160-4eb3-80ff-9df58bfcab9f",
+    "rig_file": "assets/tripo_raw/anims/haru_rigged.glb"
+  },
+  "kinoshita": {
+    "model_task": "8692be9e-262f-419a-b306-a1f809ddf7cf",
+    "model_file": "assets/tripo_raw/kinoshita.glb",
+    "rigcheck_task": "147d4ae3-41ab-4184-83a0-5fa7ec96b9c2",
+    "rig_task": "565f84d0-ae13-4790-85bf-51ea81a272b7",
+    "rig_file": "assets/tripo_raw/anims/kinoshita_rigged.glb"
+  },
+  "fukuda": {
+    "model_task": "7bf60b18-8c6f-42da-aa22-a993f3d00331",
+    "model_file": "assets/tripo_raw/fukuda.glb",
+    "rigcheck_task": "d9df2cde-9baa-42d9-9e36-68defd842375",
+    "rig_task": "dc55b61d-ca04-4d09-8dde-4791020c6da4",
+    "rig_file": "assets/tripo_raw/anims/fukuda_rigged.glb"
+  },
+  "mnq_bare": {
+    "model_task": "745fe861-5675-4037-8b61-5de78b69f5f3",
+    "model_file": "assets/tripo_raw/mnq_bare.glb",
+    "rigcheck_task": "c3037a64-260d-43d1-a17b-9b5e281d0e0f",
+    "rig_task": "fd544172-dd08-465c-af91-567b93d49a5f",
+    "rig_file": "assets/tripo_raw/anims/mnq_bare_rigged.glb"
+  },
+  "bakeneko_tv": {
+    "model_task": "8439bbcf-f6e3-404e-8e3a-7b50f723de11",
+    "model_file": "assets/tripo_raw/bakeneko_tv.glb"
+  },
+  "oyo": {
+    "model_task": "96a29ca9-758e-4119-9780-cc09859fc50c",
+    "model_file": "assets/tripo_raw/oyo.glb",
+    "rigcheck_task": "d433e331-935c-4e83-9fc5-cc19c22f762f",
+    "rig_task": "702a6ce5-cec3-44a4-a811-07b6dbd46bc4",
+    "rig_file": "assets/tripo_raw/anims/oyo_rigged.glb"
+  },
+  "mnq_kimono": {
+    "model_task": "bcd25039-b90f-4222-a67b-d06d1764196e",
+    "model_file": "assets/tripo_raw/mnq_kimono.glb",
+    "rigcheck_task": "c86b3c0b-c234-4327-9440-80ae3d318471",
+    "rig_task": "3a724b1c-960b-4c35-8af6-eab8dd899158",
+    "rig_file": "assets/tripo_raw/anims/mnq_kimono_rigged.glb"
+  },
+  "mnq_dress": {
+    "model_task": "1aa78772-24b4-4329-afb1-1287a7867503",
+    "model_file": "assets/tripo_raw/mnq_dress.glb",
+    "rigcheck_task": "349a363c-19a9-4eb8-9441-769340487f69",
+    "rig_task": "7c36182f-c5e5-4186-8671-ed1ed68bea40",
+    "rig_file": "assets/tripo_raw/anims/mnq_dress_rigged.glb"
+  },
+  "kitsune_men": {
+    "model_task": "8c0f4f4a-c1a6-4ea9-9659-76592effb8d1",
+    "model_file": "assets/tripo_raw/kitsune_men.glb",
+    "rigcheck_task": "da9db177-5eee-4e55-ac79-9371713bfbf3",
+    "rig_task": "12d33c1b-df5b-4742-bced-8071250a50d6",
+    "rig_file": "assets/tripo_raw/anims/kitsune_men_rigged.glb"
+  },
+  "mnq_suit": {
+    "model_task": "d4212aaa-ee75-4a1f-a05c-9c4b0ca0bf3f",
+    "model_file": "assets/tripo_raw/mnq_suit.glb",
+    "rigcheck_task": "33329ce2-1cda-44d3-8fdf-0d2c33ada5a4",
+    "rig_task": "8a93f577-4f6f-44a5-adc5-fc60d6c3bbf5",
+    "rig_file": "assets/tripo_raw/anims/mnq_suit_rigged.glb"
+  },
+  "moriya2": {
+    "model_task": "2fd1ab48-df82-403e-9995-116d6f07ab6f",
+    "model_file": "assets/tripo_raw/moriya2.glb",
+    "rigcheck_task": "c1084363-65c4-45d1-9b76-24af1e273ce8",
+    "rig_task": "f882de5e-abd0-41f4-88b5-d9a0d68a30b8",
+    "rig_file": "assets/tripo_raw/anims/moriya2_rigged.glb"
+  },
+  "kazumasa": {
+    "model_task": "7a1352e9-b50d-4a43-9982-dea1e125cfe5",
+    "model_file": "assets/tripo_raw/kazumasa.glb",
+    "rigcheck_task": "5d537c1a-eb69-4107-b3fd-8b91cf8fd2e3",
+    "rig_task": "d9609e21-4bac-473e-bcc0-c4c443a7de8c",
+    "rig_file": "assets/tripo_raw/anims/kazumasa_rigged.glb"
+  },
+  "shuto": {
+    "model_task": "6492d38e-fb9f-474a-86f7-d7bf9acf184f",
+    "model_file": "assets/tripo_raw/shuto.glb",
+    "rigcheck_task": "2f89388d-4086-4196-b0b1-5dc1d99a305c",
+    "rig_task": "df5dca93-0ec8-457b-a633-466debd2830e",
+    "rig_file": "assets/tripo_raw/anims/shuto_rigged.glb"
+  },
+  "ocho": {
+    "model_task": "f7906599-91e4-428f-9075-a382c47872ba",
+    "model_file": "assets/tripo_raw/ocho.glb",
+    "rigcheck_task": "756b1856-dc70-4f85-bbea-81420ed745a1",
+    "rig_task": "4762ab23-997a-41c0-afde-b888233e191b",
+    "rig_file": "assets/tripo_raw/anims/ocho_rigged.glb"
+  },
+  "ocho_mother": {
+    "model_task": "dd64d647-c779-4546-a453-7e3158cc0cf9",
+    "model_file": "assets/tripo_raw/ocho_mother.glb",
+    "rigcheck_task": "06a8302a-d0e4-4481-877b-990da0765e88",
+    "rig_task": "1542c42b-93cf-4620-bbbc-fa6e916d59d1",
+    "rig_file": "assets/tripo_raw/anims/ocho_mother_rigged.glb"
+  },
+  "mnq_kimono2": {
+    "model_task": "2785d41f-c17b-49d1-9703-3fa1354434fc",
+    "model_file": "assets/tripo_raw/mnq_kimono2.glb",
+    "rigcheck_task": "b7927d86-8376-4295-b467-597633e51066",
+    "rig_task": "d652300d-503c-46e6-acf6-ab247af6f4aa",
+    "rig_file": "assets/tripo_raw/anims/mnq_kimono2_rigged.glb"
   }
 }

@@ -1,0 +1,30 @@
+# 地下铁·车厢（参考 p10_0556、p10_0852、p10_1338、p10_1550、p11_0213、p12_0213）：米色板墙、黑玻璃窗带金线花角、窗上一排金框小窗；
+# 两边酒红长椅，两排吊环，拱形车顶加铁梁（vault），一排白色花瓣灯罩，中间两根立柱，车门边（西墙，观景点 2 看得到）挂一幅美人画：白发女子怀里抱一只黑猫（参考 p11_0213，"形"的线索，占位）。
+# 西墙中段 U 回站台。观景点：1 车厢南头顺着看，2 车门边。
+name: subway_sharyo
+height: 2.3
+koshi: 0.85
+vault: on
+ceiling: none
+timber: 1.0
+mat: wood=sub_iron, frame=sub_iron, plaster=sub_marble_black, kokabe=sub_marble_black, koshi=sub_stone_gray, engawa=sub_floor, tatami=sub_floor, ceiling=sub_ceil, vault=sub_marble_black, iron=sub_white_brick, udoor=sub_car_door, glassdoor=sub_window_dark, shoji=sub_car_door, fusuma=sub_car_door, sea=sub_ballast, hull=sub_stone_gray, edge=sub_stone_gray, safety=sub_white_brick, chair_wood=sub_iron, chair_seat=sub_seat, dais_side=sub_wood, painting=sub_bijin, plaster=sub_car_wall, kokabe=sub_car_wall_up, koshi=sub_car_koshi, engawa=sub_car_floor, vault=sub_car_ceil, iron=sub_iron, wood=sub_car_koshi, frame=sub_iron, fusuma=sub_car_door, udoor=sub_car_door
+place: longseat 0.75,4.4,-90,0,3.4; longseat 0.75,8.95,-90,0,1.5; longseat 0.75,13.4,-90,0,3.2; longseat 2.9,1.0,90,0,3.4; longseat 2.9,5.6,90,0,3.35; longseat 2.9,10.2,90,0,3.2; straps 1.25,1.0,90,0,12.6; straps 2.45,1.0,90,0,12.6; lamp 1.82,2.0,0,2.75; lamp 1.82,4.6,0,2.75; lamp 1.82,7.2,0,2.75; lamp 1.82,9.8,0,2.75; lamp 1.82,12.4,0,2.75; pole 1.82,3.6,0,0,2.4; pole 1.82,11.0,0,0,2.4; painting 0.53,7.75,0,1.15,0.6,0.52
+shot: 顺着车厢 | 1.82,1.55,14.0 | 1.82,1.2,0.5 | 1.6,12.6,3.14
+shot: 车门边 | 2.6,1.6,5.4 | 0.5,1.0,8.6 | 1.6,6.4,-1.0
+---
+#####
+#===#
+#===#
+#===#
+#===#
+F===F
+#===#
+U=2=#
+#===#
+#===#
+F===F
+#===#
+#===#
+#=1=#
+#=@=#
+#####

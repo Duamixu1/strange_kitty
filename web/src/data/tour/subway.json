@@ -1,0 +1,810 @@
+{
+  "_说明": "地下铁（TV《化猫》，大正末年的地下铁），场景线游34，11-06 第二版：按参考帧 assets/concept/ref/subway/ 改（黑大理石拱顶、白砖拱肋、米灰石地、白色无脸人偶乘客、酒红长椅、芥黄车身红顶、黑白方格墙的咖啡馆）。站名照原片是从右往左写的『駅寿福』＝福寿駅。四个积木区块 tools/kit_plans/subway_*.txt，sub_* 贴图程序画（美人画、人影广告墙是占位）。案子、配角、物怪（TV 版化猫要新建）、拾遗等文案线 / 角色线 / 总指挥；说明卡 key 按 kit 名：subway_homu.1 …",
+  "id": "subway",
+  "name": "地下铁",
+  "start": "homu",
+  "sky": null,
+  "background": "#1E1E30",
+  "camera": {
+    "dist": 3.0,
+    "pitch": 0.2,
+    "fov": 50
+  },
+  "zones": {
+    "homu": {
+      "name": "站台",
+      "kit": "subway_homu",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "kaisatsu",
+          "arrive": 1,
+          "label": "检票口"
+        },
+        {
+          "stair": 1,
+          "to": "sharyo",
+          "arrive": 0,
+          "label": "车厢"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              1.82,
+              2.73,
+              13.66,
+              14.55
+            ],
+            "pos": [
+              2.6,
+              1.7,
+              15.6
+            ],
+            "look": [
+              3.2,
+              1.3,
+              1.0
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：站台南头顺着看，左边海报墙、右边停着的电车，筒拱顶一路往里"
+          },
+          {
+            "rect": [
+              2.73,
+              3.64,
+              8.2,
+              9.09
+            ],
+            "pos": [
+              3.6,
+              1.6,
+              10.0
+            ],
+            "look": [
+              0.4,
+              1.6,
+              7.4
+            ],
+            "_view": 2,
+            "_说明": "观景点 2：站名牌和海报墙"
+          }
+        ]
+      },
+      "mononoke": [
+        [
+          1.95,
+          9.35
+        ],
+        [
+          3.35,
+          6.85
+        ],
+        [
+          1.65,
+          8.15
+        ]
+      ],
+      "acts": [
+        {
+          "id": "senro",
+          "fx": "senro",
+          "pos": [
+            3.9,
+            9.4
+          ],
+          "face": [
+            6.2,
+            9.9
+          ],
+          "at": [
+            6.2,
+            -1.0,
+            9.9
+          ]
+        }
+      ],
+      "_acts说明": "看铁轨（文案线）：站台边往轨道坑看——枕木上一块洗不掉的暗色旧印子（stain，[6.2,9.7]），旁边一串猫脚印往南去；fx 请总指挥按文案配",
+      "finds": [
+        {
+          "id": "1",
+          "pos": [
+            1.6,
+            4.0
+          ],
+          "y": 0,
+          "yaw": 0.3,
+          "kit": "find_milkbottle"
+        }
+      ],
+      "_finds说明": "拾遗 1：长椅北头边上一只空牛奶瓶，瓶口纸盖还在",
+      "npcs": [
+        {
+          "id": "masao",
+          "model": "processed/masao_posed_lite.glb",
+          "height": 1.5,
+          "pos": [
+            2.8,
+            12.6
+          ],
+          "yaw": 3.1416,
+          "idles": [
+            "bounce_k",
+            "point_k"
+          ]
+        },
+        {
+          "id": "kinoshita",
+          "model": "processed/kinoshita_posed_lite.glb",
+          "height": 1.68,
+          "pos": [
+            3.7,
+            1.9
+          ],
+          "yaw": 1.5708,
+          "idles": [
+            "rub_eyes_k",
+            "nod_off_k"
+          ]
+        },
+        {
+          "id": "mnq1",
+          "model": "processed/mnq_suit_posed_lite.glb",
+          "height": 1.72,
+          "pos": [
+            2.2,
+            4.9
+          ],
+          "yaw": -1.0472,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq2",
+          "model": "processed/mnq_dress_posed_lite.glb",
+          "height": 1.6,
+          "pos": [
+            1.3,
+            5.7
+          ],
+          "yaw": -2.0944,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq3",
+          "model": "processed/mnq_kimono_posed_lite.glb",
+          "height": 1.56,
+          "pos": [
+            3.8,
+            4.3
+          ],
+          "yaw": 1.3963,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq4",
+          "model": "processed/mnq_suit_navy_posed_lite.glb",
+          "height": 1.72,
+          "pos": [
+            3.9,
+            5.6
+          ],
+          "yaw": 1.7453,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq5",
+          "model": "processed/mnq_dress_mustard_posed_lite.glb",
+          "height": 1.6,
+          "pos": [
+            1.4,
+            10.6
+          ],
+          "yaw": -1.5708,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq6",
+          "model": "processed/mnq_kimono_navy_posed_lite.glb",
+          "height": 1.56,
+          "pos": [
+            1.95,
+            11.4
+          ],
+          "yaw": -1.2217,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq7",
+          "model": "processed/mnq_suit_brown_posed_lite.glb",
+          "height": 1.72,
+          "pos": [
+            3.9,
+            10.6
+          ],
+          "yaw": 1.5708,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq8",
+          "model": "processed/mnq_dress_lilac_posed_lite.glb",
+          "height": 1.6,
+          "pos": [
+            3.8,
+            11.8
+          ],
+          "yaw": 1.2217,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq9",
+          "model": "processed/mnq_kimono_brown_posed_lite.glb",
+          "height": 1.56,
+          "pos": [
+            2.6,
+            2.6
+          ],
+          "yaw": -3.1416,
+          "idles": [
+            "idle_k"
+          ]
+        }
+      ],
+      "_npcs说明": "小林正男（送牛奶的光头少年）站站台南段；木下文平（司机）站北头车头那边、面朝电车；刑警門脇是平面图里北头那个白人偶（没台词）",
+      "bossAt": [
+        2.6,
+        11.0
+      ],
+      "_bossAt说明": "本命在站台出（文案线：车厢太窄打不开），南段人偶中间那块空地",
+      "_人偶说明": "站台的乘客人偶 9 个（原来积木里的白人偶 13 个，换成角色线的人偶模型时减到 9 个，手机吃得消）：id mnq<n> 没有文案，不能搭话，只站着 idle_k；模型轮着用 11 种（西装 / 洋装 / 和服 / 白素体），11-06 场景线"
+    },
+    "sharyo": {
+      "name": "车厢",
+      "kit": "subway_sharyo",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "homu",
+          "arrive": 1,
+          "label": "站台"
+        }
+      ],
+      "camera": {
+        "mode": "rail",
+        "a": [
+          2.3,
+          0.7
+        ],
+        "b": [
+          2.3,
+          13.9
+        ],
+        "back": 2.6,
+        "h": 1.6,
+        "_rail说明": "总指挥 11-06：车厢宽不到 3 米，跟随镜头会撞墙，改成沿车厢中线的轨道镜头（同大奥走廊）",
+        "fixed": [
+          {
+            "rect": [
+              1.82,
+              2.73,
+              11.84,
+              12.73
+            ],
+            "pos": [
+              1.82,
+              1.55,
+              14.0
+            ],
+            "look": [
+              1.82,
+              1.2,
+              0.5
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：车厢南头顺着看，两排吊环、长椅、窗外黑隧道"
+          },
+          {
+            "rect": [
+              1.82,
+              2.73,
+              6.38,
+              7.28
+            ],
+            "pos": [
+              2.6,
+              1.6,
+              5.4
+            ],
+            "look": [
+              0.5,
+              1.0,
+              8.6
+            ],
+            "_view": 2,
+            "_说明": "观景点 2：车门边"
+          }
+        ]
+      },
+      "mononoke": [
+        [
+          1.85,
+          8.45
+        ],
+        [
+          1.65,
+          1.25
+        ]
+      ],
+      "_说明": "车厢宽不到 3 米，跟随镜头会撞墙，docs/22 说车厢里改成沿车厢走向的轨道镜头（总指挥）",
+      "npcs": [
+        {
+          "id": "fukuda",
+          "model": "processed/fukuda_posed_lite.glb",
+          "height": 1.65,
+          "pos": [
+            2.3,
+            2.3
+          ],
+          "yaw": 3.1416,
+          "idles": [
+            "open_k",
+            "rub_hands_k"
+          ]
+        },
+        {
+          "id": "moriya",
+          "model": "processed/moriya_posed_lite.glb",
+          "height": 1.7,
+          "pos": [
+            2.35,
+            9.7
+          ],
+          "yaw": 3.1416,
+          "idles": [
+            "think_k",
+            "shrug_k"
+          ]
+        },
+        {
+          "id": "mnq15",
+          "model": "processed/mnq_suit_navy_posed_lite.glb",
+          "height": 1.72,
+          "pos": [
+            1.35,
+            4.2
+          ],
+          "yaw": 1.5708,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq16",
+          "model": "processed/mnq_dress_mustard_posed_lite.glb",
+          "height": 1.6,
+          "pos": [
+            2.4,
+            8.2
+          ],
+          "yaw": -1.5708,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq17",
+          "model": "processed/mnq_kimono_navy_posed_lite.glb",
+          "height": 1.56,
+          "pos": [
+            1.3,
+            10.8
+          ],
+          "yaw": 1.5708,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "kadowaki",
+          "model": "processed/kadowaki_posed_lite.glb",
+          "height": 1.72,
+          "pos": [
+            1.3,
+            5.9
+          ],
+          "yaw": -0.5071,
+          "idles": [
+            "idle_k"
+          ]
+        }
+      ],
+      "_npcs说明": "福田寿太郎（市长）在车厢北头；森谷清在北边那扇门附近扶着立柱；车厢过道 1.5 米宽，两人都靠过道东侧，人走得过去",
+      "_人偶说明": "车厢里站着拉吊环的乘客人偶 3 个，靠座位那边，不挡过道：id mnq<n> 没有文案，不能搭话，只站着 idle_k；模型轮着用 11 种（西装 / 洋装 / 和服 / 白素体），11-06 场景线",
+      "_kadowaki说明": "刑警門脇（总指挥 11-06）：站在观 2 那扇车门南边、脸朝车门，原片中集 10:25 他在车门那里被化猫抓走；只 idle_k，不说话、不给线索，没有文案。观 2 机位看不到他，过道留 0.95 米"
+    },
+    "kaisatsu": {
+      "name": "检票口",
+      "kit": "subway_kaisatsu",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "kissa",
+          "arrive": 0,
+          "label": "地面"
+        },
+        {
+          "stair": 1,
+          "to": "homu",
+          "arrive": 0,
+          "label": "站台"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              3.64,
+              4.54,
+              7.29,
+              8.19
+            ],
+            "pos": [
+              5.0,
+              1.7,
+              8.4
+            ],
+            "look": [
+              5.0,
+              1.2,
+              2.0
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：进来看两座检票台和木栅、头上的钟"
+          },
+          {
+            "rect": [
+              8.2,
+              9.09,
+              2.73,
+              3.64
+            ],
+            "pos": [
+              6.0,
+              1.6,
+              3.0
+            ],
+            "look": [
+              10.0,
+              1.4,
+              3.0
+            ],
+            "_view": 2,
+            "_说明": "观景点 2：东墙人影广告（参考 p11_0955）"
+          }
+        ]
+      },
+      "mononoke": [
+        [
+          5.05,
+          4.25
+        ],
+        [
+          7.05,
+          7.25
+        ],
+        [
+          1.85,
+          3.65
+        ]
+      ],
+      "finds": [
+        {
+          "id": "2",
+          "pos": [
+            2.0,
+            6.4
+          ],
+          "y": 0,
+          "yaw": 0.5,
+          "kit": "find_kippu"
+        }
+      ],
+      "_finds说明": "拾遗 2：西边检票台旁地上一张剪了角的初乘券",
+      "npcs": [
+        {
+          "id": "haru",
+          "model": "processed/haru_posed_lite.glb",
+          "height": 1.55,
+          "pos": [
+            7.4,
+            3.4
+          ],
+          "yaw": -1.5708,
+          "idles": [
+            "pray_quick_k",
+            "furtive_k",
+            "fix_collar_k"
+          ]
+        },
+        {
+          "id": "mnq10",
+          "model": "processed/mnq_suit_wine_posed_lite.glb",
+          "height": 1.72,
+          "pos": [
+            2.0,
+            2.0
+          ],
+          "yaw": -0.0,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq11",
+          "model": "processed/mnq_bare_posed_lite.glb",
+          "height": 1.7,
+          "pos": [
+            3.0,
+            2.5
+          ],
+          "yaw": -0.5236,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq12",
+          "model": "processed/mnq_suit_posed_lite.glb",
+          "height": 1.72,
+          "pos": [
+            7.8,
+            2.2
+          ],
+          "yaw": 0.5236,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq13",
+          "model": "processed/mnq_dress_posed_lite.glb",
+          "height": 1.6,
+          "pos": [
+            8.6,
+            6.9
+          ],
+          "yaw": -3.1416,
+          "idles": [
+            "idle_k"
+          ]
+        },
+        {
+          "id": "mnq14",
+          "model": "processed/mnq_kimono_posed_lite.glb",
+          "height": 1.56,
+          "pos": [
+            1.6,
+            7.6
+          ],
+          "yaw": -1.5708,
+          "idles": [
+            "idle_k"
+          ]
+        }
+      ],
+      "_人偶说明": "检票口的乘客人偶 5 个：id mnq<n> 没有文案，不能搭话，只站着 idle_k；模型轮着用 11 种（西装 / 洋装 / 和服 / 白素体），11-06 场景线"
+    },
+    "kissa": {
+      "name": "站前咖啡馆",
+      "kit": "subway_kissa",
+      "exits": [
+        {
+          "stair": 0,
+          "to": "kaisatsu",
+          "arrive": 0,
+          "label": "检票口"
+        }
+      ],
+      "camera": {
+        "fixed": [
+          {
+            "rect": [
+              3.64,
+              4.54,
+              4.55,
+              5.46
+            ],
+            "pos": [
+              6.6,
+              1.6,
+              6.6
+            ],
+            "look": [
+              2.0,
+              1.5,
+              0.4
+            ],
+            "_view": 1,
+            "_说明": "观景点 1：窗边看一排黑玻璃金框窗和酒红黑菱格布"
+          },
+          {
+            "rect": [
+              5.46,
+              6.37,
+              4.55,
+              5.46
+            ],
+            "pos": [
+              3.4,
+              1.6,
+              6.8
+            ],
+            "look": [
+              8.4,
+              1.2,
+              3.2
+            ],
+            "_view": 2,
+            "_说明": "观景点 2：吧台、高凳、两层酒瓶、紫色挂钟"
+          }
+        ]
+      },
+      "mononoke": [
+        [
+          6.45,
+          1.85
+        ],
+        [
+          7.45,
+          1.65
+        ],
+        [
+          6.85,
+          1.65
+        ]
+      ],
+      "acts": [
+        {
+          "id": "shinbun",
+          "fx": "shinbun",
+          "pos": [
+            6.45,
+            4.2
+          ],
+          "face": [
+            7.7,
+            4.4
+          ],
+          "at": [
+            7.7,
+            1.0,
+            4.4
+          ]
+        }
+      ],
+      "_acts说明": "看报：吧台上一张旧报纸（毎朝日報），左下角一小块「婦人記者 橋より身を投ぐ」（女记者跳桥自尽）",
+      "finds": [
+        {
+          "id": "3",
+          "pos": [
+            5.0,
+            2.6
+          ],
+          "y": 0.74,
+          "yaw": 0.4,
+          "kit": "find_bromide"
+        }
+      ],
+      "_finds说明": "拾遗 3：西北圆桌上一张女演员剧照，一半压在糖罐底下",
+      "npcs": [
+        {
+          "id": "chiyo",
+          "model": "processed/chiyo_posed_lite.glb",
+          "height": 1.55,
+          "pos": [
+            6.4,
+            6.4
+          ],
+          "yaw": -1.0,
+          "idles": [
+            "pose_k",
+            "giggle_k"
+          ]
+        }
+      ]
+    }
+  },
+  "case": {
+    "_说明": "照坂井家格式（docs/19），文案线 11-06。本命 TV 版化猫的 id 等总指挥定（先用 bakeneko 顶着，ROSTER.subway 也是）；文案键 mononoke.subway。形真理三句暂定，键不变",
+    "mononoke": "bakeneko_tv",
+    "boss": "homu",
+    "firstRandom": null,
+    "npcNames": {
+      "masao": "小林正男",
+      "kinoshita": "木下文平",
+      "moriya": "森谷清",
+      "fukuda": "福田寿太郎",
+      "haru": "山口ハル",
+      "chiyo": "野本チヨ"
+    },
+    "clues": [
+      {
+        "char": "形",
+        "need": [
+          "sharyo/view:2",
+          "homu/npc:masao"
+        ]
+      },
+      {
+        "char": "真",
+        "need": [
+          "homu/act:senro",
+          "homu/npc:kinoshita",
+          "kaisatsu/npc:haru"
+        ]
+      },
+      {
+        "char": "理",
+        "need": [
+          "kissa/npc:chiyo",
+          "kissa/act:shinbun",
+          "sharyo/npc:moriya"
+        ],
+        "after": "真"
+      }
+    ],
+    "plan": {
+      "_说明": "案卷·宅图：rooms 每间 [列, 行, 跨列, 跨行, 贴图, tall/small]，门按出口自动画",
+      "cols": 4,
+      "rows": 4,
+      "compass": "↑ 地面　↓ 站台",
+      "rooms": {
+        "kissa": [
+          1,
+          1,
+          4,
+          1,
+          "sub_checker.png"
+        ],
+        "kaisatsu": [
+          1,
+          2,
+          4,
+          1,
+          "sub_floor.png"
+        ],
+        "homu": [
+          1,
+          3,
+          3,
+          2,
+          "sub_marble_black.png"
+        ],
+        "sharyo": [
+          4,
+          3,
+          1,
+          2,
+          "sub_car_floor.png",
+          "tall"
+        ]
+      }
+    }
+  }
+}

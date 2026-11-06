@@ -7,5 +7,11 @@
   },
   "scale": {
     "model_task": "c10e883b-aa43-40b9-8d04-fad41613b62b"
+  },
+  "pri_zou": {
+    "model_task": "3a37e0d5-16ff-4025-b93e-23640ce92f48"
+  },
+  "pri_umetree": {
+    "model_task": "e5ac7ed3-4593-4072-bdd6-25d17a121e71"
   }
 }

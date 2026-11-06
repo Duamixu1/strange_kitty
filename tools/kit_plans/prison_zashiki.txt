@@ -1,0 +1,22 @@
+# 佐佐木家座敷（参考 p6_1101）：绿框、深色木地板、木板天花；西墙整面一幅人物壁画（M，pri_jinbutsu），另三面是梅枝小鸟工笔的襖（6 扇一幅），
+# 北墙中间一扇青灰竖格的小窗（A）；东墙上一座红漆碗架；东北角一只粉色小柜、西南角一只青灰箱叠红褐箱。南 U 回牢房，东 U 去厨房。观景点：1 正中看人物壁画，2 东南角看整间。
+name: prison_zashiki
+height: 2.8
+ceiling: sao
+timber: 1.4
+fusuma_span: 6
+mural: pri_jinbutsu
+mural_full: on
+mat: wood=pri_green, frame=pri_green, bars=pri_bars, plaster=pri_ume_wall, kokabe=pri_ume_wall, tatami=pri_straw, tatami_side=pri_beam, earth=pri_earth, engawa=pri_boards, ceiling=pri_ceil, fusuma=pri_ume_wall, udoor=pri_door, byobu=pri_jinbutsu, dais=pri_red, dais_side=pri_red_lacquer, dais_trim=pri_gold, rail=pri_beam, under=kage, fusuma=pri_kacho, engawa=pri_boards, ceiling=pri_boards, lattice_win=pri_koshi_win
+place: bowlshelf 9.47,1.6,180,1.3; pinkbox 8.5,0.85,0; chest 1.6,6.0,0
+shot: 人物壁画 | 6.4,1.6,3.6 | 0.4,1.2,3.4 | 5.0,3.2,-1.57
+shot: 整间 | 8.6,1.8,6.0 | 2.0,0.8,1.2 | 7.6,5.0,-2.4
+---
+#FFFFAFFFF#
+M=========F
+M=========F
+M====1====F
+M=========U
+M=======2=F
+M==@======F
+#####U#####

@@ -9,11 +9,14 @@ import argparse, json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-p = argparse.ArgumentParser(); p.add_argument("name"); p.add_argument("--drop", type=float, default=0.43)   # 髋落到约 0.1（身高 1）：小腿贴地、坐在脚跟上
+p = argparse.ArgumentParser(); p.add_argument("name"); p.add_argument("--drop", type=float, default=None)   # 不给就按 <名字>_legs.json 算：髋落到约 0.1（身高 1），小腿贴地、坐在脚跟上
 p.add_argument("--thigh", type=float, default=-80); p.add_argument("--calf", type=float, default=150); p.add_argument("--foot", type=float, default=-10)
 # 11-06 老尼试过三组（-86/168/-30、-80/150/-10、-88/172/-45），这组两手放在膝上、下摆最顺；下摆前角会插到地下 0.1 左右，游戏里被地板挡住
 a = p.parse_args()
 f = ROOT / f"tools/npc_poses/{a.name}.json"
+if a.drop is None:
+    _l = json.loads((ROOT / f"tools/npc_poses/{a.name}_legs.json").read_text())
+    a.drop = round(_l["hip_z"] / _l["height"] - 0.10, 3)   # 老尼 0.426、瑠璃姫、源慧各按自己的腿算
 lib = json.loads(f.read_text(encoding="utf-8")); P = lib["poses"]
 if lib.get("_seated") and "L_Thigh" in P["stand"]:   # npc_setup.py 重写过 stand 就不算坐着了
     raise SystemExit(f"{a.name} 已经是坐姿了（先重跑 npc_setup.py / npc_gestures.py 再坐）")

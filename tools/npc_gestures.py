@@ -57,7 +57,22 @@ WHO = {"asa": ["fix_collar_k", "look_around_k", "nod_k"], "kame": ["fix_collar_k
        # 游32 笛小路家（室町、半井、大澤站着；老尼、瑠璃姫跪坐，跑完这里再跑 tools/npc_seat.py）
        "muromachi": ["look_around_k", "nod_k", "posture_k"], "nakarai": ["look_around_k", "nod_k", "posture_k"],
        "osawa": ["look_around_k", "nod_k", "posture_k"], "roni": ["nod_k", "look_around_k", "posture_k"],
-       "ruri": ["look_around_k", "nod_k", "fix_collar_k"]}
+       "ruri": ["look_around_k", "nod_k", "fix_collar_k"],
+       # 游32 そらりす丸（源慧可能改跪坐，见 tools/npc_seat.py）
+       "genkei": ["nod_k", "look_around_k", "posture_k"], "sogen": ["nod_k", "look_around_k", "posture_k"],
+       "yanagi": ["look_around_k", "nod_k", "posture_k"], "sasaki": ["look_around_k", "posture_k", "nod_k"],
+       "oyo": ["nod_k", "posture_k", "look_around_k"],
+       # 游32 地铁（docs/17 第二十二节）
+       "moriya": ["look_around_k", "nod_k", "posture_k"], "masao": ["look_around_k", "nod_k", "posture_k"],
+       "chiyo": ["fix_collar_k", "look_around_k", "nod_k"], "haru": ["fix_collar_k", "look_around_k", "nod_k"],
+       "kinoshita": ["look_around_k", "nod_k", "posture_k"], "fukuda": ["look_around_k", "nod_k", "posture_k"],
+       # 地铁乘客人偶（光身 / 西装礼帽 / 洋装钟形帽 / 和服）
+       "mnq_bare": ["look_around_k", "posture_k", "nod_k"], "mnq_suit": ["look_around_k", "posture_k", "nod_k"],
+       "mnq_dress": ["look_around_k", "fix_collar_k", "nod_k"], "mnq_kimono": ["look_around_k", "fix_collar_k", "nod_k"],
+       # 游32 牢房（のっぺらぼう）
+       "kitsune_men": ["look_around_k", "nod_k", "posture_k"], "ocho": ["fix_collar_k", "look_around_k", "nod_k"],
+       "ocho_mother": ["nod_k", "look_around_k", "posture_k"], "shuto": ["nod_k", "look_around_k", "posture_k"],
+       "kazumasa": ["look_around_k", "posture_k", "nod_k"]}
 
 
 def resolve(lib, name):
@@ -70,7 +85,10 @@ def flatten(name):
     return out
 
 
+import sys
+ONLY = set(sys.argv[1:])   # 给了名字就只改这几个人的姿势库（几个人可以同时出模型，11-06 起）
 for who, anims in WHO.items():
+    if ONLY and who not in ONLY: continue
     p = ROOT / f"tools/npc_poses/{who}.json"
     if not p.exists(): continue   # 模型和姿势库还没做出来的先跳过
     lib = json.loads(p.read_text(encoding="utf-8"))

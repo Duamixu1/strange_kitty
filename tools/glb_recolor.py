@@ -5,6 +5,7 @@
 """物怪变体（docs/18 第九节）：不重新建模，只把 GLB 里那张贴图换个配色，网格、骨架、动作原样留着，不花积分。
   uv run tools/glb_recolor.py                 按 VARIANTS 全出一遍 → assets/processed/<变体名>_posed.glb
   uv run tools/glb_recolor.py --dump 目录     把原贴图和换色后的贴图存出来对比
+  uv run tools/glb_recolor.py --lite --only mnq_suit_navy,kadowaki   只出这几个，读写 _posed_lite.glb
 换色在 HSV 里按色相 / 明度挑像素（规则见 VARIANTS），边缘用软过渡，墨线（很暗、不饱和的像素）不动。"""
 import json, struct, sys, io
 from pathlib import Path
@@ -62,6 +63,17 @@ VARIANTS = {
                                                   {"hue": (2, 16), "smin": 0.42, "to_hue": 235, "sat": 0.55, "val": (0.04, 0.32)}]),
     # 青座敷：朱红和服换成青绿，金色手鞠纹、粉梅花不动
     "zashiki_ao": dict(src="zashiki", rules=[{"hue": (0, 16), "smin": 0.45, "vmin": 0.25, "to_hue": 172, "sat": 0.85, "val": (0.0, 0.85)}]),
+    # 地铁乘客人偶（化猫 TV 篇）：一个人偶几种配色，车厢里不显得一模一样。西装是灰布（不饱和、中低明度，奶白的人偶身子 vmax 挡掉），
+    # 洋装、和服是玫红（色相 345）。用 --lite 直接在 _posed_lite.glb 上换
+    "mnq_suit_navy": dict(src="mnq_suit", rules=[{"smax": 0.34, "vmin": 0.08, "vmax": 0.62, "to_hue": 222, "sat_to": 0.5, "val": (0.0, 0.8)}]),
+    "mnq_suit_brown": dict(src="mnq_suit", rules=[{"smax": 0.34, "vmin": 0.08, "vmax": 0.62, "to_hue": 24, "sat_to": 0.5, "val": (0.02, 0.85)}]),
+    "mnq_suit_wine": dict(src="mnq_suit", rules=[{"smax": 0.34, "vmin": 0.08, "vmax": 0.62, "to_hue": 348, "sat_to": 0.55, "val": (0.0, 0.85)}]),
+    # 門脇：橙色西装
+    "kadowaki": dict(src="mnq_suit", rules=[{"smax": 0.34, "vmin": 0.08, "vmax": 0.62, "to_hue": 26, "sat_to": 0.82, "val": (0.3, 0.95)}]),
+    "mnq_dress_mustard": dict(src="mnq_dress", rules=[{"hue": (345, 22), "smin": 0.2, "to_hue": 44, "sat": 1.15, "val": (0.06, 0.95)}]),
+    "mnq_dress_lilac": dict(src="mnq_dress", rules=[{"hue": (345, 22), "smin": 0.2, "to_hue": 272, "sat": 0.55, "val": (0.04, 0.9)}]),
+    "mnq_kimono_navy": dict(src="mnq_kimono", rules=[{"hue": (345, 22), "smin": 0.2, "to_hue": 224, "sat": 1.0, "val": (0.0, 0.72)}]),
+    "mnq_kimono_brown": dict(src="mnq_kimono", rules=[{"hue": (345, 22), "smin": 0.2, "to_hue": 22, "sat": 0.9, "val": (0.0, 0.74)}]),
 }
 
 
@@ -89,15 +101,19 @@ def replace_image(j, binb, idx, data):
 
 def main():
     dump = Path(sys.argv[sys.argv.index("--dump") + 1]) if "--dump" in sys.argv else None
+    lite = "--lite" in sys.argv   # 读写 _posed_lite.glb，贴图质量跟精简版一样 62
+    only = sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else None
+    suf, q = ("_posed_lite.glb", 62) if lite else ("_posed.glb", 88)
     for name, v in VARIANTS.items():
-        j, binb = read_glb(P / f"{v['src']}_posed.glb")
+        if only and name not in only: continue
+        j, binb = read_glb(P / f"{v['src']}{suf}")
         for i, im in enumerate(j["images"]):
             bv = j["bufferViews"][im["bufferView"]]; o = bv.get("byteOffset", 0)
             src = Image.open(io.BytesIO(bytes(binb[o:o + bv["byteLength"]])))
-            dst = recolor(src, v["rules"]); buf = io.BytesIO(); dst.save(buf, "JPEG", quality=88)
+            dst = recolor(src, v["rules"]); buf = io.BytesIO(); dst.save(buf, "JPEG", quality=q)
             if dump: dump.mkdir(parents=True, exist_ok=True); src.convert("RGB").save(dump / f"{name}_{i}_原.jpg"); dst.save(dump / f"{name}_{i}_变.jpg")
             binb = replace_image(j, binb, i, buf.getvalue()); im["mimeType"] = "image/jpeg"
-        out = P / f"{name}_posed.glb"; write_glb(out, j, binb); print(f"{name}: {out.relative_to(ROOT)} {out.stat().st_size / 1e6:.2f} MB")
+        out = P / f"{name}{suf}"; write_glb(out, j, binb); print(f"{name}: {out.relative_to(ROOT)} {out.stat().st_size / 1e6:.2f} MB")
 
 
 if __name__ == "__main__":

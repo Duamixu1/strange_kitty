@@ -358,9 +358,8 @@
           "speed": 0.858,
           "pause": 3.0,
           "idles": [
-            "look_around_k",
-            "posture_k",
-            "nod_k"
+            "grip_k",
+            "peer_k"
           ]
         }
       ],
@@ -424,9 +423,9 @@
           ],
           "yaw": 0.59,
           "idles": [
-            "turn_slow_k",
-            "nod_k",
-            "posture_k"
+            "cough_k",
+            "remember_k",
+            "turn_slow_k"
           ],
           "gap": [
             12,
@@ -644,9 +643,9 @@
           "speed": 0.65,
           "pause": 3.5,
           "idles": [
-            "fix_collar_k",
-            "look_around_k",
-            "nod_k"
+            "shoulder_k",
+            "stretch_neck_k",
+            "fix_collar_k"
           ]
         }
       ],

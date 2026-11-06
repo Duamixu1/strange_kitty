@@ -606,8 +606,528 @@
       "model": "chat_image_2.5_sunburst",
       "quality": "high",
       "prompt": "A seamless 360-degree equirectangular panorama of a snowy winter sky over an old Kyoto aristocrat's estate, drawn as a monochrome ink wash: soft pale grey sky with heavy layered snow clouds, slowly falling snowflakes, distant ink-wash mountain ridges and bare winter tree silhouettes along the horizon all the way around, the lower third fading to plain snowy white ground. Left and right edges join seamlessly. Mood like image[1]. No buildings in the foreground, no people."
+    },
+    {
+      "id": "51_そらりす丸_雾海全景",
+      "size": "3840x1920",
+      "_说明": "游33 そらりす丸，11-06 用户在场景线会话确认花积分。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；退魔前的天（sol_sky.jpg，2:1 等距柱状）",
+      "refs": [
+        "web/public/textures/kit/sol_sea.png",
+        "assets/concept/00_色板.png"
+      ],
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "prompt": "A seamless 360-degree equirectangular panorama of the open sea inside a cursed foggy zone, painted in Rinpa style: the lower half is a stylised sea of layered thick wave bands in muted grey-teal and slate blue with thin pale curling lines like image[1], heavy drifting fog banks low over the water, a dim grey-violet overcast sky in the upper half, horizon exactly across the middle. Left and right edges join seamlessly. Colours muted versions of image[2]. No ships, no land, no people."
+    },
+    {
+      "id": "52_そらりす丸_金云海全景",
+      "size": "3840x1920",
+      "_说明": "游33 そらりす丸，11-06 用户在场景线会话确认花积分。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；退魔后的天（sol_sky_color.jpg）",
+      "refs": [
+        "web/public/textures/kit/sol_sea_color.png",
+        "assets/concept/00_色板.png"
+      ],
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "prompt": "A seamless 360-degree equirectangular panorama of a bright open ocean in Rinpa and ukiyo-e style: the lower half is layered bands of indigo and blue waves with fine gold lines like image[1], the upper half a clear soft sky-blue sky with big flat golden clouds drifting across, horizon exactly across the middle. Left and right edges join seamlessly. Colours only from image[2]. No ships, no land, no people."
+    },
+    {
+      "id": "53_そらりす丸_鱼纹藻井",
+      "size": "2048x2048",
+      "_说明": "游33 そらりす丸，11-06 用户在场景线会话确认花积分。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；中庭天花正中的藻井（mojing，3.6×3.6 米）",
+      "refs": [
+        "web/public/textures/kit/sol_mojing.png",
+        "assets/concept/00_色板.png"
+      ],
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "prompt": "A square ornamental ceiling panel seen flat from directly below, filling the frame: a lemon-yellow ground covered in fine fish-scale pattern, one big crimson carp curving through the centre with ochre fins and bold scales, small swirling water lines around it, and a border of pink and teal coffers each holding a four-petal hanabishi flower. Layout loosely like image[1]. Colours only from image[2]."
+    },
+    {
+      "id": "54_そらりす丸_凤凰画",
+      "size": "2048x1120",
+      "_说明": "游33 そらりす丸，11-06 用户在场景线会话确认花积分。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；客室正面墙的凤凰画（M 三格一幅）",
+      "refs": [
+        "web/public/textures/kit/sol_houou.png",
+        "assets/concept/00_色板.png"
+      ],
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "prompt": "A wide flat painted wall panel seen straight-on, filling the frame: one golden-brown phoenix (hoo) in the manner of an Edo-period bird painting, perched on a paulownia branch, head turned back, long sweeping tail feathers in coral, teal and wisteria flowing to the left, small crimson crest, on aged cream paper with faint gold clouds. Layout loosely like image[1]. Colours only from image[2]. No text."
+    },
+    {
+      "id": "55_そらりす丸_大幡和船身",
+      "size": "2048x2048",
+      "_说明": "游33 そらりす丸，11-06 用户在场景线会话确认花积分。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；一张图里上面并排三面大幡、下面一条船身花纹，场景线切开当 sol_hata1~3、sol_hull（自己出的图，可以切）",
+      "refs": [
+        "assets/concept/scenes/_refs/sol_55_layout.png",
+        "assets/concept/00_色板.png"
+      ],
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "prompt": "A design sheet laid out exactly like image[1] on plain cream paper: in the top part three tall hanging festival banners side by side, evenly spaced, each straight-on and flat: the left one sky-teal with a big black 'kotobuki' longevity character in a white box at the top and red, green and ochre lozenges below; the middle one coral with a large hanabishi flower medallion and lozenges; the right one navy with concentric gold and pink rings and lozenges. In the bottom part one wide horizontal ship-hull band: an upper pink stripe with big bold flowers in coral, ochre and wisteria, a thin crimson line, and a lower teal 'city under the sea' with blue pagodas and little ochre fish. Colours only from image[2]."
+    },
+    {
+      "id": "47_源慧_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/solaris/refs/genkei.png"
+      ],
+      "prompt": "Character turnaround sheet of Genkei, an ancient Buddhist high priest, a character from the anime Mononoke (2007). image[2] shows him in the anime (full body on the left, close-up on the right): copy his face, expression lines, make-up, hair, headwear, costume, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same man on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Back view: the green pointed hood hangs down the back; green robe with the big yellow flowers.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 用户放开规矩：照原片裁图画（assets/concept/ref/solaris/refs/），不套色板"
+    },
+    {
+      "id": "48_菖源_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/solaris/refs/sogen.png"
+      ],
+      "prompt": "Character turnaround sheet of Sogen, a gaunt monk, a character from the anime Mononoke (2007). image[2] shows him in the anime (full body on the left, close-up on the right): copy his face, expression lines, make-up, hair, headwear, costume, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same man on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Back view: bare shaven head with grey stubble, loose yellow-green robe.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 用户放开规矩：照原片裁图画（assets/concept/ref/solaris/refs/），不套色板"
+    },
+    {
+      "id": "49_柳幻殃斉_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/solaris/refs/yanagi.png"
+      ],
+      "prompt": "Character turnaround sheet of Yanagi Genyousai, a flashy jester-like exorcist, a character from the anime Mononoke (2007). image[2] shows him in the anime (full body on the left, close-up on the right): copy his face, expression lines, make-up, hair, headwear, costume, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same man on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Full costume: red headscarf, pink-lilac haori with teal round crests, white kimono, navy hakama, red cord; a closed fan tucked in the sash.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 用户放开规矩：照原片裁图画（assets/concept/ref/solaris/refs/），不套色板"
+    },
+    {
+      "id": "50_佐々木兵衛_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/solaris/refs/hyoe.png"
+      ],
+      "prompt": "Character turnaround sheet of Sasaki Hyoe, a sullen samurai, a character from the anime Mononoke (2007). image[2] shows him in the anime (full body on the left, close-up on the right): copy his face, expression lines, make-up, hair, headwear, costume, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same man on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Long black hair hangs down the back to the waist; crimson kimono with black lozenges and green leaves, white sash, sheathed katana at the left hip.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 用户放开规矩：照原片裁图画（assets/concept/ref/solaris/refs/），不套色板"
+    },
+    {
+      "id": "60_大澤廬房_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/fuenokouji/refs/osawa.png"
+      ],
+      "prompt": "Character turnaround sheet of Osawa Robo, an affected old court noble (kuge), a character from the anime Mononoke (2007). image[2] shows him in the anime (full body on the left, close-up on the right): copy his face, expression lines, ears, moustache, hat, costume and colours exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same man on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Tall soft purple court cap (eboshi) tied with a thin white cord under the chin; droopy sleepy eyes, pointed ears, a long thin curling moustache, sparse chin stubble, buck teeth; grey-green round-collar kariginu robe with a darker collar band, a white sash, loose grey-green hakama.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 用户给了原片截图（assets/concept/ref/fuenokouji/refs/osawa_用户给_*.png），旧大澤是照药郎画错的"
+    },
+    {
+      "id": "61_加世_建模三视图_海坊主",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/solaris/refs/kayo.png"
+      ],
+      "prompt": "Character turnaround sheet of Kayo, a young maid travelling by ship, a character from the anime Mononoke (2007). image[2] shows her in the anime (full body, upper body, close-up): copy her face, tan skin, big round eyes, the small mole under one eye, hairstyle, hairpins, kimono, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same girl on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Dark brown hair in a high bun with a teal chrysanthemum hairpin, pink ball hairpins and a blue comb; cream kimono with large ochre spots and small ochre flower crests, a black collar over a purple under-collar, a wide purple obi tied with a green cord; no bundle on her back. White tabi and zori.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 用户要加世照《海坊主》里的样子重做（原片裁图 + 用户给的截图），替换坂井家那个 kayo"
+    },
+    {
+      "id": "56_地下铁_美人画",
+      "size": "1792x1536",
+      "suffix": "sub",
+      "_说明": "游34 地下铁，11-06 用户在场景线会话确认花积分。参考帧只看不喂，refs 只用场景线自己程序画的占位；车厢车门边挂的美人画（\"形\"的线索）",
+      "refs": [
+        "web/public/textures/kit/sub_bijin.png"
+      ],
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "prompt": "A framed Taisho-era bijin-ga painting seen flat and straight-on, filling the frame: a pale young woman with long white hair in profile, red lips, holding a black cat with gold eyes in her arms, the cat looking at the viewer; deep dusky blue background with faint gold flower patterns; thin dark wooden frame at the edges. Composition loosely like image[1]."
+    },
+    {
+      "id": "57_地下铁_人影广告墙",
+      "size": "2048x1120",
+      "suffix": "sub",
+      "_说明": "游34 地下铁，11-06 用户在场景线会话确认花积分。参考帧只看不喂，refs 只用场景线自己程序画的占位；站台和检票口的人影广告墙（M 三格一幅）",
+      "refs": [
+        "web/public/textures/kit/sub_silhouette.png"
+      ],
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "prompt": "A wide flat station advertising wall seen straight-on, filling the frame: under a row of black iron arches, a long frieze of standing human silhouettes of the 1920s, side by side, in black and dusty violet-grey on a pale lilac-grey ground: women in kimono and in western dresses with cloche hats, schoolboys in caps, gentlemen in top hats and coats with canes. Flat graphic shapes, no faces. Layout loosely like image[1]."
+    },
+    {
+      "id": "62_森谷清_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/moriya.png"
+      ],
+      "prompt": "Character turnaround sheet of Moriya Kiyoshi, a newspaper desk editor, a character from the anime Mononoke (2007), episodes 'Bakeneko' set on a 1920s Tokyo subway. image[2] shows him in the anime (full body and close-up): copy his face, expression lines, hair, headwear, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, standing upright, feet on the ground. Brown flat cap, long sallow face, startled round eyes, heavy brows, a short black moustache; grey kimono with a darker collar, a navy obi, a long pale grey haori coat over it; dark geta.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁配角，照原片裁图（认人依据见 docs/17 第二十二节）"
+    },
+    {
+      "id": "63_小林正男_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/masao.png"
+      ],
+      "prompt": "Character turnaround sheet of Kobayashi Masao, a teenage milk delivery boy, a character from the anime Mononoke (2007), episodes 'Bakeneko' set on a 1920s Tokyo subway. image[2] shows him in the anime (full body and close-up): copy his face, expression lines, hair, headwear, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, standing upright, feet on the ground. Short and stocky, close-cropped head, thick knitted eyebrows, bulging round eyes, big round pink blush on both cheeks, thick lips; blue-grey short work kimono and hakama, a canvas strap across the chest to a small bag at the hip; straw sandals.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁配角，照原片裁图（认人依据见 docs/17 第二十二节）"
+    },
+    {
+      "id": "64_野本チヨ_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/chiyo.png"
+      ],
+      "prompt": "Character turnaround sheet of Nomoto Chiyo, a cafe waitress who dreams of being an actress, a character from the anime Mononoke (2007), episodes 'Bakeneko' set on a 1920s Tokyo subway. image[2] shows her in the anime (full body and close-up): copy her face, expression lines, hair, headwear, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, standing upright, feet on the ground. Tan skin, big olive eyes, a beauty mark under one eye, glossy pink lips, two long braids, a small red flower hairpin; mustard-yellow 1920s coat with buttons over a white blouse, brown pleated skirt, black stockings, red shoes.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁配角，照原片裁图（认人依据见 docs/17 第二十二节）"
+    },
+    {
+      "id": "65_山口ハル_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/haru.png"
+      ],
+      "prompt": "Character turnaround sheet of Yamaguchi Haru, a stern young widow, a character from the anime Mononoke (2007), episodes 'Bakeneko' set on a 1920s Tokyo subway. image[2] shows her in the anime (full body and close-up): copy her face, expression lines, hair, headwear, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, standing upright, feet on the ground. Pale long face, narrow upturned eyes with a touch of red at the corners, thin brows, red lips, black hair in a tall swept-up bun; pale lavender kimono with a pink-grey sleeve gradient, a brown and pink obi, a dark brown under-kimono; white tabi and geta.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁配角，照原片裁图（认人依据见 docs/17 第二十二节）"
+    },
+    {
+      "id": "66_木下文平_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/kinoshita.png"
+      ],
+      "prompt": "Character turnaround sheet of Kinoshita Bunpei, a middle-aged subway train driver, a character from the anime Mononoke (2007), episodes 'Bakeneko' set on a 1920s Tokyo subway. image[2] shows him in the anime (full body and close-up): copy his face, expression lines, hair, headwear, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, standing upright, feet on the ground. Tired droopy face, heavy-lidded eyes with dark bags, a purple bruise on one cheek, sagging mouth; grey-green peaked uniform cap with a gold chrysanthemum badge, grey-green double-breasted uniform coat with gold piping and brass buttons, a red armband, white gloves, grey-green trousers, black boots.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁配角，照原片裁图（认人依据见 docs/17 第二十二节）"
+    },
+    {
+      "id": "67_福田寿太郎_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/fukuda.png"
+      ],
+      "prompt": "Character turnaround sheet of Fukuda Jutaro, the city mayor, a character from the anime Mononoke (2007), episodes 'Bakeneko' set on a 1920s Tokyo subway. image[2] shows him in the anime (full body and close-up): copy his face, expression lines, hair, headwear, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, standing upright, feet on the ground. Slicked back black hair, round wire glasses, half-closed smug eyes, a big curled black moustache and a pointed goatee; rose-pink three-piece suit, white wing-collar shirt, red tie, a gold watch chain; black shoes.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁配角，照原片裁图（认人依据见 docs/17 第二十二节）"
+    },
+    {
+      "id": "68_TV化猫_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/scenes/35_化猫_建模三视图.png"
+      ],
+      "prompt": "Modelling turnaround sheet of a large cat character. Flat Japanese ukiyo-e woodblock print style like Kuniyoshi's cat prints: bold flat colour areas, thick even ink outlines, fur drawn as flat graphic tufts, no individual hair strands, no shading, no gradients, crumpled washi paper grain. Render it like image[1] (line weight, flat brushy colour, paper grain) and lay out the three views like image[2] (front, side profile facing right, back on one baseline, wide gaps); never copy their characters. Much bigger than a tiger, slender, standing calmly on four legs, head low, long thick tail curling up. Crimson and deep red fur drawn as flat flame-shaped tufts and swirls with thin yellow-green outline strokes. Large round shining eyes with a lemon yellow centre and a bright magenta ring, a small black nose, a wide smiling mouth with small white pointed teeth, long golden nails. No text.",
+      "model": "chat_image_2.5_sunburst",
+      "no_canon": true,
+      "_说明": "11-06 地铁本命 bakeneko_tv，原片中集 10:22~10:30；原片截图做参考被内容审核拒了三次，改成只用文字",
+      "quality": "high"
+    },
+    {
+      "id": "69_白人偶_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/mannequin_heads.png"
+      ],
+      "prompt": "Turnaround sheet of a plain shop-window display mannequin, like the faceless mannequin passengers in the anime Mononoke (2007) subway episodes (image[2]). image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. A smooth sculpted figure like a wooden or plaster store dummy: matte off-white surface, a bald egg-shaped head with no face, simple tube-like arms and legs, visible seam rings at neck, shoulders, elbows, wrists, waist and knees, a smooth simplified torso with no anatomical detail, flat stump feet. Front, side profile, back on one baseline, wide gaps, no text. Standing straight with arms 40 degrees out.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁乘客群像通用白人偶（mannequin）"
+    },
+    {
+      "id": "70_阿庸_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/solaris/refs/oyo.png"
+      ],
+      "prompt": "Character turnaround sheet of Oyo, a 16-year-old island girl, a character from the anime Mononoke (2007), episodes 'Umibozu'. image[2] shows her in the anime (full body on a bridge, front face, side face, back): copy her face, hair, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same girl on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Very long straight black hair to the hips with blunt hime bangs and a faint purple sheen, pale face, big dark blue eyes, round pink blush, small red lips; white kosode with a red under-collar, a white over-robe with wide sleeves, a long red hakama-like skirt with a white pattern; white tabi and zori.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 そらりす丸 听琵琶池里的女孩，海坊主下 11:41~13:17"
+    },
+    {
+      "id": "71_人偶_西装礼帽_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/mannequin_dressed.png"
+      ],
+      "prompt": "Character turnaround sheet of a faceless mannequin passenger from the anime Mononoke (2007), subway episodes, a man in a 1920s suit. image[2] shows a crowd of these passengers in the anime: copy their look exactly. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Smooth matte off-white mannequin skin, a completely blank face with no eyes, nose or mouth, hands and neck white like a shop dummy; only the clothes and hat have colour. Plain dark grey three-piece suit with a white shirt and a dark tie, a matching felt fedora hat with a band, black shoes; the suit and hat are plain single colours so they can be recoloured later. Front, side profile, back on one baseline, wide gaps, no text. A-pose: arms 40 degrees out, hands open and empty, feet slightly apart.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁乘客人偶 男：西装礼帽（颜色用程序换）"
+    },
+    {
+      "id": "72_人偶_洋装钟形帽_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/mannequin_dressed.png"
+      ],
+      "prompt": "Character turnaround sheet of a faceless mannequin passenger from the anime Mononoke (2007), subway episodes, a woman in a 1920s dress. image[2] shows a crowd of these passengers in the anime: copy their look exactly. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Smooth matte off-white mannequin skin, a completely blank face with no eyes, nose or mouth, hands and neck white like a shop dummy; only the clothes and hat have colour. Plain dropped-waist 1920s day dress to below the knee with a narrow belt, a matching cloche hat, a short cardigan, plain stockings and strap shoes; plain single colours so they can be recoloured later. Front, side profile, back on one baseline, wide gaps, no text. A-pose: arms 40 degrees out, hands open and empty, feet slightly apart.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁乘客人偶 女：洋装钟形帽"
+    },
+    {
+      "id": "73_人偶_和服_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/subway/refs/mannequin_dressed.png"
+      ],
+      "prompt": "Character turnaround sheet of a faceless mannequin passenger from the anime Mononoke (2007), subway episodes, a woman in a plain kimono. image[2] shows a crowd of these passengers in the anime: copy their look exactly. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Smooth matte off-white mannequin skin, a completely blank face with no eyes, nose or mouth, hands and neck white like a shop dummy; only the clothes and hat have colour. Plain single-colour everyday kimono to the ankles with a contrasting obi, white tabi and geta, no hat, bald blank head; plain colours so they can be recoloured later. Front, side profile, back on one baseline, wide gaps, no text. A-pose: arms 40 degrees out, hands open and empty, feet slightly apart.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 地铁乘客人偶：和服"
+    },
+    {
+      "id": "74_狐面男_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/prison/refs/kitsune_men.png"
+      ],
+      "prompt": "Character turnaround sheet of the masked man, a tall mysterious stranger, a character from the anime Mononoke (2007), episodes 'Noppera-bo'. image[2] shows him in the anime: copy his face, hair, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. IMPORTANT: draw him WITHOUT any mask: his face is a smooth blank oval of pale skin with no eyes, nose or mouth, framed by long straight white hair falling past the shoulders, pointed ears, a turquoise bead necklace. Purple wide-sleeved haori with black lapels and white and red bands on the sleeves, a dark crimson kimono, a white tasselled cord on the chest, mustard-yellow hakama; white tabi and geta. Hands empty.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 牢房，照原片裁图（认人见 assets/concept/ref/prison/认人核对_牢房.jpg）"
+    },
+    {
+      "id": "75_お蝶_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/prison/refs/ocho.png"
+      ],
+      "prompt": "Character turnaround sheet of Ocho, a young samurai-house bride, a character from the anime Mononoke (2007), episodes 'Noppera-bo'. image[2] shows her in the anime: copy her face, hair, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Pale oval face, calm sad eyes, a small beauty mark under one eye, small lips; glossy black hair in a tall Edo-period bun with a yellow comb and a red ball hairpin; kimono with bold orange-red and white chevron stripes, a red under-collar, a wide obi with black, grey and white diagonal stripes tied with a blue cord; white tabi and zori.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 牢房，照原片裁图（认人见 assets/concept/ref/prison/认人核对_牢房.jpg）"
+    },
+    {
+      "id": "76_お蝶の母_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/prison/refs/ocho_mother.png"
+      ],
+      "prompt": "Character turnaround sheet of Ocho's mother, a poor but proud middle-aged woman, a character from the anime Mononoke (2007), episodes 'Noppera-bo'. image[2] shows her in the anime: copy her face, hair, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Worn tired face with lines, narrow purple eyes, thin dark lips; black hair in a modest bun with a purple tie; yellow-green kimono with a pale lavender under-collar, a dark brown inner collar, a plain obi; white tabi and zori.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 牢房，照原片裁图（认人见 assets/concept/ref/prison/认人核对_牢房.jpg）"
+    },
+    {
+      "id": "77_佐々木家の姑_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/prison/refs/shuto.png"
+      ],
+      "prompt": "Character turnaround sheet of the mother-in-law of the Sasaki samurai house, a character from the anime Mononoke (2007), episodes 'Noppera-bo'. image[2] shows her in the anime: copy her face, hair, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. Her face is completely hidden behind a flat panel of four square tiles in a cross pattern (white, black, pale blue), exactly as in image[2]; grey hair in a small bun on top. Dark blue kimono with large orange and peach round spots, a striped orange and green obi; white tabi and zori.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 牢房，照原片裁图（认人见 assets/concept/ref/prison/认人核对_牢房.jpg）"
+    },
+    {
+      "id": "78_佐々木和正_建模三视图",
+      "size": "3840x2160",
+      "refs": [
+        "assets/concept/scenes/11_药贩子_建模三视图.png",
+        "assets/concept/ref/prison/refs/kazumasa.png"
+      ],
+      "prompt": "Character turnaround sheet of Sasaki Kazumasa, a cold samurai husband, a character from the anime Mononoke (2007), episodes 'Noppera-bo'. image[2] shows him in the anime: copy his face, hair, clothes, colours and patterns exactly from image[2], keep the anime's look; do not prettify, do not invent a new face. image[1] is only for sheet layout and rendering (thin indigo outlines, flat brushy colour with washi paper grain); never copy its face, hair or clothes. Front, side profile, back of the same person on one baseline, wide gaps, no text or labels. A-pose: arms 40 degrees out, sleeves spread, hands open and empty, hems at the ankles. His face is completely hidden behind a flat panel of four square tiles in a cross pattern (white with one red square), exactly as in image[2]; short black hair with a small topknot. Brown haori over a blue kimono, dark grey hakama; white tabi and zori.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 牢房，照原片裁图（认人见 assets/concept/ref/prison/认人核对_牢房.jpg）"
+    },
+    {
+      "id": "79_狐面具_贴图",
+      "size": "2048x2048",
+      "refs": [
+        "assets/concept/ref/prison/refs/fox_mask.png"
+      ],
+      "prompt": "A single flat front view of a Japanese fox mask (kitsune men) from the anime Mononoke (2007), copied from image[1]: a smooth lemon-yellow mask with tall pointed ears, fierce narrow eyes with orange irises and black rims, thin red whisker lines on the cheeks, a red nose, an open snarling mouth with small sharp white teeth and a red tongue. Centred, filling the square, seen straight from the front, flat colours with thin dark outlines, plain white background, no strings, no person, no text.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "11-06 狐面男可摘的面具贴图（blender_add_mask 那套）"
+    },
+    {
+      "id": "80_牢房_金底大树鹿流水墙",
+      "size": "2496x1152",
+      "_说明": "游35 牢房（のっぺらぼう），11-06 用户在场景线会话确认花积分（8 张）。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；婚礼间东西两面整墙（M 7 格 6.4×2.9 米）",
+      "refs": [
+        "web/public/textures/kit/pri_gold_tree.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A wide flat wall painting seen straight-on, filling the frame, in the manner of a gold-leaf Rinpa screen: a bright lemon-gold ground; one huge gnarled old tree with a dark brown trunk rising on the left, its twisting branches spreading across the top with small white and pink plum blossoms; a winding stream of stylised blue and teal water bands with white curl lines running along the bottom; two pale ochre deer standing by the water on the right; a few green grass tufts and mossy rocks. Decorative, flat, lots of gold background left visible. Composition loosely like image[1]. No people, no buildings.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "81_牢房_富士鹤屏风",
+      "size": "2496x832",
+      "_说明": "游35 牢房（のっぺらぼう），11-06 用户在场景线会话确认花积分（8 张）。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；婚礼间正面屏风（Y 7 格 6.4×2.0 米）",
+      "refs": [
+        "web/public/textures/kit/pri_fuji_byobu.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A flat six-panel Japanese folding screen seen straight-on and unfolded flat, filling the frame: the whole screen is painted in broad vertical red and white stripes, each panel half crimson red and half paper white; across the middle a small snow-capped Mount Fuji in blue and white with soft white clouds at its foot; two big white red-crowned cranes, one standing at each outer end, long necks and black tail feathers; thin gold lines between panels. Composition loosely like image[1]. No people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "82_牢房_大花地毯和花卉横楣",
+      "size": "2496x1248",
+      "_说明": "游35 牢房（のっぺらぼう），11-06 用户在场景线会话确认花积分（8 张）。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；左半婚礼间地毯、右半横楣（各裁一块方的平铺）",
+      "refs": [
+        "web/public/textures/kit/pri_flower_carpet.png",
+        "web/public/textures/kit/pri_frieze.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Two separate square pattern swatches side by side on a plain cream paper background with a clear empty gap between them, both seen flat from straight above, each filling its square edge to edge. Left square, a wedding-room carpet: a bright lemon-gold ground with large scattered round crimson and coral patches filled with tiny dots, and big bold stylised flowers with round petals in blue, purple, green and pink, each with a contrasting centre, like image[1]. Right square, a frieze pattern: a crimson red ground densely covered with round stylised flowers in teal, blue, green, purple and pink with white centres, like image[2]. Each pattern continues off all four edges so it can tile. No people, no text.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "83_牢房_粉墙红白梅",
+      "size": "2496x1152",
+      "_说明": "游35 牢房（のっぺらぼう），11-06 用户在场景线会话确认花积分（8 张）。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；粉红梅花房东墙整面（M 7 格 6.4×2.9 米）",
+      "refs": [
+        "web/public/textures/kit/pri_ume_pink.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A wide flat wall painting seen straight-on, filling the frame: a soft pink ground densely covered with flowering plum branches, thin dark crimson branches rising from the bottom and crossing each other, hundreds of small five-petal plum blossoms in crimson red, coral and paper white, a few blossoms falling; the bottom edge shows a narrow band of pale pink, the top a little more open pink space. Dense, rhythmic, decorative, flat. Composition loosely like image[1]. No people, no birds, no buildings.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "84_牢房_手鞠白拉门",
+      "size": "2496x832",
+      "_说明": "游35 牢房（のっぺらぼう），11-06 用户在场景线会话确认花积分（8 张）。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；粉红梅花房西墙拉门（N 7 扇一幅，fusuma_span 7）",
+      "refs": [
+        "web/public/textures/kit/pri_temari.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A wide flat painting for a row of plain white sliding fusuma doors seen straight-on, filling the frame: an off-white paper ground with a few huge and several small temari balls floating at different heights, spaced well apart: big balls wrapped in stitched thread patterns of teal, blue, green and purple stripes, segments and star shapes, small balls in coral, purple and navy with white star or flower patterns. Thin black vertical lines divide the doors and each door has a small round black handle. Lots of empty white space. Composition loosely like image[1]. No people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "85_牢房_梅枝小鸟工笔壁",
+      "size": "2496x832",
+      "_说明": "游35 牢房（のっぺらぼう），11-06 用户在场景线会话确认花积分（8 张）。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；佐佐木家座敷四面襖（F，fusuma_span 6）",
+      "refs": [
+        "web/public/textures/kit/pri_ume_wall.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A wide flat painting for six sliding wall panels seen straight-on, filling the frame, in a fine Edo-period kacho-ga style: a pale aged gold-beige paper ground, slender dark brown plum branches growing in from the edges and crossing the panels, small white and pink plum blossoms and buds, a few small birds (brown sparrows, a white-eye in olive green) perched on the twigs; fine careful brushwork, generous empty space. Composition loosely like image[1]. No people, no buildings.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "86_牢房_人物屏风",
+      "size": "2496x1040",
+      "_说明": "游35 牢房（のっぺらぼう），11-06 用户在场景线会话确认花积分（8 张）。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；佐佐木家座敷北面人物屏风（Y 5 格 4.6×1.9 米）",
+      "refs": [
+        "web/public/textures/kit/pri_jinbutsu.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A flat Japanese folding screen seen straight-on and unfolded flat, filling the frame, in the style of an Edo-period genre screen: a pale gold-beige ground; a row of elegant court ladies and samurai-house women in layered kimono (indigo, crimson, wisteria purple, green with patterns), standing and sitting in a garden with a few plum branches and low fences, small and spaced along the screen, drawn with fine lines; faint vertical seams between the panels. Composition loosely like image[1]. No text.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "87_牢房_结尾金紫云松寺天空",
+      "size": "1792x2048",
+      "_说明": "游35 牢房（のっぺらぼう），11-06 用户在场景线会话确认花积分（8 张）。参考帧只看不喂，refs 只用场景线自己程序画的占位贴图和色板；结尾长廊尽头整面（M 3 格）和天花（天空露出来）",
+      "refs": [
+        "web/public/textures/kit/pri_sky_end.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "A tall flat painting of a dream landscape seen straight-on, filling the frame: the top half is a sky of layered stylised clouds in lemon gold, wisteria purple and soft pink, flat bands with curling edges; below, a dark green pine tree with flat round needle clusters leaning in from the left, a small vermilion temple roof among rolling green and teal hills in the middle, more pine clusters on the right, a band of misty teal at the bottom. Rinpa-style flat decorative colour. Composition loosely like image[1]. No people.",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high"
+    },
+    {
+      "id": "88_牢房_大象香盒_建模图",
+      "size": "2048x2048",
+      "refs": [
+        "assets/concept/ref/prison/refs/zou_kogo.png"
+      ],
+      "suffix": "model",
+      "no_canon": true,
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "_说明": "游35 牢房，11-06 用户在场景线会话说“就用这个图来生成模型”（这两件放开用原片裁图当参考）；出干净的单件建模图 → tools/tripo_props.py 图生模型 → 烘进积木。粉红梅花房正中那只（参考 p6_1843，药郎坐在里面）",
+      "prompt": "A single decorative object from the anime Mononoke (2007), episode 'Noppera-bo', copied from image[1]: a big sky-blue lacquered incense box shaped like a stylised elephant. A plump rounded boat-like body with an open hollow top (white rim along the opening edges, a step-shaped notch in the rim), the right end rising into the elephant's big head with a long trunk curving up and back, two small white tusk-like eyes on the head; a crimson oval ear panel with yellow border on the side of the head; on the front of the body a large crimson rectangular panel with a yellow border and round floral medallions in purple, white and green. Flat matte colours exactly like image[1]. Remove the person sitting in it and all subtitles. Seen from a three-quarter front-left view, slightly above, the whole object centred with space around it, plain white background, no shadow, no floor."
+    },
+    {
+      "id": "89_牢房_梅树_建模图",
+      "size": "2048x2048",
+      "refs": [
+        "assets/concept/ref/prison/refs/ume_tree.png"
+      ],
+      "suffix": "paint",
+      "no_canon": true,
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "_说明": "游35 牢房，11-06 用户在场景线会话说“就用这个图来生成模型”（这两件放开用原片裁图当参考）；出干净的单件建模图 → tools/tripo_props.py 图生模型 → 烘进积木。彩色梅林的梅树（参考 p6_0922）",
+      "prompt": "A single old Japanese plum tree from the anime Mononoke (2007), episode 'Noppera-bo', copied from image[1]: a thick gnarled trunk leaning to one side, painted in thick oil-paint strokes of dark crimson-brown with streaks of blue-grey and white, splitting into twisting angular branches that bend sharply and reach out wide; thin twigs with small clusters of red plum blossoms and splashes of blue and teal paint dots among them. Keep the painterly brushwork and colours of image[1]. The whole tree from roots to crown, centred, standing on nothing, plain white background, no ground, no people, no subtitles, no sky."
     }
   ],
   "model_suffix": "Style: 2D cel sheet for 3D modelling reference: entirely flat colours, no gradients, no lighting, no cast shadows, NO paper texture, clean thin reddish-brown outlines, plain flat cream background. No text, no logos, no watermark.",
-  "ink_suffix": "Style: monochrome Japanese sumi-e ink wash painting on pale grey washi paper: black ink, soft greys and paper white only, no other colours at all, visible washi paper fibre texture, soft ink-bleed edges, confident brush strokes. No text, no seals, no logos, no watermark."
+  "ink_suffix": "Style: monochrome Japanese sumi-e ink wash painting on pale grey washi paper: black ink, soft greys and paper white only, no other colours at all, visible washi paper fibre texture, soft ink-bleed edges, confident brush strokes. No text, no seals, no logos, no watermark.",
+  "sub_suffix": "Style: Japanese Taisho-era (1920s) illustration printed on aged grey-brown paper with fine scratches and wear, flat muted colours, ink-black and warm beige dominate, thin dark outlines, a little gold line work. No text, no logos, no watermark.",
+  "paint_suffix": "Style: reference image for 3D modelling that keeps the painterly look of image[1]: thick visible brush strokes and paint texture on the object itself, evenly lit with no cast shadows, plain flat white background. No text, no logos, no watermark."
 }

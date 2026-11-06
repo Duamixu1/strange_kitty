@@ -12,6 +12,11 @@
     "fov": 50
   },
   "case": {
+    "closeAt": [
+      "niwa",
+      "mon"
+    ],
+    "_closeAt说明": "总指挥 11-06：本命在香之间退完不马上结案，引导出到雪庭 / 门前看上色后的春天，再弹结案札（guide.js outWait）",
     "_说明": "照坂井家格式（docs/19）。总指挥 11-06 定：本命鵺在香之间现身；第一次进来不随机出物怪；理要等真",
     "mononoke": "nue",
     "boss": "kou",
@@ -277,9 +282,8 @@
           ],
           "yaw": 0.0,
           "idles": [
-            "look_around_k",
-            "nod_k",
-            "posture_k"
+            "sniff_k",
+            "snow_k"
           ]
         }
       ],
@@ -354,9 +358,8 @@
           ],
           "yaw": -1.5708,
           "idles": [
-            "look_around_k",
-            "nod_k",
-            "posture_k"
+            "sigh_k",
+            "neck_roll_k"
           ]
         }
       ],
@@ -497,9 +500,8 @@
           ],
           "yaw": 0.0,
           "idles": [
-            "look_around_k",
-            "nod_k",
-            "posture_k"
+            "seat_bow_k",
+            "puzzled_k"
           ]
         },
         {
@@ -512,9 +514,8 @@
           ],
           "yaw": 1.5708,
           "idles": [
-            "look_around_k",
-            "nod_k",
-            "posture_k"
+            "doze_k",
+            "fuuga_k"
           ]
         },
         {
@@ -528,9 +529,8 @@
           "y": 0.24,
           "yaw": 0.0,
           "idles": [
-            "look_around_k",
-            "nod_k",
-            "fix_collar_k"
+            "sleeve_mouth_k",
+            "glance_k"
           ]
         }
       ],

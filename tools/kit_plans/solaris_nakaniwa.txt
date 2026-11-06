@@ -1,0 +1,25 @@
+# そらりす丸·中庭（参考 0510、0600、0650、1224、1320）：两层回廊围着的天井（galleries），天青花纹柱通到顶，
+# 西边一道黄楼梯（紫绿大花地毯）上到第一层回廊（只看）；地上一圈红青格子地砖，中间一个漩涡花纹的"池"；
+# 天花是花菱格子天井，正中一块柠黄鱼纹藻井（mojing）。观景点：1 池边看池和黄楼梯，2 东边仰看藻井。下 U 回甲板，上 U 去走廊。
+name: solaris_nakaniwa
+shot: 池和黄楼梯 | 6.9,1.8,9.4 | 1.6,1.6,4.6 | 7.3,7.4,-2.2
+shot: 仰看藻井 | 8.4,1.4,5.0 | 5.0,9.0,5.0 | 8.7,6.4,-1.57
+height: 9.0
+ceiling: sao
+timber: 1.6
+galleries: 0.5,0.5,9.5,9.5,1.4,3.0,6.0
+mojing: 5.005,5.005,3.6,3.6
+mat: wood=sol_pillar, frame=sol_pink, plaster=sol_wall_pink, kokabe=sol_panel, tatami=sol_floor_ao, tatami_side=sol_pink, engawa=sol_deck, shoji=sol_shoji, lattice_win=sol_lattice, fusuma=sol_panel_door, fusuma2=sol_panel, udoor=sol_door, rail=sol_pink, stair=sol_stair, ceiling=sol_koshi, sea=sol_sea, hull=sol_hull, prow=sol_red, finial=sol_gold, roof=sol_roof, tower=sol_tower, water=sol_pool, bank=sol_deck_edge, gallery=sol_koshi_floor, gallery_edge=sol_yellow, pillar=sol_pillar, mojing=sol_mojing, hata1=sol_hata1, hata2=sol_hata2, hata3=sol_hata3, koshi=sol_pink, lacquer=ink, engawa=sol_tile, water=sol_uzu, bank=sol_yellow
+place: ystair 1.55,8.3,-90
+---
+#####U#####
+#=========#
+#=========#
+#==~~~~~==#
+#==~~~~~==#
+#==~~~~~=2#
+#==~~~~~==#
+#==~~~~~1=#
+#======@==#
+#=========#
+#####U#####
