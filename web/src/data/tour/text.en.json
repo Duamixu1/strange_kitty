@@ -544,5 +544,25 @@
   "end.sakai": "The wedding never happened. There are fewer people in the house now, and the door to the innermost room stands open.",
   "end.wanya": "The rain has stopped, and the Yorozuya opens for guests as usual. Someone has gone up to tidy the top-floor room.",
   "end.ooku": "The next morning, the ladies-in-waiting comb their hair and go on duty as usual. The same footsteps in the corridor.",
-  "end.fuenokouji": "No husband will be chosen by this contest. No one has lived in the house for a long time. Only a broken gate remains."
+  "end.fuenokouji": "No husband will be chosen by this contest. No one has lived in the house for a long time. Only a broken gate remains.",
+  "close.sakai": {
+    "verdict": "The wedding was for the guests. What this family feared most was anyone remembering what lay behind that door.",
+    "question": "A door everyone walks around. Is this the only house that has one?",
+    "tag": "Door"
+  },
+  "close.wanya": {
+    "verdict": "No one in this house was wicked. Only children, year after year, that no one kept, and those who didn't dare to.",
+    "question": "To be wanted, truly, just once. What must that be like?",
+    "tag": "Kept"
+  },
+  "close.ooku": {
+    "verdict": "The rules were handed down, generation after generation. So were the things no one could bear to let go.",
+    "question": "To stay, how much of themselves must people throw away before it is enough?",
+    "tag": "Let go"
+  },
+  "close.fuenokouji": {
+    "verdict": "For a piece of wood long since rotten, they lived the same night over and over.",
+    "question": "The thing wanted with everything one has. How many ever opened it?",
+    "tag": "Rot"
+  }
 }

@@ -247,33 +247,23 @@
     #stamp { position: fixed; right: 60px; top: 92px; z-index: 7; padding: 4px 10px; font: 22px/1.2 "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .2em; color: var(--crimson); border: 3px solid var(--crimson); border-radius: 4px; background: rgba(241,233,218,.6); opacity: 0; pointer-events: none; transform: rotate(-8deg); }
     #stamp.go { animation: stampIn 2.8s ease forwards; }
     @keyframes stampIn { 0% { opacity: 0; transform: rotate(-8deg) scale(2.2); } 10% { opacity: 1; transform: rotate(-8deg) scale(.95); } 16% { transform: rotate(-8deg) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
-    /* 结案卡（11-06）：退魔、执念物卡关掉以后，形真理一句句亮起来，一句收尾，再问接着逛还是去下一处 */
-    #case-end { position: fixed; left: 50%; top: 50%; z-index: 8; width: min(560px, 88vw); padding: 26px 32px 22px; transform: translate(-50%, -46%); opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s; }
-    #case-end.show { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
-    #case-end .ce-place { display: inline-block; margin: -40px 0 10px -12px; padding: 2px 14px; background: var(--crimson); color: var(--paper); font-size: 14px; letter-spacing: .15em; }
-    #case-end .ce-title { font: 26px/1.3 "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .14em; margin-bottom: 14px; }
-    #case-end .ce-row { display: flex; gap: 14px; align-items: baseline; margin: 8px 0; font-size: 17px; line-height: 1.6; opacity: 0; transform: translateX(-8px); transition: opacity .5s, transform .5s; }
-    #case-end .ce-row b { flex: none; width: 34px; height: 34px; line-height: 32px; text-align: center; font: 22px/32px "Hiragino Mincho ProN", "Songti SC", serif; color: var(--paper); background: var(--crimson); border: 1.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
-    #case-end .ce-end { margin: 16px 0 4px; padding-top: 12px; border-top: 1px dashed rgba(42,32,24,.35); font-size: 17px; line-height: 1.7; opacity: 0; transition: opacity .8s; }
-    #case-end .ce-prog { font-size: 13px; opacity: 0; transition: opacity .8s; color: rgba(42,32,24,.6); letter-spacing: .05em; }
-    #case-end .on { opacity: 1 !important; transform: none !important; }
-    #case-end .ce-btns { display: flex; gap: 12px; justify-content: flex-end; margin-top: 18px; opacity: 0; transition: opacity .6s; }
-    #case-end .ce-btns button { font: 16px "Hiragino Mincho ProN", "Songti SC", serif; letter-spacing: .1em; padding: 7px 18px; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+    /* 结案札（11-06 第二版）：整张卡是 closing.js 画的 canvas（3:4），屏幕上看到的就是存下来的图；底下一排钮 */
+    #case-end { position: fixed; inset: 0; z-index: 8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(20,16,12,.58); opacity: 0; pointer-events: none; transition: opacity .45s; }
+    #case-end.show { opacity: 1; pointer-events: auto; }
+    #case-end .ce-card { line-height: 0; box-shadow: 0 18px 50px rgba(0,0,0,.5); transform: scale(.94) translateY(10px); transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+    #case-end.show .ce-card { transform: none; }
+    #case-end canvas { display: block; height: min(calc(100dvh - 110px), calc(92vw * 4 / 3)); width: auto; aspect-ratio: 3 / 4; }
+    #case-end .ce-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; opacity: 0; transition: opacity .5s .3s; }
+    #case-end.sealed .ce-btns { opacity: 1; }
+    #case-end .ce-btns button { font: 16px "Songti SC", "Hiragino Mincho ProN", serif; letter-spacing: .1em; padding: 8px 18px; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
     #case-end .ce-btns button.main { background: var(--crimson); color: var(--paper); }
     #case-end .ce-btns kbd { font: 11px -apple-system, sans-serif; opacity: .6; margin-left: 6px; }
     body.touch #case-end .ce-btns kbd { display: none; }
-    body.touch #case-end { padding: 22px 20px 18px; }
-    body.touch #case-end .ce-row, body.touch #case-end .ce-end { font-size: 15px; }
-    @media (max-height: 560px) {   /* 手机横屏：整张卡压扁，不然上下切掉 */
-      #case-end { padding: 16px 22px 12px; width: min(600px, 80vw); }
-      #case-end .ce-place { margin: -28px 0 4px -10px; font-size: 12px; }
-      #case-end .ce-title { font-size: 19px; margin-bottom: 4px; }
-      #case-end .ce-row { margin: 3px 0; font-size: 14px !important; gap: 10px; }
-      #case-end .ce-row b { width: 24px; height: 24px; font-size: 16px; line-height: 22px; }
-      #case-end .ce-end { margin: 6px 0 2px; padding-top: 6px; font-size: 14px !important; line-height: 1.5; }
-      #case-end .ce-prog { font-size: 11px; }
-      #case-end .ce-btns { margin-top: 8px; }
-      #case-end .ce-btns button { font-size: 14px; padding: 4px 14px; }
+    @media (max-height: 560px) and (orientation: landscape) {   /* 手机横屏：卡在左、钮竖排在右 */
+      #case-end { flex-direction: row; gap: 18px; }
+      #case-end canvas { height: calc(100dvh - 24px); }
+      #case-end .ce-btns { flex-direction: column; }
+      #case-end .ce-btns button { font-size: 14px; padding: 6px 14px; }
     }
     #bark { position: fixed; left: 0; top: 0; z-index: 5; max-width: 260px; padding: 6px 12px; font-size: 15px; line-height: 1.5; opacity: 0; transition: opacity .25s; pointer-events: none; }
     #bark b { display: block; font-size: 12px; font-weight: normal; color: var(--crimson); letter-spacing: .1em; }

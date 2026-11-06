@@ -657,6 +657,7 @@ async function startLocation(id) {
   let shakeT = 0;
   // 本命退魔后整片上色（docs/22：原作《鵺》结尾画面从水墨变彩色）：材质先全换成彩色，后期把画面压灰，再从中间往外一圈圈洇开
   let reveal = null;
+  let exoShot = null;   // 本命魂光升起时截的一帧（结案札用）
   function recolor() {
     if (!loc.recolor || colored) return;
     colored = true; try { localStorage.setItem(COLOR_KEY, "1"); } catch {}
@@ -675,6 +676,7 @@ async function startLocation(id) {
     noRandom: ["selftest", "auto", "walktest"].some((k) => params.has(k)) && !params.has("mononoke"),   // 自测、自动拍图不随机出
     zone: () => Z, col: () => col, cam: () => cam,
     free: () => !busy && !card.isOpen && !sword && !box?.isOpen,
+    onSoul: (id) => { if (id === loc.case?.mononoke) exoShot = composePhoto(FILTERS[0]); },   // 结案札的画面：魂光升起那一刻（guide.js / closing.js）
     onRelease: (id) => { if (id === loc.case?.mononoke || id === loc.recolorOn) recolor(); },   // 本命魂走完（掉卡之前）：有 recolor 的地点上色
     recoloring: () => !!reveal,
     onCollect: (id) => { boxBtn.classList.add("new"); toast(touch ? "收进药箱了 · 点右上「箱」看" : "收进药箱了 · 按 I 打开", 3200); },
@@ -724,6 +726,7 @@ async function startLocation(id) {
     }),
     route: (a, b, tol) => pf?.routeTo(a, b, tol)?.pts || null,
     zone: () => Z, npcs: () => npcsOn, free: () => !busy && !card.isOpen && !sword && !box?.isOpen && !enc.active,
+    snap: () => (loc.recolor ? null : exoShot) || composePhoto(FILTERS[0]),   // 上色的地点截上色以后的
     places: () => mapPlaces, go: (id) => { location.href = pub("tour.html") + (id ? `?loc=${id}` : ""); },   // 结案卡"去下一处"：总地图上开着的地点按长卷顺序
     stat: (p, t) => stat(p, t, true),
     allViews: async () => Object.fromEntries(await Promise.all(Object.keys(loc.zones || {}).map(async (id) => [id, Object.keys((await resolveZone(loc, id)).views || {})]))),
@@ -1007,7 +1010,7 @@ async function startLocation(id) {
     await enc.preload();   // 用角色线的物怪模型测（不是占位墨影）
     for (const round of [1, 2, 3]) {
       await enterZone(loc.start); run(1);
-      if (round === 1) try { localStorage.removeItem("mononoke_tour_exo"); } catch {}
+      if (round === 1) try { localStorage.removeItem("mononoke_tour_exo"); localStorage.removeItem("mononoke_tour_tut"); } catch {}   // 教学卡"只教一次"也清（文案w 11-06 报：同一浏览器第二次跑会误报）
       if (!enc.start(true, enc.rosterAll[0])) { log(false, "物怪出没：找不到出生点"); break; }   // 原作那只（有案子的地点随机不出它，这里点名叫）
       for (let i = 0; i < 600 && enc.state !== "fight" && !enc.tutorial; i++) frame(1 / 60);
       if (round === 1) {   // 第一次遭遇：现身后停住弹教学卡，停着的时候物怪不动；空格关卡再开打
@@ -1103,11 +1106,12 @@ async function startLocation(id) {
       await enterZone(C.boss); run(5);
       const boss = enc.current, bst = enc.state;
       log(boss === C.mononoke && ["omen", "appear", "fight"].includes(bst) || enc.tutorial, `引导：形真理齐了进${loc.zones[C.boss].name}，本命现身（${boss}，${bst}）`);
-      // 结案卡（11-06）：本命退了 2.2 秒后弹；形真理三句、收尾、两个钮；第一下 E 全亮，第二下 E 接着逛关掉
-      enc.reset(); guide.onExorcised(C.mononoke); await wait(2600);
-      const ce = document.getElementById("case-end"), rowsN = [...ce.querySelectorAll(".ce-row span")].filter((s) => s.textContent.trim()).length, nextBtn = ce.querySelector("button.main")?.textContent.replace(/[EN]$/, "");
-      const opened = guide.endOpen; act("KeyE"); const allOn = ce.querySelector(".ce-btns").classList.contains("on"); act("KeyE"); await wait(50);
-      log(opened && rowsN === 3 && allOn && !guide.endOpen && !!nextBtn, `结案卡：退魔后弹出、形真理 ${rowsN} 句、收尾「${ce.querySelector(".ce-end").textContent.slice(0, 14)}…」、钮「${nextBtn}」、E 全亮再 E 关掉`);
+      // 结案札（11-06 第二版）：本命退了 2.2 秒后弹一张画好的竖版札（1080×1440），第一下 E 落印，第二下 E 接着逛关掉
+      enc.reset(); guide.onExorcised(C.mononoke); await wait(2600); for (let t = 0; t < 3000 && !guide.endOpen; t += 100) await wait(100);
+      const cv = document.querySelector("#case-end canvas"), d = guide.endCard || {}, nextBtn = document.querySelector("#case-end button.main")?.textContent.replace(/[EN]$/, "");
+      const opened = guide.endOpen; act("KeyE"); const sealed = !!d.sealed; act("KeyE"); await wait(50);
+      log(opened && cv?.width === 1080 && cv?.height === 1440 && !!d.shot && !!d.portrait && !!d.title && sealed && !guide.endOpen && !!nextBtn,
+        `结案札：退魔后弹出（${cv?.width}×${cv?.height}，画面 ${!!d.shot}、立绘 ${!!d.portrait}）、判词「${(d.verdict || "").slice(0, 12)}…」、一问「${(d.question || "").slice(0, 10)}…」、印「${d.tag || ""}」、钮「${nextBtn}」、E 落印再 E 关掉`);
       guide.reset(); run(0.5);
     }
     // 药箱：前面退过的物怪收进去了。I 打开只有箱子；回车拉开那格出卡（有立绘）；Esc 先收卡、再关箱子；开着时人不走、物怪不出

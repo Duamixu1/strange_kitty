@@ -550,7 +550,7 @@ export function createEncounter(ctx) {
         break;
       case "release":
         mon.fade = Math.max(0, mon.fade - dt * 0.8); mon.hover += dt * 0.25; if (mon.fade <= 0) mon.group.visible = false;   // 褪成光的它慢慢缩没、往上飘，魂光同时升起
-        if (!relLine && T > 0.8) { relLine = true; const m = M(); fx.kanji("", m.after || "执念散了。它走了。", mon.group.position.clone().setY(mon.group.position.y + 1.2), 3200); }
+        if (!relLine && T > 0.8) { relLine = true; ctx.onSoul?.(cur); const m = M(); fx.kanji("", m.after || "执念散了。它走了。", mon.group.position.clone().setY(mon.group.position.y + 1.2), 3200); }
         if (T > Math.max(3.4, relDur - 0.3)) { const id = cur; end("done"); ctx.onRelease?.(id); cardIn = ctx.recoloring?.() ? 4.2 : 0; if (!cardIn) dropCard(); return; }   // 要上色的地点等颜色洇满再掉卡
         break;
       case "retreat":

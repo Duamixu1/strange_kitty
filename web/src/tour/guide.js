@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { toast, card, prompt } from "./ui.js";
 import { HALO_TEX, loadMonster } from "./mononoke_fx.js";
 import { mountCasebook } from "./casebook.js";
+import { drawCaseCard } from "./closing.js";
 
 // 引导与探索（11-05，docs/19_引导与探索方案.md）：给目标、不给路线。
 //   每个地点一个小案子：查出这里物怪的形、真、理（地点 JSON 的 case）。线索散在観点、配角的话里，先找哪个都行；
@@ -82,50 +83,74 @@ export function createGuide(ctx) {
   paintHud();
   const stampEl = document.createElement("div"); stampEl.id = "stamp"; document.body.appendChild(stampEl);
   function stamp(text) { stampEl.textContent = text; stampEl.classList.remove("go"); void stampEl.offsetWidth; stampEl.classList.add("go"); audio.play("pin"); }
-  // ---- 结案卡（11-06 用户："形真理了之后，有个最后结束性的说明吗？"）----
-  //   本命退了、执念物卡关掉以后弹：案名，形 / 真 / 理三句一句句亮（铃一声一声），一句收尾（text.json 的 end.<地点>），
-  //   这一处还剩什么没看，两个钮：接着逛（E / Esc）、去下一处（N；总地图上还没退魔的下一处，都退了就回总地图）
-  const endEl = document.createElement("div"); endEl.id = "case-end"; endEl.className = "paper"; document.body.appendChild(endEl);
-  let endOpen = false, endTimers = [], endNext = null, endPending = 0;
-  const free0 = ctx.free; ctx.free = () => !endOpen && free0();   // 结案卡开着：不冒话、不提示、不放天秤
+  // ---- 结案札（11-06 用户："形真理了之后，有个最后结束性的说明吗？"；第二版："设计很一般……形真理之前的线索册里都有了，
+  //   可以用更有深度或者引人深思的信息，然后设计的适合分享"）----
+  //   本命退了、执念物卡关掉、「退魔」印盖完以后弹：一张画好的竖版札（closing.js：退魔那一刻的画面、判词、留一问、这一趟的足迹），
+  //   题眼朱印晚 0.9 秒落下。钮：存图 / 分享（S）、接着逛（E / Esc）、去下一处（N；总地图上还没退魔的下一处，都退了就回总地图）
+  const endEl = document.createElement("div"); endEl.id = "case-end"; document.body.appendChild(endEl);
+  let endOpen = false, endTimers = [], endNext = null, endPending = 0, endCv = null, endData = null, endGen = 0;
+  const free0 = ctx.free; ctx.free = () => !endOpen && free0();   // 结案札开着：不冒话、不提示、不放天秤
+  if (C && !S.began) { S.began = Date.now(); save(); }   // 用时：第一次进这个地点算起
   function nextPlace() {
     const list = ctx.places?.() || [], i = list.findIndex((p) => p.id === loc.id);
     for (let k = 1; k <= list.length; k++) { const p = list[(i + k + list.length) % list.length]; if (p.id !== loc.id && !loadCase(p.id).done) return p; }
     return null;
   }
-  function openEnding() {
-    if (!C) return;
-    const m = texts[`mononoke.${loc.id}`] || {}, cs = texts[`case.${loc.id}`] || {};
-    const end = texts[`end.${loc.id}`] || m.after || "";
+  const loadImg = (url) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = url; setTimeout(() => ok(null), 2500); });
+  async function openEnding() {
+    if (!C || endOpen) return;
+    const gen = ++endGen;
+    const m = texts[`mononoke.${loc.id}`] || {}, cs = texts[`case.${loc.id}`] || {}, cl = texts[`close.${loc.id}`] || {};
     const views = S.seen.filter((k) => k.includes("/view:")).length, finds = S.seen.filter((k) => k.includes("/find:")).length, T = S.totals || {};
-    const rest = [T.views && views < T.views ? `観 ${views} / ${T.views}` : "", T.finds && finds < T.finds ? `拾遗 ${finds} / ${T.finds}` : ""].filter(Boolean);
+    const places = ctx.places?.() || [], no = Math.max(1, places.findIndex((p) => p.id === loc.id) + 1), mins = S.began ? Math.round((Date.now() - S.began) / 60000) : 0;
+    const now = new Date(), pad = (n) => String(n).padStart(2, "0");
     endNext = nextPlace();
-    endEl.innerHTML = `<div class="ce-place">结案 · ${loc.name}</div><div class="ce-title">${cs.title || loc.name}</div>`
-      + [["形", m.katachi], ["真", m.makoto], ["理", m.kotowari]].map(([c, t]) => `<div class="ce-row"><b>${c}</b><span>${t || ""}</span></div>`).join("")
-      + `<div class="ce-end">${end}</div><div class="ce-prog">${rest.length ? `这里还有没看完的：${rest.join(" · ")}` : "这一处都看遍了。"}</div>`
-      + `<div class="ce-btns"><button data-a="stay">接着逛<kbd>E</kbd></button><button class="main" data-a="next">${endNext ? `去下一处 · ${endNext.name}` : "回总地图"}<kbd>N</kbd></button></div>`;
-    endEl.querySelectorAll("button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); closeEnding(b.dataset.a); }));
+    endData = {
+      no, place: loc.name, title: cs.title || loc.name, mononoke: m.name || "", item: m.itemTitle || "",
+      end: texts[`end.${loc.id}`] || m.after || "", verdict: cl.verdict || m.after || "", question: cl.question || "", tag: cl.tag || "",
+      shot: ctx.snap?.() || null, portrait: await loadImg(ctx.assetUrl(`processed/zukan/${C.mononoke}.jpg`)),
+      stats: { looked: S.seen.length, views: T.views ? [views, T.views] : null, finds: T.finds ? [finds, T.finds] : null, minutes: mins > 0 && mins < 600 ? mins : 0 },
+      date: `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())}`, url: "duamixu1.github.io/strange_kitty", sealed: false,
+    };
+    if (gen !== endGen) return;   // 等立绘的时候被关了（自测）
+    const canShare = !!(ctx.touch && navigator.canShare && navigator.share);
+    endEl.innerHTML = `<div class="ce-card"><canvas></canvas></div><div class="ce-btns">`
+      + `<button data-a="save">${canShare ? "分享" : "存图"}<kbd>S</kbd></button><button data-a="stay">接着逛<kbd>E</kbd></button>`
+      + `<button class="main" data-a="next">${endNext ? `去下一处 · ${endNext.name}` : "回总地图"}<kbd>N</kbd></button></div>`;
+    endCv = drawCaseCard(endEl.querySelector("canvas"), endData);
+    endEl.querySelectorAll("button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); b.dataset.a === "save" ? saveEnding() : closeEnding(b.dataset.a); }));
     endEl.addEventListener("pointerdown", (e) => e.stopPropagation());
     endOpen = true; endEl.classList.add("show"); audio.play("paper");
-    const parts = [...endEl.querySelectorAll(".ce-row")];
-    parts.forEach((r, i) => endTimers.push(setTimeout(() => { r.classList.add("on"); audio.play("scaleBell", 1, 0.05); }, 700 + i * 900)));
-    endTimers.push(setTimeout(() => endEl.querySelectorAll(".ce-end, .ce-prog, .ce-btns").forEach((e) => e.classList.add("on")), 700 + parts.length * 900 + 300));
+    endTimers.push(setTimeout(sealEnding, 900));
     ctx.stat(`结案/${loc.id}`, `结案 · ${loc.name}`);
   }
-  function showAllEnding() { endTimers.forEach(clearTimeout); endTimers = []; endEl.querySelectorAll(".ce-row, .ce-end, .ce-prog, .ce-btns").forEach((e) => e.classList.add("on")); }
+  function sealEnding() { if (!endData || endData.sealed) return; endData.sealed = true; drawCaseCard(endCv, endData); if (endData.tag) audio.play("pin"); endEl.classList.add("sealed"); }
+  function showAllEnding() { endTimers.forEach(clearTimeout); endTimers = []; sealEnding(); }
+  async function saveEnding() {
+    showAllEnding();
+    const blob = await new Promise((ok) => endCv.toBlob(ok, "image/png")), name = `结案札_${loc.name}.png`;
+    ctx.stat(`结案/${loc.id}/存图`, `结案札存图 · ${loc.name}`);
+    try {
+      const file = new File([blob], name, { type: "image/png" });
+      if (ctx.touch && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: endData.title }); return; }
+    } catch (e) { if (e?.name === "AbortError") return; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast("结案札存好了", 2200);
+  }
   function closeEnding(a) {
-    clearTimeout(endPending);   // 还没弹出来的也取消（自测斩完本命接着测别的）
+    clearTimeout(endPending); endGen++;   // 还没弹出来的也取消（自测斩完本命接着测别的）
     if (!endOpen) return;
-    showAllEnding(); endOpen = false; endEl.classList.remove("show");
+    showAllEnding(); endOpen = false; endEl.classList.remove("show", "sealed");
     if (a === "next") { ctx.stat(`结案/${loc.id}/下一处`, endNext ? `去 ${endNext.name}` : "回总地图"); ctx.go?.(endNext?.id || null); return; }
     setTimeout(() => toast(ctx.touch ? "接着逛 · 想走了点右上「地图」" : "接着逛 · 想走了按 M 回总地图", 3600), 300);
   }
-  // 结案卡开着时的按键：E / Esc / 空格 = 接着逛；N / Enter = 去下一处；字还没亮完先按一下全亮
+  // 结案札开着时的按键：S 存图；E / Esc / 空格 = 接着逛；N / Enter = 去下一处；印还没落先按一下落印
   function endKey(code) {
     if (!endOpen) return false;
-    const btnsOn = endEl.querySelector(".ce-btns")?.classList.contains("on");
-    if (["KeyE", "Escape", "Space", "KeyN", "Enter"].includes(code) && !btnsOn) { showAllEnding(); return true; }
-    if (code === "KeyE" || code === "Escape" || code === "Space") closeEnding("stay");
+    if (["KeyE", "Escape", "Space", "KeyN", "Enter", "KeyS"].includes(code) && !endData?.sealed) { showAllEnding(); return true; }
+    if (code === "KeyS") saveEnding();
+    else if (code === "KeyE" || code === "Escape" || code === "Space") closeEnding("stay");
     else if (code === "KeyN" || code === "Enter") closeEnding("next");
     return code !== "KeyM";   // 开着时别的键都不管（M 回总地图照旧）
   }
@@ -747,7 +772,7 @@ export function createGuide(ctx) {
     get kitten() { return kitRun ? { phase: kitRun.phase, at: kit.group.position.toArray().map((v) => +v.toFixed(2)), n: kitRun.pts.length } : kit ? "ready" : "not loaded"; },
     get kitObj() { return kit; },
     /** T / 「秤」：放天秤指路 */
-    castScales: () => castScales(false), get endOpen() { return endOpen; }, endKey, openEnding, closeEnding, get cast() { return cast.length; }, get castCd() { return castCd; },
+    castScales: () => castScales(false), get endOpen() { return endOpen; }, get endCard() { return endData; }, endKey, openEnding, closeEnding, get cast() { return cast.length; }, get castCd() { return castCd; },
     get acting() { return acting; },
     get quiet() { return quiet; }, set quiet(v) { quiet = v; }, get hintLv() { return hintLv; }, mark, itemsOf, left, target,
     reset() { try { localStorage.removeItem(KEY(loc.id)); } catch {} const t = S.totals; for (const k of Object.keys(S)) delete S[k]; Object.assign(S, loadCase(loc.id), { totals: t }); paintHud(); noteZone(); decorateExits(); },
