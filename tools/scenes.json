@@ -1124,6 +1124,66 @@
       "quality": "high",
       "_说明": "游35 牢房，11-06 用户在场景线会话说“就用这个图来生成模型”（这两件放开用原片裁图当参考）；出干净的单件建模图 → tools/tripo_props.py 图生模型 → 烘进积木。彩色梅林的梅树（参考 p6_0922）",
       "prompt": "A single old Japanese plum tree from the anime Mononoke (2007), episode 'Noppera-bo', copied from image[1]: a thick gnarled trunk leaning to one side, painted in thick oil-paint strokes of dark crimson-brown with streaks of blue-grey and white, splitting into twisting angular branches that bend sharply and reach out wide; thin twigs with small clusters of red plum blossoms and splashes of blue and teal paint dots among them. Keep the painterly brushwork and colours of image[1]. The whole tree from roots to crown, centred, standing on nothing, plain white background, no ground, no people, no subtitles, no sky."
+    },
+    {
+      "id": "90_缘起_1_万屋雨夜",
+      "size": "2048x1456",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "_说明": "用户 11-06 说缘起手册的 SVG 插图太丑，要 Tripo 出图（5 张一起出，约 125~150 积分，用户批了）。参考只用我们自己出过的图和色板，不喂原片截图。 第 1 页，座敷童子画风（浮世绘、目黑雅叙园，路人脸涂黑配旋转的花）。",
+      "refs": [
+        "assets/concept/00_色板.png",
+        "assets/concept/scenes/01_药贩子三视图.png"
+      ],
+      "prompt": "Book illustration, horizontal. The Medicine Seller from image[2] (tall slim man, patterned pale kimono, purple headscarf, wooden medicine box on his back) seen from behind at the lower left, walking in the rain toward an ornate old Japanese inn at night in the style of the Meguro Gajoen: a multi-storey wooden building with a curved karahafu gable over the entrance, rows of red paper lanterns, a red arched bridge over a canal in front. On the bridge, three passers-by in colourful kimono whose faces are painted solid black, each with a big paper pinwheel flower spinning on top of the head. Diagonal white rain lines over everything. Ukiyo-e woodblock composition, dense patterns."
+    },
+    {
+      "id": "91_缘起_2_鵺水墨",
+      "size": "2048x1456",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "suffix": "ink",
+      "no_canon": true,
+      "_说明": "用户 11-06 说缘起手册的 SVG 插图太丑，要 Tripo 出图（5 张一起出，约 125~150 积分，用户批了）。参考只用我们自己出过的图和色板，不喂原片截图。 第 2 页，鵺的黑白水墨。 11-06 用户说有人脸吓人，重出：不放脸，只露虎纹腿和蛇尾。",
+      "refs": [
+        "assets/concept/scenes/47_笛小路家_墨云襖.png"
+      ],
+      "prompt": "Book illustration, horizontal, painted in the ink style of image[1]. A snowy night at the gate of an old Kyoto noble house: a board-roofed gate and an earthen wall small in the lower left, a thin wisp of incense smoke rising from behind the wall. Above, a huge swirling black ink cloud fills the sky; half-hidden inside it only the dark shape of a strange beast shows: one tiger-striped leg and a long snake-like tail curling out of the cloud. No head, no face, no eyes, no people. Ink splashes and falling snow dots. Quiet, mysterious, lots of empty paper."
+    },
+    {
+      "id": "92_缘起_3_克里姆特剑",
+      "size": "2048x1456",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "_说明": "用户 11-06 说缘起手册的 SVG 插图太丑，要 Tripo 出图（5 张一起出，约 125~150 积分，用户批了）。参考只用我们自己出过的图和色板，不喂原片截图。 第 3 页，海坊主的克里姆特画风 + 退魔剑。",
+      "refs": [
+        "assets/concept/scenes/52_そらりす丸_金云海全景.png",
+        "assets/concept/scenes/09_退魔之剑.png"
+      ],
+      "prompt": "Book illustration, horizontal, in the manner of Gustav Klimt's golden period mixed with the sea of image[1]: a flat gold-leaf background densely patterned with black spirals, eye-shaped ovals and small mosaic rectangles in black, white, red and teal; across the lower third a deep navy sea with stylised gold Rinpa wave lines and golden clouds. In the centre the sword from image[2] stands upright, its hilt with the small demon face and red tassel, glowing faintly. Decorative, symmetrical, ornamental."
+    },
+    {
+      "id": "93_缘起_4_能面屏风",
+      "size": "2048x1456",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "_说明": "用户 11-06 说缘起手册的 SVG 插图太丑，要 Tripo 出图（5 张一起出，约 125~150 积分，用户批了）。参考只用我们自己出过的图和色板，不喂原片截图。 第 4 页，のっぺらぼう的能、屏风画、表现主义。 11-06 用户说人脸吓人，重出：去掉能面，换成三张札和一把能扇。",
+      "refs": [
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Book illustration, horizontal. Dreamlike theatre room: a large folding screen with bold red-and-white vertical stripes painted with Mount Fuji, pine trees and two white cranes, its panels zig-zagging, drawn at a slightly tilted angle with jagged expressionist outlines. Three tall paper talismans with red and indigo patterns are pinned across the screen in a row, glowing softly. An open gold Noh fan lies on a flowered red carpet in front. Gold walls, paper lanterns at the sides. No masks, no faces, no people. Calm, theatrical, slightly uneasy."
+    },
+    {
+      "id": "94_缘起_5_大正车站",
+      "size": "2048x1456",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "no_canon": true,
+      "_说明": "用户 11-06 说缘起手册的 SVG 插图太丑，要 Tripo 出图（5 张一起出，约 125~150 积分，用户批了）。参考只用我们自己出过的图和色板，不喂原片截图。 第 5 页，化猫（地铁）的大正摩登 + 毕加索式造型。不套色板：原片是做旧灰褐纸、点色酒红芥黄。",
+      "refs": [
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Book illustration, horizontal. Taisho-era (1920s) Japanese poster art with Picasso-like cubist figures: an old subway platform under a black marble arch with white tile edging, a mustard-yellow train car with a dark wine-red roof and gold-framed windows. On the left wall a framed cubist portrait of a white-haired woman, her face split into a coral-pink profile half and a teal front half, holding a black cat. Checkered black-and-white floor. Aged grey-brown paper with scratches, strong geometric shapes, muted colours with accents of wine red and mustard."
     }
   ],
   "model_suffix": "Style: 2D cel sheet for 3D modelling reference: entirely flat colours, no gradients, no lighting, no cast shadows, NO paper texture, clean thin reddish-brown outlines, plain flat cream background. No text, no logos, no watermark.",

@@ -5,7 +5,7 @@
 // 翻的时候后台把各地点都要用的东西（药郎模型、药箱小物件、长卷图）先下进浏览器缓存，进地点时就快。
 // 看过记在本机；总地图左上「缘起」能再看。字读 text.json 的 intro.cards（文案w：{k 竖排标题, t 一句, b? 小字, art? 画, go? 最后一页按钮}），没有就用这里的底稿。
 // 键：→ / 空格 / 回车 下一页，← 上一页，Esc 跳过；手机点页面右边下一页、左边四分之一上一页，左右划也行。
-import { asset } from "../paths.js";
+import { asset, pub } from "../paths.js";
 
 const SEEN = "mononoke_tour_intro";
 const DRAFT = [
@@ -16,7 +16,10 @@ const DRAFT = [
   { k: "启程", t: "雨还在下\n但故事已经开始了", go: "展开长卷", art: "taisho" },
 ];
 
-import { ART, ORDER, DEFS, svg } from "./story_art.js";   // 插图（第三版：每页一种原作画风），见 story_art.js
+import { ART, ORDER, DEFS, svg } from "./story_art.js";   // 第三版的 SVG 插图，现在只在图片读不出来时顶上
+// 插图第四版（11-06 用户嫌 SVG 丑，要 Tripo 出图，人脸吓人的两张重出过）：public/textures/intro/intro_<art>.webp，680 宽，每张 30~70KB；
+// 原图在 assets/concept/scenes/90~94_缘起_*.png（tools/scenes.json）。
+const artImg = (name) => `<img src="${pub(`textures/intro/intro_${name}.webp`)}" alt="" data-art="${name}" decoding="async">`;
 
 function css() {
   if (document.getElementById("story-intro-css")) return;
@@ -26,7 +29,7 @@ function css() {
     background: var(--navy); font-family: "Songti SC", "Noto Serif CJK SC", "Hiragino Mincho ProN", serif; color: var(--ink); opacity: 0; transition: opacity .45s; }
   body.lang-ja #story-intro { font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; }
   #story-intro.show { opacity: 1; }
-  #story-intro .si-book { position: relative; width: min(340px, 80vw, 56vh); aspect-ratio: 3 / 4; perspective: 1400px; }
+  #story-intro .si-book { position: relative; width: min(360px, 88vw, 58vh); aspect-ratio: 3 / 4; perspective: 1400px; }
   #story-intro .si-book::before, #story-intro .si-book::after { content: ""; position: absolute; inset: 0; background: #E2D7C2; border: 2px solid var(--ink); }
   #story-intro .si-book::before { transform: translate(5px, 5px); } #story-intro .si-book::after { transform: translate(10px, 10px); background: #D3C7AF; z-index: -1; }
   #story-intro .si-page { position: absolute; inset: 0; z-index: 1; box-sizing: border-box; padding: 26px 22px 40px; background: var(--paper) linear-gradient(90deg, rgba(50,45,72,.13), rgba(50,45,72,0) 16px);
@@ -36,7 +39,8 @@ function css() {
   #story-intro .si-k { position: absolute; right: 14px; top: 16px; writing-mode: vertical-rl; font-size: 15px; letter-spacing: .35em; color: var(--crimson);
     border-left: 1.5px solid rgba(50,45,72,.3); padding-left: 6px; max-height: 46%; overflow: hidden; }
   #story-intro .si-art { width: 96%; margin: 14px 22px 0 0; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; }
-  #story-intro .si-art svg { width: 100%; height: auto; max-height: 100%; display: block; box-shadow: 2px 3px 0 rgba(50,45,72,.25); }
+  #story-intro .si-art svg, #story-intro .si-art img { width: 100%; height: auto; max-height: 100%; display: block; box-shadow: 2px 3px 0 rgba(50,45,72,.25); }
+  #story-intro .si-art img { aspect-ratio: 680 / 483; object-fit: cover; border: 2px solid var(--ink); box-sizing: border-box; background: #E2D7C2; }
   #story-intro .si-t { font-size: clamp(15px, 2.6vh, 18px); line-height: 1.6; text-align: center; margin: 10px 4px 0; letter-spacing: .04em; text-wrap: balance; white-space: pre-line; }   /* 文案里的 \n 在逗号后断行，手机上不会把一个词拆成两行 */
   #story-intro .si-b { font-size: 12px; opacity: .6; margin-top: 6px; letter-spacing: .08em; text-align: center; text-wrap: balance; }
   #story-intro .si-no { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font-size: 12px; letter-spacing: .3em; opacity: .45; }
@@ -68,11 +72,12 @@ export function storyIntro(texts, warmUrls = []) {
   const el = document.createElement("div"); el.id = "story-intro";
   const defs = DEFS;   // 纹样、滤镜（几张画共用）
   const pages = cards.map((c, k) => `<div class="si-page" data-i="${k}" style="z-index:${n - k + 1}">
-      <div class="si-k">${esc(c.k)}</div><div class="si-art">${svg(c.art || ORDER[k % ORDER.length])}</div>
+      <div class="si-k">${esc(c.k)}</div><div class="si-art">${artImg(c.art || ORDER[k % ORDER.length])}</div>
       <div class="si-t">${esc(c.t)}</div>${c.b ? `<div class="si-b">${esc(c.b)}</div>` : ""}
       ${k === n - 1 ? `<button class="si-go">${esc(c.go || "展开长卷")}</button>` : ""}<div class="si-no">${k + 1} / ${n}</div></div>`).join("");
   el.innerHTML = `${defs}<div class="si-book">${pages}</div><div class="si-hint">点一下翻页</div><button class="si-skip">跳过 Esc</button><div class="si-load"></div>`;
   document.body.appendChild(el);
+  el.querySelectorAll(".si-art img").forEach((im) => im.addEventListener("error", () => { im.outerHTML = svg(im.dataset.art); }, { once: true }));   // 图片挂了用 SVG 顶上
   const $ = (s) => el.querySelector(s), all = [...el.querySelectorAll(".si-page")];
   const w = warm(warmUrls.filter((u) => typeof u === "string").map((u) => asset(u)));
   const loadTick = setInterval(() => { $(".si-load").textContent = w.done >= w.total ? "行李备好了" : `正在备行李 ${w.done} / ${w.total}`; }, 300);
