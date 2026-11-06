@@ -43,8 +43,9 @@ export const card = {
 export class Tags {
   constructor(onClick) { this.root = $("#tags"); this.items = []; this.onClick = onClick; }
   clear() { this.root.innerHTML = ""; this.items = []; }
-  add(id, kind, label, pos) {
-    const el = document.createElement("div");
+  add(id, kind, label, pos, title = label) {
+    const el = document.createElement("button");
+    el.type = "button"; el.title = title; el.setAttribute("aria-label", title);
     el.className = `tag ${kind}`; el.textContent = label;
     el.addEventListener("pointerdown", (e) => e.stopPropagation());
     el.addEventListener("click", (e) => { e.stopPropagation(); this.onClick(id); });
@@ -54,9 +55,13 @@ export class Tags {
   update(camera, w, h, v) {
     for (const it of this.items) {
       v.set(...it.pos).project(camera);
-      const hide = v.z > 1 || Math.abs(v.x) > 1.1 || Math.abs(v.y) > 1.1;
+      const hide = v.z < -1 || v.z > 1 || Math.abs(v.x) > 1.1 || Math.abs(v.y) > 1.1;
       it.el.style.display = hide ? "none" : "";
-      if (!hide) it.el.style.transform = `translate(${(v.x * 0.5 + 0.5) * w}px, ${(-v.y * 0.5 + 0.5) * h}px) translate(-50%, -100%)`;
+      if (!hide) {
+        // 贴边时把整枚标签留在屏幕内；百分比取标签本身的宽高，不用逐帧测量 DOM。
+        const x = (v.x * 0.5 + 0.5) * w, y = (-v.y * 0.5 + 0.5) * h;
+        it.el.style.transform = `translate(clamp(4px, calc(${x}px - 50%), calc(${w - 4}px - 100%)), clamp(4px, calc(${y}px - 100%), calc(${h - 4}px - 100%)))`;
+      }
     }
   }
 }

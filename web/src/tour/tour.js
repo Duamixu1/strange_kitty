@@ -47,7 +47,7 @@ const assetUrl = asset;
 // 声音：浏览器要用户先操作一次才能出声（手机上是第一次点屏幕）；右上角"音"键开关，记在本机
 for (const ev of ["pointerdown", "pointerup", "touchend", "keydown"]) addEventListener(ev, () => audio.unlock(), { capture: true });
 const sndBtn = document.getElementById("snd");
-const showSnd = () => { sndBtn.textContent = audio.muted ? "静" : "音"; sndBtn.classList.toggle("off", audio.muted); };
+const showSnd = () => { sndBtn.textContent = audio.muted ? "静音" : "声音"; sndBtn.setAttribute("aria-pressed", String(!audio.muted)); sndBtn.classList.toggle("off", audio.muted); };
 const toggleSnd = () => { audio.unlock(); audio.toggle(); showSnd(); };
 showSnd();
 sndBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleSnd(); });
@@ -273,6 +273,11 @@ async function startLocation(id) {
   let Z = null, world = null, col = null, pf = null, path = null, arriveLock = false, busy = false, busyBy = "";
   let baseFov = 50;   // 区块定的 fov（横屏），竖屏时 fitFov 在它基础上放大
   let shotFov = null;   // 拾遗特写时暂存的区块 fov
+  // A paper seal marks the reachable endpoint while the click route is active.
+  const destination = new THREE.Mesh(new THREE.RingGeometry(0.13, 0.18, 32), new THREE.MeshBasicMaterial({ color: 0xffebb7, side: THREE.DoubleSide, depthWrite: false }));
+  destination.rotation.x = -Math.PI / 2;
+  destination.visible = false;
+  scene.add(destination);
   const tags = new Tags((tid) => onTag(tid));
   const zoneCache = new Map(), npcCache = new Map(), findCache = new Map();   // findCache：拾遗小物件（guide.js，场景线的 find_*.glb）
   let npcsOn = [], findsOn = null;
@@ -370,17 +375,24 @@ async function startLocation(id) {
     if (["circle", "rail"].includes(z.camera?.mode)) {
       cam = splatCam;
       cam.setZone({ canStand: col.canStand, yaw: camYaw, camera: z.camera });
+      cam.updateCutout();
     } else {
       cam = follow;
       const W = z.walk, bounds = W ? [W.x0, W.z0, W.x0 + W.w * W.cell, W.z0 + W.h * W.cell] : null;
       cam.setZone({ canStand: col.canStand, ceiling: z.height, yaw: camYaw, bounds, collider: world ? buildCollider(world) : null, fixed: z.camera?.fixed || null });
-      if (z.camera) Object.assign(cam, z.camera);
+      cam.dist = z.camera?.dist ?? loc.camera?.dist ?? 3.2;
+      cam.pitch = z.camera?.pitch ?? loc.camera?.pitch ?? 0.2;
     }
     fitFov();
     cam.update(player, 0, true);
     tags.clear();
-    for (const [n, p] of Object.entries(z.views)) tags.add(`view:${n}`, "view", "観", [p[0], 1.9, p[1]]);
-    (z.exits || []).forEach((e, i) => { const s = z.stairs[e.stair]; if (s) tags.add(`exit:${i}`, "exit", e.label || "出口", [s.door[0], 2.1, s.door[1]]); });
+    for (const [n, p] of Object.entries(z.views)) tags.add(`view:${n}`, "view", "観", [p[0], (col.floorY(...p) ?? 0) + 1.7, p[1]], viewText(n).title);
+    (z.exits || []).forEach((e, i) => { const s = z.stairs[e.stair]; // 双扇门各有一个通行格，共用一个路标；两边的实际门口仍然可以走。
+      const sameDoor = s && z.exits.slice(0, i).some((prev) => {
+        const other = z.stairs[prev.stair];
+        return other && prev.to === e.to && prev.label === e.label && Math.hypot(s.door[0] - other.door[0], s.door[1] - other.door[1]) < 1.1;
+      });
+      if (s && !sameDoor) tags.add(`exit:${i}`, "exit", e.label || "出口", [s.door[0], 2.1, s.door[1]]); });
     // 天气：雨夜区块开雨丝，画面往藏青压一点；区块可以单独写 background
     const wet = z.weather === "rain";
     rain.set(wet); post.setTint(wet ? "#8C8CC8" : "#ffffff", wet ? 0.45 : 0);
@@ -390,6 +402,12 @@ async function startLocation(id) {
     audio.setScene(loc.id, zoneId); floorSnd = audio.floorOf(loc.id, zoneId);
     stat(`/${loc.id}/${zoneId}`, `${loc.name} · ${z.name || zoneId}`);
     guide?.enterZone();   // 引导（guide.js）：门札、拾遗、本命
+  }
+
+  function setShot(c) {
+    for (const k of [follow, splatCam]) k.shot = c ? { ...c, shot: true } : null;
+    if (c?.fov) { shotFov ??= baseFov; baseFov = c.fov; fitFov(); }
+    else if (!c && shotFov != null) { baseFov = shotFov; shotFov = null; fitFov(); }
   }
 
   function viewText(n) {
@@ -405,7 +423,10 @@ async function startLocation(id) {
     P.play(Z.viewLook?.[n] === "up" ? "look" : "gaze", 0.4);   // 驻足看；高处的观景点（区块里写 viewLook: { "1": "up" }）抬头看
     prompt.set("");
     audio.play("bell");
-    await card.open(viewText(n));
+    const shot = Z.camera?.fixed?.find((s) => String(s._view) === String(n) && s.look);
+    if (shot) setShot({ ...shot, close: true });
+    try { await card.open(viewText(n)); }
+    finally { if (shot) setShot(null); }
     audio.play("paper");
     guide.onView(n);
     P.play("idle", 0.4); stillT = 0;
@@ -422,19 +443,27 @@ async function startLocation(id) {
     }).finally(() => { busy = false; });   // 出错也要放开，不然人卡在原地走不动、门也不认
     prefetchNext(e.to);
   }
-  function walkTo(x, z, then = null, tol = 0.3) {
+  function walkTo(x, z, then = null, tol = 0.3, label = "") {
+    path = null;
+    if (Z.npcs?.length) pf.invalidate();   // 配角可能刚加载进来，或巡到了新的位置
     const r = pf.routeTo([player.position.x, player.position.z], [x, z], tol);
     if (!r) { toast("过不去"); return; }
     const pts = r.pts.slice(1);
     if (!pts.length) { path = null; then && then(); return; }   // 点在药郎脚下：原来会留一条空路线，每帧报错把画面卡住（10-31 镜头诊断撞出来的）
-    path = { pts, then };
+    path = { pts, then, label, stalled: 0 };
+    const [gx, gz] = pts.at(-1);
+    destination.position.set(gx, (col.floorY(gx, gz) ?? 0) + 0.025, gz);
   }
   function onTag(tid) {
-    if (busy || card.isOpen || guide.endOpen) return;
+    if (busy || card.isOpen || guide.acting || guide.endOpen || enc.active || box?.isOpen) return;
     const [kind, n] = tid.split(":");
-    if (kind === "view") { const p = Z.views[n]; walkTo(p[0], p[1], () => openView(n)); }
+    if (kind === "view") { const p = Z.views[n]; walkTo(p[0], p[1], () => openView(n), 0.3, viewText(n).title); }
+    if (kind === "find") {
+      const f = Z.finds?.find((item) => String(item.id) === n);
+      if (f) walkTo(...f.pos, () => guide.pickFind(f), 0.8, "拾遗");
+    }
     // 出口：走到 stand 正上方（容差 0.1），保证进触发圈；原来 0.3 的容差会停在圈边上，触不触发看运气（场景线 10-29 查出来的）
-    if (kind === "exit") { const s = Z.stairs[Z.exits[+n].stair]; arriveLock = false; walkTo(s.stand[0], s.stand[1], null, 0.1); }
+    if (kind === "exit") { const s = Z.stairs[Z.exits[+n].stair]; arriveLock = false; walkTo(s.stand[0], s.stand[1], () => takeExit(+n), 0.1, Z.exits[+n].label); }
   }
 
   // ---- 输入 ----
@@ -554,7 +583,8 @@ async function startLocation(id) {
   function clickFloor(x, y, fast = false) {
     ray.setFromCamera(new THREE.Vector2((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1), camera);
     if (!ray.ray.intersectPlane(floor, hit)) return;
-    const s = pf.snapPoint(hit.x, hit.z, 0.8); if (!s) return;
+    const s = pf.snapPoint(hit.x, hit.z, 0.8);
+    if (!s) { path = null; toast("过不去"); return; }
     arriveLock = false; walkTo(s[0], s[1]);
     if (path) path.fast = fast;   // 连点两下：快走过去
   }
@@ -611,8 +641,13 @@ async function startLocation(id) {
     v.normalize();
     turnToward(Math.atan2(v.x, v.z), 12, dt);
     const nx = player.position.x + v.x * speed, nz = player.position.z + v.z * speed;
+    const ox = player.position.x, oz = player.position.z;
     if (col.canStand(nx, player.position.z)) player.position.x = nx;
     if (col.canStand(player.position.x, nz)) player.position.z = nz;
+    if (path) {
+      path.stalled = Math.hypot(player.position.x - ox, player.position.z - oz) < speed * 0.05 ? path.stalled + dt : 0;
+      if (path.stalled > 0.65) { path = null; toast("过不去"); }
+    }
     stand();
     P.play(gait); P.setMoveSpeed(mps);
   }
@@ -773,10 +808,7 @@ async function startLocation(id) {
     noOutline: (o) => post.exclude.push(o),
     followCam: () => cam === follow && !follow.fixedOn,   // 放天秤：跟随镜头会转到药郎身后（perform），扫描房间的环绕 / 固定机位不转
     // act 的临时机位 { pos: [x,y,z], look: [x,y,z] }；拾遗特写另带 close: true（不往药郎身上挪看点）和 fov（收窄，关掉时复位）
-    shot: (c) => {
-      for (const k of [follow, splatCam]) k.shot = c ? { rect: [-1e9, 1e9, -1e9, 1e9], ...c, shot: true } : null;
-      if (c?.fov) { shotFov ??= baseFov; baseFov = c.fov; fitFov(); } else if (!c && shotFov != null) { baseFov = shotFov; shotFov = null; fitFov(); }
-    },
+    shot: setShot,
     findObj: (f) => findsOn?.children.find((g) => g.userData.find === f) || null,   // 拾遗小物件的网格（特写对准它的包围盒）
     // 镜头射线：from 往 to 方向，碰到墙、柱子（跟随镜头的碰撞网格）返回距离，没碰到或没有碰撞网格返回 null
     camRay: (from, to) => {
@@ -785,12 +817,16 @@ async function startLocation(id) {
       return follow.bvh.raycastFirst(r, THREE.DoubleSide, 0.06, len)?.distance ?? null;
     },
     loadKit: (kit) => loadKit(loader, assetUrl(`processed/kit/${kit}.glb`)), shake: (s) => { shakeT = Math.max(shakeT, s); },   // act 的小积木、镜头一抖（docs/20）
-    // 原地做一个动作（坟前合掌）：sec 秒里不能走，转向 yaw，做完回待机
-    perform: (clip, sec, yaw) => new Promise((done) => {
-      busy = true; busyBy = `perform:${clip}`; path = null; prompt.set(""); if (yaw != null) { player.rotation.y = yaw; camAim = yaw + Math.PI; }   // 跟随镜头慢慢转到身后，看得见他看的东西
-      P.play(clip, 0.25, { from: 0.01 }); setTimeout(() => { P.play("idle", 0.4); stillT = 0; busy = false; done(); }, sec * 1000);
-    }),
-    route: (a, b, tol) => pf?.routeTo(a, b, tol)?.pts || null,
+    // 动作播完就回待机；有场景演出时，等演出也结束再让玩家离开。
+    perform: async (clip, sec, yaw, effect) => {
+      busy = true; busyBy = `perform:${clip}`; path = null; prompt.set("");
+      if (yaw != null) { player.rotation.y = yaw; camAim = cam.shot ? null : yaw + Math.PI; }
+      P.play(clip, 0.25, { from: 0.01 });
+      const animation = new Promise((done) => setTimeout(() => { P.play("idle", 0.4); stillT = 0; done(); }, sec * 1000));
+      try { await Promise.all([animation, effect?.()]); }
+      finally { busy = false; }
+    },
+    route: (a, b, tol) => { if (Z.npcs?.length) pf.invalidate(); return pf.routeTo(a, b, tol)?.pts || null; },
     zone: () => Z, npcs: () => npcsOn, free: () => !busy && !card.isOpen && !sword && !box?.isOpen && !enc.active,
     snap: () => (loc.recolor ? null : exoShot) || composePhoto(FILTERS[0]),   // 上色的地点截上色以后的
     places: () => mapPlaces, go: (id) => { location.href = pub("tour.html") + (id ? `?loc=${id}` : ""); },   // 结案卡"去下一处"：总地图上开着的地点按长卷顺序
@@ -798,7 +834,7 @@ async function startLocation(id) {
     allViews: async () => Object.fromEntries(await Promise.all(Object.keys(loc.zones || {}).map(async (id) => [id, Object.keys((await resolveZone(loc, id)).views || {})]))),
   });
   const mkBtn = document.getElementById("mkbtn");
-  const showMk = () => { mkBtn.classList.toggle("off", !enc.on); mkBtn.title = `物怪出没：${enc.on ? "开" : "关"}`; };
+  const showMk = () => { mkBtn.classList.toggle("off", !enc.on); mkBtn.setAttribute("aria-pressed", String(enc.on)); mkBtn.title = `物怪出没：${enc.on ? "开" : "关"}`; };
   showMk();
   // 药箱（medbox.js）：斩过的物怪和执念物。物怪出没时、说明卡开着时不开
   const boxBtn = document.getElementById("boxbtn");
@@ -814,9 +850,9 @@ async function startLocation(id) {
 
   let exitsOff = false;   // 自动拍图时关掉：药郎被摆到出口旁边拍验收机位，会被自动传走，下一张拍成别的区块
   let arriveT = 0;
-  function checkExits(dt = 0) {
+  function checkExits(dt, walked, fromX, fromZ) {
     arriveT += dt;
-    if (busy || !Z.exits || exitsOff) return;
+    if (!walked || busy || !Z.exits || exitsOff) return;
     let near = false;
     Z.exits.forEach((e, i) => {
       const s = Z.stairs[e.stair]; if (!s) return;
@@ -824,9 +860,10 @@ async function startLocation(id) {
       if (d < 0.9) near = true;
       // 11-05 用户："有的时候走出房间就回不去了"：进门站在门前 0.6 米，原来要先走出 0.9 米再回来门才认；
       // 一进门就转身往回走的话一直在圈里，门永远不触发。改成：进来 0.8 秒以后，正在走、而且面朝这扇门走过去，也解锁
-      if (arriveLock && arriveT > 0.8 && curSpeed > 0.15 && d < 0.9) {
-        const face = Math.cos(wrap(Math.atan2(s.stand[0] - player.position.x, s.stand[1] - player.position.z) - player.rotation.y));
-        if (face > 0.5) arriveLock = false;
+      if (arriveLock && arriveT > 0.8 && d < 0.9) {
+        // 以走近门的实际位移为准；转身动画追上方向之前，也应当能原路返回。
+        const before = Math.hypot(s.stand[0] - fromX, s.stand[1] - fromZ);
+        if (before - d > walked * 0.5) arriveLock = false;
       }
       if (d < 0.45 && !arriveLock) takeExit(i);   // 到达点在门前 0.6 米，比触发圈远，不会一进来就被传回去
     });
@@ -835,6 +872,7 @@ async function startLocation(id) {
   function updatePrompt() {
     if (busy || card.isOpen) return;
     if (enc.active || guide.acting || guide.endOpen) { prompt.set(""); return; }   // 正在做 act（合掌、开柜子……）：提示条收着
+    if (path?.label) { prompt.set(`前往 · ${path.label}`); return; }
     const v = nearView();
     prompt.set(v ? `${touch ? "点这里看" : "E 看看"} · ${viewText(v).title}` : guide.promptText(touch));
   }
@@ -922,7 +960,15 @@ async function startLocation(id) {
   function frame(dt = Math.min(clock.getDelta(), 0.1)) {
     if (camAim != null) { if (cam !== follow || follow.fixedOn || drag) camAim = null; else { const d = wrap(camAim - follow.yaw); follow.yaw += d * (1 - Math.exp(-2.5 * dt)); if (Math.abs(d) < 0.01) camAim = null; } }
     swordTick(dt);
-    if (Z) { const x0 = player.position.x, z0 = player.position.z; move(dt); enc.update(dt); guide.update(dt); footsteps(Math.hypot(player.position.x - x0, player.position.z - z0), dt); checkExits(dt); updatePrompt(); }
+    if (Z) {
+      const x0 = player.position.x, z0 = player.position.z;
+      move(dt);
+      const walked = Math.hypot(player.position.x - x0, player.position.z - z0);
+      enc.update(dt); guide.update(dt);
+      footsteps(walked, dt);
+      checkExits(dt, walked, x0, z0);   // 走进门才转场，战斗瞬移、后撤落到门前时仍留在这间。
+      updatePrompt();
+    }
     P.update(dt);
     for (const n of npcsOn) npcTick(n, dt);
     if (look.x || look.y) cam.turn(look.x * 2.4 * dt, look.y * 1.2 * dt);   // 视角摇杆：往右推镜头往右转，往上推往上看
@@ -935,6 +981,7 @@ async function startLocation(id) {
       reveal.t += dt; const k = Math.min(1, reveal.t / 4.5);
       post.setReveal(k >= 1 ? -1 : 0.05 + 1.7 * k * k, 0.5, 0.42); if (k >= 1) reveal = null;
     }
+    destination.visible = !!path && !busy && !enc.active;
     post.render();
     tags.update(camera, innerWidth, innerHeight, tv);
   }
@@ -999,7 +1046,7 @@ async function startLocation(id) {
   // 进去以后再在后台下这个地点的物怪（0.4~0.8 MB），不拖慢首次加载；11-05 再往后排：等隔壁几间先下好（物怪要看过两处才出，不急），
   //   慢网上原来两样一起下，刚进门就去隔壁要多等一两秒
   if (enc.on) prefetchChain.then(() => enc.preload()).catch(() => {});
-  if (!["selftest", "auto", "walktest"].some((k) => params.has(k))) guide.intro();   // 第一次进有案子的地点：一张小卡交代
+  if (!["selftest", "auto", "walktest"].some((k) => params.has(k))) guide.intro(loading.holding);   // 第一次进有案子的地点：一张小卡交代
 
   async function save(name) {
     frame(1 / 60);

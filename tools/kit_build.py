@@ -538,6 +538,10 @@ def plan_floors(P, walk, block):
                 if not f or f == "water": continue
                 e = {"W": ((x0, z0), (x0, z1)), "E": ((x1, z1), (x1, z0)), "N": ((x1, z0), (x0, z0)), "S": ((x0, z1), (x1, z1))}[k]
                 (ax, az), (bx, bz) = e
+                if P.on("pool_rim"):
+                    # 船池内沿收口，让水面与甲板之间的落差从斜视角也能读出来。
+                    center = ((ax + bx) / 2 - dx * 0.04, 0.048, (az + bz) / 2 - dz * 0.04)
+                    box(P.R("bank"), center, (abs(bx - ax) or 0.08, 0.096, abs(bz - az) or 0.08))
                 face(P.R("bank"), [(ax, -0.22, az), (bx, -0.22, bz), (bx, 0.0, bz), (ax, 0.0, az)], [(0, 0), (1, 0), (1, 0.25), (0, 0.25)], want=(-dx, 0, -dz))
     P.cur = None
     for reg in P.regions("bridge"): arch_bridge(P, reg, walk, block)
@@ -1619,6 +1623,18 @@ def plan_furniture(P, block):
                 box(P.R("wood"), ((x0 + x1) / 2, 0.47, (z0 + z1) / 2), (x1 - x0 - 2 * m, 0.94, z1 - z0 - 2 * m))
                 box("ochre", ((x0 + x1) / 2, 0.97, (z0 + z1) / 2), (x1 - x0 - m, 0.05, z1 - z0 - m))
                 block.append((x0 + m, z0 + m, x1 - m, z1 - m))
+                if P.on("reception_details"):
+                    # 账簿与笔砚放在西端，东端留给原有的拾遗物件。
+                    x, z = x0 + .43, (z0 + z1) / 2
+                    box("ink", (x,1.015,z), (.39,.04,.27))
+                    box("paper", (x,1.043,z), (.36,.02,.25))
+                    box("crimson", (x-.12,1.056,z), (.012,.006,.25))
+                    for row in range(5):
+                        box("kogecha", (x+row*.035,1.057,z-.012), (.005,.005,.13))
+                    box("lacquer", (x+.37,1.024,z), (.18,.05,.11))
+                    tbox("wood_dark", (x+.24,1.063,z-.08), (x+.51,1.065,z+.04), .014)
+                    for y in (.14,.85):
+                        box("koshiita", ((x0+x1)/2,y,z1-m+.013), (x1-x0-2*m,.045,.026))
                 if P.on("counter_sign"):   # 柜台正面（朝 +z）挂"同"字圆牌（八角厅接待台，参考 11）
                     mx, r = (x0 + x1) / 2, 0.3; zf = z1 - m + 0.006
                     pts = [(mx + math.cos(2 * math.pi * k / 20) * r, 0.5 + math.sin(2 * math.pi * k / 20) * r, zf) for k in range(20)]
@@ -1674,7 +1690,9 @@ def plan_furniture(P, block):
             back = next(((dx, dz) for dx, dz in DIRS.values() if P.wall(i + dx, j + dz)), None)
             if back is None:   # 不靠墙：背朝离房间中心远的那边
                 v = (i + 0.5 - W, j + 0.5 - D); back = (1 if v[0] > 0 else -1, 0) if abs(v[0]) >= abs(v[1]) else (0, 1 if v[1] > 0 else -1)
-            sc = float(P.cfg.get("chair_scale", "1")); P.cur = (i, j); chair(cx, cz, back, sc, P.R("chair_wood"), P.R("chair_seat"))
+            sc = float(P.cfg.get("chair_scale", "1"))
+            P.cur = (i, j)
+            chair(cx, cz, back, sc, P.R("chair_wood"), P.R("chair_seat"), carved=P.on("reception_details"))
             block.append((cx - 0.3 * sc, cz - 0.3 * sc, cx + 0.3 * sc, cz + 0.3 * sc))
 
 
@@ -1695,7 +1713,7 @@ def toys(cx, cz, seed):
             for dx in (-0.07, 0.07): cylinder("paper", (x + dx, 0.044, z), 0.035, 0.05, seg=10)
 
 
-def chair(cx, cz, back, k=1.0, wood="ochre", seat="blue"):
+def chair(cx, cz, back, k=1.0, wood="ochre", seat="blue", carved=False):
     """洋式扶手椅：藍色坐垫和靠背、山吹木框；k 整体放大（八角厅 1.3）"""
     bx, bz = back; px, pz = -bz, bx   # 靠背方向、横向
     at = lambda f, s, y: (cx + bx * f * k + px * s * k, y * k, cz + bz * f * k + pz * s * k)
@@ -1705,6 +1723,13 @@ def chair(cx, cz, back, k=1.0, wood="ochre", seat="blue"):
     box(seat, at(0, 0, 0.45), sz(0.56, 0.5, 0.1))
     box(seat, at(0.24, 0, 0.85), sz(0.08, 0.5, 0.75))
     box(wood, at(0.28, 0, 1.24), sz(0.06, 0.56, 0.06))
+    if carved:
+        for s in (-.25,.25):
+            tbox(wood, at(.24,s,.4), at(.28,s,1.24), .036*k)
+            tbox(wood, at(-.2,s,.44), at(-.2,s,.66), .034*k)
+        for s in (-.12,0,.12):
+            flat_ball("ochre", at(.19,s,1.09), .015*k,.018*k)
+        box(wood, at(0,0,.375), sz(.51,.5,.045))
     for s in (-0.27, 0.27): box(wood, at(0, s, 0.66), sz(0.56, 0.06, 0.06))
 
 
@@ -2771,14 +2796,30 @@ def kouban(cx, y, cz, k=1.0):
 
 def fue_pine(h):
     """雪庭的松（参考 04 左边）：墨色弯干、三四团平展的松针，每团顶上一层雪。原点在树根"""
-    pts = [(0, 0), (0.15, h * 0.3), (0.05, h * 0.55), (-0.2, h * 0.78)]
-    for (ax, ay), (bx, by) in zip(pts, pts[1:]): tbox("fue_tree", (ax, ay, 0), (bx, by, 0.02), 0.14)
-    for k, (x, y, r) in enumerate(((0.45, h * 0.42, 0.7), (-0.4, h * 0.6, 0.6), (0.2, h * 0.75, 0.55), (-0.25, h * 0.92, 0.45))):
-        tbox("fue_tree", (pts[1][0] if k % 2 == 0 else pts[2][0], y - 0.1, 0), (x, y, 0), 0.06)
-        for q in range(4):   # 一团松针 = 几个压扁的球挤在一起，顶上一层雪也是压扁的球（11-06 第一版的扁圆柱像飞盘）
-            ox, oz, rr = (-0.4 + 0.27 * q) * r, (0.15 if q % 2 else -0.12) * r, r * (0.42 if q in (1, 2) else 0.32)
-            flat_ball("fue_pine", (x + ox, y, oz), rr, rr * 0.38)
-            flat_ball("fue_snow", (x + ox, y + rr * 0.2, oz), rr * 0.86, rr * 0.22)
+    # 每层枝条从真正的主干节点生长。高低、深浅错开的墨团之间留出透光的空隙。
+    import random
+    rng = random.Random(round(h * 100))
+    spine = [(0, 0, 0), (0.13, h*.29, .03), (-.08, h*.51, -.04),
+             (-.23, h*.71, .01), (-.14, h*.89, .05)]
+    for i, (a, b) in enumerate(zip(spine, spine[1:])):
+        tbox("fue_tree", a, b, .16 - i*.029)
+    for tier, root in enumerate(spine[1:]):
+        for side in (1, -1):
+            reach = (.96 - .17*tier) * (1 if (tier % 2 == 0) == (side == 1) else .62)
+            elbow = (root[0] + side*reach*.55, root[1]-.04, root[2]+.08*side)
+            tip = (root[0]+side*reach, root[1]+.16, root[2]+rng.uniform(-.23,.23))
+            tbox("fue_tree", root, elbow, .072 - tier*.009)
+            tbox("fue_tree", elbow, tip, .046)
+            for q in range(5):
+                t = .32 + q*.15
+                x = elbow[0] + (tip[0]-elbow[0])*t
+                y = elbow[1] + (tip[1]-elbow[1])*t
+                z = elbow[2] + (tip[2]-elbow[2])*t + rng.uniform(-.095,.095)
+                r = rng.uniform(.18,.28) * (1-.09*tier)
+                flat_ball("fue_pine", (x,y,z), r, r*.51, seg=9, rings=4)
+                if q != 0:
+                    flat_ball("fue_snow", (x-.025,y+r*.3,z+.018), r*.82, r*.31, seg=9, rings=4)
+
 
 
 def flat_ball(key, c, r, ry, seg=10, rings=5):

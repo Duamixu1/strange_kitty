@@ -73,7 +73,6 @@
     /* 声音开关：右上角小圆钮，"音" = 开，"静" = 关 */
     #snd { position: fixed; right: max(12px, env(safe-area-inset-right)); top: 10px; z-index: 6; width: 34px; height: 34px; border-radius: 50%; padding: 0; font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; background: var(--paper); color: var(--crimson); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
     #snd.off { color: var(--ink); opacity: .6; }
-    #help { right: 58px !important; }
     body.touch #help .keys { display: none; }
     body:not(.touch) #help .fingers { display: none; }
     /* 手机（body.touch）操作，像手游（11-03 用户："左边摇杆控制方向，右边是一些按键"）：
@@ -98,15 +97,13 @@
     body.touch #look.on { opacity: 1; transition: none; }
     #look .knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(241, 233, 218, .95); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); pointer-events: none; display: flex; align-items: center; justify-content: center; font: 13px/1 "Hiragino Mincho ProN", "Songti SC", serif; color: var(--ink); }
     #pad .b-filter, #pad .b-map { width: auto; height: 30px; padding: 0 10px; border-radius: 15px; font-size: 13px; top: 12px; }
-    #pad .b-map { right: calc(56px + env(safe-area-inset-right)); }
-    #pad .b-filter { right: calc(116px + env(safe-area-inset-right)); }
+    #pad .b-map { right: calc(73px + env(safe-area-inset-right)); }
+    #pad .b-filter { right: calc(139px + env(safe-area-inset-right)); }
     body.touch #stick { display: block; position: fixed; left: 0; bottom: 0; width: 45vw; height: 60vh; z-index: 3; touch-action: none; }
     #stick .base { position: absolute; left: calc(28px + env(safe-area-inset-left)); bottom: calc(28px + env(safe-area-inset-bottom)); width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(241, 233, 218, .75); background: rgba(42, 42, 78, .25); transition: opacity .2s; opacity: .7; pointer-events: none; }
     #stick.on .base { opacity: 1; transition: none; }
     #stick .knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(241, 233, 218, .95); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
     body.touch #tags { z-index: 4; }
-    body.touch #help { right: calc(180px + env(safe-area-inset-right)) !important; }
-    @media (orientation: portrait) { body.touch #help { top: 48px; left: 14px; right: 14px !important; text-align: left; } }
     body.touch #prompt { pointer-events: auto; cursor: pointer; bottom: calc(190px + env(safe-area-inset-bottom)); }
     body.touch #card { bottom: calc(190px + env(safe-area-inset-bottom)); width: 90vw; padding: 14px 18px 18px; }
     @media (orientation: landscape) {
@@ -219,7 +216,7 @@
     #pad .b-jump { font-size: 18px; right: calc(8px + env(safe-area-inset-right)); bottom: calc(150px + env(safe-area-inset-bottom)); }
     #pad .b-blink { font-size: 18px; right: calc(124px + env(safe-area-inset-right)); bottom: calc(170px + env(safe-area-inset-bottom)); }
     body.blink-cd #pad .b-blink { opacity: .4; }   /* 瞬移冷却 3 秒 */
-    body.touch.encounter #pad .b-photo { width: auto; height: 30px; padding: 0 10px; border-radius: 15px; font-size: 13px; top: 12px; bottom: auto; right: calc(176px + env(safe-area-inset-right)); background: rgba(241, 233, 218, .92); color: var(--ink); }
+    body.touch.encounter #pad .b-photo { width: auto; height: 30px; padding: 0 10px; border-radius: 15px; font-size: 13px; top: 12px; bottom: auto; right: calc(212px + env(safe-area-inset-right)); background: rgba(241, 233, 218, .92); color: var(--ink); }
     body.touch.encounter #help { display: none; }
     /* 第一次遭遇的教学卡（#mktut）：一页一个键，左右翻；形真理没齐按拔剑：屏幕中间三格，齐了的红、空的虚线，抖一下 */
     #mktut { position: fixed; inset: 0; z-index: 8; display: none; align-items: center; justify-content: center; background: rgba(20, 16, 31, .35); }
@@ -307,7 +304,7 @@
     #medbox.book-on .mb-tray { width: min(900px, 96vw); background: #ECE4D4; padding: 14px 14px 16px; }
     #medbox .book { --paper2: #E8DCC4; --gold: #C9A23A; --mute: #7A7088; --wisteria: #6A4C8C; --coral: #E6667A; display: flex; flex-direction: column; gap: 10px; font: 15px/1.7 "Songti SC", "Hiragino Mincho ProN", serif; }
   #medbox .book .C-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 124px; background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); position: relative; }
-  #medbox .book .C-plan { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(5, 76px) 66px; gap: 9px; padding: 34px 18px 18px; position: relative;
+  #medbox .book .C-plan { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(var(--rows), var(--room-height, 76px)); gap: 9px; padding: 34px 18px 18px; position: relative;
     background-color: var(--paper);
     background-image: repeating-linear-gradient(0deg, transparent 0 17px, rgba(50,45,72,.07) 17px 18px), repeating-linear-gradient(90deg, transparent 0 17px, rgba(50,45,72,.07) 17px 18px); }
   #medbox .book .C-plan .hd { position: absolute; left: 18px; top: 8px; font-size: 13px; letter-spacing: .25em; color: var(--ink); }
@@ -343,14 +340,14 @@
   #medbox .book .C-deco span { position: absolute; left: 6px; top: 4px; font-size: 12px; color: var(--mute); letter-spacing: .2em; }
   #medbox .book .C-side { background: var(--navy); border-left: 3px solid var(--ink); display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 30px 0 18px; position: relative; }
   #medbox .book .C-side .hd { position: absolute; top: 8px; color: var(--gold); font-size: 12px; letter-spacing: .3em; }
-  #medbox .book .C-node { width: 62px; height: 96px; background: var(--paper); border: 3px solid #b7ad9c; color: #c9bfae; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  #medbox .book .C-node { width: 62px; height: 96px; background: var(--paper); border: 3px solid #a79a87; color: #706452; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
     font-family: inherit; font-size: 34px; line-height: 1; cursor: pointer; position: relative; padding: 0; transition: transform .15s; }
   #medbox .book .C-node::before { content: ""; position: absolute; inset: 4px; border: 1px solid currentColor; opacity: .5; pointer-events: none; }
   #medbox .book .C-node .n { font-size: 11px; letter-spacing: .1em; }
   #medbox .book .C-node.lit { background: var(--cc); color: var(--paper); border-color: var(--gold); box-shadow: 0 0 18px rgba(201,162,58,.55); }
   #medbox .book .C-node.held { color: var(--cc); border: 3px dashed var(--cc); }
   #medbox .book .C-node.on { transform: translateX(-6px); outline: 2px solid var(--gold); outline-offset: 4px; }
-  #medbox .book .C-sword { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #6b6280; font-size: 11px; letter-spacing: .25em; }
+  #medbox .book .C-sword { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #c0b6cc; font-size: 11px; letter-spacing: .25em; }
   #medbox .book .C-sword svg { width: 26px; height: 96px; }
   #medbox .book .C-sword.on { color: var(--gold); filter: drop-shadow(0 0 6px rgba(201,162,58,.8)); }
   #medbox .book .C-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; overflow: visible; }
@@ -361,14 +358,13 @@
   #medbox .book .C-notes { background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
   #medbox .book .C-tabs { display: flex; border-bottom: 2px solid var(--ink); overflow-x: auto; }
   #medbox .book .C-tabs button { font: inherit; font-size: 14px; letter-spacing: .12em; border: 0; border-right: 1px solid rgba(50,45,72,.25); background: none; color: var(--mute); padding: 6px 14px; cursor: pointer; white-space: nowrap; }
-  #medbox .book .C-tabs button b { font-weight: normal; color: var(--tc, var(--ink)); margin-right: 4px; }
+  #medbox .book .C-tabs > b { padding: 6px 14px; align-self: center; }
   #medbox .book .C-tabs button.on { background: var(--ink); color: var(--paper); }
-  #medbox .book .C-tabs button.on b { color: var(--paper); }
   #medbox .book .C-body { padding: 10px 16px 14px; }
   #medbox .book .C-body .ln { font-size: 16px; padding: 2px 0 8px; border-bottom: 1px dotted #b9a98a; margin-bottom: 6px; }
   #medbox .book .C-body .ln.lit { color: var(--crimson); }
   #medbox .book .C-body .ln.held { color: var(--coral); }
-  #medbox .book .C-body .ln.none { color: #b0a8bb; }
+  #medbox .book .C-body .ln.none { color: #6a6079; }
   #medbox .book .C-body ul { list-style: none; margin: 0; padding: 0; }
   #medbox .book .C-body li { display: grid; grid-template-columns: 30px 1fr; gap: 0 8px; padding: 5px 4px; font-size: 14.5px; line-height: 1.55; border-radius: 2px; }
   #medbox .book .C-body li .ic { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; background: var(--pc, var(--paper)); color: var(--paper); border: 2px solid var(--ink); grid-row: span 2; }
@@ -380,7 +376,8 @@
   
 @media (max-width: 700px) {
     #medbox .book .C-wrap { grid-template-columns: 1fr; }
-    #medbox .book .C-plan { grid-template-rows: repeat(5, 64px) 58px; gap: 6px; padding: 30px 10px 12px; }
+    #medbox .book .C-plan { --room-height: 64px; gap: 6px; padding: 50px 10px 12px; }
+    #medbox .book .C-plan .compass { top: 27px; left: 18px; right: auto; }
     #medbox .book .C-side { flex-direction: row; justify-content: center; border-left: 0; border-top: 3px solid var(--ink); padding: 26px 8px 12px; gap: 14px; }
     #medbox .book .C-node { width: 54px; height: 72px; font-size: 26px; }
     #medbox .book .C-sword { margin: 0 0 0 6px; } #medbox .book .C-sword svg { height: 64px; }
@@ -389,7 +386,7 @@
   }
     #map .tag-name .prog { display: block; margin-top: 3px; font-size: 11px; letter-spacing: .05em; color: var(--crimson); }
     /* 语言设置（文案w，i18n.js）：总地图右上「设」，在「音」左边 */
-    #setbtn { position: fixed; right: calc(max(12px, env(safe-area-inset-right)) + 44px); top: 10px; z-index: 6; width: 34px; height: 34px; border-radius: 50%; padding: 0; font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; background: var(--paper); color: var(--crimson); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    #setbtn { position: fixed; right: calc(max(12px, env(safe-area-inset-right)) + 64px); top: 10px; z-index: 6; width: 34px; height: 34px; border-radius: 50%; padding: 0; font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; background: var(--paper); color: var(--crimson); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
     #setpanel { display: none; position: fixed; right: max(12px, env(safe-area-inset-right)); top: 52px; z-index: 7; padding: 10px 12px 12px; background: var(--paper); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); min-width: 168px; }
     #setpanel.open { display: block; }
     #setpanel .hd { font: 12px -apple-system, "Hiragino Sans GB", sans-serif; letter-spacing: .06em; opacity: .7; margin-bottom: 8px; }
@@ -403,6 +400,20 @@
     body.lang-ja #wipe::after { content: "次の間をしつらえている…"; }
     body.lang-en #map h1 { letter-spacing: .2em; }
     body.lang-ja { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif; }
+    #status { background: rgba(36,30,46,.88); color: #fffaee; opacity: 1; padding: 3px 9px; border-radius: 2px; }
+    #status:empty { display: none; }
+    #help { z-index: 7; pointer-events: auto; opacity: 1; color: var(--paper); text-shadow: none; right: calc(max(12px, env(safe-area-inset-right)) + 64px); }
+    #help summary { width: fit-content; margin-left: auto; padding: 4px 10px; cursor: pointer; background: #383043; border-radius: 2px; }
+    #help[open] { max-width: min(370px,65vw); padding: 9px 12px; line-height: 1.8; background: #383043; text-align: left; }
+    body.touch #help { top: 47px; left: max(14px, env(safe-area-inset-left)); right: auto; text-align: left; }
+    #snd, #mkbtn, #boxbtn { width: auto; min-width: 48px; padding: 0 7px; border-radius: 4px; font-size: 13px; }
+    #case { right: calc(max(12px, env(safe-area-inset-right)) + 66px); }
+    body.lang-en #case { right: calc(max(12px, env(safe-area-inset-right)) + 85px); }
+    #case .k:not(.got) { opacity: .94; background: #efe8dc; }
+    .tag { font-family: inherit; padding: 0; }
+    #loading .pskip { color: var(--ink); opacity: 1; font-size: 15px; padding: 6px 16px; }
+    #medbox .mb-dr { background: repeating-linear-gradient(2deg,transparent 0 6px,#987e5417 7px,transparent 9px),linear-gradient(110deg,#493b43,#2c2530 70%); box-shadow: inset 0 2px 1px #b99a6755,inset 0 -4px 6px #14111c; }
+    #medbox .book .C-room:has(.C-here) { border-color: #80518d; }
   </style>
 </head>
 <body>
@@ -421,7 +432,7 @@
     // 加载提示：程序还没下完时先用这段小脚本显示地点名和轮播提示（tour/loading.js 之后接手进度）
     (function () {
       var L = document.getElementById("loading"), loc = new URLSearchParams(location.search).get("loc");
-      var names = { ooku: "大奥", wanya: "万屋", sakai: "坂井家" }, touch = matchMedia("(pointer: coarse)").matches || /[?&]touch=1/.test(location.search);
+      var names = { ooku: "大奥", wanya: "万屋", sakai: "坂井家", fuenokouji: "笛小路家", solaris: "そらりす丸", subway: "地下铁", prison: "牢房" }, touch = matchMedia("(pointer: coarse)").matches || /[?&]touch=1/.test(location.search);
       L.querySelector(".where").textContent = loc ? "正在进入「" + (names[loc] || loc) + "」" : "正在展开绘卷";
       if (!touch) L.querySelector(".wifi").remove();
       var tips = touch
@@ -432,13 +443,13 @@
       show(); setInterval(show, 4000);
     })();
   </script>
-  <button id="snd" title="声音开关（B）">音</button>
-  <button id="mkbtn" title="物怪出没：开">怪</button>
-  <button id="boxbtn" title="药箱：斩过的物怪和执念物（I）">箱</button>
+  <button id="snd" title="声音开关（B）">声音</button>
+  <button id="mkbtn" title="物怪出没：开">物怪</button>
+  <button id="boxbtn" title="药箱：斩过的物怪和执念物（I）">药箱</button>
   <div id="medbox" role="dialog" aria-label="药箱"><div class="mb-box"><div class="mb-count"></div><button class="mb-book" aria-label="翻开案卷">案卷</button><button class="mb-x" aria-label="关上药箱">×</button><div class="mb-grid"></div></div><div class="mb-tray"></div></div>
   <div id="mkink"></div>
   <div id="mk"></div>
-  <div id="help"><span class="keys">点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · T 放天秤 · P 拍照 · F 换滤镜 · O 换姿势 · X 拔剑 · M 总地图 · B 声音 · 物怪出没时 J 投札、空格闪避、K 跳、L 瞬移 · I 药箱</span><span class="fingers">左边摇杆走路 · 右边摇杆转视角 · 两指缩放</span></div>
+  <details id="help"><summary>操作</summary><span class="keys">WASD / ↑↓←→ · Shift<br>点地面走 · 拖动转镜头 · 滚轮远近 · E 看说明 · T 放天秤 · P 拍照 · F 换滤镜 · O 换姿势 · X 拔剑 · M 总地图 · B 声音 · 物怪出没时 J 投札、空格闪避、K 跳、L 瞬移 · I 药箱</span><span class="fingers">左边摇杆走路 · 右边摇杆转视角 · 两指缩放</span></details>
   <div id="look"><div class="knob">视角</div></div>
   <div id="pad"><button class="b-sword" data-k="KeyX">拔剑</button><button class="b-photo" data-k="KeyP">拍照</button><button class="b-pose" data-k="KeyO">姿势</button><button class="b-scale" data-k="KeyT">秤</button><button class="b-ofuda" data-k="KeyJ">札</button><button class="b-dodge" data-k="Space">闪</button><button class="b-jump" data-k="KeyK">跳</button><button class="b-blink" data-k="KeyL">瞬</button><button class="b-filter" data-k="KeyF">滤镜</button><button class="b-map" data-k="KeyM">地图</button></div>
   <div id="stick"><div class="base"><div class="knob"></div></div></div>

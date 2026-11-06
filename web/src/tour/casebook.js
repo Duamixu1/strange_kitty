@@ -48,7 +48,7 @@ export function mountCasebook(el, get) {
     const nodes = m.clues.map((c) => `<button class="C-node ${c.st}${T === c.c ? " on" : ""}" data-node="${c.c}" style="--cc:${CC[c.c]}">${c.c}<span class="n">${c.items.filter((i) => i.got).length} / ${c.items.length}</span></button>`).join("");
     const sword = `<div class="C-sword${lit === 3 ? " on" : ""}"><svg viewBox="0 0 26 96"><g fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4 L17 12 L17 62 L9 62 L9 12 Z"/><path d="M3 64 H23"/><path d="M11 66 H15 V90 H11 Z"/></g>${lit === 3 ? "" : `<path d="M4 70 L22 84 M22 70 L4 84" stroke="currentColor" stroke-width="1.5"/>`}</svg>${m.done ? "已退魔" : lit === 3 ? "可出鞘" : "未出鞘"}</div>`;
     const fgot = m.finds.filter((f) => f.got).length;
-    const tabs = [...m.clues.map((c) => [c.c, `<b style="color:${CC[c.c]}">${c.c}</b>${c.items.filter((i) => i.got).length}/${c.items.length}`]), ["见闻", `见闻 ${m.seen.length}`], ...(m.finds.length ? [["拾遗", `拾遗 ${fgot}/${m.finds.length}`]] : [])];
+    const tabs = [["见闻", `见闻 ${m.seen.length}`], ...(m.finds.length ? [["拾遗", `拾遗 ${fgot}/${m.finds.length}`]] : [])];
     const empty = (t = "……") => `<li class="un"><span class="ic"></span><small>　</small><span>${t}</span></li>`;
     const li = (i, c) => i.got
       ? `<li class="${sel === i.k ? "sel" : ""}"><span class="ic${c ? "" : i.kind === "find" ? " f" : " s"}" ${c ? `style="--pc:${CC[c]}"` : ""}>${KIND[i.kind] || "观"}</span><small>${m.roomName[i.room] || i.room} · ${i.src}</small><span>${i.note}</span></li>`
@@ -58,11 +58,11 @@ export function mountCasebook(el, get) {
     if (cl) body = `<div class="ln ${cl.st}">${cl.st === "lit" ? cl.line : cl.st === "held" ? `线索齐了，但还说不通：${cl.hold}` : "还没查到"}</div><ul>${cl.items.map((i) => li(i, cl.c)).join("")}</ul>`;
     else if (T === "见闻") body = `<ul>${m.seen.map((i) => li(i)).join("") || empty("还没有")}</ul>`;
     else body = `<ul>${m.finds.map((i) => li(i)).join("")}</ul>`;
-    return `<div class="C-wrap"><div class="C-plan" style="grid-template-columns:repeat(${P.cols || 5},minmax(0,1fr))"><span class="hd">${m.name}<small>${m.mononoke} · 形、真、理 ${lit} / 3</small></span><span class="compass">${P.compass || "↑ 深处　↓ 门前"}</span>${rooms}</div>
+    return `<div class="C-wrap"><div class="C-plan" style="--rows:${P.rows || 6};grid-template-columns:repeat(${P.cols || 5},minmax(0,1fr))"><span class="hd">${m.name}<small>${m.mononoke} · 形、真、理 ${lit} / 3</small></span><span class="compass">${P.compass || "↑ 深处　↓ 门前"}</span>${rooms}</div>
       <div class="C-side"><span class="hd">札</span>${nodes}${sword}</div><svg class="C-svg"></svg></div>
       <div class="C-legend"><span><i style="background:${CC.形}"></i>形</span><span><i style="background:${CC.真}"></i>真</span><span><i style="background:${CC.理}"></i>理</span>
         <span>观　看过的観</span><span>人　配角的话</span><span>掌　做过的事</span><span>拾　拾遗</span><span>门上发光的小札　门后还有没查的</span></div>
-      <div class="C-notes"><div class="C-tabs">${tabs.map(([k, t]) => `<button data-tab="${k}" class="${k === T ? "on" : ""}">${t}</button>`).join("")}</div><div class="C-body">${body}</div></div>`;
+      <div class="C-notes"><div class="C-tabs">${cl ? `<b style="color:${CC[cl.c]}">${cl.c}</b>` : ""}${tabs.map(([k, t]) => `<button data-tab="${k}" class="${k === T ? "on" : ""}">${t}</button>`).join("")}</div><div class="C-body">${body}</div></div>`;
   }
   function after(m) {
     const wrap = el.querySelector(".C-wrap"), svg = el.querySelector(".C-svg"); if (!wrap) return;

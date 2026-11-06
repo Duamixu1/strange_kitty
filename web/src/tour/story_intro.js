@@ -9,7 +9,7 @@ import { asset, pub } from "../paths.js";
 
 const SEEN = "mononoke_tour_intro";
 const DRAFT = [
-  { k: "怪化猫 · 游览", t: "他只是个卖药的\n他到的地方\n总有奇怪的事发生", b: "大奥 · 万屋 · 坂井家 · 笛小路家", art: "yorozu" },
+  { k: "怪化猫 · 游览", t: "他只是个卖药的\n他到的地方\n总有奇怪的事发生", art: "yorozu" },
   { k: "物怪", t: "怨　执　舍不得\n这些念头遇见了妖\n就会变成物怪", art: "sumi" },
   { k: "退魔剑", t: "药郎的药箱里有一把剑\n在等待答案", art: "klimt" },
   { k: "形 · 真 · 理", t: "它是什么　出过什么事\n为何不走\n三样齐了　剑才出鞘", art: "noh" },

@@ -3,6 +3,7 @@
 # 正门 E 出去是雨夜外景 wanya_soto；k 是一个黑影客人（10-31 挪到柜台东边靠墙的角落，原来在出生点、观景点镜头正前方）。
 # 第二轮（10-30）：门上大拱形彩玻、长押以上花卉画带、柜台后一排金襖 + 柜台"同"字牌、正门到柜台一条红地毯（参考 05、09）。
 name: wanya_genkan
+reception_details: on
 height: 3.2
 ceiling: goten_teal
 fanlight: big

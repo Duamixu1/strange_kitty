@@ -115,7 +115,8 @@ export class FollowCam {
       // 看点平滑跟（刚切进这个机位那一下直接到位）
       if (this.cutT === 0 || snap || !this._fixLook) this._fixLook = look; else this._fixLook.lerp(look, 1 - Math.exp(-6 * dt));
       this.camera.lookAt(this._fixLook); this.camera.updateMatrixWorld();
-      this.updateCutout(player);
+      if (f.close) CUTOUT.depth.value = 0;
+      else this.updateCutout(player);
       return;
     }
     if (this.fixedOn) { this.fixedOn = null; snap = true; }   // 从固定机位走出来：直接切回跟随，不从固定机位滑过来

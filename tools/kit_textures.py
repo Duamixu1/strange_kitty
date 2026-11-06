@@ -776,6 +776,16 @@ def dotted(name, frac, base="paper", size=512):
     Image.fromarray(a).save(OUT / f"{name}.png")
 
 
+def wall_gray():
+    # 廊下的灰泥：纸与墨先调成灰，只在邻近的灰度间扫出细纹，近看不生黑白噪点。
+    rng = np.random.default_rng(37)
+    fiber = rng.normal(0, 1.8, (256, 256))
+    y, x = np.mgrid[:256, :256] * (2 * math.pi / 256)
+    wash = 2.8*np.sin(2*y + .8*np.sin(x)) + 1.4*np.cos(3*x - y)
+    rgb = np.array([155, 148, 148]) + (fiber + wash)[..., None]
+    Image.fromarray(rgb.astype(np.uint8)).save(OUT / "wall_gray.png")
+
+
 def goten_black():
     w = 512 * SS
     im = Image.new("RGB", (w, w), C["ink"]); d = ImageDraw.Draw(im)
@@ -2159,6 +2169,6 @@ if __name__ == "__main__":
     ougi_wall()
     noren_kamon(); fusuma_kamon(); maku_sanshoku(); maku_green(); chochin_kamon(); itado(); fusuma_nami(); rug_tsuru()
     zabuton_maru(); floor_black(); panels_color(); goten_blue(); wall_darkred(); lattice_red(); shiromuku()
-    dotted("wall_gray", 0.55); dotted("earth_dark", 0.74); goten_black(); panels_ybg()
+    wall_gray(); dotted("earth_dark", 0.74); goten_black(); panels_ybg()
     ink_set(); fue_set(); sol_set(); sol_from_scenes(); sub_set(); sub_set2(); sub_set3(); pri_set(); pri_set2(); pri_set3(); pri_set4(); pri_from_scenes()
     print("→", OUT)

@@ -269,16 +269,16 @@ export function createGuide(ctx) {
   // 11-06 用户："笛小路家斩完物怪之后可以引导用户出到外面，看到彩色的景色之后再显示结案札"。
   //   case 写 closeAt（区块 id 列表）：本命不在这些区块里退的，退完不弹结案札，记 S.outWait，出口里往外走的那一个亮金札、
   //   别的压暗，浮一句往外走；走进 closeAt 的区块，停几秒让人看颜色，再弹
-  function outNext() {
-    if (!C?.closeAt) return null;
-    const goal = new Set(C.closeAt), q = [[zid(), null]], seen = new Set([zid()]);
+  function nextDoor(goal) {
+    const q = [[zid(), null]], seen = new Set([zid()]);
     while (q.length) {
       const [z, first] = q.shift();
-      if (first && goal.has(z)) return first;
+      if (first && goal(z)) return first;
       for (const e of loc.zones?.[z]?.exits || []) if (!seen.has(e.to)) { seen.add(e.to); q.push([e.to, first || e.to]); }
     }
     return null;
   }
+  const outNext = () => nextDoor((id) => C?.closeAt?.includes(id));
   const OUT_LINE = () => texts[`out.${loc.id}`] || "香散了。到外面去看看。";
   function decorateExits() {
     const Z = ctx.zone(); if (!Z) return;
@@ -337,13 +337,20 @@ export function createGuide(ctx) {
     const t = actText(a), face = a.face || a.pos, fxs = [].concat(a.fx || "incense");
     const anim = a.anim && P.has(a.anim) ? a.anim : P.has("seal_k") ? "seal_k" : "nod_k";
     if (a.cam) ctx.shot?.(a.cam);
-    ctx.perform(anim, a.sec || Math.max(2.8, ...fxs.map((f) => DEF_SEC[f] || 0)), Math.atan2(face[0] - player.position.x, face[1] - player.position.z));
-    await sleep(700);
-    await Promise.all(fxs.map((f) => FX[f]?.(a, face)));   // 几样效果一起放，都放到该浮那句话的时候
-    showLine(t.line || DEF_LINE[fxs[0]] || "……"); audio.play("release", 1);
-    await sleep(3600);   // 那句看完，再记线索（字要浮起来的话不跟这句抢）
-    if (a.cam) ctx.shot?.(null);
-    mark(`${zid()}/act:${a.id}`); acting = false;
+    const yaw = Math.atan2(face[0] - player.position.x, face[1] - player.position.z);
+    const sec = a.sec || Math.max(2.8, ...fxs.map((f) => DEF_SEC[f] || 0));
+    try {
+      await ctx.perform(anim, sec, yaw, async () => {
+        await sleep(700);
+        await Promise.all(fxs.map((f) => FX[f]?.(a, face)));
+        showLine(t.line || DEF_LINE[fxs[0]] || "……"); audio.play("release", 1);
+        await sleep(3600);   // 先读完这句，再盖线索印
+      });
+      mark(`${zid()}/act:${a.id}`);
+    } finally {
+      if (a.cam) ctx.shot?.(null);
+      acting = false;
+    }
   }
   const floorAt = (x, z) => ctx.col()?.floorY(x, z) ?? 0;
   const at3v = (v, dy = 0) => v.length === 3 ? new THREE.Vector3(v[0], v[1] + dy, v[2]) : new THREE.Vector3(v[0], floorAt(v[0], v[1]) + dy, v[1]);
@@ -565,7 +572,7 @@ export function createGuide(ctx) {
     findTags = [];
     for (const f of ctx.zone()?.finds || []) {
       if (has(`${zid()}/find:${f.id}`)) continue;
-      const id = `find:${f.id}`; ctx.tags.add(id, "find", "拾", [f.pos[0], (f.y ?? 0) + 0.5, f.pos[1]]);
+      const id = `find:${f.id}`; ctx.tags.add(id, "find", "拾", [f.pos[0], floorAt(...f.pos) + (f.y ?? 0) + 0.5, f.pos[1]], texts[`find.${loc.id}.${f.id}`]?.title || "拾遗");
       findTags.push({ f, it: ctx.tags.items.at(-1) });
     }
   }
@@ -621,12 +628,22 @@ export function createGuide(ctx) {
   const CAST_CD = 8, CAST_LIFE = 6;
   let castCd = 0; const cast = [];
   function castTarget() {
-    const it = left().length ? target() : null;
-    if (it) return { pos: it.pos, what: "here" };
     const Z = ctx.zone(); if (!Z) return null;
-    const ex = (Z.exits || []).map((e) => ({ e, s: Z.stairs?.[e.stair] })).filter((x) => x.s);
-    const pick = (C && S.ready && !S.done && ex.find((x) => x.e.to === C.boss)) || ex.find((x) => !zoneDone(x.e.to));
-    return pick ? { pos: pick.s.stand, what: pick.e.to === C?.boss && S.ready ? "boss" : "door" } : null;
+    const boss = C && S.ready && !S.done;
+    const next = S.outWait ? outNext() : boss && Z.id !== C.boss ? nextDoor((id) => id === C.boss) : null;
+    if (!next) {
+      const it = target();
+      if (it) {
+        const label = it.kind === "view" ? texts[`${Z.textKey}.${it.key.split(":")[1]}`]?.title
+          : it.kind === "npc" ? names[it.npc.id] || npcText(it.npc.id)?.name
+          : it.kind === "act" ? actText(it.act).label : texts[`find.${loc.id}.${it.find.id}`]?.title || "拾遗";
+        const reach = it.kind === "npc" ? 1.6 : it.kind === "act" ? (it.act.r ?? 1) : 1.1;
+        return { pos: it.pos, what: "here", label: label || Z.name, tol: it.kind === "npc" ? 1.5 : 0.6, reach };
+      }
+    }
+    const nextUnseen = next || nextDoor((id) => !zoneDone(id));
+    const door = (Z.exits || []).find((e) => e.to === nextUnseen);
+    return door ? { pos: Z.stairs[door.stair].stand, what: "door", label: loc.zones[door.to].name } : null;
   }
   function castScales(auto = false) {
     const scaleProp = P.props.find((p) => p.id === "scale")?.prop;
@@ -634,20 +651,21 @@ export function createGuide(ctx) {
     const tg = castTarget();
     if (!tg) { if (!auto) toast("天秤一动不动 · 这一带没有要找的了", 2600); return false; }
     const from = [player.position.x, player.position.z];
-    let pts = ctx.route?.(from, [tg.pos[0], tg.pos[1]], 0.6);
-    if (!pts || pts.length < 2) pts = [from, [tg.pos[0], tg.pos[1]]];
+    const pts = ctx.route?.(from, tg.pos, tg.tol ?? 0.35);
+    if (!pts?.length) { if (!auto) toast(`天秤指向 · ${tg.label}`); return false; }
+    if (pts.length === 1) pts.push(pts[0]);
     // 沿路每隔 1.1 米一只，最多 5 只；最后一只停在离目标 0.6 米处
     const seg = []; let total = 0;
     for (let i = 1; i < pts.length; i++) { const L = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(L); total += L; }
     const at = (d) => { let k = 0; while (k < seg.length - 1 && d > seg[k]) { d -= seg[k]; k++; } const t = seg[k] ? Math.min(1, d / seg[k]) : 0; return [pts[k][0] + (pts[k + 1][0] - pts[k][0]) * t, pts[k][1] + (pts[k + 1][1] - pts[k][1]) * t]; };
     // 从药郎前方 1.4 米起（近了会和他叠在一起），每隔约 1.2 米一只，最多 5 只；最后一只停在离目标 0.6 米处
-    if (tg.what === "here" && total < 1.2) {   // 就在脚边（提示条已经能按 E）：不放了，铃一响、说一句
+    if (tg.what === "here" && Math.hypot(from[0] - tg.pos[0], from[1] - tg.pos[1]) < tg.reach) {
       audio.play("scaleBell", 2, 0.07); toast(ctx.touch ? "天秤指着跟前 · 点提示条看看" : "天秤指着跟前 · 按 E 看看", 2600);
       if (!auto) castCd = 2; return true;
     }
     const near = total < 2.2;   // 就在跟前：只在那样东西正上方立一只
     const end = Math.max(0.6, total - 0.6), first = Math.min(1.4, end), n = near ? 1 : Math.max(1, Math.min(5, Math.round((end - first) / 1.2) + 1));
-    const spots = near ? [[tg.pos[0], tg.pos[1]]] : Array.from({ length: n }, (_, i) => at(n === 1 ? end : first + (end - first) * (i / (n - 1))));
+    const spots = near ? [pts.at(-1)] : Array.from({ length: n }, (_, i) => at(n === 1 ? end : first + (end - first) * (i / (n - 1))));
     clearCast();
     // 天秤模型自己的坐标就是端正的（横梁沿 X 摊开、秤盘往下垂）：正面朝镜头立着，横梁才看得清；
     //   往下一只在画面哪一侧就往哪侧歪（绕自身 Z），一路直直往里走时只微微晃。
@@ -665,13 +683,14 @@ export function createGuide(ctx) {
       const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, transparent: true, depthWrite: false, opacity: 0, color: "#FFF1CF" })); halo.scale.setScalar(0.9); fxRoot.add(halo);
       holder.updateMatrixWorld(true);
       const c = new THREE.Box3().setFromObject(g).getCenter(new THREE.Vector3()); g.position.sub(c);   // 绕天秤中心歪
-      holder.position.set(p[0], floorAt(p[0], p[1]) + (near ? 1.7 : 1.3), p[1]);
+      holder.position.set(p[0], floorAt(p[0], p[1]) + (near ? 0.95 : 0.72), p[1]);
       holder.rotation.y = yaw;
       tilter.scale.setScalar(0.001);
       halo.position.copy(holder.position).addScaledVector(f, 0.15);
       cast.push({ holder, g: tilter, halo, t: -i * 0.35 - (auto ? 0 : 0.5), i, rang: false, axis: "z", tilt: -0.5 * lat });
     });
     if (!auto) {
+      toast(`天秤指向 · ${tg.label}`, 4200);
       castCd = CAST_CD; document.body.classList.add("cast-cd");
       ctx.perform(P.has("reach_k") ? "reach_k" : "nod_k", 0.9, Math.atan2(spots[0][0] - player.position.x, spots[0][1] - player.position.z));
       audio.play("paper");
@@ -717,14 +736,14 @@ export function createGuide(ctx) {
       }
     },
     /** 第一次进这个地点：一张小卡交代案子 */
-    async intro() {
+    async intro(hasPrelude) {
       if (!C || S.intro) return;
       S.intro = true; save();
+      if (hasPrelude) return;
       const t = texts[`case.${loc.id}`] || { title: "这里出了物怪", hook: "要斩物怪，先得知道它的形、真、理。到处看看，问问这家的人。" };
       await card.open({ place: loc.name, title: t.title, body: t.hook });
-      toast("右上角三格：查到一样亮一格", 3600);
-      setTimeout(() => toast(ctx.touch ? "不知道往哪走：点「秤」放天秤，它会指路" : "不知道往哪走：按 T 放天秤，它会指路", 4200), 4000);
     },
+    pickFind(f) { if (ctx.free() && !has(`${zid()}/find:${f.id}`)) pickUp(f); },
     onView(n) { mark(`${zid()}/view:${n}`); },
     /** E：没有観在旁边时，问配角 / 捡拾遗。用掉了返回 true */
     act() {
@@ -780,7 +799,7 @@ export function createGuide(ctx) {
         if (barkT <= 0) { bark.classList.remove("show"); barkOn = null; } else bark.classList.toggle("show", !off);
       }
       // 拾遗：走近 2.5 米才露出"拾"字
-      for (const { f, it } of findTags) { const d = Math.hypot(f.pos[0] - player.position.x, f.pos[1] - player.position.z); it.el.classList.toggle("near", d < 2.5); }
+      for (const { f, it } of findTags) { const d = Math.hypot(f.pos[0] - player.position.x, f.pos[1] - player.position.z); it.el.classList.toggle("near", d < 2.5); it.el.tabIndex = d < 2.5 ? 0 : -1; }
       document.body.classList.toggle("photo-spot", free && photoAt() >= 0);
       // 天秤：朝还没找的东西倾，越近晃得越快；区块查完就停
       const scale = P.props.find((p) => p.id === "scale")?.prop;

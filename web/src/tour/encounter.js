@@ -274,7 +274,8 @@ export function createEncounter(ctx) {
     P.play(real ? JUMP.clip : "idle", 0.06);
     air = { t: 0 };
     slide = { dir: face + Math.PI, dist: 0.3, t: -JUMP.up, dur: JUMP.down - JUMP.up };
-    hold = dur; inv = JUMP.down + 0.05; jumpCD = 0.9; pendingThrow = null;
+    // 落地收势时还不能移动，闪避覆盖这一拍，避免一次扑击在动作末尾又判命中。
+    hold = dur; inv = Math.min(dur, JUMP.dur); jumpCD = 0.9; pendingThrow = null;
     audio.play("jump");
   }
   // 瞬移：化成一把札纸散掉，在 2.4 米外（按着方向键就往那边，不按就往物怪的侧面）现身；冷却 3 秒

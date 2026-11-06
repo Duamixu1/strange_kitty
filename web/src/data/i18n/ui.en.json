@@ -1,4 +1,10 @@
 {
+ "操作": "Controls",
+ "前往": "On the way",
+ "天秤指向": "The scales point to",
+ "静音": "Muted",
+ "声音": "Sound",
+ "物怪": "Mononoke",
  "_说明": "界面字对照表（文案w）。键是代码里写死的中文，{0}{1} 是变量；i18n.js 在网页上查表替换。text.json 的内容另在 data/tour/text.en.json。",
  "怪化猫游览": "Mononoke · A Walking Tour",
  "怪化猫 · 游览": "Mononoke · Tour",
