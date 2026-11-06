@@ -1,11 +1,7 @@
-// 11-06 用户："可以在首页，进入地图前放一些文字的闪卡或者是介绍，方便用户对这个故事有个基本的了解，并且方便之后的内容先加载"。
-// 11-06 第二版（文案w）：用户说"有点普通，最好不要太多字，可以有一些浮世绘风格的简笔画，点击翻页（像翻手册），尽量简单、加载快"。
-//   一本竖着的小手册：每页一幅浮世绘味的简笔画（内联 SVG，不下图片）+ 一句话（+ 可选一行小字）；
-//   点一下，这页沿左边书脊翻过去；点左边四分之一往回翻。画用游览版那套色（纸、墨、朱、赭金、青、藤紫）。
-// 翻的时候后台把各地点都要用的东西（药郎模型、药箱小物件、长卷图）先下进浏览器缓存，进地点时就快。
-// 看过记在本机；总地图左上「缘起」能再看。字读 text.json 的 intro.cards（文案w：{k 竖排标题, t 一句, b? 小字, art? 画, go? 最后一页按钮}），没有就用这里的底稿。
-// 键：→ / 空格 / 回车 下一页，← 上一页，Esc 跳过；手机点页面右边下一页、左边四分之一上一页，左右划也行。
 import { asset, pub } from "../paths.js";
+
+import { ORDER, DEFS, svg } from "./story_art.js";
+import "./story_intro.css";
 
 const SEEN = "mononoke_tour_intro";
 const DRAFT = [
@@ -16,41 +12,10 @@ const DRAFT = [
   { k: "启程", t: "雨还在下\n但故事已经开始了", go: "展开长卷", art: "taisho" },
 ];
 
-import { ART, ORDER, DEFS, svg } from "./story_art.js";   // 第三版的 SVG 插图，现在只在图片读不出来时顶上
-// 插图第四版（11-06 用户嫌 SVG 丑，要 Tripo 出图，人脸吓人的两张重出过）：public/textures/intro/intro_<art>.webp，680 宽，每张 30~70KB；
-// 原图在 assets/concept/scenes/90~94_缘起_*.png（tools/scenes.json）。
-const artImg = (name) => `<img src="${pub(`textures/intro/intro_${name}.webp`)}" alt="" data-art="${name}" decoding="async">`;
-
-function css() {
-  if (document.getElementById("story-intro-css")) return;
-  const s = document.createElement("style"); s.id = "story-intro-css";
-  s.textContent = `
-  #story-intro { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 16px;
-    background: var(--navy); font-family: "Songti SC", "Noto Serif CJK SC", "Hiragino Mincho ProN", serif; color: var(--ink); opacity: 0; transition: opacity .45s; }
-  body.lang-ja #story-intro { font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; }
-  #story-intro.show { opacity: 1; }
-  #story-intro .si-book { position: relative; width: min(360px, 88vw, 58vh); aspect-ratio: 3 / 4; perspective: 1400px; }
-  #story-intro .si-book::before, #story-intro .si-book::after { content: ""; position: absolute; inset: 0; background: #E2D7C2; border: 2px solid var(--ink); }
-  #story-intro .si-book::before { transform: translate(5px, 5px); } #story-intro .si-book::after { transform: translate(10px, 10px); background: #D3C7AF; z-index: -1; }
-  #story-intro .si-page { position: absolute; inset: 0; z-index: 1; box-sizing: border-box; padding: 26px 22px 40px; background: var(--paper) linear-gradient(90deg, rgba(50,45,72,.13), rgba(50,45,72,0) 16px);
-    border: 2px solid var(--ink); display: flex; flex-direction: column; align-items: center; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
-    transform-origin: left center; transition: transform .75s cubic-bezier(.35,.6,.25,1), opacity .75s; backface-visibility: hidden; }
-  #story-intro .si-page.gone { transform: rotateY(-165deg); opacity: 0; pointer-events: none; }
-  #story-intro .si-k { position: absolute; right: 14px; top: 16px; writing-mode: vertical-rl; font-size: 15px; letter-spacing: .35em; color: var(--crimson);
-    border-left: 1.5px solid rgba(50,45,72,.3); padding-left: 6px; max-height: 46%; overflow: hidden; }
-  #story-intro .si-art { width: 96%; margin: 14px 22px 0 0; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; }
-  #story-intro .si-art svg, #story-intro .si-art img { width: 100%; height: auto; max-height: 100%; display: block; box-shadow: 2px 3px 0 rgba(50,45,72,.25); }
-  #story-intro .si-art img { aspect-ratio: 680 / 483; object-fit: cover; border: 2px solid var(--ink); box-sizing: border-box; background: #E2D7C2; }
-  #story-intro .si-t { font-size: clamp(15px, 2.6vh, 18px); line-height: 1.6; text-align: center; margin: 10px 4px 0; letter-spacing: .04em; text-wrap: balance; white-space: pre-line; }   /* 文案里的 \n 在逗号后断行，手机上不会把一个词拆成两行 */
-  #story-intro .si-b { font-size: 12px; opacity: .6; margin-top: 6px; letter-spacing: .08em; text-align: center; text-wrap: balance; }
-  #story-intro .si-no { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font-size: 12px; letter-spacing: .3em; opacity: .45; }
-  #story-intro .si-go { margin-top: 12px; border: 2px solid var(--ink); background: var(--crimson); color: var(--paper); font: inherit; font-size: 14px; letter-spacing: .2em; padding: 6px 18px; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
-  #story-intro .si-hint { color: var(--paper); opacity: .55; font: 12px -apple-system, "PingFang SC", sans-serif; letter-spacing: .15em; transition: opacity .4s; }
-  #story-intro .si-hint.off { opacity: 0; }
-  #story-intro .si-skip { position: fixed; top: 16px; right: 18px; background: transparent; border: 1px solid rgba(241,233,218,.4); color: var(--paper); opacity: .7; font: 13px -apple-system, "PingFang SC", sans-serif; letter-spacing: .1em; padding: 6px 14px; cursor: pointer; }
-  #story-intro .si-load { position: fixed; bottom: 16px; left: 0; right: 0; text-align: center; color: var(--paper); opacity: .4; font: 12px -apple-system, "PingFang SC", sans-serif; letter-spacing: .15em; }
-  `;
-  document.head.appendChild(s);
+function artImg(name) {
+  const path = pub(`textures/intro/intro_${name}`);
+  return `<img src="${path}.webp" srcset="${path}.webp 680w, ${path}_1600.webp 1600w"
+    sizes="(orientation: landscape) and (max-width: 900px) 54vw, (orientation: landscape) 64vw, 100vw" alt="" data-art="${name}" draggable="false" decoding="async">`;
 }
 
 /** 后台先下的东西（进浏览器缓存；进地点时 GLTFLoader 再取就快了） */
@@ -66,31 +31,49 @@ const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<
 
 /** 放缘起手册；关掉时 resolve。warmUrls：翻页时顺手先下的文件（相对资源路径） */
 export function storyIntro(texts, warmUrls = []) {
-  css();
   const cards = texts?.["intro.cards"]?.length ? texts["intro.cards"] : DRAFT;
   const n = cards.length;
-  const el = document.createElement("div"); el.id = "story-intro";
-  const defs = DEFS;   // 纹样、滤镜（几张画共用）
-  const pages = cards.map((c, k) => `<div class="si-page" data-i="${k}" style="z-index:${n - k + 1}">
-      <div class="si-k">${esc(c.k)}</div><div class="si-art">${artImg(c.art || ORDER[k % ORDER.length])}</div>
-      <div class="si-t">${esc(c.t)}</div>${c.b ? `<div class="si-b">${esc(c.b)}</div>` : ""}
-      ${k === n - 1 ? `<button class="si-go">${esc(c.go || "展开长卷")}</button>` : ""}<div class="si-no">${k + 1} / ${n}</div></div>`).join("");
-  el.innerHTML = `${defs}<div class="si-book">${pages}</div><div class="si-hint">点一下翻页</div><button class="si-skip">跳过 Esc</button><div class="si-load"></div>`;
+  const el = document.createElement("dialog"); el.id = "story-intro";
+  el.setAttribute("aria-label", "缘起");
+  const pages = cards.map((c, k) => `<section class="si-page" style="z-index:${n - k}">
+      <div class="si-art">${artImg(c.art || ORDER[k % ORDER.length])}</div>
+      <div class="si-copy">
+        <h2 class="si-k">${esc(c.k)}</h2>
+        <p class="si-t">${esc(c.t)}</p>${c.b ? `<p class="si-b">${esc(c.b)}</p>` : ""}
+        ${k === n - 1 ? `<button class="si-go">${esc(c.go || "展开长卷")}</button>` : ""}
+      </div></section>`).join("");
+  el.innerHTML = `${DEFS}<div class="si-book" tabindex="-1" autofocus>${pages}</div>
+    <button class="si-skip">跳过<small>Esc</small></button>
+    <footer class="si-footer"><span class="si-load"></span>
+      <div class="si-nav"><button class="si-prev" aria-label="上一张">‹</button>
+        <span class="si-no" aria-live="polite"></span>
+        <button class="si-next" aria-label="下一张">›</button></div></footer>`;
   document.body.appendChild(el);
+  el.showModal();
   el.querySelectorAll(".si-art img").forEach((im) => im.addEventListener("error", () => { im.outerHTML = svg(im.dataset.art); }, { once: true }));   // 图片挂了用 SVG 顶上
   const $ = (s) => el.querySelector(s), all = [...el.querySelectorAll(".si-page")];
   const w = warm(warmUrls.filter((u) => typeof u === "string").map((u) => asset(u)));
   const loadTick = setInterval(() => { $(".si-load").textContent = w.done >= w.total ? "行李备好了" : `正在备行李 ${w.done} / ${w.total}`; }, 300);
   let i = 0;
   return new Promise((resolve) => {
-    const show = (k) => { i = Math.max(0, Math.min(n - 1, k)); all.forEach((p, j) => p.classList.toggle("gone", j < i)); if (i > 0) $(".si-hint").classList.add("off"); };
+    function show(k) {
+      i = Math.max(0, Math.min(n - 1, k));
+      all.forEach((p, j) => {
+        p.classList.toggle("gone", j < i);
+        p.inert = j !== i;
+      });
+      $(".si-no").textContent = `${i + 1} / ${n}`;
+      $(".si-prev").disabled = i === 0;
+      $(".si-next").disabled = i === n - 1;
+    }
     function close() {
       try { localStorage.setItem(SEEN, "1"); } catch {}
       removeEventListener("keydown", onKey, true); clearInterval(loadTick);
-      el.classList.remove("show"); setTimeout(() => el.remove(), 450); resolve();
+      el.classList.remove("show"); setTimeout(() => { el.close(); el.remove(); }, 450); resolve();
     }
     const next = () => (i === n - 1 ? close() : show(i + 1));
     function onKey(e) {
+      if (["Enter", "Space"].includes(e.code) && e.target.closest?.("button")) return;
       if (["ArrowRight", "Space", "Enter", "KeyD"].includes(e.code)) next();
       else if (["ArrowLeft", "KeyA"].includes(e.code)) show(i - 1);
       else if (e.code === "Escape") close();
@@ -98,10 +81,14 @@ export function storyIntro(texts, warmUrls = []) {
       e.preventDefault(); e.stopPropagation();
     }
     addEventListener("keydown", onKey, true);
+    $(".si-prev").addEventListener("click", () => show(i - 1));
+    $(".si-next").addEventListener("click", () => show(i + 1));
+    el.addEventListener("cancel", (e) => { e.preventDefault(); close(); });
     $(".si-go")?.addEventListener("click", (e) => { e.stopPropagation(); close(); });
     $(".si-skip").addEventListener("click", (e) => { e.stopPropagation(); close(); });
     let down = null;
-    $(".si-book").addEventListener("pointerdown", (e) => { down = { x: e.clientX, t: Date.now() }; });
+    $(".si-book").addEventListener("pointercancel", () => { down = null; });
+    $(".si-book").addEventListener("pointerdown", (e) => { down = { x: e.clientX }; });
     $(".si-book").addEventListener("pointerup", (e) => {
       if (!down || e.target.closest(".si-go")) return; const dx = e.clientX - down.x; down = null;
       if (Math.abs(dx) > 40) return dx < 0 ? next() : show(i - 1);   // 左右划
