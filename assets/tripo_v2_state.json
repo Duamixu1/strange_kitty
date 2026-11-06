@@ -113,5 +113,47 @@
   "nue": {
     "model_task": "b829e44f-be19-47e6-9bc5-5f9ec078a6cf",
     "model_file": "assets/tripo_raw/nue.glb"
+  },
+  "muromachi": {
+    "model_task": "05bce90a-2105-4f5d-b452-88137eaf8f37",
+    "model_file": "assets/tripo_raw/muromachi.glb",
+    "rigcheck_task": "7daea3ec-42ba-4571-a4f8-e521b9885aa1",
+    "rig_task": "88621e6c-1673-491c-9d26-cdfc936aa346",
+    "rig_file": "assets/tripo_raw/anims/muromachi_rigged.glb"
+  },
+  "nakarai": {
+    "model_task": "076f8dab-1b66-4ff2-bf82-4f17d375e3ce",
+    "model_file": "assets/tripo_raw/nakarai.glb",
+    "rigcheck_task": "fb3cce9c-d413-4dbc-a450-f8a04095004a",
+    "rig_task": "3fbe66b0-d3fe-44b3-8130-79732003cd83",
+    "rig_file": "assets/tripo_raw/anims/nakarai_rigged.glb"
+  },
+  "osawa": {
+    "model_task": "955eda20-70de-4ea5-9071-91d2230f9cf1",
+    "model_file": "assets/tripo_raw/osawa.glb",
+    "rigcheck_task": "e77042ae-44b8-4795-9d7f-79d5e0787b6f",
+    "rig_task": "43798209-c667-4b38-92a3-4eb0b3648ffd",
+    "rig_file": "assets/tripo_raw/anims/osawa_rigged.glb"
+  },
+  "roni": {
+    "model_task": "e499e218-2aad-46f0-b5c9-e346adaf7d52",
+    "model_file": "assets/tripo_raw/roni.glb",
+    "rigcheck_task": "2823507b-2643-4c76-9ab6-d36415672d4e",
+    "rig_task": "64936741-8b00-4fab-9f1a-f0d84d82913c",
+    "rig_file": "assets/tripo_raw/anims/roni_rigged.glb"
+  },
+  "ruri": {
+    "model_task": "df2609e6-b44c-429b-b1b6-cb933bdfb337",
+    "model_file": "assets/tripo_raw/ruri.glb",
+    "rigcheck_task": "6d4d556f-0576-4f21-a7f2-6e450542cb5c",
+    "rig_task": "b3559282-a06b-488b-83f0-fb9b17a2a008",
+    "rig_file": "assets/tripo_raw/anims/ruri_rigged.glb"
+  },
+  "ruri2": {
+    "model_task": "c4fbdf53-cc7b-4565-89ec-032c15442a54",
+    "model_file": "assets/tripo_raw/ruri2.glb",
+    "rigcheck_task": "8bc48529-1c19-4400-9860-804eda4fe5e8",
+    "rig_task": "aa011b94-c556-40c3-80b9-8dfef4e5a9f6",
+    "rig_file": "assets/tripo_raw/anims/ruri2_rigged.glb"
   }
 }

@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>线索册 · 五版方案</title>
+<!-- 游29 线索册（案卷）的美术草案（文案线，11-05）。只在本机 dev 服务器上看：build_site 只打 tour.html，不会发布这页。
+     文字全是 text.json 里坂井家那一套（note.sakai、mononoke.sakai、hold.sakai.理、find.sakai.*），立绘用 assets/processed/zukan/bakeneko.jpg。
+     上面"进度"三档切换：刚进门 / 查到一半（形亮了、理说不通、真没查到）/ 全齐，每一版都按同一份进度画。 -->
+<style>
+  :root { --paper: #F1E9DA; --paper2: #E8DCC4; --ink: #322D48; --navy: #2A2A4E; --crimson: #B42A47; --coral: #E6667A; --gold: #C9A23A;
+    --ochre: #DCC67C; --teal: #49B3A6; --green: #59B86A; --wisteria: #6A4C8C; --lavender: #D6D3EF; --lacquer: #1B1622; --mute: #7A7088; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ECE4D4; color: var(--ink); font: 15px/1.7 "Songti SC", "Hiragino Mincho ProN", serif; }
+  header { padding: 22px 28px 6px; }
+  header h1 { margin: 0; font-size: 24px; letter-spacing: .12em; }
+  header p { margin: 4px 0 0; color: var(--mute); font-size: 13px; max-width: 980px; }
+  .bar { display: flex; gap: 18px; padding: 10px 28px 0; flex-wrap: wrap; align-items: center; }
+  .bar .grp { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .bar .lab { font-size: 12px; color: var(--mute); letter-spacing: .1em; margin-right: 2px; }
+  .bar button { font: inherit; padding: 5px 14px; border: 2px solid var(--ink); background: var(--paper); cursor: pointer; box-shadow: 2px 2px 0 var(--ink); letter-spacing: .08em; color: var(--ink); }
+  .bar button.on { background: var(--ink); color: var(--paper); }
+  .bar .st button { font-size: 13px; padding: 3px 10px; box-shadow: 1px 1px 0 var(--ink); }
+  .ver { display: none; padding: 18px 28px 40px; gap: 26px; grid-template-columns: 320px 1fr; align-items: start; }
+  .ver.on { display: grid; }
+  @media (max-width: 960px) { .ver.on { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 600px) { header, .bar, .ver { padding-left: 16px; padding-right: 16px; } }
+  .spec { background: var(--paper); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); padding: 18px 20px; }
+  .spec h2 { margin: 0 0 2px; font-size: 26px; letter-spacing: .14em; }
+  .spec .sub { color: var(--crimson); font-size: 13px; letter-spacing: .1em; margin-bottom: 8px; }
+  .spec dt { margin-top: 12px; font-size: 12px; color: var(--paper); background: var(--crimson); display: inline-block; padding: 1px 10px; letter-spacing: .15em; }
+  .spec dd { margin: 6px 0 0; font-size: 14px; }
+  .stage { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  .hint { font-size: 12px; color: var(--mute); }
+  .vt { writing-mode: vertical-rl; }
+
+  /* ============ A 绘卷 ============ */
+  .A-frame { position: relative; background: #5a3b2a; padding: 14px 0; border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+  .A-frame::before, .A-frame::after { content: ""; position: absolute; top: -8px; bottom: -8px; width: 16px; background: linear-gradient(90deg, #3a2418, #8a5a3a 45%, #3a2418); border: 2px solid var(--ink); z-index: 2; }
+  .A-frame::before { right: -8px; } .A-frame::after { left: -8px; }
+  .A-scroll { overflow-x: auto; direction: rtl; scrollbar-width: thin; }
+  .A-roll { direction: ltr; display: inline-flex; flex-direction: row-reverse; height: 420px; background: var(--paper); position: relative;
+    border-top: 14px solid transparent; border-bottom: 14px solid transparent;
+    border-image: repeating-radial-gradient(circle at 50% 100%, var(--navy) 0 3px, var(--gold) 3px 4px, var(--navy) 4px 7px) 14; }
+  .A-sec { writing-mode: vertical-rl; height: 100%; padding: 22px 18px; position: relative; flex: none; }
+  .A-title { background: var(--navy); color: var(--paper); padding: 26px 22px; }
+  .A-title span { display: block; }
+  .A-title .t { font-size: 30px; letter-spacing: .3em; }
+  .A-title .s { font-size: 13px; color: var(--gold); margin-right: 10px; letter-spacing: .2em; }
+  .A-title .p { margin-right: 18px; font-size: 13px; letter-spacing: .1em; color: var(--lavender); }
+  .A-char { display: inline-grid; place-items: center; width: 54px; height: 54px; font-size: 34px; border: 3px solid currentColor; color: #c9bfae; margin-left: 14px; writing-mode: horizontal-tb; }
+  .A-sec.lit .A-char { color: var(--paper); background: var(--crimson); border-color: var(--crimson); box-shadow: 3px 3px 0 var(--gold); }
+  .A-sec.held .A-char { color: var(--crimson); border-style: dashed; }
+  .A-line, .A-clue { display: block; }
+  .A-line { font-size: 21px; letter-spacing: .14em; color: var(--crimson); margin-left: 16px; padding-right: 8px; border-right: 3px solid var(--gold); }
+  .A-sec.none .A-line, .A-sec.held .A-line { color: #bfb5a3; border-right-color: #d8cdb8; font-size: 17px; }
+  .A-clue { margin-left: 12px; font-size: 15px; letter-spacing: .08em; }
+  .A-clue b { font-weight: normal; font-size: 12px; color: var(--paper); background: var(--ink); padding: 6px 1px; margin-bottom: 6px; display: inline-block; }
+  .A-clue.un { color: #cfc5b3; letter-spacing: .5em; }
+  .A-tab { position: absolute; top: -14px; left: -6px; writing-mode: vertical-rl; background: var(--coral); color: var(--paper); font-size: 13px; padding: 8px 4px; box-shadow: 2px 2px 0 var(--ink); max-height: 300px; letter-spacing: .06em; transform: rotate(2deg); }
+  .A-kasumi { width: 70px; flex: none; position: relative; }
+  .A-kasumi i { position: absolute; left: 4px; right: 4px; height: 26px; border-radius: 14px; background: var(--gold); opacity: .8;
+    background-image: radial-gradient(circle, rgba(255,240,200,.55) 1px, transparent 1.6px); background-size: 7px 7px; }
+  .A-sec.side { font-size: 14px; }
+  .A-sec.side .A-char { width: 44px; height: 44px; font-size: 24px; color: var(--ink); }
+  .A-sec.side .A-clue { font-size: 14px; }
+
+  /* ============ B 三札 ============ */
+  .B-board { background: var(--lacquer); border: 3px solid #0d0a12; box-shadow: 5px 5px 0 #0d0a12; padding: 30px 22px 22px; position: relative;
+    background-image: radial-gradient(circle at 50% 50%, rgba(201,162,58,.16) 1px, transparent 1.5px); background-size: 11px 11px; }
+  .B-board .hd { position: absolute; left: 22px; top: 8px; color: var(--gold); font-size: 13px; letter-spacing: .2em; }
+  .B-row { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+  .B-fuda { width: 190px; min-height: 430px; background: var(--paper); position: relative; padding: 14px 12px 14px; border: 2px solid #0d0a12; box-shadow: 4px 4px 0 #0d0a12; display: flex; flex-direction: column; align-items: center; transition: transform .2s; }
+  .B-fuda::before { content: ""; position: absolute; inset: 5px; border: 3px solid var(--crimson); outline: 1px solid var(--gold); outline-offset: -7px; pointer-events: none; }
+  .B-fuda.none::before, .B-fuda.held::before { border-color: #c9bfae; outline-color: #d8cdb8; }
+  .B-eye { width: 70px; height: 34px; margin-top: 6px; }
+  .B-big { font-size: 78px; line-height: 1; margin: 10px 0 4px; color: #ddd3c1; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #c9bfae; }
+  .B-fuda.lit .B-big { color: var(--crimson); text-shadow: 0 0 14px rgba(201,162,58,.7); }
+  .B-fuda.held .B-big { color: #c9a9ae; }
+  .B-line { writing-mode: vertical-rl; position: absolute; right: 13px; top: 64px; font-size: 14px; letter-spacing: .18em; color: var(--crimson); max-height: 170px; line-height: 1.3; }
+  .B-fuda:not(.lit) .B-line { display: none; }
+  .B-slots { display: flex; gap: 8px; margin: 6px 0 10px; }
+  .B-slot { width: 30px; height: 30px; border-radius: 50%; border: 2px dashed #c9bfae; display: grid; place-items: center; font-size: 13px; color: transparent; }
+  .B-slot.got { border: 0; background: var(--crimson); color: var(--paper); transform: rotate(-8deg); box-shadow: inset 0 0 0 2px rgba(241,233,218,.5); }
+  .B-notes { list-style: none; padding: 0; margin: 0; width: 100%; font-size: 13px; line-height: 1.55; z-index: 1; }
+  .B-notes li { padding: 5px 4px 5px 8px; border-top: 1px dotted #b9a98a; }
+  .B-notes li small { display: block; color: var(--mute); font-size: 11px; letter-spacing: .1em; }
+  .B-notes li.un { color: #c4baa8; letter-spacing: .4em; }
+  .B-seal { position: absolute; left: -10px; right: -10px; top: 70px; transform: rotate(-9deg); background: var(--paper2); border: 1px solid #b9a98a; border-left: 0; border-right: 0; padding: 6px 12px; font-size: 13px; text-align: center; box-shadow: 0 2px 0 rgba(0,0,0,.25); z-index: 2; }
+  .B-seal b { color: var(--crimson); font-weight: normal; letter-spacing: .3em; display: block; font-size: 15px; }
+  .B-strips { display: flex; gap: 10px; justify-content: center; margin-top: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .B-strip { writing-mode: vertical-rl; background: var(--paper2); padding: 10px 5px; font-size: 13px; letter-spacing: .08em; max-height: 210px; border-top: 6px solid var(--teal); box-shadow: 2px 2px 0 #0d0a12; }
+  .B-strip small { color: var(--mute); font-size: 11px; margin-left: 4px; }
+  .B-strip.find { border-top-color: var(--gold); }
+  .B-strip.un { color: #9a90a6; background: #2c2433; border-top-color: #4a3f55; }
+  .B-strips .lab { color: var(--gold); font-size: 12px; writing-mode: vertical-rl; letter-spacing: .3em; }
+
+  /* ============ C 宅图（11-05 细化） ============ */
+  .C-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 124px; background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); position: relative; }
+  .C-plan { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(5, 76px) 66px; gap: 9px; padding: 34px 18px 18px; position: relative;
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(0deg, transparent 0 17px, rgba(50,45,72,.07) 17px 18px), repeating-linear-gradient(90deg, transparent 0 17px, rgba(50,45,72,.07) 17px 18px); }
+  .C-plan .hd { position: absolute; left: 18px; top: 8px; font-size: 13px; letter-spacing: .25em; color: var(--ink); }
+  .C-plan .hd small { color: var(--mute); letter-spacing: .1em; margin-left: 8px; }
+  .C-plan .compass { position: absolute; right: 18px; top: 6px; font-size: 11px; color: var(--mute); letter-spacing: .15em; }
+  .C-room { position: relative; border: 3px solid var(--ink); overflow: hidden; background: var(--paper2); }
+  .C-room .tex { position: absolute; inset: 0; background-size: 110px; background-position: center; }
+  .C-room.v::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(42,42,78,.62), rgba(42,42,78,0) 55%); pointer-events: none; }
+  .C-room .nm { position: absolute; left: 7px; top: 5px; z-index: 2; color: var(--paper); font-size: 13.5px; letter-spacing: .14em; }
+  .C-room.tall .nm { writing-mode: vertical-rl; }
+  .C-room.small .tex { background-size: 64px; }
+  .C-room .tex.one { background-size: cover; background-repeat: no-repeat; }
+  .C-room.un { border: 2px dashed #9a92a6; }
+  .C-room.un .tex { filter: grayscale(1) brightness(1.25) contrast(.55); opacity: .4; }
+  .C-room.un .nm { color: var(--mute); }
+  .C-room .slip { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; writing-mode: vertical-rl; background: var(--paper); border: 1px solid #b9a98a; color: var(--mute); font-size: 12px; letter-spacing: .3em; padding: 6px 2px; white-space: nowrap; }
+  .C-pins { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; gap: 6px; flex-wrap: wrap-reverse; justify-content: flex-end; z-index: 2; }
+  .C-pin { width: 27px; height: 27px; border-radius: 50%; padding: 0; display: grid; place-items: center; font-family: inherit; font-size: 12px; line-height: 1; cursor: pointer; transition: opacity .2s, transform .15s;
+    background: var(--paper); color: var(--ink); border: 2px solid var(--ink); box-shadow: 1px 1px 0 var(--ink); }
+  .C-pin.k { background: var(--pc); color: var(--paper); border: 2px solid var(--paper); box-shadow: 0 0 0 2px var(--ink); }
+  .C-pin.f { border-radius: 3px; transform: rotate(45deg) scale(.86); background: var(--gold); }
+  .C-pin.f span { transform: rotate(-45deg); }
+  .C-pin:hover { transform: scale(1.15); } .C-pin.f:hover { transform: rotate(45deg) scale(1); }
+  .C-pin.dim { opacity: .28; }
+  .C-pin.sel { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .C-stamp { position: absolute; right: 6px; top: 6px; z-index: 2; color: var(--crimson); border: 2px solid var(--crimson); background: rgba(241,233,218,.92); font-size: 12px; padding: 0 4px; transform: rotate(9deg); letter-spacing: .12em; }
+  .C-left { position: absolute; right: 6px; top: 6px; z-index: 2; background: var(--coral); color: var(--paper); font-size: 11.5px; padding: 1px 6px; letter-spacing: .1em; box-shadow: 1px 1px 0 var(--ink); }
+  .C-here { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 3; width: 30px; height: 30px; border-radius: 50%; background: var(--wisteria); color: var(--paper); display: grid; place-items: center; font-size: 13px;
+    box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink); animation: chere 1.8s ease-in-out infinite; }
+  @keyframes chere { 50% { box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink), 0 0 0 12px rgba(106,76,140,.35); } }
+  .C-deco { position: relative; overflow: hidden; border-radius: 6px; }
+  .C-deco .tex { position: absolute; inset: 0; background-size: 70px; opacity: .75; }
+  .C-deco span { position: absolute; left: 6px; top: 4px; font-size: 12px; color: var(--mute); letter-spacing: .2em; }
+  .C-side { background: var(--navy); border-left: 3px solid var(--ink); display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 30px 0 18px; position: relative; }
+  .C-side .hd { position: absolute; top: 8px; color: var(--gold); font-size: 12px; letter-spacing: .3em; }
+  .C-node { width: 62px; height: 96px; background: var(--paper); border: 3px solid #b7ad9c; color: #c9bfae; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    font-family: inherit; font-size: 34px; line-height: 1; cursor: pointer; position: relative; padding: 0; transition: transform .15s; }
+  .C-node::before { content: ""; position: absolute; inset: 4px; border: 1px solid currentColor; opacity: .5; pointer-events: none; }
+  .C-node .n { font-size: 11px; letter-spacing: .1em; }
+  .C-node.lit { background: var(--cc); color: var(--paper); border-color: var(--gold); box-shadow: 0 0 18px rgba(201,162,58,.55); }
+  .C-node.held { color: var(--cc); border: 3px dashed var(--cc); }
+  .C-node.on { transform: translateX(-6px); outline: 2px solid var(--gold); outline-offset: 4px; }
+  .C-sword { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #6b6280; font-size: 11px; letter-spacing: .25em; }
+  .C-sword svg { width: 26px; height: 96px; }
+  .C-sword.on { color: var(--gold); filter: drop-shadow(0 0 6px rgba(201,162,58,.8)); }
+  .C-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; overflow: visible; }
+  .C-svg .th { fill: none; stroke-linecap: round; transition: opacity .2s; }
+  .C-svg .dim { opacity: .1; }
+  .C-legend { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 12px; color: var(--mute); }
+  .C-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -1px; margin-right: 4px; border: 1px solid var(--ink); }
+  .C-notes { background: var(--paper); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+  .C-tabs { display: flex; border-bottom: 2px solid var(--ink); overflow-x: auto; }
+  .C-tabs button { font: inherit; font-size: 14px; letter-spacing: .12em; border: 0; border-right: 1px solid rgba(50,45,72,.25); background: none; color: var(--mute); padding: 6px 14px; cursor: pointer; white-space: nowrap; }
+  .C-tabs button b { font-weight: normal; color: var(--tc, var(--ink)); margin-right: 4px; }
+  .C-tabs button.on { background: var(--ink); color: var(--paper); }
+  .C-tabs button.on b { color: var(--paper); }
+  .C-body { padding: 10px 16px 14px; }
+  .C-body .ln { font-size: 16px; padding: 2px 0 8px; border-bottom: 1px dotted #b9a98a; margin-bottom: 6px; }
+  .C-body .ln.lit { color: var(--crimson); }
+  .C-body .ln.held { color: var(--coral); }
+  .C-body .ln.none { color: #b0a8bb; }
+  .C-body ul { list-style: none; margin: 0; padding: 0; }
+  .C-body li { display: grid; grid-template-columns: 30px 1fr; gap: 0 8px; padding: 5px 4px; font-size: 14.5px; line-height: 1.55; border-radius: 2px; }
+  .C-body li .ic { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; background: var(--pc, var(--paper)); color: var(--paper); border: 2px solid var(--ink); grid-row: span 2; }
+  .C-body li .ic.s { background: var(--paper); color: var(--ink); } .C-body li .ic.f { background: var(--gold); border-radius: 3px; }
+  .C-body li small { color: var(--mute); font-size: 12px; letter-spacing: .06em; }
+  .C-body li.un { color: #b8b0c2; letter-spacing: .3em; }
+  .C-body li.un .ic { background: none; border: 2px dashed #c9bfae; }
+  .C-body li.sel { background: rgba(201,162,58,.18); }
+  @media (max-width: 700px) {
+    .C-wrap { grid-template-columns: 1fr; }
+    .C-plan { grid-template-rows: repeat(5, 64px) 58px; gap: 6px; padding: 30px 10px 12px; }
+    .C-side { flex-direction: row; justify-content: center; border-left: 0; border-top: 3px solid var(--ink); padding: 26px 8px 12px; gap: 14px; }
+    .C-node { width: 54px; height: 72px; font-size: 26px; }
+    .C-sword { margin: 0 0 0 6px; } .C-sword svg { height: 64px; }
+    .C-pin { width: 22px; height: 22px; font-size: 10px; }
+    .C-room .nm { font-size: 12px; }
+  }
+
+  /* ============ D 手帖 ============ */
+  .D-book { display: flex; flex-direction: row-reverse; justify-content: center; filter: drop-shadow(4px 4px 0 var(--ink)); overflow-x: auto; padding-top: 80px; margin-top: -60px; }
+  .D-page { width: 380px; height: 470px; flex: none; background: var(--paper); position: relative; padding: 30px 26px 26px; border: 2px solid var(--ink);
+    background-image: repeating-linear-gradient(90deg, transparent 0 33px, rgba(180,42,71,.22) 33px 34px); background-position: 26px 0; background-clip: content-box; }
+  .D-page.r { padding-right: 40px; border-left: 0; box-shadow: inset 14px 0 18px -14px rgba(0,0,0,.35); }
+  .D-page.l { border-right: 0; box-shadow: inset -14px 0 18px -14px rgba(0,0,0,.35); }
+  .D-page.r::after { content: ""; position: absolute; right: 8px; top: 20px; bottom: 20px; width: 2px;
+    background: repeating-linear-gradient(180deg, var(--ink) 0 14px, transparent 14px 72px); }
+  .D-text { writing-mode: vertical-rl; height: 100%; font-size: 15px; line-height: 34px; letter-spacing: .06em; }
+  .D-text h4 { margin: 0 0 0 0; font-weight: normal; font-size: 19px; letter-spacing: .3em; }
+  .D-text .src { font-size: 11px; color: var(--mute); }
+  .D-text .ent { margin-top: 1.2em; }
+  .D-text .lit-line { color: var(--crimson); font-size: 17px; }
+  .D-text .blank { color: transparent; }
+  .D-stamp { display: inline-block; writing-mode: horizontal-tb; width: 34px; height: 34px; line-height: 30px; text-align: center; font-size: 22px; color: var(--crimson); border: 2px solid var(--crimson); border-radius: 4px; transform: rotate(-7deg); margin: 4px 0; background: rgba(180,42,71,.06); }
+  .D-stamp.no { color: #cfc5b3; border-color: #ddd3c1; border-style: dashed; background: none; transform: none; }
+  .D-fusen { position: absolute; top: -18px; writing-mode: vertical-rl; background: var(--coral); color: var(--paper); font-size: 12.5px; line-height: 1.5; padding: 10px 4px; max-height: 260px; box-shadow: 2px 2px 0 var(--ink); }
+  .D-cover { width: 150px; height: 220px; background: var(--navy); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); position: relative; flex: none;
+    background-image: radial-gradient(circle at 0 0, transparent 11px, rgba(201,162,58,.35) 12px, transparent 13px), radial-gradient(circle at 100% 100%, transparent 11px, rgba(201,162,58,.35) 12px, transparent 13px); background-size: 24px 24px; }
+  .D-cover .slip { position: absolute; left: 14px; top: 14px; writing-mode: vertical-rl; background: var(--paper); padding: 10px 6px; font-size: 16px; letter-spacing: .3em; border: 1px solid var(--gold); }
+  .D-cover .slip small { font-size: 11px; color: var(--crimson); margin-right: 6px; letter-spacing: .1em; }
+  .D-cover::after { content: ""; position: absolute; right: 8px; top: 14px; bottom: 14px; width: 2px; background: repeating-linear-gradient(180deg, var(--gold) 0 10px, transparent 10px 52px); }
+  .D-row { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; }
+
+  /* ============ E 显影 ============ */
+  .E-stage { background: var(--navy); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); padding: 22px; position: relative; overflow: hidden;
+    background-image: repeating-linear-gradient(90deg, var(--crimson) 0 10px, var(--ochre) 10px 20px, var(--teal) 20px 30px, var(--wisteria) 30px 40px); background-size: 100% 10px; background-repeat: no-repeat; }
+  .E-grid { display: grid; grid-template-columns: 1fr 300px 1fr; gap: 14px; align-items: center; margin-top: 6px; }
+  @media (max-width: 760px) { .E-grid { grid-template-columns: 1fr; } }
+  .E-mirror { width: 300px; height: 300px; border-radius: 50%; position: relative; margin: 0 auto; background: var(--paper); border: 6px solid var(--gold); box-shadow: 0 0 0 3px var(--ink), 0 0 0 9px var(--wisteria), 0 0 0 12px var(--ink); overflow: hidden; }
+  .E-mirror img { position: absolute; left: 50%; top: 50%; width: 470px; transform: translate(-50%, -50%); mix-blend-mode: darken; transition: filter .6s, opacity .6s; }
+  .E-mirror .mist { position: absolute; inset: 0; background: radial-gradient(circle at 30% 40%, rgba(241,233,218,.95) 0 20%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(241,233,218,.9) 0 25%, transparent 55%); transition: opacity .6s; }
+  .E-mirror.s0 img { opacity: .12; filter: grayscale(1) contrast(6) brightness(1.2) blur(5px); }
+  .E-mirror.s1 img { opacity: .95; filter: grayscale(1) contrast(6) brightness(1.2); }
+  .E-mirror.s1 .mist { opacity: .25; }
+  .E-mirror.s2 img { filter: none; }
+  .E-mirror.s2 .mist, .E-mirror.s3 .mist { opacity: 0; }
+  .E-mirror.s3 img { filter: drop-shadow(0 0 8px var(--gold)); }
+  .E-mirror .cap { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-size: 12px; color: var(--mute); letter-spacing: .2em; }
+  .E-col { display: flex; flex-direction: column; gap: 10px; }
+  .E-card { background: var(--paper); border: 2px solid var(--ink); box-shadow: 3px 3px 0 #0d0a12; padding: 8px 12px 10px; position: relative; }
+  .E-card .h { display: flex; align-items: center; gap: 8px; }
+  .E-card .c { width: 34px; height: 34px; display: grid; place-items: center; font-size: 21px; border: 2px solid #c9bfae; color: #c9bfae; flex: none; }
+  .E-card.lit .c { background: var(--crimson); color: var(--paper); border-color: var(--crimson); }
+  .E-card.held .c { color: var(--crimson); border: 2px dashed var(--crimson); }
+  .E-card .what { font-size: 12px; color: var(--mute); letter-spacing: .1em; }
+  .E-card .line { font-size: 14.5px; margin-top: 4px; color: var(--crimson); }
+  .E-card:not(.lit) .line { color: var(--mute); font-size: 13px; }
+  .E-card ul { list-style: none; margin: 4px 0 0; padding: 0; font-size: 12.5px; line-height: 1.5; }
+  .E-card li { padding-left: 12px; position: relative; }
+  .E-card li::before { content: ""; position: absolute; left: 0; top: .55em; width: 6px; height: 6px; background: var(--crimson); transform: rotate(45deg); }
+  .E-card li.un { color: #b0a8bb; } .E-card li.un::before { background: #d6cfc2; }
+  .E-foot { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .E-foot .chip { background: rgba(241,233,218,.12); color: var(--lavender); border: 1px solid rgba(214,211,239,.35); padding: 3px 10px; font-size: 12.5px; }
+  .E-foot .chip b { color: var(--gold); font-weight: normal; margin-right: 6px; }
+  .E-sword { position: absolute; z-index: 3; right: 18px; top: 22px; background: var(--navy); color: var(--gold); font-size: 12px; letter-spacing: .2em; writing-mode: vertical-rl; border: 1px solid var(--gold); padding: 8px 3px; }
+  .E-sword.off { color: #6b6280; border-color: #4a4560; }
+</style>
+</head>
+<body>
+<header>
+  <h1>线索册 · 五版方案</h1>
+  <p>五版用的都是坂井家现在的文案和同一份进度，只换样子。可以用上面的"进度"切三档看：刚进门、查到一半（形亮了，理的线索齐了但还说不通，真没查到）、全齐。左边写这一版的想法、出处、好处和代价。</p>
+</header>
+<div class="bar">
+  <div class="grp" id="vers"><span class="lab">方案</span></div>
+  <div class="grp st" id="states"><span class="lab">进度</span></div>
+</div>
+<main id="main"></main>
+
+<script type="module">
+// ---- 坂井家的文字（抄自 web/src/data/tour/text.json，11-05 版） ----
+const CLUES = [
+  { c: "形", line: "一只猫都没有的家里，出了化猫。", what: "轮廓", items: [
+    { k: "kv", src: "没有猫的厨房", room: "daidokoro", note: "厨房有鼠有夹子，偏偏没有猫。" },
+    { k: "kayo", src: "女中加世", room: "daidokoro", note: "女中说，不许养猫是老爷的意思。", npc: 1 }] },
+  { c: "真", line: "多年前，有个女子被关进这宅子深处。", what: "颜色", items: [
+    { k: "shiro", src: "藏着白无垢的房间", room: "misshitsu", note: "深处锁着一件白无垢，像关着谁。" }] },
+  { c: "理", line: "她死在那里，她的猫记住了这一家人。", what: "眼睛", hold: "那个姑娘后来怎样了？答案在宅子深处。", items: [
+    { k: "well", src: "屋后的古井", room: "daidokoro", note: "屋后小坟上的花，一直有人在换。" },
+    { k: "grave", src: "坟前合掌", room: "daidokoro", note: "那座小坟，是给一只猫立的。" },
+    { k: "yoshi", src: "老家主伊行", room: "kyakuma", note: "老家主记得，深处的姑娘养过一只猫。", npc: 1 }] },
+];
+const SEEN = [
+  { k: "omote", src: "办喜事的门楼", room: "omote", note: "办喜事的大宅，听不见一声猫叫。" },
+  { k: "genkan", src: "玄关的土间", room: "genkan", note: "老家主坐在客间，像在等人。" },
+  { k: "rouka", src: "红色廊下", room: "rouka", note: "红廊尽头那扇门，下人都绕开走。" },
+  { k: "oda", src: "若党小田島", room: "rouka", note: "守夜的说，深处那扇门不许开。", npc: 1 },
+  { k: "kyaku", src: "客间的圆坐垫", room: "kyakuma", note: "老家主一直看着屏风上的鹤。" },
+  { k: "oza", src: "婚礼大座敷", room: "ozashiki", note: "前面越热闹，深处越安静。" },
+];
+const FINDS = [
+  { k: "f1", src: "撒落的喜糖纸", room: "omote", note: "红白两色的糖纸，散在门前的石板上，被人踩了好几脚。来道贺的人多，没人弯腰去捡。" },
+  { k: "f2", src: "柱脚的矮抓痕", room: "rouka", note: "红柱脚上一道浅浅的抓痕，离地不到一尺。红漆补过一回，痕迹还是从底下透了出来。" },
+  { k: "f3", src: "倒扣的小陶碗", room: "misshitsu", note: "角落里倒扣着一只小陶碗，碗口很浅，碗沿磕掉一块。翻过来，里面干干净净，很多年没人添过东西了。" },
+];
+const ROOMS = { omote: "门前", genkan: "玄关", rouka: "红色廊下", kyakuma: "客间", ozashiki: "婚礼大座敷", misshitsu: "密室", daidokoro: "厨房与后院" };
+const ROOM1 = { omote: "门", genkan: "玄", rouka: "廊", kyakuma: "客", ozashiki: "座", misshitsu: "密", daidokoro: "厨" };
+
+const STATES = {
+  "刚进门": ["omote"],
+  "查到一半": ["omote", "genkan", "rouka", "oda", "kv", "kayo", "well", "grave", "yoshi", "kyaku", "f1"],
+  "全齐": ["omote", "genkan", "rouka", "oda", "kv", "kayo", "well", "grave", "yoshi", "kyaku", "oza", "shiro", "f1", "f2"],
+};
+let stateName = "查到一半";
+// 进度 → 每个字的状态：lit 亮了 / held 线索齐了但说不通（理要等真）/ none 没查到
+function model() {
+  const got = new Set(STATES[stateName]);
+  const full = (cl) => cl.items.every((i) => got.has(i.k));
+  const st = {};
+  for (const cl of CLUES) st[cl.c] = full(cl) ? "lit" : "none";
+  if (st["理"] === "lit" && st["真"] !== "lit") st["理"] = "held";
+  const visited = new Set([...CLUES.flatMap((c) => c.items), ...SEEN, ...FINDS].filter((i) => got.has(i.k)).map((i) => i.room));
+  return { got, st, visited, lit: Object.values(st).filter((s) => s === "lit").length,
+    seen: SEEN.filter((s) => got.has(s.k)), finds: FINDS.filter((f) => got.has(f.k)) };
+}
+const statusLine = (m) => m.st["理"] === "held" ? "线索齐了，但还说不通" : "";
+
+// ================= A 绘卷 =================
+const A = {
+  name: "绘卷", sub: "A · 案子画成一卷从右往左展开的长卷",
+  spec: `<dt>样子</dt><dd>打开就是一卷横着展开的和纸长卷，跟原作片头的绘卷一样从右往左读。卷首是坂井家的题签，后面依次是形、真、理三段，每段之间隔一道金色的云霞（すやり霞），最后是见闻和拾遗。字全部竖排。</dd>
+  <dt>怪化猫味道</dt><dd>原作满屏都是浮世绘、绘卷和金云。上下两条青海波滚边，接的是游戏里屋顶瓦片的纹样。</dd>
+  <dt>三种状态</dt><dd>亮了：朱底方印，那句话用大字写出来，旁边画一道金线。说不通：印框换成朱色虚线，角上贴一张珊瑚色的付箋，写"那个姑娘后来怎样了？"。没查到：灰框，留一列"……"，等着补。</dd>
+  <dt>好处</dt><dd>线索一条条接下去，"查案"的顺序感最强；卷越查越长，进度一眼看得出。</dd>
+  <dt>代价</dt><dd>要横着滑，电脑上得靠滚轮或方向键，手机用手指拖。竖排字读起来比横排慢一点。</dd>`,
+  render(m) {
+    const sec = (cl) => {
+      const s = m.st[cl.c];
+      return `<div class="A-sec ${s}">
+        <span class="A-char">${cl.c}</span>
+        <span class="A-line">${s === "lit" ? cl.line : s === "held" ? "线索齐了，还说不通" : "还没查到"}</span>
+        ${cl.items.map((i) => m.got.has(i.k) ? `<span class="A-clue"><b>${ROOMS[i.room]}</b>　${i.note}</span>` : `<span class="A-clue un">……</span>`).join("")}
+        ${s === "held" ? `<div class="A-tab">${cl.hold}</div>` : ""}
+      </div>`;
+    };
+    const kasumi = (i) => `<div class="A-kasumi">${[0, 1, 2, 3].map((j) => `<i style="top:${[40, 120, 250, 330][(j + i) % 4]}px;left:${2 + ((i + j) % 3) * 6}px;right:${2 + ((i * j) % 3) * 6}px"></i>`).join("")}</div>`;
+    const side = (ch, title, list, total) => `<div class="A-sec side"><span class="A-char">${ch}</span><span class="A-line" style="font-size:16px;color:var(--ink);border-right-color:var(--teal)">${title}${total ? `　${list.length} / ${total}` : ""}</span>
+      ${list.length ? list.map((i) => `<span class="A-clue"><b>${i.src}</b>　${i.note}</span>`).join("") : `<span class="A-clue un">……</span>`}</div>`;
+    return `<div class="A-frame"><div class="A-scroll"><div class="A-roll">
+      <div class="A-sec A-title"><span class="t">坂井家案卷</span><span class="s">物怪 · 化猫</span><span class="p">形、真、理　${m.lit} / 3</span></div>
+      ${CLUES.map((c, i) => sec(c) + kasumi(i)).join("")}
+      ${side("闻", "见闻", m.seen)}${kasumi(5)}${side("拾", "拾遗", m.finds, FINDS.length)}
+    </div></div></div><div class="hint">← 往左拖动卷子。电脑上用滚轮或方向键，手机用手指拖。</div>`;
+  },
+};
+
+// ================= B 三札 =================
+const eye = `<svg class="B-eye" viewBox="0 0 70 34"><g fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17 Q35 -6 66 17 Q35 40 4 17Z"/><circle cx="35" cy="17" r="7"/></g>
+  <g stroke="currentColor" stroke-width="1.5">${[-60, -30, 0, 30, 60].map((a) => `<line x1="${35 + Math.sin(a * Math.PI / 180) * 15}" y1="${17 - Math.cos(a * Math.PI / 180) * 15}" x2="${35 + Math.sin(a * Math.PI / 180) * 21}" y2="${17 - Math.cos(a * Math.PI / 180) * 21}"/>`).join("")}</g><circle cx="35" cy="17" r="2.5" fill="currentColor"/></svg>`;
+const B = {
+  name: "三札", sub: "B · 形真理就是药郎手里的三张退魔札",
+  spec: `<dt>样子</dt><dd>药箱的黑漆底上立着三张长札，分别是形、真、理。札头画一只眼睛，札面中间是一个大字，下面一排小圆印，每一格对应一条线索。查到一条，就盖一个朱印，印里写出处（厨、客、密），印下面写那句摘记。见闻和拾遗做成短冊，挂在三张札下面。</dd>
+  <dt>怪化猫味道</dt><dd>退魔札本来就是药郎的标志，札上的眼睛、朱红边、金线都是现成的。底板和现在的药箱是同一块黑漆，画风接得上。</dd>
+  <dt>三种状态</dt><dd>亮了：札边变成朱红，大字是朱色并带一圈金光，那句话竖着写在札的右边。说不通：一张封条斜贴在札上，写"缺真"和提示那句。没查到：大字只是压在纸上的浅痕，札边是灰的。</dd>
+  <dt>好处</dt><dd>最像游戏界面：还差几条，看空印就知道。查齐一张札，正好接打斗里"钉中一张札"的动作，可以做一个"札飞出去"的过渡。</dd>
+  <dt>代价</dt><dd>三张札并排，手机竖屏放不下，得改成上下排或者左右滑。摘记的地方窄，一条最多 18 个字，再长就要换行。</dd>`,
+  render(m) {
+    const fuda = (cl) => {
+      const s = m.st[cl.c];
+      return `<div class="B-fuda ${s}" style="color:${s === "lit" ? "var(--crimson)" : "#c9bfae"}">${eye}
+        <div class="B-big">${cl.c}</div><div class="B-line">${cl.line}</div>
+        <div class="B-slots">${cl.items.map((i) => `<span class="B-slot${m.got.has(i.k) ? " got" : ""}">${m.got.has(i.k) ? ROOM1[i.room] : ""}</span>`).join("")}</div>
+        <ul class="B-notes" style="color:var(--ink)">${cl.items.map((i) => m.got.has(i.k) ? `<li><small>${i.src}</small>${i.note}</li>` : `<li class="un">……</li>`).join("")}</ul>
+        ${s === "held" ? `<div class="B-seal"><b>缺 · 真</b>${cl.hold}</div>` : ""}
+      </div>`;
+    };
+    const strips = [...SEEN.map((s) => m.got.has(s.k) ? `<div class="B-strip">${s.note}<small>${s.src}</small></div>` : "")].join("")
+      + FINDS.map((f) => m.got.has(f.k) ? `<div class="B-strip find">${f.src}</div>` : `<div class="B-strip find un">拾遗</div>`).join("");
+    return `<div class="B-board"><div class="hd">坂井家 · 化猫　形、真、理 ${m.lit} / 3</div>
+      <div class="B-row">${CLUES.map(fuda).join("")}</div>
+      <div class="B-strips"><span class="lab">见闻 · 拾遗</span>${strips}</div></div>
+      <div class="hint">底下的短冊是见闻（青头）和拾遗（金头），拾遗没找到的那张是暗的。</div>`;
+  },
+};
+
+// ================= C 宅图（11-05 细化，用户选了这一版） =================
+// 布局按 sakai.json 的出口连通画：门前 → 玄关 → 红色廊下 / 厨房与后院；廊下 → 客间、婚礼大座敷、深处的密室。往上是宅子深处。
+// 房间底纹直接用游戏里的积木贴图（public/textures/kit/），和走进去看到的是同一块布、同一张毯。
+const CC = { 形: "#B42A47", 真: "#4F74BF", 理: "#C9A23A" };
+const KIND = { view: "观", npc: "人", act: "掌", find: "拾" };
+const PLAN = {   // [列, 行, 跨列, 跨行, 贴图]
+  ozashiki: [1, 1, 2, 3, "rug_tsuru_img.jpg"],
+  misshitsu: [3, 1, 1, 1, "shiromuku.png"],
+  rouka: [3, 2, 1, 3, "wall_darkred.png", "tall"],
+  kyakuma: [4, 2, 2, 2, "zabuton_maru.png", "small"],
+  daidokoro: [4, 4, 2, 2, "earth.png"],
+  genkan: [2, 5, 2, 1, "stone.png"],
+  omote: [1, 6, 5, 1, "maku_sanshoku.png"],
+};
+const ONE = new Set(["rug_tsuru_img.jpg", "shiromuku.png", "fusuma.png"]);   // 整幅画，只铺一张
+const DECO = [[1, 4, 1, 2, "gravel.png", "庭"], [4, 1, 2, 1, "gravel.png", "坪庭"]];
+const EDGES = [["omote", "genkan"], ["genkan", "rouka"], ["genkan", "daidokoro"], ["rouka", "kyakuma"], ["rouka", "ozashiki"], ["rouka", "misshitsu"]];
+const HERE = { 刚进门: "omote", 查到一半: "daidokoro", 全齐: "ozashiki" };
+const NEWEST = { 刚进门: "omote", 查到一半: "grave", 全齐: "shiro" };
+const kindOf = (i) => i.find ? "find" : i.act ? "act" : i.npc ? "npc" : "view";
+CLUES[2].items[1].act = 1;
+FINDS.forEach((f) => (f.find = 1));
+const below = (id) => [id, ...EDGES.filter(([a]) => a === id).flatMap(([, b]) => below(b))];
+let cTab = null, cSel = null;
+const C = {
+  name: "宅图", sub: "C · 把坂井家画成一张平面图，用线把线索连到形、真、理上",
+  spec: `<dt>样子</dt><dd>左边是坂井家的俯视平面，七个区块按游戏里的出口连起来：门前进玄关，玄关通廊下和厨房，廊下尽头是客间、婚礼大座敷和最深处的密室，越往上越深。去过的房间铺上游戏里那块贴图（三色幕、石板、红格子、圆坐垫、鹤纹毯、白无垢、土间），没去过的是褪色的襖。查到的东西在它的房间里钉一颗钉子，用彩线连到右边的札上：朱线连形，青线连真，金线连理。</dd>
+  <dt>怪化猫味道</dt><dd>底下的方格取自江户的"指图"，就是工匠画房子用的方眼平面图。房间底纹用的就是游戏积木的贴图，和走进去看到的一样。右边三张札和最底下的退魔剑，接的是"形、真、理齐了，剑才出鞘"。</dd>
+  <dt>逻辑怎么看</dt><dd>钉子上的字是它从哪来的：观（看过的观景点）、人（配角的话）、掌（坟前合掌）、拾（拾遗，不连线）。理和真之间有一条虚线，写着"先要知道真"，意思是理的线索凑齐了也要等真亮了才说得通。真亮了，这条线就变实线。</dd>
+  <dt>引导</dt><dd>
+  <ul style="margin:4px 0 0;padding-left:18px">
+    <li>门上贴着发光的小札：那扇门后面还有没查到的线索。这就是游戏里的门札。</li>
+    <li>房间里的线索和观景点都看完了，房间盖"查毕"。</li>
+    <li>还差一两样的房间挂一张"余 1"。</li>
+    <li>紫点是药郎现在所在的房间。</li>
+    <li>相邻房间的名字会提前写出来，因为门上的出口牌本来就写着；再往里一层的房间只写"未至"。</li>
+  </ul></dd>
+  <dt>读字</dt><dd>下面的摘记分五个页签：形、真、理、见闻、拾遗。点一个页签，图上只留它的那几根线。点一颗钉子，也会跳到它那一页，并把那一条标亮。摘记不用一颗一颗去点，翻页签就能读完。</dd>
+  <dt>代价</dt><dd>
+  <ul style="margin:4px 0 0;padding-left:18px">
+    <li>每个地点要排一次平面（这里是 5×6 格）。只要写一张格子表，不用画图。万屋有两层，大概要分楼层页签。</li>
+    <li>连线跟着布局算，手机竖屏时札挪到图下面，线会长一点。</li>
+  </ul></dd>`,
+  render(m) {
+    const all = [...CLUES.flatMap((c) => c.items.map((i) => ({ ...i, c: c.c }))), ...SEEN, ...FINDS];
+    const known = new Set([...m.visited, ...EDGES.filter(([a, b]) => m.visited.has(a) || m.visited.has(b)).flat()]);
+    const tab = cTab || CLUES.find((c) => c.items.some((i) => i.k === NEWEST[stateName]))?.c || "见闻";
+    const rooms = Object.entries(PLAN).map(([id, [x, y, w, h, tex, cls]]) => {
+      const v = m.visited.has(id), here = HERE[stateName] === id;
+      const items = all.filter((i) => i.room === id), got = items.filter((i) => m.got.has(i.k)), left = items.length - got.length;
+      const pins = got.map((p) => {
+        const dim = p.c ? tab !== p.c : p.find ? tab !== "拾遗" : tab !== "见闻";
+        return `<button class="C-pin${p.c ? " k" : p.find ? " f" : ""}${dim ? " dim" : ""}${cSel === p.k ? " sel" : ""}" data-k="${p.k}" ${p.c ? `data-c="${p.c}" style="--pc:${CC[p.c]}"` : ""} title="${p.src}"><span>${KIND[kindOf(p)]}</span></button>`;
+      }).join("");
+      return `<div class="C-room ${v ? "v" : "un"} ${cls || ""}" data-room="${id}" style="grid-column:${x}/span ${w};grid-row:${y}/span ${h}">
+        <div class="tex${ONE.has(v ? tex : "fusuma.png") ? " one" : ""}" style="background-image:url(/textures/kit/${v ? tex : "fusuma.png"})"></div>
+        <span class="nm">${known.has(id) ? ROOMS[id] : ""}</span>
+        ${v ? "" : `<span class="slip">未至</span>`}
+        ${v && items.length && !left ? `<span class="C-stamp">查毕</span>` : v && left && left <= 2 && got.length ? `<span class="C-left">余 ${left}</span>` : ""}
+        ${here ? `<span class="C-here">药</span>` : ""}
+        <div class="C-pins">${pins}</div></div>`;
+    }).join("") + DECO.map(([x, y, w, h, tex, nm]) => `<div class="C-deco" style="grid-column:${x}/span ${w};grid-row:${y}/span ${h}"><div class="tex" style="background-image:url(/textures/kit/${tex})"></div><span>${nm}</span></div>`).join("");
+    const nodes = CLUES.map((c) => `<button class="C-node ${m.st[c.c]}${tab === c.c ? " on" : ""}" data-node="${c.c}" style="--cc:${CC[c.c]}">${c.c}<span class="n">${c.items.filter((i) => m.got.has(i.k)).length} / ${c.items.length}</span></button>`).join("");
+    const sword = `<div class="C-sword${m.lit === 3 ? " on" : ""}"><svg viewBox="0 0 26 96"><g fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4 L17 12 L17 62 L9 62 L9 12 Z"/><path d="M3 64 H23"/><path d="M11 66 H15 V90 H11 Z"/></g>${m.lit === 3 ? "" : `<path d="M4 70 L22 84 M22 70 L4 84" stroke="currentColor" stroke-width="1.5"/>`}</svg>${m.lit === 3 ? "可出鞘" : "未出鞘"}</div>`;
+    // 摘记页签
+    const tabs = [...CLUES.map((c) => [c.c, `<b style="color:${CC[c.c]}">${c.c}</b>${c.items.filter((i) => m.got.has(i.k)).length}/${c.items.length}`]), ["见闻", `见闻 ${m.seen.length}`], ["拾遗", `拾遗 ${m.finds.length}/${FINDS.length}`]];
+    const li = (i, c) => m.got.has(i.k)
+      ? `<li class="${cSel === i.k ? "sel" : ""}"><span class="ic${c ? "" : i.find ? " f" : " s"}" ${c ? `style="--pc:${CC[c]}"` : ""}>${KIND[kindOf(i)]}</span><small>${ROOMS[i.room]} · ${i.src}</small><span>${i.note}</span></li>`
+      : `<li class="un"><span class="ic"></span><small>　</small><span>……</span></li>`;
+    let body;
+    const cl = CLUES.find((c) => c.c === tab);
+    if (cl) { const s = m.st[cl.c]; body = `<div class="ln ${s}">${s === "lit" ? cl.line : s === "held" ? `线索齐了，但还说不通：${cl.hold}` : "还没查到"}</div><ul>${cl.items.map((i) => li(i, cl.c)).join("")}</ul>`; }
+    else if (tab === "见闻") body = `<ul>${m.seen.map((i) => li(i)).join("") || `<li class="un"><span class="ic"></span><small>　</small><span>还没有</span></li>`}</ul>`;
+    else body = `<ul>${FINDS.map((i) => m.got.has(i.k) ? li(i) : `<li class="un"><span class="ic"></span><small>　</small><span>……</span></li>`).join("")}</ul>`;
+    return `<div class="C-wrap"><div class="C-plan"><span class="hd">坂井家<small>化猫 · 形、真、理 ${m.lit} / 3</small></span><span class="compass">↑ 深处　↓ 门前</span>${rooms}</div>
+      <div class="C-side"><span class="hd">札</span>${nodes}${sword}</div><svg class="C-svg"></svg></div>
+      <div class="C-legend"><span><i style="background:${CC.形}"></i>形</span><span><i style="background:${CC.真}"></i>真</span><span><i style="background:${CC.理}"></i>理</span>
+        <span>观　看过的观景点</span><span>人　配角的话</span><span>掌　合掌</span><span>拾　拾遗</span><span>门上发光的小札　门后还有没查的</span></div>
+      <div class="C-notes"><div class="C-tabs">${tabs.map(([k, t]) => `<button data-tab="${k}" class="${k === tab ? "on" : ""}">${t}</button>`).join("")}</div><div class="C-body">${body}</div></div>`;
+  },
+  after(root, m) {
+    const wrap = root.querySelector(".C-wrap"), svg = root.querySelector(".C-svg"); if (!wrap) return;
+    const R = wrap.getBoundingClientRect();
+    const box = (el) => { const r = el.getBoundingClientRect(); return { l: r.left - R.left, t: r.top - R.top, r: r.right - R.left, b: r.bottom - R.top, cx: r.left - R.left + r.width / 2, cy: r.top - R.top + r.height / 2 }; };
+    const roomEl = (id) => root.querySelector(`.C-room[data-room="${id}"]`);
+    const tab = root.querySelector(".C-tabs button.on")?.dataset.tab;
+    const side = box(root.querySelector(".C-side")), vertical = side.t > box(root.querySelector(".C-plan")).t + 20;
+    let out = "";
+    // 门：两间相邻房间的公共边中点开一个口；门后（往里所有房间）还有没查到的线索，门上贴一张发光的札
+    for (const [a, b] of EDGES) {
+      const A = box(roomEl(a)), B = box(roomEl(b));
+      const ox = [Math.max(A.l, B.l), Math.min(A.r, B.r)], oy = [Math.max(A.t, B.t), Math.min(A.b, B.b)];
+      let x, y, horiz;
+      if (ox[1] - ox[0] > 8) { x = (ox[0] + ox[1]) / 2; y = A.b < B.t ? (A.b + B.t) / 2 : (B.b + A.t) / 2; horiz = true; }
+      else { y = (oy[0] + oy[1]) / 2; x = A.r < B.l ? (A.r + B.l) / 2 : (B.r + A.l) / 2; horiz = false; }
+      const open = m.visited.has(a) || m.visited.has(b);
+      const pending = (m.visited.has(a) || m.visited.has(b)) && CLUES.some((c) => c.items.some((i) => below(b).includes(i.room) && !m.got.has(i.k)));
+      const w = horiz ? 22 : 13, h = horiz ? 13 : 22;
+      out += `<rect x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" fill="${open ? "#F1E9DA" : "#E8DCC4"}" stroke="#322D48" stroke-width="1.5"/>`;
+      if (pending) out += `<g><rect x="${x - 4}" y="${y - 9}" width="8" height="18" fill="#F1E9DA" stroke="#B42A47" stroke-width="1.5"><animate attributeName="stroke-opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></rect><line x1="${x}" y1="${y - 5}" x2="${x}" y2="${y + 5}" stroke="#B42A47" stroke-width="1.5"/><circle cx="${x}" cy="${y}" r="13" fill="none" stroke="#C9A23A" stroke-width="2" opacity=".6"><animate attributeName="r" values="9;14;9" dur="1.6s" repeatCount="indefinite"/></circle></g>`;
+    }
+    // 线：钉子 → 札。亮了是实线，没亮是虚线；最新那条上有一颗光点往札那边走
+    const path = (x1, y1, x2, y2) => vertical ? `M${x1} ${y1} C${x1} ${(y1 + y2) / 2} ${x2} ${y1 + 40} ${x2} ${y2}` : `M${x1} ${y1} C${(x1 + x2) / 2} ${y1 - 24} ${x2 - 70} ${y2} ${x2} ${y2}`;
+    for (const p of root.querySelectorAll(".C-pin[data-c]")) {
+      const c = p.dataset.c, n = box(root.querySelector(`.C-node[data-node="${c}"]`)), q = box(p), s = m.st[c];
+      const d = path(q.cx, q.cy, vertical ? n.cx : n.l, vertical ? n.t : n.cy);
+      const dim = tab && tab !== c;
+      out += `<path class="th${dim ? " dim" : ""}" d="${d}" stroke="#322D48" stroke-width="${s === "lit" ? 5 : 3.5}" opacity="${dim ? .08 : .35}"/>`;
+      out += `<path class="th${dim ? " dim" : ""}" d="${d}" stroke="${CC[c]}" stroke-width="${s === "lit" ? 2.6 : 2}" ${s === "lit" ? "" : `stroke-dasharray="6 5"`}/>`;
+      if (p.dataset.k === NEWEST[stateName] && !dim) out += `<circle r="4.5" fill="#fff8e0" stroke="${CC[c]}" stroke-width="2"><animateMotion dur="2.4s" repeatCount="indefinite" path="${d}"/></circle>`;
+    }
+    // 理 → 真：理要先知道真才说得通
+    const nr = box(root.querySelector('.C-node[data-node="理"]')), nz = box(root.querySelector('.C-node[data-node="真"]'));
+    if (m.st["理"] !== "none" || CLUES[2].items.some((i) => m.got.has(i.k))) {
+      const ok = m.st["真"] === "lit";
+      if (vertical) out += `<path d="M${nr.cx} ${nr.b + 6} C${nr.cx} ${nr.b + 22} ${nz.cx} ${nz.b + 22} ${nz.cx} ${nz.b + 6}" fill="none" stroke="${ok ? "#C9A23A" : "#E6667A"}" stroke-width="2" ${ok ? "" : `stroke-dasharray="4 4"`}/>`;
+      else {
+        const x = nz.r + 8;
+        out += `<path d="M${nr.r + 2} ${nr.cy} C${x + 14} ${nr.cy} ${x + 14} ${nz.cy} ${nz.r + 2} ${nz.cy}" fill="none" stroke="${ok ? "#C9A23A" : "#E6667A"}" stroke-width="2" ${ok ? "" : `stroke-dasharray="4 4"`}/>`;
+        out += `<text x="${x + 16}" y="${(nr.cy + nz.cy) / 2}" fill="${ok ? "#C9A23A" : "#E6667A"}" font-size="11" letter-spacing="2" writing-mode="tb" style="writing-mode:vertical-rl" text-anchor="middle">${ok ? "已通" : "先要知道真"}</text>`;
+      }
+    }
+    svg.setAttribute("viewBox", `0 0 ${R.width} ${R.height}`);
+    svg.innerHTML = out;
+    root.querySelectorAll(".C-pin").forEach((p) => p.addEventListener("click", () => {
+      const k = p.dataset.k; cSel = k;
+      cTab = p.dataset.c || (FINDS.some((f) => f.k === k) ? "拾遗" : "见闻"); draw();
+    }));
+    root.querySelectorAll(".C-node").forEach((n) => n.addEventListener("click", () => { cTab = n.dataset.node; cSel = null; draw(); }));
+    root.querySelectorAll(".C-tabs button").forEach((b) => b.addEventListener("click", () => { cTab = b.dataset.tab; cSel = null; draw(); }));
+  },
+};
+
+// ================= D 手帖 =================
+const D = {
+  name: "手帖", sub: "D · 药郎随身的一本线装小册子",
+  spec: `<dt>样子</dt><dd>一本藏青封面的线装册子，右边装订，翻开是两页竖排。右页写形、真、理三段，左页写见闻和拾遗。纸上印着淡朱色的竖格线，每条摘记占一行，出处用小字注在前面。查齐一个字，就在那段开头盖一枚朱印，再把那句话写进去。</dd>
+  <dt>怪化猫味道</dt><dd>药郎本来就是走方卖药的，随身带一本记事的册子说得通。线装本的书签、题签、朱印都是江户时候的东西。这版最安静，跟你说的"药郎随手记下的一笔"最接近。</dd>
+  <dt>三种状态</dt><dd>亮了：盖朱印，那句话用朱字写出。说不通：页头伸出一张珊瑚色付箋，写着提示那句。没查到：印的位置空着，只有虚线框，那几行格子也空着。</dd>
+  <dt>好处</dt><dd>读起来最舒服，文字为主，和说明卡的口吻一致。三个地点就是三本册子，放在药箱里一字排开也好看。</dd>
+  <dt>代价</dt><dd>最不像游戏，进度要靠看印才知道，没有"还差几格"那么直白。手机竖屏一次只放得下一页，要左右翻。</dd>`,
+  render(m) {
+    const ent = (cl) => {
+      const s = m.st[cl.c];
+      return `<div class="ent"><span class="D-stamp${s === "lit" ? "" : " no"}">${cl.c}</span>　${s === "lit" ? `<span class="lit-line">${cl.line}</span>` : `<span class="src">${s === "held" ? "线索齐了，还说不通" : "　"}</span>`}<br>
+        ${cl.items.map((i) => m.got.has(i.k) ? `<span class="src">${i.src}</span>　${i.note}<br>` : `<span class="blank">　</span><br>`).join("")}</div>`;
+    };
+    const held = CLUES.find((c) => m.st[c.c] === "held");
+    return `<div class="D-row"><div class="D-cover"><div class="slip"><small>坂井家</small>案卷</div></div>
+      <div class="D-book">
+        <div class="D-page r"><div class="D-text"><h4>化猫　${m.lit} / 3</h4>${CLUES.map(ent).join("")}</div>
+          ${held ? `<div class="D-fusen" style="left:30px;top:-74px;max-height:92px">${held.hold}</div>` : ""}</div>
+        <div class="D-page l"><div class="D-text"><h4>见闻</h4>${m.seen.map((s) => `<span class="src">${s.src}</span>　${s.note}<br>`).join("") || "<br>"}
+          <br><h4>拾遗　${m.finds.length} / ${FINDS.length}</h4>${m.finds.map((f) => `<span class="src">拾</span>　${f.src}<br>`).join("")}</div></div>
+      </div></div>
+      <div class="hint">右页是形、真、理，左页是见闻和拾遗，从右往左读。左边那张是封面，药箱里三个地点就是三本这样的册子。</div>`;
+  },
+};
+
+// ================= E 显影 =================
+const E = {
+  name: "显影", sub: "E · 物怪的样子一点点从镜子里显出来",
+  spec: `<dt>样子</dt><dd>正中一面金边圆镜，镜里是这一地点的物怪立绘，用的就是药箱里那张。一开始只是一团墨雾。查到形，显出黑色剪影；查到真，颜色出来（化猫身上的火纹、项圈）；查到理，眼睛和一圈金光亮起来，右上角"退魔剑"的签条也亮了。三段线索的卡片围在镜子两边。</dd>
+  <dt>怪化猫味道</dt><dd>原作的核心台词就是"知道形、真、理，剑才能出鞘"。这一版把这三样直接画成"把它看清"的三个步骤：形是轮廓，真是颜色，理是眼神。顶上一条四色条纹，取自片头和襖边的色带。</dd>
+  <dt>三种状态</dt><dd>亮了：卡片的字是朱底，镜里多显一层。说不通：卡片的字是朱色虚线框，下面写提示那句，镜子不变。没查到：灰色。</dd>
+  <dt>好处</dt><dd>回报感最强，每查到一样，画面就明显变一下，看得到自己离"拔剑"还差多远。立绘是现成的（药箱里用的那套），不用另外画。</dd>
+  <dt>代价</dt><dd>形、真、理对应"轮廓、颜色、眼神"是我们自己的说法，原作里没有。剪影一开始就露出来，会提前透露这里是只猫（坂井家影响不大，万屋和大奥要想一想）。</dd>`,
+  render(m) {
+    const order = ["形", "真", "理"], lvl = order.filter((c) => m.st[c] === "lit").length;
+    const s = m.st["形"] !== "lit" ? 0 : m.st["真"] !== "lit" ? 1 : m.st["理"] !== "lit" ? 2 : 3;
+    const card = (cl) => {
+      const st = m.st[cl.c];
+      return `<div class="E-card ${st}"><div class="h"><span class="c">${cl.c}</span><span class="what">显出${cl.what} · ${cl.items.filter((i) => m.got.has(i.k)).length} / ${cl.items.length}</span></div>
+        <div class="line">${st === "lit" ? cl.line : st === "held" ? cl.hold : "还没查到"}</div>
+        <ul>${cl.items.map((i) => m.got.has(i.k) ? `<li>${i.note}</li>` : `<li class="un">……</li>`).join("")}</ul></div>`;
+    };
+    return `<div class="E-stage"><div class="E-sword${s === 3 ? "" : " off"}">退魔剑${s === 3 ? " · 可出鞘" : ""}</div>
+      <div class="E-grid">
+        <div class="E-col">${card(CLUES[0])}${card(CLUES[1])}</div>
+        <div class="E-mirror s${s}"><img src="/@fs/Users/duami/socialmedia/mononoke-game/assets/processed/zukan/bakeneko.jpg" alt=""><div class="mist"></div><div class="cap">${["墨雾", "形", "形 · 真", "形 · 真 · 理"][s]}</div></div>
+        <div class="E-col">${card(CLUES[2])}</div>
+      </div>
+      <div class="E-foot">${m.seen.map((x) => `<span class="chip"><b>闻</b>${x.note}</span>`).join("")}${m.finds.map((f) => `<span class="chip"><b>拾</b>${f.src}</span>`).join("")}<span class="chip"><b>拾遗</b>${m.finds.length} / ${FINDS.length}</span></div></div>
+      <div class="hint">镜里的立绘只用一张图，靠滤镜分三步显：先是全黑剪影，再出颜色，最后加金光。游戏里可以把这一步做成淡入的动画。</div>`;
+  },
+};
+
+const VERS = { A, B, C, D, E };
+let cur = "C";
+const main = document.getElementById("main");
+function draw() {
+  const v = VERS[cur], m = model();
+  main.innerHTML = `<section class="ver on"><div class="spec"><h2>${v.name}</h2><div class="sub">${v.sub}</div><dl>${v.spec}</dl></div><div class="stage">${v.render(m)}</div></section>`;
+  v.after?.(main, m);
+  document.querySelectorAll("#vers button").forEach((b) => b.classList.toggle("on", b.dataset.v === cur));
+  document.querySelectorAll("#states button").forEach((b) => b.classList.toggle("on", b.dataset.s === stateName));
+}
+const vb = document.getElementById("vers"), sb = document.getElementById("states");
+for (const [k, v] of Object.entries(VERS)) vb.insertAdjacentHTML("beforeend", `<button data-v="${k}">${k} ${v.name}</button>`);
+for (const s of Object.keys(STATES)) sb.insertAdjacentHTML("beforeend", `<button data-s="${s}">${s}</button>`);
+vb.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { cur = b.dataset.v; draw(); } });
+sb.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { stateName = b.dataset.s; cTab = null; cSel = null; draw(); } });
+addEventListener("resize", () => { if (cur === "C") draw(); });
+const q = new URLSearchParams(location.search);
+if (q.get("v") && VERS[q.get("v")]) cur = q.get("v");
+if (q.get("s") && STATES[q.get("s")]) stateName = q.get("s");
+draw();
+</script>
+</body>
+</html>

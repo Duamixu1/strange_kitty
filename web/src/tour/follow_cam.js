@@ -103,12 +103,15 @@ export class FollowCam {
   update(player, dt, snap = false) {
     const t = this._t.set(player.position.x, player.position.y + this.targetH, player.position.z);
     const inRect = ({ rect: [x0, x1, z0, z1] }, m) => t.x >= x0 - m && t.x <= x1 + m && t.z >= z0 - m && t.z <= z1 + m;
-    let f = this.shot || (this.fixedOn && inRect(this.fixedOn, 0.35) ? this.fixedOn : (this.fixed || []).find((r) => inRect(r, 0)) || null);   // shot：act 临时机位（guide.js）
+    // shot：act 临时机位、拾遗特写（guide.js）。它的矩形是整张图，撤掉以后不能再走"还在缓冲带里"那条，不然镜头一直留在那儿（11-06 修）
+    let f = this.shot || (this.fixedOn && !this.fixedOn.shot && inRect(this.fixedOn, 0.35) ? this.fixedOn : (this.fixed || []).find((r) => inRect(r, 0)) || null);
     this.cutT += dt;
     if (f !== this.fixedOn) { if (this.cutT < 0.6 && !snap) f = this.fixedOn; else { this.cutT = 0; this.cuts++; } }
     if (f) {
       this.fixedOn = f;
-      const look = frameLook(this.camera, _fp.set(...f.pos), f.look ? _fq.set(...f.look) : t, player);
+      // close：特写（拾遗卡，guide.js 的 closeShot），就看 look，不往药郎身上挪
+      const look = f.close ? _fq.set(...f.look).clone() : frameLook(this.camera, _fp.set(...f.pos), f.look ? _fq.set(...f.look) : t, player);
+      if (f.close) { this.camera.position.set(...f.pos); }
       // 看点平滑跟（刚切进这个机位那一下直接到位）
       if (this.cutT === 0 || snap || !this._fixLook) this._fixLook = look; else this._fixLook.lerp(look, 1 - Math.exp(-6 * dt));
       this.camera.lookAt(this._fixLook); this.camera.updateMatrixWorld();

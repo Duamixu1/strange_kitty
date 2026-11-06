@@ -54,6 +54,22 @@
   shiromuku       藏在密室里的白无垢（纸白底、淡藤暗纹、深红里衬）
   dou_sign   万屋门头的"同"字圆牌：深红底、纸白圈、墨色"同"字（字体画，屏幕里的招牌，不是总地图）
   stone      门厅石地：色板没有灰，用纸白底 + 约 40% 的细墨点压成灰，墨色石缝，一格 0.91 米
+水墨一套（笛小路家，TV《鵺》，游31，11-06）：墨、灰、和纸白，只留朱红一点。灰色是墨和纸白按比例调的（色板本身没有灰，不另起新色）。
+  kit.js 里 setKitMat("ink") / 地点 JSON "mat": "ink" 整套换上；没有专门水墨版的贴图在浏览器里按亮度压成灰（朱红保留）。
+  tatami_ink   淡灰蔺草 + 墨色畳缘          shoji_ink   纸白、墨色细格、灰腰板
+  fusuma_ink   水墨山水襖（4 扇一幅）：远山三层淡墨、近岸浓墨、雾带留白、一点朱红落日
+  plaster_ink  灰泥：纸白底上淡墨斑（像和纸纤维），一格 1 米   kokabe_ink  长押以上淡灰
+  engawa_ink   深灰廊板，墨线板缝          sao_ink     纸白板顶、墨色竿缘
+  stone_ink    灰石板（墨点 30%）+ 墨缝     earth_ink   深灰土间        gravel_ink  枯山水白砂：纸白、淡墨耙纹（顺 u）
+  roof_ink     灰瓦：本瓦一垄一垄（顺 v）
+  （木头 wood_ink、框 frame_ink 是纯色，在 kit.js 里）
+笛小路家（TV《鵺》，游31，参考 assets/concept/ref/fuenokouji/，只看不裁，图案自己画）：每张有水墨版 fue_* 和退魔后的彩色版 fue_*_color
+  fue_tsuiji 筋塀（纸白 + 墨色横筋）      fue_boards 白廊板          fue_tatami 白榻榻米 + 墨缘      fue_shoji 大格白障子（参考 08 右）
+  fue_lattice 格子窗（参考 08 左）       fue_fusuma_bokuun 墨云襖   fue_fusuma_hane 墨溅襖           fue_fusuma_tora 虎襖（占位）
+  fue_fusuma_plain 素襖                 fue_byobu_budou 葡萄屏风   fue_ceiling 深色板天花           fue_ceiling_hane 墨溅天花
+  fue_snow 雪地（彩色版落樱）            fue_gate_roof 门顶（彩色版茅草）  fue_gate_door 门里            fue_dais 高台白台面   fue_dais_edge 黑白格边（彩色版繧繝缘）
+  fue_genji_wall 源氏香纹墙（参考 13，占位）  fue_kicho 几帐帘           fue_aka_* 红色之间（参考 10）：墙、襖、榻榻米、天花、台、帘
+  墨云、墨溅、虎、葡萄、源氏香纹墙这五张是程序画的占位，正式的等出图（docs/22 第四节）
 """
 import math
 from pathlib import Path
@@ -774,7 +790,628 @@ def shiromuku():
     im.resize((384, 512), Image.LANCZOS).save(OUT / "shiromuku.png")
 
 
+
+
+# ---------- 水墨一套（游31，笛小路家） ----------
+def inkmix(t):
+    """t=0 墨，t=1 纸白，中间是两者按比例调出来的灰"""
+    a = np.array([int(C["ink"][i:i + 2], 16) for i in (1, 3, 5)], float)
+    b = np.array([int(C["paper"][i:i + 2], 16) for i in (1, 3, 5)], float)
+    return "#%02X%02X%02X" % tuple(int(round(x)) for x in a + (b - a) * t)
+
+
+def tatami_ink():
+    w, h = 512 * SS, 256 * SS
+    im = Image.new("RGB", (w, h), inkmix(0.78)); d = ImageDraw.Draw(im)
+    for k in range(70):
+        y = h * (0.08 + 0.84 * k / 70); d.line((0, y, w, y), fill=inkmix(0.7) if k % 2 else inkmix(0.84), width=SS)
+    for y0 in (0, h - h * 0.075):
+        d.rectangle((0, y0, w, y0 + h * 0.075), fill=C["ink"])
+        for x in range(0, w, int(w / 16)): d.ellipse((x + 6, y0 + h * 0.025, x + 6 + h * 0.025, y0 + h * 0.05), fill=inkmix(0.55))
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["ink"], width=SS * 2)
+    im.resize((512, 256), Image.LANCZOS).save(OUT / "tatami_ink.png")
+
+
+def shoji_ink():
+    w, h = 256 * SS, 496 * SS
+    im = Image.new("RGB", (w, h), C["paper"]); d = ImageDraw.Draw(im)
+    fr = w * 0.07; koshi = h * 0.17
+    for k in range(1, 4): d.line((fr + (w - 2 * fr) * k / 4, 0, fr + (w - 2 * fr) * k / 4, h - koshi), fill=inkmix(0.25), width=SS * 2)
+    for k in range(1, 8): y = (h - koshi) * k / 8; d.line((0, y, w, y), fill=inkmix(0.25), width=SS * 2)
+    d.rectangle((0, h - koshi, w, h), fill=inkmix(0.45)); d.line((0, h - koshi, w, h - koshi), fill=C["ink"], width=SS * 3)
+    for k in range(1, 4): d.line((w * k / 4, h - koshi, w * k / 4, h), fill=inkmix(0.3), width=SS * 2)
+    d.rectangle((0, 0, w - 1, h - 1), outline=inkmix(0.15), width=int(fr))
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["ink"], width=SS * 2)
+    im.resize((256, 496), Image.LANCZOS).save(OUT / "shoji_ink.png")
+
+
+def fusuma_ink():
+    """水墨山水，一幅 4 扇横向连续：远山三层（越远越淡）、雾带留白、近处浓墨岸石和松、一点朱红落日。程序画，不照抄原作"""
+    W, H = 2048, 990
+    rng = np.random.default_rng(31)
+    def ridge(x0, x1, base, amp, n, seed):
+        r = np.random.default_rng(seed); xs = np.linspace(x0, x1, n)
+        ys = base - amp * (0.55 + 0.45 * np.sin(np.linspace(0, math.pi * r.uniform(2, 4), n) + r.uniform(0, 6))) * r.uniform(0.6, 1.0, n) ** 0.3
+        return list(zip(xs, ys))
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["paper"])
+        for ox in range(3):
+            X, Y = ox * w, h
+            # 落日（唯一的朱红）
+            d.ellipse((X + w * 0.71, Y + h * 0.12, X + w * 0.71 + h * 0.11, Y + h * 0.23), fill=C["crimson"])
+            # 三层远山：每层一条起伏的山脊，下面填满，再盖一条雾带
+            for k, (t, base, amp, sd) in enumerate(((0.82, 0.48, 0.22, 3), (0.62, 0.6, 0.2, 5), (0.4, 0.72, 0.16, 8))):
+                pts = ridge(X - 20, X + w + 20, Y + h * base, h * amp, 60, sd)
+                d.polygon(pts + [(X + w + 20, Y + h), (X - 20, Y + h)], fill=inkmix(t))
+                for (fx, fw) in ((0.1 + 0.3 * k, 0.5), (0.65 - 0.2 * k, 0.4)):   # 雾带
+                    kumo(d, X + fx * w, Y + h * (base + 0.06), fw * w, h * 0.05, C["paper"], C["paper"])
+            # 近处：浓墨岸石 + 一棵斜松
+            d.polygon([(X, Y + h * 0.84), (X + w * 0.12, Y + h * 0.78), (X + w * 0.22, Y + h * 0.82), (X + w * 0.3, Y + h * 0.9), (X + w * 0.3, Y + h), (X, Y + h)], fill=C["ink"])
+            d.polygon([(X + w * 0.78, Y + h * 0.9), (X + w * 0.88, Y + h * 0.85), (X + w, Y + h * 0.88), (X + w, Y + h), (X + w * 0.78, Y + h)], fill=inkmix(0.15))
+            tr = [(0.1, 0.8), (0.12, 0.62), (0.17, 0.48), (0.25, 0.38)]
+            d.line([(X + a * w, Y + b * h) for a, b in tr], fill=C["ink"], width=SS * 9, joint="curve")
+            for (a, b, r) in ((0.25, 0.37, 0.07), (0.18, 0.47, 0.055), (0.3, 0.42, 0.05), (0.13, 0.57, 0.045)):   # 松针团：扁椭圆
+                d.ellipse((X + a * w - h * r * 1.8, Y + b * h - h * r * 0.5, X + a * w + h * r * 1.8, Y + b * h + h * r * 0.5), fill=inkmix(0.1))
+            # 水面几道淡墨横线
+            for k in range(6):
+                y = Y + h * (0.9 + 0.015 * k); x0 = X + w * rng.uniform(0.35, 0.5); d.line((x0, y, x0 + w * rng.uniform(0.15, 0.3), y), fill=inkmix(0.55), width=SS * 2)
+    tiled((W, H), f).save(OUT / "fusuma_ink.png")
+
+
+def plaster_ink():
+    """灰泥：纸白底上稀疏的淡墨斑和纤维，一格 1 米（墙 UV 按米）"""
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["paper"])
+        rng = np.random.default_rng(41)
+        for _ in range(260):
+            x, y, r = rng.uniform(0, w * 3), rng.uniform(0, h * 3), rng.uniform(6, 22) * SS
+            d.ellipse((x - r, y - r * 0.6, x + r, y + r * 0.6), fill=inkmix(rng.uniform(0.86, 0.93)))
+        for _ in range(500):   # 纤维
+            x, y = rng.uniform(0, w * 3), rng.uniform(0, h * 3); a = rng.uniform(0, math.pi); L = rng.uniform(6, 16) * SS
+            d.line((x, y, x + L * math.cos(a), y + L * math.sin(a)), fill=inkmix(0.8), width=SS)
+    tiled((512, 512), f).save(OUT / "plaster_ink.png")
+
+
+def engawa_ink():
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.3))
+        rng = np.random.default_rng(43)
+        for ox in range(3):
+            for oy in range(3):
+                X, Y = ox * w, oy * h
+                for k in range(6):
+                    y = Y + h * k / 6
+                    for _ in range(3):
+                        yy = y + rng.uniform(0.15, 0.85) * h / 6; d.line((X, yy, X + w, yy + rng.uniform(-3, 3)), fill=inkmix(0.38), width=SS)
+                    d.line((X, y, X + w, y), fill=C["ink"], width=SS * 2)
+    tiled((512, 512), f).save(OUT / "engawa_ink.png")
+
+
+def sao_ink():
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.88))
+        for ox in range(3):
+            for oy in range(3):
+                X, Y = ox * w, oy * h
+                for k in range(5): d.line((X + w * (0.1 + 0.2 * k), Y, X + w * (0.12 + 0.2 * k), Y + h), fill=inkmix(0.78), width=SS * 2)
+                for k in range(2):
+                    x = X + w * (0.25 + 0.5 * k)
+                    d.rectangle((x - w * 0.03, Y, x + w * 0.03, Y + h), fill=inkmix(0.2), outline=C["ink"], width=SS * 2)
+    tiled((512, 512), f).save(OUT / "sao_ink.png")
+
+
+def dotted_ink(name, frac, base_t, size=512, joints=False):
+    rng = np.random.default_rng(47)
+    hexrgb = lambda h: np.array([int(h[i:i + 2], 16) for i in (1, 3, 5)], np.uint8)
+    b, ink = hexrgb(inkmix(base_t)), hexrgb(C["ink"])
+    im = Image.fromarray(np.where((rng.random((size, size)) < frac)[..., None], ink, b).astype(np.uint8))
+    if joints:
+        d = ImageDraw.Draw(im)
+        d.line((0, 0, size, 0), fill=C["ink"], width=4); d.line((0, 0, 0, size), fill=C["ink"], width=4)
+        d.line((size // 2, size // 2, size, size // 2), fill=C["ink"], width=3)
+    im.save(OUT / f"{name}.png")
+
+
+def gravel_ink():
+    """枯山水白砂：纸白底、淡墨耙纹顺 u（一格 0.91 米 8 道）"""
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=C["paper"])
+        rng = np.random.default_rng(53)
+        for _ in range(2500):
+            x, y = rng.uniform(0, w * 3), rng.uniform(0, h * 3); d.point((x, y), fill=inkmix(0.7))
+        for k in range(24):
+            y = h * k / 8 + h / 16; d.line((0, y, w * 3, y), fill=inkmix(0.72), width=SS * 3)
+    tiled((512, 512), f).save(OUT / "gravel_ink.png")
+
+
+def roof_ink():
+    """灰瓦：本瓦一垄一垄（顺 v），丸瓦深、平瓦浅，一格 1 米 4 垄"""
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.5))
+        for k in range(12):
+            x = w * k / 4
+            d.rectangle((x - w * 0.035, 0, x + w * 0.035, h * 3), fill=inkmix(0.28), outline=C["ink"], width=SS * 2)
+            for j in range(12): d.line((x - w * 0.035, h * j / 4, x + w * 0.035, h * j / 4), fill=C["ink"], width=SS)
+    tiled((512, 512), f).save(OUT / "roof_ink.png")
+
+
+def ink_set():
+    tatami_ink(); shoji_ink(); fusuma_ink(); plaster_ink(); engawa_ink(); sao_ink(); gravel_ink(); roof_ink()
+    dotted_ink("stone_ink", 0.3, 0.75, joints=True); dotted_ink("earth_ink", 0.5, 0.55)
+
+
+# ---------- 笛小路家（游31）：水墨版 + 彩色版 ----------
+def hexc(h): return tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def mixc(a, b, t):
+    a, b = hexc(C.get(a, a)), hexc(C.get(b, b)); return "#%02X%02X%02X" % tuple(int(round(x + (y - x) * t)) for x, y in zip(a, b))
+
+
+def fue_save(im, name, size):
+    im.resize(size, Image.LANCZOS).save(OUT / name)
+
+
+def fue_tsuiji(color=False):
+    w = 512 * SS; bg = C["paper"] if not color else mixc("paper", "ochre", 0.12); ln = inkmix(0.45) if not color else mixc("paper", "kogecha", 0.45)
+    im = Image.new("RGB", (w, w), bg); d = ImageDraw.Draw(im); rng = np.random.default_rng(61)
+    for _ in range(160):
+        x, y, r = rng.uniform(0, w), rng.uniform(0, w), rng.uniform(6, 20) * SS
+        d.ellipse((x - r, y - r * 0.5, x + r, y + r * 0.5), fill=inkmix(0.9) if not color else mixc("paper", "ochre", 0.22))
+    for k in range(5): y = w * (0.12 + 0.12 * k); d.line((0, y, w, y), fill=ln, width=SS * 3)
+    fue_save(im, f"fue_tsuiji{'_color' if color else ''}.png", (512, 512))
+
+
+def fue_boards(color=False):
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.9) if not color else C["ochre"])
+        rng = np.random.default_rng(63)
+        for ox in range(3):
+            for oy in range(3):
+                X, Y = ox * w, oy * h
+                for k in range(6):
+                    y = Y + h * k / 6
+                    for _ in range(2):
+                        yy = y + rng.uniform(0.2, 0.8) * h / 6; d.line((X, yy, X + w, yy), fill=inkmix(0.82) if not color else "#CDB565", width=SS)
+                    d.line((X, y, X + w, y), fill=inkmix(0.35) if not color else C["kogecha"], width=SS * 2)
+    tiled((512, 512), f).save(OUT / f"fue_boards{'_color' if color else ''}.png")
+
+
+def fue_tatami():
+    w, h = 512 * SS, 256 * SS
+    im = Image.new("RGB", (w, h), inkmix(0.93)); d = ImageDraw.Draw(im)
+    for k in range(70):
+        y = h * (0.06 + 0.88 * k / 70); d.line((0, y, w, y), fill=inkmix(0.86) if k % 2 else inkmix(0.96), width=SS)
+    for y0 in (0, h - h * 0.05): d.rectangle((0, y0, w, y0 + h * 0.05), fill=inkmix(0.25))
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["ink"], width=SS * 2)
+    fue_save(im, "fue_tatami.png", (512, 256))
+
+
+def fue_shoji(color=False):
+    w, h = 256 * SS, 496 * SS
+    fr_c = C["ink"] if not color else C["kogecha"]
+    im = Image.new("RGB", (w, h), C["paper"]); d = ImageDraw.Draw(im)
+    d.rectangle((0, h * 0.86, w, h), fill=inkmix(0.6) if not color else C["ochre"])   # 下面一截板
+    d.rectangle((0, 0, w - 1, h - 1), outline=fr_c, width=int(w * 0.07))
+    d.line((0, h * 0.86, w, h * 0.86), fill=fr_c, width=SS * 4)
+    fue_save(im, f"fue_shoji{'_color' if color else ''}.png", (256, 496))
+
+
+def fue_lattice(color=False):
+    w, h = 256 * SS, 496 * SS
+    bar = C["ink"] if not color else C["kogecha"]; win = inkmix(0.82) if not color else C["paper"]
+    im = Image.new("RGB", (w, h), bar); d = ImageDraw.Draw(im)
+    nx, ny = 5, 11; top, bot = h * 0.04, h * 0.8; m = w * 0.05
+    for i in range(nx):
+        for j in range(ny):
+            x0 = m + (w - 2 * m) * i / nx; y0 = top + (bot - top) * j / ny
+            d.rectangle((x0 + w * 0.025, y0 + h * 0.012, x0 + (w - 2 * m) / nx - w * 0.025, y0 + (bot - top) / ny - h * 0.012), fill=win)
+    d.rectangle((0, bot + h * 0.02, w, h), fill=inkmix(0.3) if not color else C["kogecha"])
+    fue_save(im, f"fue_lattice{'_color' if color else ''}.png", (256, 496))
+
+
+def swirl(d, cx, cy, r, turns, width, fill, rng):
+    """墨云的一团卷：渐开的螺线，笔触越卷越细"""
+    pts = []
+    for k in range(80):
+        t = k / 79; a = turns * 2 * math.pi * t; rr = r * (1 - 0.85 * t)
+        pts.append((cx + rr * math.cos(a), cy + rr * math.sin(a) * 0.7))
+    for k in range(len(pts) - 1):
+        wd = max(2, int(width * (1 - k / len(pts)) + 2)); d.line((pts[k], pts[k + 1]), fill=fill, width=wd)
+
+
+def fue_fusuma_bokuun(color=False):
+    """墨云襖（参考 02、11、14 的感觉，自己画）：灰纸底上大团浓淡墨云，卷着往一个方向流"""
+    W, H = 2048, 990
+    def f(d, w, h, im):
+        bg = inkmix(0.86) if not color else C["ochre"]
+        d.rectangle((0, 0, w * 3, h * 3), fill=bg)
+        rng = np.random.default_rng(71)
+        cols = [inkmix(0.15), inkmix(0.35), inkmix(0.6)] if not color else [C["teal"], C["blue"], C["paper"]]
+        for ox in range(3):
+            X, Y = ox * w, h
+            for n in range(9):
+                cx, cy = X + rng.uniform(0, w), Y + rng.uniform(0.15, 0.85) * h; r = rng.uniform(0.08, 0.2) * h
+                col = cols[n % 3]
+                for k in range(6):   # 一团云：几个椭圆叠起来
+                    ox_, oy_ = rng.uniform(-1.6, 1.6) * r, rng.uniform(-0.5, 0.5) * r
+                    d.ellipse((cx + ox_ - r, cy + oy_ - r * 0.55, cx + ox_ + r, cy + oy_ + r * 0.55), fill=col)
+                swirl(d, cx + r * 1.4, cy - r * 0.2, r * 0.9, 1.6, SS * 10, cols[(n + 1) % 3], rng)
+    tiled((W, H), f).save(OUT / f"fue_fusuma_bokuun{'_color' if color else ''}.png")
+
+
+def splatter(d, w, h, X, Y, n, cols, rng, big=1.0):
+    for _ in range(n):
+        cx, cy = X + rng.uniform(0, w), Y + rng.uniform(0, h); r = rng.uniform(0.01, 0.06) * h * big; col = cols[rng.integers(len(cols))]
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=col)
+        for _ in range(rng.integers(3, 9)):   # 溅出去的细点和拖尾
+            a = rng.uniform(0, 2 * math.pi); L = r * rng.uniform(1.5, 4)
+            ex, ey = cx + math.cos(a) * L, cy + math.sin(a) * L; d.line((cx, cy, ex, ey), fill=col, width=max(2, int(r * 0.25)))
+            rr = r * rng.uniform(0.1, 0.3); d.ellipse((ex - rr, ey - rr, ex + rr, ey + rr), fill=col)
+
+
+def fue_fusuma_hane(color=False):
+    """墨溅襖（参考 09 的感觉）：纸上甩满墨点墨线"""
+    W, H = 2048, 990
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.9) if not color else C["paper"])
+        rng = np.random.default_rng(73)
+        cols = [C["ink"], inkmix(0.3), inkmix(0.55)] if not color else [C["navy"], C["coral"], C["teal"], C["wisteria"]]
+        for ox in range(3):
+            splatter(d, w, h, ox * w, h, 110, cols, rng, big=1.3)
+            drips(d, w, h, ox * w, h, 26, cols, rng)
+    tiled((W, H), f).save(OUT / f"fue_fusuma_hane{'_color' if color else ''}.png")
+
+
+def drips(d, w, h, X, Y, n, cols, rng):
+    """墨往下淌（文案：墨点一道道往下淌）：从一个墨点往下拖一条越来越细的线，底下一滴"""
+    for _ in range(n):
+        x, y = X + rng.uniform(0, w), Y + rng.uniform(0, 0.6) * h; L = rng.uniform(0.15, 0.45) * h; col = cols[rng.integers(len(cols))]
+        wd = rng.uniform(0.008, 0.02) * h
+        d.ellipse((x - wd * 1.6, y - wd * 1.6, x + wd * 1.6, y + wd * 1.6), fill=col)
+        for k in range(12):
+            t0, t1 = k / 12, (k + 1) / 12; ww = max(2, int(wd * (1 - t0 * 0.7)))
+            d.line((x + math.sin(t0 * 3) * 3, y + L * t0, x + math.sin(t1 * 3) * 3, y + L * t1), fill=col, width=ww)
+        r = wd * 0.9; d.ellipse((x - r, y + L - r, x + r, y + L + r * 1.4), fill=col)
+
+
+def fue_wall_hane(color=False):
+    """墨溅之间的墙（长押上下的土壁也溅满，往下淌），一格 1 米"""
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.86) if not color else C["paper"])
+        rng = np.random.default_rng(77)
+        cols = [C["ink"], inkmix(0.3)] if not color else [C["navy"], C["coral"], C["teal"]]
+        for ox in range(3):
+            for oy in range(3): splatter(d, w, h, ox * w, oy * h, 10, cols, rng, big=1.8); drips(d, w, h, ox * w, oy * h, 4, cols, rng)
+    tiled((512, 512), f).save(OUT / f"fue_wall_hane{'_color' if color else ''}.png")
+
+
+def fue_misu(color=False):
+    """御簾：细竹条横着一道道（顺 u 平铺，一格 0.9 米 × 帘高），上下两道墨色缘，中间几道编线"""
+    w, h = 512 * SS, 512 * SS
+    base = inkmix(0.78) if not color else C["ochre"]; line = inkmix(0.55) if not color else "#C9B26A"; edge = C["ink"] if not color else C["crimson"]
+    im = Image.new("RGB", (w, h), base); d = ImageDraw.Draw(im)
+    for k in range(64): y = h * k / 64; d.line((0, y, w, y), fill=line, width=SS)
+    for x in (0.25, 0.5, 0.75): d.line((w * x, 0, w * x, h), fill=edge, width=SS * 2)
+    d.rectangle((0, 0, w, h * 0.06), fill=edge); d.rectangle((0, h * 0.94, w, h), fill=edge)
+    fue_save(im, f"fue_misu{'_color' if color else ''}.png", (512, 512))
+
+
+def fue_kinran(color=False):
+    """锦缎（香柜里包东大寺的布、香包）：底上一排排小菱花"""
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.55) if not color else C["crimson"])
+        for ox in range(3):
+            for oy in range(3):
+                for i in range(4):
+                    for j in range(4):
+                        cx, cy = ox * w + w * (i + 0.5 * (j % 2) + 0.25) / 4, oy * h + h * (j + 0.5) / 4
+                        petal_flower(d, cx, cy, w * 0.07, 4, inkmix(0.92) if not color else C["ochre"], ratio=0.5)
+    tiled((256, 256), f).save(OUT / f"fue_kinran{'_color' if color else ''}.png")
+
+
+def fue_ceiling_hane(color=False):
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.75) if not color else C["paper"])
+        rng = np.random.default_rng(75)
+        cols = [C["ink"], inkmix(0.3)] if not color else [C["navy"], C["coral"], C["teal"]]
+        for ox in range(3):
+            for oy in range(3): splatter(d, w, h, ox * w, oy * h, 9, cols, rng, big=2.0)
+    tiled((512, 512), f).save(OUT / f"fue_ceiling_hane{'_color' if color else ''}.png")
+
+
+def fue_fusuma_tora(color=False):
+    """虎襖（参考 15，占位）：一只伏着的虎，大块淡墨身子 + 浓墨横纹，头朝右。正式的等出图"""
+    W, H = 2048, 990
+    im = Image.new("RGB", (W * SS, H * SS), inkmix(0.88) if not color else C["paper"]); d = ImageDraw.Draw(im)
+    w, h = W * SS, H * SS; body = inkmix(0.6) if not color else C["ochre"]; stripe = C["ink"]
+    for (x, y, rx, ry) in ((0.45, 0.62, 0.22, 0.17), (0.62, 0.58, 0.12, 0.13), (0.3, 0.68, 0.12, 0.12)):   # 身子、肩、后腿
+        d.ellipse((w * (x - rx), h * (y - ry), w * (x + rx), h * (y + ry)), fill=body)
+    d.ellipse((w * 0.66, h * 0.38, w * 0.8, h * 0.6), fill=body)   # 头
+    for (x, y) in ((0.7, 0.45), (0.76, 0.45)): d.ellipse((w * x - 12, h * y - 8, w * x + 12, h * y + 8), fill=stripe)   # 眼
+    for k in range(12):   # 横纹
+        x = w * (0.26 + 0.034 * k); d.line((x, h * 0.48, x + w * 0.02, h * 0.62), fill=stripe, width=SS * 9)
+        d.line((x + w * 0.01, h * 0.64, x - w * 0.005, h * 0.76), fill=stripe, width=SS * 7)
+    for k in range(8): x = w * (0.08 + 0.025 * k); d.arc((x, h * 0.5, x + w * 0.2, h * 0.9), 180, 260, fill=stripe, width=SS * 6)   # 尾巴
+    for x in (0.55, 0.63, 0.38): d.ellipse((w * x - w * 0.03, h * 0.78, w * x + w * 0.03, h * 0.84), fill=body)   # 爪
+    for k in range(6): d.line((w * (0.1 + 0.15 * k), h * 0.9, w * (0.18 + 0.15 * k), h * 0.86), fill=inkmix(0.6) if not color else C["green"], width=SS * 5)   # 草
+    im.resize((W, H), Image.LANCZOS).save(OUT / f"fue_fusuma_tora{'_color' if color else ''}.png")
+
+
+def fue_fusuma_plain(color=False):
+    w, h = 256 * SS, 496 * SS
+    im = Image.new("RGB", (w, h), inkmix(0.9) if not color else C["paper"]); d = ImageDraw.Draw(im)
+    kumo(d, w * 0.5, h * 0.82, w * 0.9, h * 0.05, inkmix(0.78) if not color else C["lavender"], inkmix(0.78) if not color else C["lavender"])
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["ink"], width=int(w * 0.04))
+    fue_save(im, f"fue_fusuma_plain{'_color' if color else ''}.png", (256, 496))
+
+
+def fue_byobu_budou(color=False):
+    """葡萄屏风（参考 02、05 的感觉）：藤蔓从上往下垂，叶子、一串串葡萄"""
+    w, h = 2048 * SS // 2, 640 * SS // 2
+    im = Image.new("RGB", (w, h), inkmix(0.9) if not color else C["ochre"]); d = ImageDraw.Draw(im)
+    rng = np.random.default_rng(79)
+    vine = inkmix(0.2) if not color else C["kogecha"]; leaf = [inkmix(0.45), inkmix(0.65)] if not color else [C["green"], C["teal"]]; grape = inkmix(0.15) if not color else C["wisteria"]
+    for n in range(7):
+        x = w * (0.05 + 0.14 * n + rng.uniform(-0.03, 0.03)); pts = [(x, 0)]
+        for k in range(1, 8): pts.append((x + rng.uniform(-0.05, 0.05) * w, h * k / 8 * rng.uniform(0.7, 1.0)))
+        d.line(pts, fill=vine, width=SS * 4, joint="curve")
+        for (px, py) in pts[1:]:
+            for _ in range(2):
+                lx, ly, r = px + rng.uniform(-60, 60) * SS / 2, py + rng.uniform(-40, 40) * SS / 2, rng.uniform(28, 48) * SS / 2
+                petal_flower(d, lx, ly, r, 5, leaf[rng.integers(2)], ratio=0.6)
+            if rng.random() < 0.5:
+                for k in range(10): gx, gy = px + rng.uniform(-14, 14) * SS / 2, py + 20 * SS / 2 + k * 7 * SS / 2; d.ellipse((gx - 9, gy - 9, gx + 9, gy + 9), fill=grape)
+    im.resize((2048 // 2 * 2, 640), Image.LANCZOS).save(OUT / f"fue_byobu_budou{'_color' if color else ''}.png")
+
+
+def fue_ceiling(color=False):
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.3) if not color else C["paper"])
+        for ox in range(3):
+            for oy in range(3):
+                X, Y = ox * w, oy * h
+                for k in range(5): d.line((X + w * (0.1 + 0.2 * k), Y, X + w * (0.12 + 0.2 * k), Y + h), fill=inkmix(0.24) if not color else C["lavender"], width=SS * 2)
+                for k in range(2):
+                    x = X + w * (0.25 + 0.5 * k)
+                    d.rectangle((x - w * 0.03, Y, x + w * 0.03, Y + h), fill=C["ink"] if not color else C["kogecha"], outline=C["ink"], width=SS * 2)
+    tiled((512, 512), f).save(OUT / f"fue_ceiling{'_color' if color else ''}.png")
+
+
+def fue_snow(color=False):
+    """雪地：纸白底、淡墨的细影；彩色版是退魔后雪化了（11-06）：嫩草地、几块露土、落樱"""
+    def f(d, w, h, im):
+        rng = np.random.default_rng(81)
+        if not color:
+            d.rectangle((0, 0, w * 3, h * 3), fill=C["paper"])
+            for _ in range(300):
+                x, y, r = rng.uniform(0, w * 3), rng.uniform(0, h * 3), rng.uniform(4, 14) * SS
+                d.ellipse((x - r * 2, y - r * 0.4, x + r * 2, y + r * 0.4), fill=inkmix(0.93))
+            return
+        d.rectangle((0, 0, w * 3, h * 3), fill="#C9D29C")
+        for _ in range(60):   # 露土
+            x, y, r = rng.uniform(0, w * 3), rng.uniform(0, h * 3), rng.uniform(20, 60) * SS
+            d.ellipse((x - r * 1.6, y - r * 0.6, x + r * 1.6, y + r * 0.6), fill="#C8B98E")
+        for _ in range(900):   # 草叶
+            x, y = rng.uniform(0, w * 3), rng.uniform(0, h * 3); d.line((x, y, x + rng.uniform(-4, 4) * SS, y - rng.uniform(6, 14) * SS), fill=rng.choice(["#A9B87E", "#B7C48C", "#9FAF73"]), width=SS)
+        for _ in range(140):
+            x, y = rng.uniform(0, w * 3), rng.uniform(0, h * 3); petal_flower(d, x, y, rng.uniform(5, 9) * SS, 5, C["pink"], notch=True)
+    tiled((512, 512), f).save(OUT / f"fue_snow{'_color' if color else ''}.png")
+
+
+def fue_gate_roof(color=False):
+    def f(d, w, h, im):
+        if not color:   # 板葺：一条条灰板
+            d.rectangle((0, 0, w * 3, h * 3), fill=inkmix(0.55))
+            for k in range(30): x = w * k / 10; d.line((x, 0, x, h * 3), fill=inkmix(0.3), width=SS * 2)
+        else:            # 茅草：山吹底、焦茶细草纹
+            d.rectangle((0, 0, w * 3, h * 3), fill=C["ochre"]); rng = np.random.default_rng(83)
+            for _ in range(900):
+                x, y = rng.uniform(0, w * 3), rng.uniform(0, h * 3); d.line((x, y, x + rng.uniform(-3, 3), y + rng.uniform(20, 40) * SS), fill=rng.choice([C["kogecha"], "#C9B26A"]), width=SS)
+    tiled((512, 512), f).save(OUT / f"fue_gate_roof{'_color' if color else ''}.png")
+
+
+def fue_gate_door(color=False):
+    """门开着，从门洞看进去（文案：门一直开着）：门顶阴影下，是雪庭和远处寝殿的高廊、台阶；横向一整幅跨两格门洞。
+    彩色版是退魔后：雪化了、草地、樱花、茅草屋顶"""
+    w, h = 512 * SS, 496 * SS
+    sky = C["paper"]; ground = C["paper"] if not color else mixc("green", "paper", 0.35)
+    hall = inkmix(0.45) if not color else C["kogecha"]; roof = inkmix(0.3) if not color else C["ochre"]
+    im = Image.new("RGB", (w, h), sky); d = ImageDraw.Draw(im)
+    d.rectangle((0, h * 0.62, w, h), fill=ground)
+    d.polygon([(w * 0.02, h * 0.36), (w * 0.98, h * 0.36), (w * 0.9, h * 0.28), (w * 0.1, h * 0.28)], fill=roof)   # 远处寝殿的屋檐
+    d.rectangle((w * 0.06, h * 0.36, w * 0.94, h * 0.52), fill=inkmix(0.75) if not color else C["paper"])   # 障子一排
+    for k in range(9): x = w * (0.06 + 0.11 * k); d.line((x, h * 0.36, x, h * 0.58), fill=hall, width=SS * 3)   # 廊柱
+    d.rectangle((w * 0.04, h * 0.52, w * 0.96, h * 0.545), fill=hall)   # 廊板边
+    for x0, x1 in ((0.04, 0.4), (0.6, 0.96)):   # 栏杆
+        d.line((w * x0, h * 0.5, w * x1, h * 0.5), fill=hall, width=SS * 2)
+    d.polygon([(w * 0.42, h * 0.545), (w * 0.58, h * 0.545), (w * 0.62, h * 0.62), (w * 0.38, h * 0.62)], fill=inkmix(0.8) if not color else C["ochre"])   # 台阶
+    for k in range(4): y = h * (0.56 + 0.016 * k); d.line((w * (0.415 - 0.01 * k), y, w * (0.585 + 0.01 * k), y), fill=hall, width=SS)
+    d.rectangle((0, h * 0.62, w, h * 0.63), fill=inkmix(0.85) if not color else C["green"])
+    if color:
+        rng = np.random.default_rng(91)
+        for _ in range(8): x = rng.uniform(0, w); petal_flower(d, x, h * rng.uniform(0.18, 0.3), w * 0.05, 7, C["pink"], ratio=0.6)
+    for y0 in range(6): d.line((0, h * 0.02 * y0, w, h * 0.02 * y0), fill=inkmix(0.2), width=SS * 4)   # 门顶阴影
+    d.rectangle((0, 0, w, h * 0.08), fill=inkmix(0.2))
+    fue_save(im, f"fue_gate_door{'_color' if color else ''}.png", (512, 496))
+
+
+def fue_dais(color=False):
+    w = 512 * SS
+    im = Image.new("RGB", (w, w), C["paper"] if not color else mixc("paper", "green", 0.15)); d = ImageDraw.Draw(im)
+    for k in range(40): y = w * k / 40; d.line((0, y, w, y), fill=inkmix(0.92) if not color else mixc("paper", "green", 0.3), width=SS)
+    fue_save(im, f"fue_dais{'_color' if color else ''}.png", (512, 512))
+
+
+def fue_dais_edge(color=False, red=False):
+    w = 512 * SS
+    im = Image.new("RGB", (w, w), C["paper"]); d = ImageDraw.Draw(im)
+    cols = [C["ink"], C["paper"]] if not color else [C["crimson"], C["ochre"], C["teal"], C["ochre"]]
+    if red: cols = [C["ink"], C["crimson"]]
+    for k in range(8): d.rectangle((w * k / 8, 0, w * (k + 1) / 8, w), fill=cols[k % len(cols)])
+    fue_save(im, "fue_aka_dais_edge.png" if red else f"fue_dais_edge{'_color' if color else ''}.png", (512, 512))
+
+
+def fue_genji_wall(color=False):
+    """源氏香纹墙（参考 13 的感觉，占位）：灰墙上一枚大六角源氏香纹，旁边一笔淡墨扫过。正式的等出图"""
+    w, h = 1024 * SS, 600 * SS
+    im = Image.new("RGB", (w, h), inkmix(0.82) if not color else C["paper"]); d = ImageDraw.Draw(im)
+    for k in range(8): d.line((w * (0.55 + 0.04 * k), h, w * (0.95 + 0.02 * k), 0), fill=inkmix(0.65) if not color else C["lavender"], width=SS * 14)
+    cx, cy, r = w * 0.3, h * 0.45, h * 0.28
+    ring = C["ink"] if not color else C["crimson"]; inner = inkmix(0.82) if not color else C["paper"]
+    d.polygon([(cx + r * math.cos(math.pi / 3 * k + math.pi / 6), cy + r * math.sin(math.pi / 3 * k + math.pi / 6)) for k in range(6)], fill=ring)
+    d.polygon([(cx + r * 0.8 * math.cos(math.pi / 3 * k + math.pi / 6), cy + r * 0.8 * math.sin(math.pi / 3 * k + math.pi / 6)) for k in range(6)], fill=inner)
+    bw = r * 0.09; xs = [cx + r * (-0.5 + 0.25 * k) for k in range(5)]; top, bot = cy - r * 0.45, cy + r * 0.5
+    bar_c = C["ink"] if not color else C["ochre"]
+    for k, x in enumerate(xs): d.rectangle((x - bw / 2, top if k != 2 else top + r * 0.2, x + bw / 2, bot), fill=bar_c)
+    d.rectangle((xs[0] - bw / 2, top, xs[1] + bw / 2, top + bw), fill=bar_c); d.rectangle((xs[3] - bw / 2, top, xs[4] + bw / 2, top + bw), fill=bar_c)
+    d.rectangle((xs[1] - bw / 2, top + r * 0.2, xs[3] + bw / 2, top + r * 0.2 + bw), fill=bar_c)
+    fue_save(im, f"fue_genji_wall{'_color' if color else ''}.png", (1024, 600))
+
+
+def fue_kicho(color=False, red=False):
+    w, h = 256 * SS, 512 * SS
+    a, b = (C["paper"], C["ink"]) if not color else (C["paper"], C["crimson"])
+    if red: a, b = C["crimson"], C["ink"]
+    im = Image.new("RGB", (w, h), a); d = ImageDraw.Draw(im)
+    for k in range(4): x = w * (0.1 + 0.25 * k); d.rectangle((x, 0, x + w * 0.06, h), fill=b)
+    fue_save(im, "fue_aka_kicho.png" if red else f"fue_kicho{'_color' if color else ''}.png", (256, 512))
+
+
+def fue_aka():
+    """红色之间（参考 10）：整间朱红，墨色描框，暗一档的红做阴影纹理"""
+    cr, dk = C["crimson"], mixc("crimson", "ink", 0.35)
+    w = 512 * SS
+    im = Image.new("RGB", (w, w), cr); d = ImageDraw.Draw(im); rng = np.random.default_rng(85)
+    for _ in range(140):
+        x, y, r = rng.uniform(0, w), rng.uniform(0, w), rng.uniform(6, 22) * SS; d.ellipse((x - r, y - r * 0.5, x + r, y + r * 0.5), fill=mixc("crimson", "ink", 0.12))
+    fue_save(im, "fue_aka_wall.png", (512, 512))
+    w, h = 256 * SS, 496 * SS
+    im = Image.new("RGB", (w, h), mixc("crimson", "pink", 0.35)); d = ImageDraw.Draw(im)
+    d.rectangle((w * 0.12, h * 0.08, w * 0.88, h * 0.5), outline=dk, width=SS * 4)
+    d.rectangle((w * 0.12, h * 0.56, w * 0.88, h * 0.9), outline=dk, width=SS * 4)
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["ink"], width=int(w * 0.05))
+    fue_save(im, "fue_aka_fusuma.png", (256, 496))
+    w, h = 512 * SS, 256 * SS
+    im = Image.new("RGB", (w, h), cr); d = ImageDraw.Draw(im)
+    for k in range(70): y = h * (0.06 + 0.88 * k / 70); d.line((0, y, w, y), fill=mixc("crimson", "ink", 0.1) if k % 2 else mixc("crimson", "pink", 0.15), width=SS)
+    for y0 in (0, h - h * 0.06): d.rectangle((0, y0, w, y0 + h * 0.06), fill=C["ink"])
+    fue_save(im, "fue_aka_tatami.png", (512, 256))
+    def f(d, w, h, im):
+        d.rectangle((0, 0, w * 3, h * 3), fill=dk)
+        for ox in range(3):
+            for oy in range(3):
+                for k in range(2):
+                    x = ox * w + w * (0.25 + 0.5 * k); d.rectangle((x - w * 0.03, oy * h, x + w * 0.03, oy * h + h), fill=C["ink"])
+    tiled((512, 512), f).save(OUT / "fue_aka_ceiling.png")
+    w = 512 * SS
+    im = Image.new("RGB", (w, w), mixc("crimson", "pink", 0.25)); d = ImageDraw.Draw(im)
+    for k in range(40): y = w * k / 40; d.line((0, y, w, y), fill=cr, width=SS)
+    fue_save(im, "fue_aka_dais.png", (512, 512))
+    fue_dais_edge(red=True); fue_kicho(red=True)
+
+
+def fue_tatami_color():
+    """退魔后的榻榻米：淡黄绿（参考 17、19 那种柔和的调子，不要原来 tatami.png 那么艳）"""
+    w, h = 512 * SS, 256 * SS
+    im = Image.new("RGB", (w, h), "#BFC98F"); d = ImageDraw.Draw(im)
+    for k in range(70):
+        y = h * (0.06 + 0.88 * k / 70); d.line((0, y, w, y), fill="#B3BE84" if k % 2 else "#C9D29C", width=SS)
+    for y0 in (0, h - h * 0.05): d.rectangle((0, y0, w, y0 + h * 0.05), fill="#7A6A4E")
+    d.rectangle((0, 0, w - 1, h - 1), outline=C["ink"], width=SS * 2)
+    fue_save(im, "fue_tatami_color.png", (512, 256))
+
+
+def fue_soften():
+    """彩色版统一往原作结尾（参考 17、19）的柔和调子收：降饱和、提一点亮，绿往黄绿偏，蓝往藤灰偏，最后往纸白压一成"""
+    import colorsys
+    paper = np.array([int(C["paper"][i:i + 2], 16) for i in (1, 3, 5)], float) / 255
+    for f in sorted(OUT.glob("fue_*_color.png")):
+        a = np.asarray(Image.open(f).convert("RGB"), float) / 255
+        flat = a.reshape(-1, 3); out = np.empty_like(flat)
+        hsv = np.array([colorsys.rgb_to_hsv(*px) for px in flat])
+        h, s_, v = hsv[:, 0], hsv[:, 1], hsv[:, 2]
+        green = (h > 0.17) & (h < 0.5); blue = (h >= 0.5) & (h < 0.75)
+        h = np.where(green, h + (0.2 - h) * 0.55, h); s_ = np.where(green, s_ * 0.5, s_ * 0.62)
+        s_ = np.where(blue, s_ * 0.6, s_); v = v * 0.9 + 0.08
+        out = np.array([colorsys.hsv_to_rgb(*q) for q in zip(h, s_, np.clip(v, 0, 1))])
+        out = out * 0.88 + paper * 0.12
+        Image.fromarray((out.reshape(a.shape) * 255).clip(0, 255).astype(np.uint8)).save(f)
+
+
+def fue_from_scenes():
+    """笛小路家出的四张水墨图（scenes/47~50，游32，11-06 用户确认花积分）→ 贴图：水墨版原样缩到贴图尺寸存 jpg；
+    彩色版不另出画（用户定），按亮度做柔和的渐变映射（墨 → 深色，灰 → 旧金 / 淡绿，纸白 → 纸白），往原作结尾那种调子收"""
+    def ramp(stops):
+        xs = [t for t, _ in stops]; cs = [np.array([int(c[i:i + 2], 16) for i in (1, 3, 5)], float) for _, c in stops]
+        lut = np.zeros((256, 3))
+        for v in range(256):
+            t = v / 255; k = max(0, min(len(xs) - 2, next((q for q in range(len(xs) - 1) if t <= xs[q + 1]), len(xs) - 2)))
+            u = (t - xs[k]) / (xs[k + 1] - xs[k]); lut[v] = cs[k] + (cs[k + 1] - cs[k]) * u
+        return lut
+    jobs = {   # 场景图 → (贴图名, 尺寸, 彩色渐变)
+        "47_笛小路家_墨云襖": ("fue_fusuma_bokuun", (2496, 832), [(0, "#4A5170"), (0.45, "#8E9BB3"), (0.75, "#D6C48E"), (1, "#F3ECDC")]),
+        "48_笛小路家_虎襖": ("fue_fusuma_tora", (2496, 832), [(0, "#4A3A30"), (0.4, "#A7834F"), (0.72, "#D9C38C"), (1, "#F1EADA")]),
+        "49_笛小路家_源氏香纹墙": ("fue_genji_wall", (2048, 1120), [(0, "#6E3442"), (0.45, "#B9A0A0"), (0.8, "#E8DCC8"), (1, "#F4EDE0")]),
+        "50_笛小路家_雪庭全景天空": ("fue_sky", (3840, 1920), [(0, "#6F6D8C"), (0.5, "#B7B6CC"), (0.8, "#EAD9DE"), (1, "#F7EFE8")]),
+    }
+    for sid, (name, size, stops) in jobs.items():
+        src = SC / f"{sid}.png"
+        if not src.exists(): print("还没有", src.name); continue
+        im = Image.open(src).convert("RGB").resize(size, Image.LANCZOS)
+        im.save(OUT / f"{name}.jpg", quality=88)
+        L = np.asarray(im.convert("L"))
+        Image.fromarray(ramp(stops)[L].astype(np.uint8)).save(OUT / f"{name}_color.jpg", quality=88)
+        print("→", name, size)
+
+
+def fue_sky_spring():
+    """退魔后的天（11-06 总指挥：上色后雪停了、"原来外面早就是春天"）：从水墨全景 scenes/50 程序改——
+    先去掉画上去的雪片（亮点：比 9 像素中值亮一截的换成中值），云的浓淡压一半，再按高度上色：
+    天淡青到暖白，地平线一带樱粉雾，远山远树浅绿，下面三分之一是嫩草地。直接覆盖 fue_sky_color.jpg"""
+    from PIL import ImageFilter
+    src = SC / "50_笛小路家_雪庭全景天空.png"
+    if not src.exists(): print("还没有", src.name); return
+    im = Image.open(src).convert("L").resize((3840, 1920), Image.LANCZOS)
+    a = np.asarray(im, float)
+    for k, th in ((9, 10), (21, 5), (21, 4)):   # 雪片：比周围中值亮的点换成中值，小的、大的软雪团各过一遍
+        med = np.asarray(Image.fromarray(a.astype(np.uint8)).filter(ImageFilter.MedianFilter(k)), float)
+        a = np.where(a - med > th, med, a)
+    a = np.asarray(Image.fromarray(a.astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.2)), float)
+    H = a.shape[0]; y = np.linspace(0, 1, H)[:, None]
+    L = a / 255
+    hexa = lambda h: np.array([int(h[i:i + 2], 16) for i in (1, 3, 5)], float)
+    def band(t, c0, c1): return c0 + (c1 - c0) * t[..., None]
+    sky_t = np.clip(0.45 + 0.55 * L, 0, 1) * (0.55 + 0.45 * np.clip(y / 0.6, 0, 1))   # 云淡一半；越往天顶越青
+    sky = band(sky_t, hexa("#86AFC6"), hexa("#F4F1E8"))      # 淡青 → 暖白
+    haze = band(np.clip(L, 0, 1), hexa("#C89AA6"), hexa("#F3DDE2"))   # 樱粉雾
+    hills = band(np.clip(L * 1.2, 0, 1), hexa("#6F8A62"), hexa("#DCE3C2"))   # 远山远树浅绿
+    ground = band(np.clip(0.4 + 0.6 * L, 0, 1), hexa("#A9B87E"), hexa("#E3E6C4"))   # 嫩草地
+    w = lambda c, s_: np.clip(1 - np.abs(y - c) / s_, 0, 1)[..., None]
+    wh, wz, wg = w(0.66, 0.06), w(0.6, 0.12), np.clip((y - 0.7) / 0.05, 0, 1)[..., None]
+    out = sky * (1 - wz) + haze * wz
+    out = out * (1 - wh) + hills * wh
+    out = out * (1 - wg) + ground * wg
+    Image.fromarray(out.clip(0, 255).astype(np.uint8)).save(OUT / "fue_sky_color.jpg", quality=88)
+    print("→ fue_sky_color.jpg（春天）")
+
+
+def fue_set():
+    fue_tatami(); fue_aka()
+    for c in (False, True):
+        fue_tsuiji(c); fue_boards(c); fue_shoji(c); fue_lattice(c); fue_fusuma_bokuun(c); fue_fusuma_hane(c); fue_ceiling_hane(c)
+        fue_fusuma_tora(c); fue_fusuma_plain(c); fue_byobu_budou(c); fue_ceiling(c); fue_snow(c); fue_gate_roof(c); fue_gate_door(c)
+        fue_dais(c); fue_dais_edge(c); fue_genji_wall(c); fue_kicho(c); fue_wall_hane(c); fue_misu(c); fue_kinran(c)
+    fue_tatami_color(); fue_soften()   # 彩色版最后统一压柔（11-06 总指挥：榻榻米绿太艳）
+    fue_from_scenes()   # 出图的四张（墨云襖、虎襖、源氏香纹墙、雪庭全景天空）覆盖程序画的占位
+    fue_sky_spring()    # 退魔后的天：去雪片、往春天靠
+
+
 if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:   # 只重画点名的几张：uv run tools/kit_textures.py ink_set fusuma_ink …
+        for name in sys.argv[1:]: globals()[name]()
+        print("→", OUT); sys.exit()
     crops(); carpet(); boards(); drape(); andon(); chochin()
     tatami(); fusuma(); shoji(); udoor(); sao(); goten(); engawa(); earth(); kakejiku()
     goten_teal(); glassdoor(); fanlight(); lattice(); byobu(); koshiita(); stone(); deck(); gravel(); katomado_shoji(); fusuma_hana(); frieze_flower(); dais(); dou_sign()
@@ -783,4 +1420,5 @@ if __name__ == "__main__":
     noren_kamon(); fusuma_kamon(); maku_sanshoku(); maku_green(); chochin_kamon(); itado(); fusuma_nami(); rug_tsuru()
     zabuton_maru(); floor_black(); panels_color(); goten_blue(); wall_darkred(); lattice_red(); shiromuku()
     dotted("wall_gray", 0.55); dotted("earth_dark", 0.74); goten_black(); panels_ybg()
+    ink_set(); fue_set()
     print("→", OUT)

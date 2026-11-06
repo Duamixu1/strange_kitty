@@ -1,0 +1,25 @@
+# 笛小路家·门前（参考 16、17、19）：雪地里一道筋塀，正中一座板葺棟門，两扇门板往里开着（文案：门一直开着）。
+# 上面 E 是门（进雪庭），四周雪地往外铺，远处一圈淡墨枯树。拾遗 1 门前雪里的木屐在地点 JSON 里。
+# ruin: on 退魔后（recolorKit 换 color）门变废墟：茅草顶塌半边、门板歪倒、墙裂、长草、墙外樱花（参考 19）。
+name: fuenokouji_mon
+height: 2.3
+kamoi: 2.05
+ceiling: none
+gate: on
+ruin: on
+wall_cap: all
+surround: yuki
+mat: wood=fue_wood, frame=fue_frame, plaster=fue_plaster, kokabe=fue_kokabe, tatami=fue_tatami, tatami_side=fue_tatami_side, engawa=fue_boards, shoji=fue_shoji, lattice_win=fue_lattice, ceiling=fue_ceiling, snow=fue_snow, roof=fue_roof, rail=fue_wood, stair=fue_boards, under=fue_under, lacquer=fue_lacquer, censer=fue_censer, genji_plate=fue_genji_plate, genji_line=fue_genji_line, kicho=fue_kicho, dais=fue_dais, dais_side=fue_dais_edge, dais_trim=fue_lacquer, byobu=fue_byobu_budou, fusuma=fue_fusuma_bokuun, fusuma2=fue_fusuma_hane, udoor=fue_fusuma_plain, glassdoor=fue_gate_door, gate_roof=fue_gate_roof, gate_wood=fue_gate_wood, koshi=fue_wood, misu=fue_misu, misu_cord=crimson, plaster=fue_tsuiji, kokabe=fue_tsuiji
+place: baretree 1.2,2.4,4.5; baretree 14.4,1.6,5.2; baretree 15.2,7.8,3.6; pine 2.6,6.4,2.4
+shot: 门 | 7.28,1.7,8.6 | 7.28,1.6,0.4 | 5.4,5.6,3.14
+shot: 斜看土塀 | 13.6,1.6,7.6 | 3.0,1.3,0.4 | 11.6,5.2,-2.2
+---
+#######EE########
+sssssssssssssssss
+sssssssssssssssss
+sssssssssssssssss
+ssssssss1ssssssss
+ssssssssssss2ssss
+ssssssss@ssssssss
+sssssssssssssssss
+sssssssssssssssss

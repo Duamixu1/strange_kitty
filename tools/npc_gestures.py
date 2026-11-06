@@ -53,7 +53,11 @@ WHO = {"asa": ["fix_collar_k", "look_around_k", "nod_k"], "kame": ["fix_collar_k
        # 游14 新人物（万屋：志乃、久代、徳次；坂井家：加世、伊行、小田島）
        "shino": ["fix_collar_k", "look_around_k", "nod_k"], "hisayo": ["nod_k", "look_around_k", "posture_k"],
        "tokuji": ["look_around_k", "nod_k", "posture_k"], "kayo": ["fix_collar_k", "look_around_k", "nod_k"],
-       "yoshiyuki": ["turn_slow_k", "nod_k", "posture_k"], "odajima": ["look_around_k", "posture_k", "nod_k"]}
+       "yoshiyuki": ["turn_slow_k", "nod_k", "posture_k"], "odajima": ["look_around_k", "posture_k", "nod_k"],
+       # 游32 笛小路家（室町、半井、大澤站着；老尼、瑠璃姫跪坐，跑完这里再跑 tools/npc_seat.py）
+       "muromachi": ["look_around_k", "nod_k", "posture_k"], "nakarai": ["look_around_k", "nod_k", "posture_k"],
+       "osawa": ["look_around_k", "nod_k", "posture_k"], "roni": ["nod_k", "look_around_k", "posture_k"],
+       "ruri": ["look_around_k", "nod_k", "fix_collar_k"]}
 
 
 def resolve(lib, name):

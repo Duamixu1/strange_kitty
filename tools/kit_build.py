@@ -311,10 +311,11 @@ def build_corridor():
 # ---------------------------------------------------------------- 平面图区块（docs/16）
 CELL = 0.91
 DIAG = {"/": ((1, -1), (-1, 1)), "\\": ((-1, -1), (1, 1))}      # 斜墙：/ 连右上和左下，\ 连左上和右下
-PANELS = {"F": "fusuma", "S": "shoji", "U": "udoor", "G": "glassdoor", "E": "glassdoor", "H": "katomado_shoji", "N": "fusuma2"}   # N：第二种襖（同一间房两种襖绘，坂井家大座敷正面家纹襖）   # H：火灯窗障子（大座敷左墙）   # E：长得像玻璃门的出入口（功能同 U）
+PANELS = {"F": "fusuma", "S": "shoji", "U": "udoor", "G": "glassdoor", "E": "glassdoor", "H": "katomado_shoji", "N": "fusuma2", "A": "lattice_win"}   # A：格子窗（笛小路家长廊左墙，游31）   # N：第二种襖（同一间房两种襖绘，坂井家大座敷正面家纹襖）   # H：火灯窗障子（大座敷左墙）   # E：长得像玻璃门的出入口（功能同 U）
 WALLS = set("#KDM") | set(PANELS) | set(DIAG)                  # M：土壁上贴画（大座敷八角凸间的美人画）
-FLOOR_OF = {".": "tatami", "=": "engawa", "_": "earth", "T": "toko", ",": "gravel", "~": "water", "b": "bridge"}   # 白砂、水（不能走）、拱桥
-FURN = set("PRYhrktLwpcZJWXQO")                                   # 坂井家加：p 红灯柱、c 圆坐垫、Z 灶台、J 陶罐、W 古井、X 白无垢衣架                                               # 高台、柜台、屏风、椅子、庭石：地面跟周围，摆家具，不能走
+FLOOR_OF = {".": "tatami", "=": "engawa", "_": "earth", "T": "toko", ",": "gravel", "~": "water", "b": "bridge", "s": "snow", "^": "stair"}   # s 雪地、^ 台阶（笛小路家，游31）
+LOW = ("earth", "snow")   # 比地板低 doma 米的地面：土间、雪庭   # 白砂、水（不能走）、拱桥
+FURN = set("PRYhrktLwpcZJWXQOnmv")   # 游31 加：n 香几、m 香柜、v 几帐                                   # 坂井家加：p 红灯柱、c 圆坐垫、Z 灶台、J 陶罐、W 古井、X 白无垢衣架                                               # 高台、柜台、屏风、椅子、庭石：地面跟周围，摆家具，不能走
 MARKS = set("@o123456789l") | FURN                                # l：头顶吊一盏红提灯，人能走
 DIRS = {"E": (1, 0), "W": (-1, 0), "S": (0, 1), "N": (0, -1)}
 KAMOI, NAGESHI = 1.76, 1.86        # 鸭居下沿、长押下沿（米）
@@ -326,7 +327,8 @@ class Plan:
         text = (PLANS / f"{name}.txt").read_text(encoding="utf-8")
         head, _, body = text.partition("\n---\n")
         self.cfg = {"name": name, "height": "2.7", "ceiling": "sao"}
-        self.shots, self.roles = [], {"kokabe": "plaster"}   # 长押以上的小壁默认和下半截一样
+        self.shots, self.roles = [], {"kokabe": "plaster", "stair": "engawa", "rail": "wood", "dais": "dais", "dais_trim": "ochre", "under": "kage", "tree": "fue_tree", "far": "fue_far", "gate_wood": "wood"}   # 长押以上的小壁默认和下半截一样
+        self.zones, self.cur = [], None   # zone: i0,j0,i1,j1 | 角色=材质, …：这个格子范围里换材质（笛小路家红色之间，游31）；cur 是正在搭的格子
         for line in head.splitlines():
             line = line.split("  ←")[0].strip()
             if not line or line.startswith("#") or ":" not in line: continue
@@ -338,11 +340,15 @@ class Plan:
             elif k == "mat":
                 for kv in v.split(","):
                     r, key = (t.strip() for t in kv.split("=")); self.roles[r] = key
+            elif k == "zone":
+                rect, _, kvs = v.partition("|")
+                self.zones.append((tuple(int(t) for t in rect.split(",")), {a.strip(): b.strip() for a, b in (kv.split("=") for kv in kvs.split(","))}))
             else: self.cfg[k] = v
         rows = [r.rstrip() for r in body.rstrip("\n").split("\n")]
         self.w = max(len(r) for r in rows); self.h = len(rows)
         self.g = [r.ljust(self.w) for r in rows]
         self.H = float(self.cfg["height"])
+        self.roles.setdefault("ceiling", self.cfg["ceiling"])
         self.on = lambda k: self.cfg.get(k, "").lower() in ("on", "yes", "1", "true")
         self.k = float(self.cfg.get("timber", "1"))      # 木料粗细倍数：柱、鸭居、长押一起放大（万屋 1.8）
         self.post = POST * self.k
@@ -353,8 +359,16 @@ class Plan:
         self.hfun = []   # [(矩形, f(x, z) → 地面高度)]：拱桥这种不平的地面，写进可走格子的 floor   # 腰板高度（米），0 = 没有；有的话土壁下面这一截换成 koshi 材质
 
     def R(self, role):
-        """材质角色 → 材质 key（平面图里 mat: wood=wood_dark 这样换），没换就是角色名本身"""
+        """材质角色 → 材质 key（平面图里 mat: wood=wood_dark 这样换），没换就是角色名本身；正在搭的格子在某个 zone 里就先用 zone 的"""
+        if self.cur and self.zones:
+            i, j = self.cur
+            for (i0, j0, i1, j1), roles in self.zones:
+                if i0 <= i <= i1 and j0 <= j <= j1 and role in roles: return roles[role]
         return self.roles.get(role, role)
+
+    def at_xz(self, x, z): return (int(x // CELL), int(z // CELL))
+
+    def low(self, i, j): return self.floor(i, j) in LOW
 
     def at(self, i, j):
         return self.g[j][i] if 0 <= i < self.w and 0 <= j < self.h else " "
@@ -364,7 +378,7 @@ class Plan:
     def base(self, i, j):
         """墙格上门扇、敷居的底高：挨着土间（8 邻里有 earth 格）就是 -doma，别的 0"""
         if not self.doma: return 0.0
-        return -self.doma if any(self.floor(i + dx, j + dz) == "earth" for dx in (-1, 0, 1) for dz in (-1, 0, 1)) else 0.0
+        return -self.doma if any(self.floor(i + dx, j + dz) in LOW for dx in (-1, 0, 1) for dz in (-1, 0, 1)) else 0.0
 
     def floor(self, i, j):
         """格子的地面种类；墙格、外面返回 None；标记格、家具格跟最近的地面（不算床之间）"""
@@ -511,7 +525,8 @@ def lay_tatami(P, reg, walk):
 
 
 def plan_floors(P, walk, block):
-    for reg in P.regions("tatami"): lay_tatami(P, reg, walk)
+    for reg in P.regions("tatami"): P.cur = reg[0]; lay_tatami(P, reg, walk)
+    P.cur = None
     for reg in P.regions("gravel"):
         for (a, b) in reg: r = P.cell_rect(a, b); floor_quad(P.R("gravel"), r); walk.append(mrect(r))
     for reg in P.regions("water"):        # 水面低 0.22 米，和别的地面交界处立一圈石岸
@@ -525,15 +540,17 @@ def plan_floors(P, walk, block):
                 (ax, az), (bx, bz) = e
                 face("stone", [(ax, -0.22, az), (bx, -0.22, bz), (bx, 0.0, bz), (ax, 0.0, az)], [(0, 0), (1, 0), (1, 0.25), (0, 0.25)], want=(-dx, 0, -dz))
     for reg in P.regions("bridge"): arch_bridge(P, reg, walk, block)
-    for kind in ("engawa", "earth"):
+    for kind in ("engawa", "earth", "snow"):
         for reg in P.regions(kind):
             xs = [c[0] for c in reg]; zs = [c[1] for c in reg]
             along_x = (max(xs) - min(xs)) >= (max(zs) - min(zs))
             if kind == "engawa" and P.cfg.get("seams") == "across": along_x = not along_x   # 板缝横过廊下（万屋长廊）
-            y = -P.doma if kind == "earth" else 0.0
+            y = -P.doma if kind in LOW else 0.0
             for (a, b) in reg:
-                r = P.cell_rect(a, b); floor_quad(P.R(kind), r, y=y, along_x=along_x); walk.append(mrect(r))
-    if P.doma: doma_step(P, block)
+                P.cur = (a, b); r = P.cell_rect(a, b); floor_quad(P.R(kind), r, y=y, along_x=along_x); walk.append(mrect(r))
+    P.cur = None
+    if P.doma and any(P.floor(i, j) == "earth" for j in range(P.h) for i in range(P.w)): doma_step(P, block)
+    if any(P.floor(i, j) in ("snow", "stair") for j in range(P.h) for i in range(P.w)): koran(P, walk, block)
     for reg in P.regions("toko"):          # 床之间：抬高的木台 + 床框 + 后墙挂轴
         rs = [mrect(P.cell_rect(a, b)) for a, b in reg]
         x0, z0, x1, z1 = min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)
@@ -790,6 +807,39 @@ def placed(kind, x, z, yaw, P, block, y=0.0):
             n0 = {kk: len(g["v"]) for kk, g in G.items()}; jizo(h, k)
             for kk, g in G.items():
                 for i in range(n0.get(kk, 0), len(g["v"])): g["v"][i] = g["v"][i] + V(dx, 0, (k % 2) * 0.04)
+    elif kind == "pine":   # 雪庭的松（yaw 那一位当高度，米）：墨色干、几层平展的松针团，顶上压雪
+        fue_pine(yaw or 2.6); yaw = 0.0
+    elif kind == "mossrock":   # 半埋在雪里的石头，顶上绿苔、一角压雪（参考 12；yaw 那一位当大小）
+        k = yaw or 1.0; rock(0, 0, int(x * 31 + z * 7), k=k); g_ = G["rock"]
+        for i in range(before.get("rock", 0), len(g_["v"])): g_["v"][i] = g_["v"][i] - V(0, 0.18 * k, 0)   # 往雪里埋
+        flat_ball("fue_moss", (0.05 * k, 0.22 * k, 0.02), 0.32 * k, 0.1 * k); flat_ball("fue_snow", (-0.18 * k, 0.2 * k, -0.08 * k), 0.24 * k, 0.08 * k)
+        yaw = 0.0
+    elif kind == "twigs":   # 雪上几根枯枝
+        import random
+        rnd = random.Random(int(x * 13 + z * 3))
+        for q in range(4):
+            a = rnd.uniform(0, math.pi); L = rnd.uniform(0.4, 0.9); ox, oz = rnd.uniform(-0.3, 0.3), rnd.uniform(-0.3, 0.3)
+            tbox("fue_tree", (ox, 0.02, oz), (ox + math.cos(a) * L, 0.04, oz + math.sin(a) * L), 0.025)
+            tbox("fue_tree", (ox + math.cos(a) * L * 0.5, 0.03, oz + math.sin(a) * L * 0.5), (ox + math.cos(a + 0.6) * L * 0.8, 0.05, oz + math.sin(a + 0.6) * L * 0.8), 0.015)
+    elif kind in ("foot", "foot_r", "paw", "paw_r"):   # 雪上的小孩脚印 / 兽爪印（朝 +x 走，yaw 转），fue_print 淡墨
+        sg = -1 if kind.endswith("_r") else 1
+        if kind.startswith("foot"):
+            pts = [(0.09 * math.cos(2 * math.pi * q / 12), 0.006, 0.042 * math.sin(2 * math.pi * q / 12)) for q in range(12)]
+            face("fue_print", pts, [(0, 0)] * 12, want=(0, 1, 0))
+            for q in range(5): flat_ball("fue_print", (0.115, 0.006, (q - 2) * 0.017 * sg), 0.011, 0.002, seg=6, rings=3)
+        else:
+            flat_ball("fue_print", (0, 0.006, 0), 0.055, 0.002, seg=8, rings=3)
+            for q in range(4):
+                a = (q - 1.5) * 0.45; cx_, cz_ = math.cos(a) * 0.1, math.sin(a) * 0.1
+                flat_ball("fue_print", (cx_, 0.006, cz_), 0.024, 0.002, seg=6, rings=3)
+                tbox("fue_print", (cx_ + 0.01, 0.007, cz_), (cx_ + 0.07 * math.cos(a), 0.007, cz_ + 0.07 * math.sin(a)), 0.012)   # 爪尖拖出的一道
+    elif kind == "hime":   # 御簾后面坐着的瑠璃姫（文案 kou.1：看不清脸）：墨影，正坐、长发垂到背后，朝 +z；退魔后藏起来（fue_hime_color hide）
+        cone("fue_hime", (0, 0, 0), 0.42, 0.2, 0.42, seg=12)              # 铺开的衣摆
+        cone("fue_hime", (0, 0.38, 0), 0.2, 0.13, 0.42, seg=10)           # 上身
+        sphere("fue_hime", (0, 0.92, 0.0), 0.11, seg=10, rings=6)         # 头
+        tbox("fue_hime", (0, 0.95, -0.06), (0, 0.3, -0.22), 0.16)         # 长发
+    elif kind == "baretree":   # 枯树（yaw 那一位当高度）：墨色枝杈分四层
+        bare_tree(0, 0, yaw or 4.0, int(x * 17 + z * 5), P.R("tree")); yaw = 0.0
     elif kind == "pinwheel_stick":   # 纸风车的竹竿（轮子是 act_pinwheel，代码转它），轴心在 y 0.55、竿前 0.02
         tbox("wood_dark", (0, 0, 0), (0, 0.56, 0), 0.016)
     elif kind in ("trap", "trap_open"):
@@ -836,14 +886,16 @@ def placed(kind, x, z, yaw, P, block, y=0.0):
     if y:
         for k, g in G.items():
             for i in range(before.get(k, 0), len(g["v"])): g["v"][i] = g["v"][i] + V(0, y, 0)
-    if kind in ("ricebag", "basket", "jizo", "kage_up", "rock"): block.append((min(xs), min(zs), max(xs), max(zs)))   # 捕鼠夹不挡路（踩得过去），鱼干挂在头顶
+    if kind in ("ricebag", "basket", "jizo", "kage_up", "rock", "mossrock"): block.append((min(xs), min(zs), max(xs), max(zs)))
+    if kind in ("pine", "baretree"): block.append((x - 0.25, z - 0.25, x + 0.25, z + 0.25))   # 只挡树干   # 捕鼠夹不挡路（踩得过去），鱼干挂在头顶
 
 
 def plan_places(P, block):
     for spec in filter(None, (t.strip() for t in P.cfg.get("place", "").split(";"))):
         kind, nums = spec.split(None, 1)   # place: 种类 x,z[,yaw 度]; …（米）
         v = [float(t) for t in nums.split(",")]
-        placed(kind, v[0], v[1], v[2] if len(v) > 2 else 0.0, P, block, y=v[3] if len(v) > 3 else 0.0)
+        dy = -P.doma if P.low(*P.at_xz(v[0], v[1])) else 0.0   # 雪庭里的东西跟着地面往下
+        placed(kind, v[0], v[1], v[2] if len(v) > 2 else 0.0, P, block, y=(v[3] if len(v) > 3 else 0.0) + dy)
 
 
 def bamboo(cx, cz, seed):
@@ -1186,11 +1238,14 @@ def mural_decal(P, i, j, axis, cx, cz):
 def panel(P, i, j, axis, key, c):
     """一扇襖 / 障子 / 楼梯口襖 / 玻璃门的两面贴图（框在 plan_walls 里）。襖绘按整排连续（u = 沿轴格数 / 4）"""
     cx, cz = P.center(i, j); L, Hh = CELL, P.kamoi; y0 = P.base(i, j)
-    inset = 0.025 if key in ("fusuma", "fusuma2", "glassdoor") else 0.0
+    inset = 0.025 if key in ("fusuma", "fusuma2", "glassdoor") and not (P.on("gate") and P.at(i, j) == "E") else 0.0
     span = int(P.cfg.get("fusuma_span", "4"))   # 一幅襖绘横跨几扇（坂井家雄鸡襖 6、浪涛襖 5），从这一排的第一扇算起
-    if key in ("fusuma", "fusuma2"):
+    if key in ("fusuma", "fusuma2") or (P.on("gate") and P.at(i, j) == "E"):   # 门洞（gate: on）里看进去的景整片连着，不每格重复
         ch = P.at(i, j); di, dj = (1, 0) if axis == "x" else (0, 1); a = 0
         while P.at(i - (a + 1) * di, j - (a + 1) * dj) == ch: a += 1
+        if ch == "E":
+            span = a + 1
+            while P.at(i + (span - a) * di, j + (span - a) * dj) == ch: span += 1
         u0, u1 = (a % span) / span, (a % span + 1) / span
     else: u0, u1 = 0, 1
     off = T_PANEL / 2 + 0.002
@@ -1203,22 +1258,32 @@ def panel(P, i, j, axis, key, c):
             pts = [(x, y0 + inset, a), (x, y0 + inset, b), (x, Hh - inset, b), (x, Hh - inset, a)]; n = (sg, 0, 0)
         # 两面各按"站在这一面看过去从左到右"排 u：法线朝 +x 或 -z 的那面要左右翻，不然有一面的襖绘是反的（坂井家雄鸡襖发现的）
         m0, m1 = (1 - u0, 1 - u1) if (axis == "z" and sg == 1) or (axis == "x" and sg == -1) else (u0, u1)   # 整幅一起镜像（扇的顺序和每扇里面都翻）
+        P.cur = (i, j + sg) if axis == "x" else (i + sg, j)   # 这一面朝的那一格（zone 按房间换材质时，隔断两面可以不一样）
         face(P.R(key), pts, [(m0, 0), (m1, 0), (m1, 1), (m0, 1)], want=n)
+        if key in ("fusuma", "fusuma2") and P.cfg.get("hikite") == "genji":   # 引手做成源氏香纹（参考 11、14）：每扇靠一边、离地 0.85
+            ch = P.at(i, j); di, dj = (1, 0) if axis == "x" else (0, 1); a = 0
+            while P.at(i - (a + 1) * di, j - (a + 1) * dj) == ch: a += 1
+            side = (-1 if a % 2 else 1) * 0.3   # 相邻两扇的引手朝中缝
+            hx, hz = (cx + side, cz) if axis == "x" else (cx, cz + side)
+            genji_crest((hx, y0 + 0.85, hz + sg * (T_PANEL / 2 + 0.006)) if axis == "x" else (hx + sg * (T_PANEL / 2 + 0.006), y0 + 0.85, hz), axis, sg, 0.06, P)
 
 
 def plan_walls(P, block, segs):
     H = P.H; posts = set(); free = set()   # free：平面图上的 o，门厅柱网这种独立柱，比墙里的柱再粗一档
     for j in range(P.h):
         for i in range(P.w):
-            c = P.at(i, j)
+            c = P.at(i, j); P.cur = (i, j)
             if c == "o": free.add(P.center(i, j)); continue
             if c not in WALLS: continue
             cx, cz = P.center(i, j); axis = P.wall_axis(i, j)
-            if c in "FSUDGEHN" and axis:
+            if c in "FSUDGEHNA" and axis:
                 b0 = P.base(i, j)
                 if c != "D":
                     panel(P, i, j, axis, PANELS[c], (cx, cz))
-                    wbox(P.R("wood") if c == "S" else P.R("frame"), (cx, cz), axis, CELL, T_PANEL, b0, P.kamoi, block)   # 框，贴图面在 panel() 里
+                    if not (c == "E" and P.on("gate")):   # 门洞里看进去的景（gate: on）不要门框，不然中间一道竖线像关着的两扇门
+                        wbox(P.R("wood") if c in "SA" else P.R("frame"), (cx, cz), axis, CELL, T_PANEL, b0, P.kamoi, block)   # 框，贴图面在 panel() 里
+                    else: wbox(P.R("frame"), (cx, cz), axis, CELL, 0.001, b0, b0 + 0.002, block)   # 只挡路
+                    P.cur = (i, j)
                 k = P.k
                 wbox(P.R("wood"), (cx, cz), axis, CELL, T_WALL * min(k, 1.4), P.kamoi, P.kamoi + 0.07 * k)  # 鸭居
                 wbox(P.R("kokabe"), (cx, cz), axis, CELL, T_WALL * 0.8, P.kamoi + 0.07 * k, H)            # 小壁
@@ -1258,10 +1323,15 @@ def plan_walls(P, block, segs):
             if not nb: posts.add((cx, cz))
             elif not straight or (not full and ((axis == "x" and i % 2 == 0) or (axis == "z" and j % 2 == 0))):
                 posts.add((cx, cz))   # 整面画的墙（mural_full）中间不立柱，只留两头
-    for pts, size in ((posts, P.post), (free, P.post * 1.35)):
+    ph = float(P.cfg.get("post_h", H))   # 独立柱 o 的高（外廊出檐下面的柱子不能顶穿屋檐，游31）
+    for pts, size, top in ((posts, P.post, H), (free, P.post * 1.35, ph)):
         for (x, z) in pts:
-            box(P.R("wood"), (x, (H - P.doma) / 2, z), (size, H + P.doma, size))
+            P.cur = P.at_xz(x, z)
+            box(P.R("wood"), (x, (top - P.doma) / 2, z), (size, top + P.doma, size))
             block.append((x - size / 2, z - size / 2, x + size / 2, z + size / 2))
+            if pts is free and P.on("genji_posts"):   # 柱头的源氏香纹（参考 04：外廊柱子上一枚枚的纹）
+                for sg in (-1, 1): genji_crest((x, ph - 0.45, z + sg * (size / 2 + 0.004)), "x", sg, 0.13, P)
+    P.cur = None
 
 
 def plan_furniture(P, block):
@@ -1270,12 +1340,14 @@ def plan_furniture(P, block):
         for reg in P.regions(lambda i, j, ch=ch: P.at(i, j) == ch):
             xs = [c[0] for c in reg]; zs = [c[1] for c in reg]
             x0, z0, x1, z1 = mrect((min(xs), min(zs), max(xs) + 1, max(zs) + 1))
-            if ch == "P":   # 高台：青磁侧面 + 地毯台面 + 山吹压边
-                h = 0.32
+            P.cur = reg[0]
+            if ch == "P":   # 高台：青磁侧面 + 地毯台面 + 山吹压边（笛小路家：dais_h 0.24、白台面、黑白格边）
+                h = float(P.cfg.get("dais_h", "0.32"))
                 box(P.R("dais_side"), ((x0 + x1) / 2, h / 2, (z0 + z1) / 2), (x1 - x0, h, z1 - z0))
-                face("dais", [(x0, h + 0.002, z0), (x1, h + 0.002, z0), (x1, h + 0.002, z1), (x0, h + 0.002, z1)], [(0, 1), (1, 1), (1, 0), (0, 0)], want=(0, 1, 0))
+                face(P.R("dais"), [(x0, h + 0.002, z0), (x1, h + 0.002, z0), (x1, h + 0.002, z1), (x0, h + 0.002, z1)], [(0, 1), (1, 1), (1, 0), (0, 0)], want=(0, 1, 0))
                 for (a, b, c_, d) in ((x0, z0, x1, z0), (x0, z1, x1, z1), (x0, z0, x0, z1), (x1, z0, x1, z1)):
-                    box("ochre", ((a + c_) / 2, h + 0.02, (b + d) / 2), (max(c_ - a, 0.06), 0.04, max(d - b, 0.06)))
+                    box(P.R("dais_trim"), ((a + c_) / 2, h + 0.02, (b + d) / 2), (max(c_ - a, 0.06), 0.04, max(d - b, 0.06)))
+                if P.on("misu"): misu(P, x0, z0, x1, z1)
                 block.append((x0, z0, x1, z1))
                 if P.on("dais_items"):   # 台面摆设：中间深红坐垫 + 小肘几，一角漆盒，一角高脚烛台
                     mx, mz = (x0 + x1) / 2, (z0 + z1) / 2
@@ -1307,8 +1379,11 @@ def plan_furniture(P, block):
                     box(P.R("frame"), ((ax + bx) / 2, h, (az + bz) / 2), (abs(bx - ax) + 0.03, 0.04, abs(bz - az) + 0.03))
                 cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
                 block.append((x0, cz - 0.12, x1, cz + 0.12) if along_x else (cx - 0.12, z0, cx + 0.12, z1))
+    P.cur = None
     for j in range(P.h):
         for i in range(P.w):
+            P.cur = (i, j); n0 = snap()
+            fue_prop(P.at(i, j), *P.center(i, j), P, block, i * 13 + j * 7)
             if P.at(i, j) == "r":
                 cx, cz = P.center(i, j); k = float(P.cfg.get("rock_scale", "1")); rock(cx, cz, i * 31 + j, k)
                 block.append((cx - 0.45 * k, cz - 0.45 * k, cx + 0.45 * k, cz + 0.45 * k))
@@ -1332,6 +1407,8 @@ def plan_furniture(P, block):
             if P.at(i, j) == "t":
                 cx, cz = P.center(i, j); toys(cx, cz, i * 13 + j * 5)
                 block.append((cx - 0.25, cz - 0.25, cx + 0.25, cz + 0.25))
+            if P.low(i, j): shift_since(n0, -P.doma)   # 雪庭、土间里的庭石、石灯笼跟着地面往下
+    P.cur = None
     W, D = P.w / 2, P.h / 2
     for j in range(P.h):
         for i in range(P.w):
@@ -1404,13 +1481,15 @@ def plan_ceiling(P):
     if P.cfg["ceiling"] == "none": return
     key = P.cfg["ceiling"]
     if P.cfg.get("ceiling_fit") == "room": return ceiling_fit(P, key)
+    ceiling_skip_cells(P)
     skip = set(t.strip() for t in P.cfg.get("ceiling_skip", "").split(",") if t.strip())   # 这些地面种类上不封顶（坂井家厨房外的后院白砂）
     for j in range(P.h):
         for i in range(P.w):
-            if not P.floor(i, j) or P.floor(i, j) in skip: continue
-            x0, z0, x1, z1 = mrect(P.cell_rect(i, j))
+            if not P.floor(i, j) or P.floor(i, j) in skip or (i, j) in P.noceil: continue
+            P.cur = (i, j); x0, z0, x1, z1 = mrect(P.cell_rect(i, j))
             pts = [(x0, P.H, z0), (x1, P.H, z0), (x1, P.H, z1), (x0, P.H, z1)]
-            face(key, pts, [(p[0] / CELL, -p[2] / CELL) for p in pts], want=(0, -1, 0))
+            face(P.R("ceiling"), pts, [(p[0] / CELL, -p[2] / CELL) for p in pts], want=(0, -1, 0))
+    P.cur = None
 
 
 def ceiling_fit(P, key):
@@ -1489,10 +1568,17 @@ def walk_grid(P, walk, block, segs, cell=0.1, radius=0.25):
 def build_plan(name):
     G.clear()
     P = Plan(name); walk, block, segs = [], [], []
+    P.noceil = set()
     plan_floors(P, walk, block); plan_walls(P, block, segs); plan_furniture(P, block); plan_ceiling(P); plan_rugs(P); plan_places(P, block)
     if P.cfg.get("facade") == "wanya": facade(P, block)
     if P.cfg.get("facade") == "sakai": facade_sakai(P, block)
     if P.cfg.get("surround") == "machi": surroundings(P)
+    if P.on("gate"): fue_gate(P, block)
+    if P.cfg.get("wall_cap"): wall_cap(P)
+    for spec in filter(None, (t.strip() for t in P.cfg.get("eaves", "").split(";"))):   # eaves: x0,x1,墙面z,墙面y,出深,落差（米）
+        x0, x1, zw, y, dep, drop = (float(t) for t in spec.split(","))
+        pent_roof(x0, x1, zw, y, dep, drop=drop, key=P.R("roof"))
+    if P.cfg.get("surround") == "yuki": yuki_surround(P)
     WALK_OUT.mkdir(parents=True, exist_ok=True)
     wj = walk_grid(P, walk, block, segs)
     (WALK_OUT / f"{name}_walk.json").write_text(json.dumps(wj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
@@ -1859,11 +1945,441 @@ def build_find_letter():
     export(OUT / "find_letter.glb")
 
 
+# ---------------------------------------------------------------- 笛小路家的拾遗和 act（游32，文案线 11-06 物件清单）
+def build_find_geta():
+    """拾遗 1（门前雪里）：一只木屐，鞋带断了，一头耷拉在雪上；四周雪是平的（脚印不画就是平的）。原点在木屐中心，长边顺 x"""
+    box("fue_geta", (0, 0.05, 0), (0.24, 0.025, 0.1))
+    for x in (-0.06, 0.06): box("fue_geta", (x, 0.02, 0), (0.025, 0.04, 0.09))   # 两个齿
+    tbox("crimson", (0.08, 0.065, 0), (0.0, 0.1, 0.045), 0.012); tbox("crimson", (0.0, 0.1, 0.045), (-0.07, 0.066, 0.04), 0.012)   # 还连着的一边
+    tbox("crimson", (0.0, 0.1, -0.045), (-0.05, 0.03, -0.12), 0.012); tbox("crimson", (-0.05, 0.03, -0.12), (-0.13, 0.008, -0.16), 0.012)   # 断了耷拉到雪上
+    flat_ball("fue_snow", (-0.02, 0.0, 0.0), 0.2, 0.03)   # 一半陷在雪里
+    export(OUT / "find_geta.glb")
+
+
+def build_find_kouhukuro():
+    """拾遗 2（长廊障子边）：一只小香包挂在障子框上，绣源氏香纹，挂绳是新的（朱红）。原点在挂钩，包往下垂；贴墙那面朝 -x"""
+    tbox("crimson", (0, 0, 0), (0, -0.16, 0), 0.008)
+    n0 = snap(); flat_ball("fue_kinran", (0, -0.26, 0), 0.075, 0.1)
+    g = G["fue_kinran"]
+    for i in range(n0.get("fue_kinran", 0), len(g["v"])): v_ = g["v"][i]; g["v"][i] = V(v_.x * 0.55, v_.y, v_.z)   # 压扁成荷包
+    cone("fue_kinran", (0, -0.2, 0), 0.04, 0.012, 0.05, seg=8)
+    sphere("crimson", (0, -0.165, 0), 0.016, seg=6, rings=4)
+    class _P:   # genji_crest 要 P.R
+        R = staticmethod(lambda r: {"genji_plate": "fue_genji_plate", "genji_line": "fue_genji_line"}.get(r, r))
+    genji_crest((0.043, -0.27, 0), "z", 1, 0.035, _P)
+    export(OUT / "find_kouhukuro.glb")
+
+
+def build_find_koufuda():
+    """拾遗 3（红色之间地上）：一枚碎成两半的香札（比香写答案的小木片），背面写名字的地方被抹黑。原点在中心，平放"""
+    box("fue_fuda", (-0.045, 0.004, 0), (0.07, 0.008, 0.05)); box("ink", (-0.05, 0.0085, 0), (0.04, 0.001, 0.03))
+    n0 = snap(); box("fue_fuda", (0, 0.004, 0), (0.06, 0.008, 0.05)); box("ink", (0.005, 0.0085, -0.005), (0.035, 0.001, 0.02))
+    for k, g in G.items():   # 另一半错开、转一点
+        for i in range(n0.get(k, 0), len(g["v"])):
+            v_ = g["v"][i]; c, s_ = math.cos(0.5), math.sin(0.5); g["v"][i] = V(0.06 + v_.x * c - v_.z * s_, v_.y, 0.03 + v_.x * s_ + v_.z * c)
+    export(OUT / "find_koufuda.glb")
+
+
+KB_W, KB_D, KB_H = 0.8, 0.42, 1.1   # 香柜：宽（顺 z）、深（顺 x，正面朝 +x）、高
+
+
+def build_act_koubako():
+    """act 打开香柜（文案：多层香柜，拉开以后是锦缎包了好几层的包）：三层黑漆厨子棚，上两层开放摆小香盒，最下层是个抽屉洞。
+    正面朝 +x（地点 JSON 里 yaw -1.5708 就朝 +z）。原点在底面中心"""
+    lac = "fue_lacquer"; W, D, H = KB_W, KB_D, KB_H
+    for y in (0.0, 0.36, 0.72, H - 0.03): box(lac, (0, y + 0.015, 0), (D, 0.03, W))
+    box(lac, (-D / 2 + 0.015, H / 2, 0), (0.03, H, W))   # 背板
+    for sz in (-1, 1): box(lac, (0, H / 2, sz * (W / 2 - 0.015)), (D, H, 0.03))   # 侧板
+    face("ink", [(D / 2 - 0.03, 0.04, -W / 2 + 0.03), (D / 2 - 0.03, 0.04, W / 2 - 0.03), (D / 2 - 0.03, 0.35, W / 2 - 0.03), (D / 2 - 0.03, 0.35, -W / 2 + 0.03)], [(0, 0)] * 4, want=(1, 0, 0))   # 抽屉洞里黑的
+    for y, n in ((0.39, 3), (0.75, 2)):
+        for k in range(n):
+            z = -W / 2 + W * (k + 0.5) / n
+            box(lac, (0, y + 0.07, z), (0.2, 0.12, 0.18)); box("fue_genji_line", (0, y + 0.135, z), (0.21, 0.01, 0.19))
+    box("fue_genji_line", (D / 2, H - 0.015, 0), (0.01, 0.02, W))   # 顶边一道纸白
+    export(OUT / "act_koubako.glb")
+
+
+def build_act_koubako_drawer():
+    """抽屉（move: slide 往 +x 拉出）：前板带源氏香纹拉手，里面放着锦缎包，包口翻开露出一截发黑的朽木，断口碎成红渣（参考 18）。
+    原点在抽屉底面中心（关着时和柜子同心）"""
+    lac = "fue_lacquer"; W, D = KB_W - 0.08, KB_D - 0.06
+    box(lac, (0, 0.01, 0), (D, 0.02, W))
+    for sz in (-1, 1): box(lac, (0, 0.09, sz * (W / 2 - 0.01)), (D, 0.18, 0.02))
+    box(lac, (-D / 2 + 0.01, 0.09, 0), (0.02, 0.18, W))
+    box(lac, (D / 2 - 0.01, 0.15, 0), (0.03, 0.3, W + 0.04))   # 前板
+    class _P:
+        R = staticmethod(lambda r: {"genji_plate": "fue_genji_plate", "genji_line": "fue_genji_line"}.get(r, r))
+    genji_crest((D / 2 + 0.006, 0.15, 0), "z", 1, 0.05, _P)
+    # 锦缎包（几层布叠着，最上面一层翻开）
+    for k, (h, r) in enumerate(((0.05, 0.3), (0.09, 0.27), (0.12, 0.24))):
+        key = "fue_nishiki" if k < 2 else "fue_kinran"   # 外面几层素锦、最里一层织纹
+        n0 = snap(); flat_ball(key, (0, 0.05 + h * 0.5, 0), r, h * 0.6)
+        g = G[key]
+        for i in range(n0.get(key, 0), len(g["v"])): v_ = g["v"][i]; g["v"][i] = V(v_.x * 0.5, v_.y, v_.z)
+    two_sided("crimson", [(0.02, 0.18, -0.1), (0.17, 0.15, -0.16), (0.2, 0.12, 0.15), (0.03, 0.17, 0.12)], (0.3, 1, 0))   # 翻开的布角：朱红里子
+    # 朽木：一截发黑的木头横在包上，一头断口发红碎渣
+    n0 = snap(); cylinder("fue_kuchiki", (0, 0, 0), 0.045, 0.34, seg=9)
+    g = G["fue_kuchiki"]
+    for i in range(n0.get("fue_kuchiki", 0), len(g["v"])): v_ = g["v"][i]; g["v"][i] = V(v_.x, 0.235 + v_.z, v_.y - 0.17)   # 放倒顺 z
+    import random
+    rnd = random.Random(18)
+    for _ in range(14):   # 断口（+z 那头）的红渣
+        sphere("crimson", (rnd.uniform(-0.04, 0.04), 0.235 + rnd.uniform(-0.04, 0.04), 0.17 + rnd.uniform(0, 0.05)), rnd.uniform(0.008, 0.016), seg=5, rings=3)
+    for _ in range(8): sphere("fue_kuchiki", (rnd.uniform(-0.06, 0.08), 0.19, 0.2 + rnd.uniform(0, 0.08)), rnd.uniform(0.006, 0.012), seg=5, rings=3)
+    export(OUT / "act_koubako_drawer.glb")
+
+
 CUSTOM = {"ooku_doors": build_ooku_doors, "map_diorama": build_map_diorama,
           "act_kasa": build_act_kasa, "act_kasa_e": build_act_kasa_e, "act_closet": build_act_closet, "act_closet_door": build_act_closet_door,
           "act_closet_wet": build_act_closet_wet, "find_kanzashi": build_find_kanzashi, "find_crane": build_find_crane, "find_letter": build_find_letter,
           "find_zori": build_find_zori, "find_hand": build_find_hand, "find_rattle": build_find_rattle, "act_pinwheel": build_act_pinwheel,
-          "find_candy": build_find_candy, "find_claw": build_find_claw, "find_bowl": build_find_bowl}
+          "find_candy": build_find_candy, "find_claw": build_find_claw, "find_bowl": build_find_bowl,
+          "find_geta": build_find_geta, "find_kouhukuro": build_find_kouhukuro, "find_koufuda": build_find_koufuda,
+          "act_koubako": build_act_koubako, "act_koubako_drawer": build_act_koubako_drawer}
+
+
+
+
+# ---------------------------------------------------------------- 笛小路家（TV《鵺》，游31，11-06；参考 assets/concept/ref/fuenokouji/，只看不裁）
+def snap(): return {k: len(g["v"]) for k, g in G.items()}
+
+
+def shift_since(n0, dy):
+    if not dy: return
+    for k, g in G.items():
+        for i in range(n0.get(k, 0), len(g["v"])): g["v"][i] = g["v"][i] + V(0, dy, 0)
+
+
+def ceiling_skip_cells(P):
+    """天花不封顶的格子：雪地、台阶（外廊外面露天）"""
+    for j in range(P.h):
+        for i in range(P.w):
+            if P.floor(i, j) in ("snow", "stair"): P.noceil.add((i, j))
+
+
+def koran(P, walk, block):
+    """寝殿造的高廊（参考 03、04）：地板（廊板 / 榻榻米）比雪庭高 doma 米，交界处一圈高栏（柱、笠木、中贯、地覆）、
+    檐边一道封檐板，下面往里缩 0.5 米一道墨色挡板（地板下的暗处），每两格一根短柱支着；
+    ^ 连成一片是一段宽台阶（参考 03 中间那段），朝着有地板的那边往上，两侧有侧板和斜扶手。
+    整块的地面高度写进 P.hfun：雪地、土间 -doma，台阶按位置斜着，别的 0"""
+    d = P.doma
+    raised = lambda f: f is not None and f not in LOW and f != "stair"
+    stairs = {}
+    for reg in P.regions("stair"):
+        xs = [c[0] for c in reg]; zs = [c[1] for c in reg]
+        x0, z0, x1, z1 = mrect((min(xs), min(zs), max(xs) + 1, max(zs) + 1))
+        up = (0, -1)
+        for k, (dx, dz) in DIRS.items():
+            if any(raised(P.floor(a + dx, b + dz)) for a, b in reg): up = (dx, dz); break
+        info = (x0, z0, x1, z1, up)
+        for c in reg: stairs[c] = info
+        P.cur = reg[0]; key = P.R("stair")
+        along_z = up[0] == 0
+        L = (z1 - z0) if along_z else (x1 - x0)
+        n = max(2, round(d / 0.18)); rise, run = d / n, L / n
+        for k in range(n):   # 第 k 级（从下往上）：从地面到这一级顶面的一块
+            top = -d + rise * (k + 1)
+            if along_z:
+                za, zb = (z1 - run * (k + 1), z1 - run * k) if up[1] < 0 else (z0 + run * k, z0 + run * (k + 1))
+                box(key, ((x0 + x1) / 2, (top - d) / 2, (za + zb) / 2), (x1 - x0, top + d, zb - za), tile=CELL)
+            else:
+                xa, xb = (x1 - run * (k + 1), x1 - run * k) if up[0] < 0 else (x0 + run * k, x0 + run * (k + 1))
+                box(key, ((xa + xb) / 2, (top - d) / 2, (z0 + z1) / 2), (xb - xa, top + d, z1 - z0), tile=CELL)
+        rail = P.R("rail")
+        for side in (0, 1):   # 两侧侧板 + 斜扶手，挡住不让人从台阶侧面掉下雪地
+            if along_z:
+                x = x0 + 0.04 if side == 0 else x1 - 0.04
+                lo, hi = (z1, z0) if up[1] < 0 else (z0, z1)
+                pts = [(x, -d, lo), (x, -d + 0.3, lo), (x, 0.3, hi), (x, -d, hi)]
+                two_sided(rail, pts, (1, 0, 0))
+                tbox(rail, (x, -d + 0.8, lo), (x, 0.8, hi), 0.06)
+                for zz, yy in ((lo, -d), (hi, 0.0)): box(rail, (x, yy + 0.4, zz), (0.08, 0.8, 0.08))
+                block.append((x - 0.05, min(lo, hi), x + 0.05, max(lo, hi)))
+            else:
+                z = z0 + 0.04 if side == 0 else z1 - 0.04
+                lo, hi = (x1, x0) if up[0] < 0 else (x0, x1)
+                pts = [(lo, -d, z), (lo, -d + 0.3, z), (hi, 0.3, z), (hi, -d, z)]
+                two_sided(rail, pts, (0, 0, 1))
+                tbox(rail, (lo, -d + 0.8, z), (hi, 0.8, z), 0.06)
+                for xx, yy in ((lo, -d), (hi, 0.0)): box(rail, (xx, yy + 0.4, z), (0.08, 0.8, 0.08))
+                block.append((min(lo, hi), z - 0.05, max(lo, hi), z + 0.05))
+        walk.append((x0, z0, x1, z1))
+    P.cur = None
+    # 高栏：地板格朝雪地的边，按线合并
+    lines = {}
+    for j in range(P.h):
+        for i in range(P.w):
+            if not raised(P.floor(i, j)): continue
+            x0, z0, x1, z1 = mrect(P.cell_rect(i, j))
+            for k, (dx, dz) in DIRS.items():
+                if P.floor(i + dx, j + dz) not in LOW: continue
+                if dz: lines.setdefault(("x", round(z0 if dz < 0 else z1, 4), dz), []).append((x0, x1, (i, j)))
+                else: lines.setdefault(("z", round(x0 if dx < 0 else x1, 4), dx), []).append((z0, z1, (i, j)))
+    for (ax, c, sg), segs_ in lines.items():
+        segs_.sort()
+        runs = []
+        for a0, a1, cell in segs_:
+            if runs and abs(runs[-1][1] - a0) < 1e-6: runs[-1][1] = a1
+            else: runs.append([a0, a1, cell])
+        for a0, a1, cell in runs:
+            P.cur = cell; rail = P.R("rail"); wood = P.R("wood"); under = P.R("under")
+            ci = c - sg * 0.07   # 栏杆往地板里缩一点
+            L = a1 - a0; m = (a0 + a1) / 2
+            def bx(key, along_c, y0, y1, thick, cc):
+                if ax == "x": box(key, (along_c, (y0 + y1) / 2, cc), (L, y1 - y0, thick))
+                else: box(key, (cc, (y0 + y1) / 2, along_c), (thick, y1 - y0, L))
+            for y0, y1, t in ((0.0, 0.06, 0.09), (0.42, 0.47, 0.05), (0.82, 0.88, 0.08)):   # 地覆、中贯、笠木
+                bx(rail, m, y0, y1, t, ci)
+            npost = max(1, round(L / CELL))
+            for q in range(npost + 1):
+                a = a0 + L * q / npost
+                if ax == "x": box(rail, (a, 0.42, ci), (0.07, 0.84, 0.07))
+                else: box(rail, (ci, 0.42, a), (0.07, 0.84, 0.07))
+            bx(wood, m, -0.14, 0.0, 0.05, c)   # 封檐板
+            back = c - sg * 0.5   # 地板下的暗处：往里缩 0.5 米一道挡板 + 底面
+            if ax == "x":
+                face(under, [(a0, -d, back), (a1, -d, back), (a1, -0.14, back), (a0, -0.14, back)], [(0, 0)] * 4, want=(0, 0, sg))
+                face(under, [(a0, -0.14, back), (a1, -0.14, back), (a1, -0.14, c), (a0, -0.14, c)], [(0, 0)] * 4, want=(0, -1, 0))
+            else:
+                face(under, [(back, -d, a0), (back, -d, a1), (back, -0.14, a1), (back, -0.14, a0)], [(0, 0)] * 4, want=(sg, 0, 0))
+                face(under, [(back, -0.14, a0), (back, -0.14, a1), (c, -0.14, a1), (c, -0.14, a0)], [(0, 0)] * 4, want=(0, -1, 0))
+            for q in range(int(L / (2 * CELL)) + 1):   # 短柱
+                a = a0 + 0.2 + q * 2 * CELL
+                if a > a1 - 0.1: break
+                pc = c - sg * 0.25
+                if ax == "x": box(wood, (a, (-d - 0.14) / 2, pc), (0.14, d - 0.14, 0.14))
+                else: box(wood, (pc, (-d - 0.14) / 2, a), (0.14, d - 0.14, 0.14))
+            if ax == "x": block.append((a0, ci - 0.05, a1, ci + 0.05))
+            else: block.append((ci - 0.05, a0, ci + 0.05, a1))
+    P.cur = None
+    def hf(x, z):
+        i, j = P.at_xz(x, z)
+        f = P.floor(i, j)
+        if f is None:   # 墙格那半格按旁边的地面算
+            near = [P.floor(i + dx, j + dz) for dx, dz in DIRS.values() if P.floor(i + dx, j + dz)]
+            f = near[0] if near else None
+            if f == "stair": return None
+        if f == "stair":
+            x0, z0, x1, z1, up = stairs[(i, j)]
+            if up[0] == 0: t = (z1 - z) / (z1 - z0) if up[1] < 0 else (z - z0) / (z1 - z0)
+            else: t = (x1 - x) / (x1 - x0) if up[0] < 0 else (x - x0) / (x1 - x0)
+            return -d + d * max(0.0, min(1.0, t))
+        return -d if f in LOW else 0.0
+    P.hfun.append(((0, 0, P.w * CELL, P.h * CELL), hf))
+
+
+def genji_crest(c, axis, sg, r, P):
+    """源氏香纹（参考 13、14）：六角形底板 + 里面五根竖条，顶上横条把其中几根连起来（"花散里"的图样）。
+    贴在墙面 / 门面上：axis 是那面墙的走向，sg 是朝哪边。底板角色 genji_plate（默认墨），条子角色 genji_line（默认纸白）"""
+    cx, cy, cz = c
+    to3 = (lambda a, y, o=0.0: (cx - sg * a, cy + y, cz + sg * o)) if axis == "x" else (lambda a, y, o=0.0: (cx + sg * o, cy + y, cz + sg * a))
+    n = (0, 0, sg) if axis == "x" else (sg, 0, 0)
+    plate, line = P.R("genji_plate"), P.R("genji_line")
+    face(plate, [to3(r * math.cos(math.pi / 3 * k + math.pi / 6), r * math.sin(math.pi / 3 * k + math.pi / 6)) for k in range(6)], [(0, 0)] * 6, want=n)
+    w = r * 0.09; xs = [r * (-0.5 + 0.25 * k) for k in range(5)]; top, bot = r * 0.45, -r * 0.5
+    def bar(a0, y0, a1, y1):
+        face(line, [to3(a0, y0, 0.002), to3(a1, y0, 0.002), to3(a1, y1, 0.002), to3(a0, y1, 0.002)], [(0, 0)] * 4, want=n)
+    for k, a in enumerate(xs): bar(a - w / 2, bot, a + w / 2, top if k != 2 else top - r * 0.2)
+    bar(xs[0] - w / 2, top - w, xs[1] + w / 2, top)    # 一、二根连
+    bar(xs[3] - w / 2, top - w, xs[4] + w / 2, top)    # 四、五根连
+    bar(xs[1] - w / 2, top - r * 0.2 - w, xs[3] + w / 2, top - r * 0.2)   # 二、四根低一档连，第三根从中间穿
+
+
+def fue_prop(ch, cx, cz, P, block, seed):
+    """香之间的家具（参考 02、05、07、10）：n 香几（黑漆矮几，上面香炉、香盘、几根香箸）、m 香柜（三层黑漆厨子棚，上面小香盒）、
+    v 几帐（T 字木架垂两幅帘，帘子角色 kicho）"""
+    lac, line = P.R("lacquer"), P.R("genji_line")
+    if ch == "n":
+        box(lac, (cx, 0.27, cz), (1.1, 0.05, 0.5))
+        for sx in (-0.5, 0.5):
+            for sz in (-0.2, 0.2): box(lac, (cx + sx, 0.125, cz + sz), (0.05, 0.25, 0.05))
+        box(line, (cx, 0.296, cz), (1.0, 0.004, 0.4))   # 台面一道纸白描边
+        box(lac, (cx, 0.3, cz), (0.96, 0.006, 0.36))
+        cylinder(P.R("censer"), (cx - 0.25, 0.3, cz), 0.07, 0.08, seg=10); cylinder(line, (cx - 0.25, 0.38, cz), 0.075, 0.01, seg=10)
+        kouban(cx + 0.12, 0.3, cz)
+        for k in range(3): tbox(lac, (cx + 0.38, 0.31, cz - 0.08 + k * 0.05), (cx + 0.46, 0.31, cz + 0.06 + k * 0.05), 0.012)
+        block.append((cx - 0.58, cz - 0.28, cx + 0.58, cz + 0.28))
+    elif ch == "m" and P.cfg.get("koubako") == "act":   # 香柜是 act 的小积木（act_koubako），平面图这格只挡路
+        block.append((cx - 0.42, cz - 0.3, cx + 0.42, cz + 0.3))
+    elif ch == "m":
+        w_, d_, h_ = 0.8, 0.4, 1.1
+        for y in (0.04, 0.4, 0.75, h_): box(lac, (cx, y, cz), (w_, 0.04, d_))
+        for sx in (-1, 1):
+            for sz in (-1, 1): box(lac, (cx + sx * (w_ / 2 - 0.02), h_ / 2, cz + sz * (d_ / 2 - 0.02)), (0.04, h_, 0.04))
+        for y, n in ((0.06, 2), (0.42, 3), (0.77, 1), (h_ + 0.02, 2)):   # 每层摆小香盒（纸白边）
+            for k in range(n):
+                x = cx - w_ / 2 + w_ * (k + 0.5) / n
+                box(lac, (x, y + 0.07, cz), (0.18, 0.12, 0.18)); box(line, (x, y + 0.135, cz), (0.19, 0.01, 0.19))
+        block.append((cx - w_ / 2, cz - d_ / 2, cx + w_ / 2, cz + d_ / 2))
+    elif ch == "v":
+        wood, cloth = P.R("wood"), P.R("kicho")
+        box(wood, (cx, 0.03, cz), (0.6, 0.06, 0.3)); box(wood, (cx, 0.75, cz), (0.05, 1.5, 0.05)); box(wood, (cx, 1.5, cz), (1.0, 0.05, 0.05))
+        for sx in (-0.25, 0.25):
+            face(cloth, [(cx + sx - 0.24, 0.2, cz), (cx + sx + 0.24, 0.2, cz), (cx + sx + 0.24, 1.48, cz), (cx + sx - 0.24, 1.48, cz)], [(0, 0), (1, 0), (1, 1), (0, 1)], want=(0, 0, 1))
+            face(cloth, [(cx + sx - 0.24, 0.2, cz), (cx + sx + 0.24, 0.2, cz), (cx + sx + 0.24, 1.48, cz), (cx + sx - 0.24, 1.48, cz)], [(0, 0), (1, 0), (1, 1), (0, 1)], want=(0, 0, -1))
+        block.append((cx - 0.5, cz - 0.15, cx + 0.5, cz + 0.15))
+
+
+def gate_ruin(P, x0, x1, cz, hh):
+    """退魔后（参考 19）：门是废墟——茅草顶塌了半边、门板歪掉一扇、墙上裂缝、雪化了长出草，墙外樱花开着。
+    这些都用 fue_ruin_* / fue_grass / fue_sakura 材质：水墨时 kit.js 藏起来，recolorKit(…, "color") 时才出来；原来的门（fue_gate_*）彩色时藏起来"""
+    import random
+    rnd = random.Random(19); rw = "fue_ruin_wood"; mx = (x0 + x1) / 2
+    for x, tilt in ((x0 - 0.1, 0.0), (x1 + 0.1, 0.12)):   # 两根柱，右边那根歪了
+        tbox(rw, (x, 0, cz), (x + tilt, hh, cz), 0.26)
+    tbox(rw, (x0 - 0.5, P.kamoi + 0.1, cz), (x1 + 0.6, P.kamoi - 0.15, cz), 0.2)   # 冠木一头塌下来
+    # 塌了半边的茅草顶：左坡还在，右半边垂到地上
+    face("fue_ruin_roof", [(x0 - 0.9, hh + 0.05, cz - 1.1), (mx, hh + 0.2, cz - 1.1), (mx, hh + 0.75, cz), (x0 - 0.9, hh + 0.65, cz)], [(0, 0), (1, 0), (1, 1), (0, 1)], want=(0, 1, -1))
+    face("fue_ruin_roof", [(x0 - 0.9, hh + 0.05, cz + 1.1), (mx, hh + 0.2, cz + 1.1), (mx, hh + 0.75, cz), (x0 - 0.9, hh + 0.65, cz)], [(0, 0), (1, 0), (1, 1), (0, 1)], want=(0, 1, 1))
+    face("fue_ruin_roof", [(mx, hh + 0.75, cz - 1.0), (mx, hh + 0.75, cz + 1.0), (x1 + 1.2, 0.2, cz + 1.3), (x1 + 1.2, 0.2, cz - 1.3)], [(0, 1), (1, 1), (1, 0), (0, 0)], want=(1, 1, 0))
+    face("fue_ruin_roof", [(mx, hh + 0.75, cz - 1.0), (mx, hh + 0.75, cz + 1.0), (x1 + 1.2, 0.2, cz + 1.3), (x1 + 1.2, 0.2, cz - 1.3)], [(0, 1), (1, 1), (1, 0), (0, 0)], want=(-1, -1, 0))
+    lw = (x1 - x0) / 2   # 门板：左扇还挂着（歪），右扇倒在地上
+    obox(rw, (x0, cz + 0.1), (x0 + lw * 0.95, cz + 0.35), 0.06, 0.2, P.kamoi - 0.25)
+    face(rw, [(x1 - 0.1, 0.03, cz + 0.4), (x1 + 0.7, 0.03, cz + 0.9), (x1 + 0.2, 0.08, cz + 2.4), (x1 - 0.6, 0.08, cz + 1.9)], [(0, 0)] * 4, want=(0, 1, 0))
+    # 墙上裂缝（墙格两面）
+    for j in range(P.h):
+        for i in range(P.w):
+            if P.at(i, j) != "#" or rnd.random() > 0.35: continue
+            cx, cz_ = P.center(i, j)
+            for sg in (-1, 1):
+                z = cz_ + sg * (T_WALL / 2 + 0.008); x, y = cx + rnd.uniform(-0.3, 0.3), P.H - 0.2; pts = []
+                for k in range(6):
+                    nx, ny = x + rnd.uniform(-0.12, 0.12), y - rnd.uniform(0.15, 0.3)
+                    face("fue_ruin_crack", [(x - 0.012, y, z), (x + 0.012, y, z), (nx + 0.012, ny, z), (nx - 0.012, ny, z)], [(0, 0)] * 4, want=(0, 0, sg))
+                    x, y = nx, ny
+    # 草：雪地格上一丛丛
+    for j in range(P.h):
+        for i in range(P.w):
+            if P.floor(i, j) != "snow": continue
+            for _ in range(2):
+                gx, gz = (i + rnd.random()) * CELL, (j + rnd.random()) * CELL
+                for k in range(5):
+                    a = rnd.uniform(0, math.pi); hgt = rnd.uniform(0.15, 0.35)
+                    two_sided("fue_grass", [(gx - 0.03 * math.cos(a), 0, gz - 0.03 * math.sin(a)), (gx + 0.03 * math.cos(a), 0, gz + 0.03 * math.sin(a)), (gx + rnd.uniform(-0.08, 0.08), hgt, gz + rnd.uniform(-0.08, 0.08))], (math.sin(a), 0, -math.cos(a)))
+    # 墙外的樱花（北边墙后、门两侧）
+    for (tx, tz) in ((x0 - 3.2, cz - 2.4), (x1 + 2.8, cz - 2.0), (x0 - 6.5, cz - 1.6), (x1 + 6.0, cz - 2.8), (1.0, cz + 7.5)):
+        tbox("fue_ruin_wood", (tx, 0, tz), (tx + 0.2, 2.4, tz), 0.2)
+        for k in range(7):
+            a = 2 * math.pi * k / 7; flat_ball("fue_sakura", (tx + math.cos(a) * 0.9, 2.7 + rnd.uniform(-0.3, 0.5), tz + math.sin(a) * 0.9), rnd.uniform(0.6, 0.9), rnd.uniform(0.4, 0.55))
+        flat_ball("fue_sakura", (tx + 0.2, 3.3, tz), 0.9, 0.6)
+
+
+def misu(P, x0, z0, x1, z1):
+    """御簾（文案：高台挂御簾，后面坐着瑠璃姫，隔着帘看不清脸）：挂在高台朝房间那边（+z）的边上，从 2.35 米垂到 1.2 米，
+    正好挡住坐着的人的脸、露出下半身；上面一道帽额，两头垂朱红的总角结"""
+    z = z1 + 0.02; key = P.R("misu"); yb = float(P.cfg.get("misu_y", "1.2"))   # 帘子下沿（笛小路家 0.95：瑠璃姫配角跪坐在台上，脸挡住、露衣摆）
+    for zz, n in ((z, (0, 0, 1)), (z, (0, 0, -1))):
+        face(key, [(x0, yb, zz), (x1, yb, zz), (x1, 2.35, zz), (x0, 2.35, zz)], [(0, 0), ((x1 - x0) / 0.9, 0), ((x1 - x0) / 0.9, 1), (0, 1)], want=n)
+    box(P.R("lacquer"), ((x0 + x1) / 2, 2.4, z), (x1 - x0 + 0.1, 0.1, 0.05))   # 帽额
+    for x in (x0 + 0.15, x1 - 0.15):
+        tbox(P.R("misu_cord"), (x, 2.35, z + 0.03), (x, yb + 0.3, z + 0.03), 0.025)
+        sphere(P.R("misu_cord"), (x, yb + 0.27, z + 0.03), 0.05, seg=8, rings=5)
+    for x in (x0, x1): tbox(P.R("lacquer"), (x, 2.45, z), (x, P.H, z), 0.03)   # 吊绳
+
+
+def kouban(cx, y, cz, k=1.0):
+    """组香的香盘（参考 06）：黑漆格子盒 5×2，格里交替嵌菊纹银片（纸白十六瓣）和金色方片（山吹）"""
+    w, d = 0.42 * k, 0.18 * k
+    box("fue_lacquer", (cx, y + 0.02 * k, cz), (w, 0.04 * k, d))
+    for i in range(5):
+        for j in range(2):
+            x = cx - w / 2 + w * (i + 0.5) / 5; z = cz - d / 2 + d * (j + 0.5) / 2; yy = y + 0.041 * k
+            if (i + j) % 3 == 1: box("fue_gold", (x, yy, z), (0.045 * k, 0.004, 0.045 * k))
+            else:
+                pts = [(x + math.cos(2 * math.pi * q / 16) * 0.032 * k * (1 if q % 2 else 0.8), yy + 0.002, z + math.sin(2 * math.pi * q / 16) * 0.032 * k * (1 if q % 2 else 0.8)) for q in range(16)]
+                face("fue_silver", pts, [(0, 0)] * 16, want=(0, 1, 0))
+
+
+def fue_pine(h):
+    """雪庭的松（参考 04 左边）：墨色弯干、三四团平展的松针，每团顶上一层雪。原点在树根"""
+    pts = [(0, 0), (0.15, h * 0.3), (0.05, h * 0.55), (-0.2, h * 0.78)]
+    for (ax, ay), (bx, by) in zip(pts, pts[1:]): tbox("fue_tree", (ax, ay, 0), (bx, by, 0.02), 0.14)
+    for k, (x, y, r) in enumerate(((0.45, h * 0.42, 0.7), (-0.4, h * 0.6, 0.6), (0.2, h * 0.75, 0.55), (-0.25, h * 0.92, 0.45))):
+        tbox("fue_tree", (pts[1][0] if k % 2 == 0 else pts[2][0], y - 0.1, 0), (x, y, 0), 0.06)
+        for q in range(4):   # 一团松针 = 几个压扁的球挤在一起，顶上一层雪也是压扁的球（11-06 第一版的扁圆柱像飞盘）
+            ox, oz, rr = (-0.4 + 0.27 * q) * r, (0.15 if q % 2 else -0.12) * r, r * (0.42 if q in (1, 2) else 0.32)
+            flat_ball("fue_pine", (x + ox, y, oz), rr, rr * 0.38)
+            flat_ball("fue_snow", (x + ox, y + rr * 0.2, oz), rr * 0.86, rr * 0.22)
+
+
+def flat_ball(key, c, r, ry, seg=10, rings=5):
+    """压扁的球（松针团、雪）：半径 r，竖直半径 ry"""
+    n0 = snap(); sphere(key, (0, 0, 0), 1.0, seg=seg, rings=rings)
+    g = G[key]
+    for i in range(n0.get(key, 0), len(g["v"])):
+        v_ = g["v"][i]; g["v"][i] = V(c[0] + v_.x * r, c[1] + v_.y * ry, c[2] + v_.z * r)
+
+
+def bare_tree(x, z, h, seed, key):
+    """枯树（参考 12、17）：墨色枝杈，四层分叉"""
+    import random
+    rnd = random.Random(seed)
+    def branch(p, d, L, w, depth):
+        q = p + d * L
+        tbox(key, tuple(p), tuple(q), w)
+        if depth == 0: return
+        for _ in range(rnd.randint(2, 3)):
+            nd = (d + V(rnd.uniform(-0.9, 0.9), rnd.uniform(0.0, 0.6), rnd.uniform(-0.9, 0.9))).normalized()
+            branch(q, nd, L * rnd.uniform(0.55, 0.75), max(0.015, w * 0.6), depth - 1)
+    branch(V(x, 0, z), V(0, 1, 0), h * 0.42, 0.16 * h / 4, 4)
+
+
+def fue_gate(P, block):
+    """板葺的门（参考 16、17：棟門）：一片连着的 E 是门洞；两根粗柱、冠木、两坡屋顶（角色 gate_roof，退魔后是茅草）"""
+    for reg in P.regions(lambda i, j: P.at(i, j) == "E"):
+        xs = [c[0] for c in reg]; zs = [c[1] for c in reg]
+        x0, z0, x1, z1 = mrect((min(xs), min(zs), max(xs) + 1, max(zs) + 1)); cz = (z0 + z1) / 2
+        P.cur = reg[0]; wood = P.R("gate_wood"); hh = P.kamoi + 0.5
+        for x in (x0 - 0.1, x1 + 0.1):
+            box(wood, (x, hh / 2, cz), (0.26, hh, 0.26)); block.append((x - 0.13, cz - 0.13, x + 0.13, cz + 0.13))
+        box(wood, ((x0 + x1) / 2, P.kamoi + 0.12, cz), (x1 - x0 + 0.9, 0.22, 0.2))   # 冠木
+        box(wood, ((x0 + x1) / 2, hh, cz), (x1 - x0 + 0.5, 0.12, 0.9))
+        gable(P.R("gate_roof"), x0 - 0.9, x1 + 0.9, cz - 1.1, cz + 1.1, hh + 0.08, hh + 0.75)
+        box(wood, ((x0 + x1) / 2, hh + 0.78, cz), (x1 - x0 + 1.9, 0.08, 0.12))   # 屋脊
+        lw = (x1 - x0) / 2   # 门一直开着（文案："门还开着，它在等谁"）：两扇板门往里（-z）推开 80°
+        for hx, sg in ((x0, 1), (x1, -1)):
+            a = math.radians(80); ex, ez = hx + sg * math.cos(a) * lw, cz - 0.1 - math.sin(a) * lw
+            obox(wood, (hx, cz - 0.1), (ex, ez), 0.06, 0.05, P.kamoi)
+            for yy in (0.4, P.kamoi - 0.4): obox(wood, (hx + sg * 0.03, cz - 0.13), (ex, ez - 0.03), 0.09, yy, yy + 0.08)   # 横档
+        if P.on("ruin"): gate_ruin(P, x0, x1, cz, hh)
+    P.cur = None
+
+
+def wall_cap(P):
+    """土塀压顶（参考 16）：墙格连成一排，顶上一道小两坡瓦；wall_cap: all 或者写行号（逗号隔开）"""
+    v = P.cfg["wall_cap"]; rows = None if v == "all" else {int(t) for t in v.split(",")}
+    for j in range(P.h):
+        if rows is not None and j not in rows: continue
+        i = 0
+        while i < P.w:
+            if P.at(i, j) != "#": i += 1; continue
+            i0 = i
+            while i < P.w and P.at(i, j) == "#": i += 1
+            x0, x1 = i0 * CELL, i * CELL; cz = (j + 0.5) * CELL
+            P.cur = (i0, j)
+            gable(P.R("roof"), x0, x1, cz - 0.32, cz + 0.32, P.H - 0.02, P.H + 0.28)
+    P.cur = None
+
+
+def yuki_surround(P):
+    """雪景四周（surround: yuki）：雪地往外铺到 40 米（高度跟雪庭），远处一圈淡墨的枯树、屋顶剪影"""
+    import random
+    Wm, Dm = P.w * CELL, P.h * CELL; R_ = 40.0; y = -P.doma; g = P.R("snow")
+    for r in ((-R_, -R_, Wm + R_, 0), (-R_, Dm, Wm + R_, Dm + R_), (-R_, 0, 0, Dm), (Wm, 0, Wm + R_, Dm)):
+        x0, z0, x1, z1 = r
+        face(g, [(x0, y, z0), (x1, y, z0), (x1, y, z1), (x0, y, z1)], [(x0 / CELL, -z0 / CELL), (x1 / CELL, -z0 / CELL), (x1 / CELL, -z1 / CELL), (x0 / CELL, -z1 / CELL)], want=(0, 1, 0))
+    for j in range(P.h):   # 区块里空着的格子（外廊旁边没画东西的地方）也铺雪，不然从虎之间斜看出去地上有个洞
+        for i in range(P.w):
+            if P.at(i, j) == " ": floor_quad(g, (i, j, i + 1, j + 1), y=y)
+    rnd = random.Random(11); far = P.R("far")
+    for n in range(26):
+        a = 2 * math.pi * n / 26 + rnd.uniform(-0.08, 0.08); r = rnd.uniform(20, 34)
+        cx, cz = Wm / 2 + math.cos(a) * r, Dm / 2 + math.sin(a) * r
+        n0 = snap(); bare_tree(cx, cz, rnd.uniform(5, 9), n, far); shift_since(n0, y)
+    for n in range(6):
+        a = 2 * math.pi * n / 6 + 0.4; r = rnd.uniform(26, 34)
+        cx, cz = Wm / 2 + math.cos(a) * r, Dm / 2 + math.sin(a) * r; w_, d_ = rnd.uniform(8, 14), rnd.uniform(6, 9)
+        box(far, (cx, y + 1.5, cz), (w_, 3.0, d_)); gable(far, cx - w_ / 2 - 0.6, cx + w_ / 2 + 0.6, cz - d_ / 2 - 0.6, cz + d_ / 2 + 0.6, y + 3.0, y + 5.5)
 
 
 # ---------------------------------------------------------------- 输出

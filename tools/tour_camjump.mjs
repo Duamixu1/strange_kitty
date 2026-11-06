@@ -2,11 +2,15 @@
 //   点地面随机走（寻路）、按住 W 走（中途换 A / D、偶尔拖镜头）、原地拖一圈。
 // 每帧记镜头位置和朝向；一帧里位置跳超过 0.15 米或朝向转超过 6°（60 帧/秒下）记一次"跳"，同时记当时的原因线索
 // （固定机位进出、撞墙拉近距离 cur 变化、躲墙偏转 off 变化）。用法：node tools/tour_camjump.mjs <地点> [种子]
+// 手机尺寸：SIZE=390x844（竖屏）/ SIZE=844x390（横屏），带 &touch=1。
+// 另外量"晃"（11-06 用户反馈手机上视角频繁切换、晃得头晕）：每个区块从几个随机点按住前进直走、不拖镜头，
+// 记镜头每秒自己转了多少度（直走晃，°/秒）和固定机位切了几次。单帧跳变量不出这种慢慢来回摆
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 const [loc = "sakai", seed = "1"] = process.argv.slice(2);
 const prof = fs.mkdtempSync("/tmp/cj-");
-const chrome = spawn("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", ["--headless=new", `--user-data-dir=${prof}`, "--remote-debugging-port=9335", "--window-size=1280,720", "--enable-gpu", "--use-angle=metal", "--ignore-gpu-blocklist", "about:blank"], { stdio: "ignore" });
+const SIZE = process.env.SIZE || "1280x720", [SW, SHH] = SIZE.split("x").map(Number), MOBILE = SW < 1000 || SHH < 500;
+const chrome = spawn("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", ["--headless=new", `--user-data-dir=${prof}`, "--remote-debugging-port=9335", `--window-size=${SW},${SHH}`, "--enable-gpu", "--use-angle=metal", "--ignore-gpu-blocklist", "about:blank"], { stdio: "ignore" });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let ws, id = 0; const pend = new Map();
 for (let i = 0; i < 30; i++) { try { const l = await (await fetch("http://127.0.0.1:9335/json")).json(); const p = l.find((t) => t.type === "page"); if (p) { ws = new WebSocket(p.webSocketDebuggerUrl); break; } } catch {} await sleep(300); }
@@ -15,7 +19,7 @@ ws.onmessage = (m) => { const d = JSON.parse(m.data); if (pend.has(d.id)) { pend
 const cdp = (method, params = {}) => new Promise((r) => { const i = ++id; pend.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
 const ev = async (expr) => { const r = await cdp("Runtime.evaluate", { expression: expr, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) console.log("ERR", JSON.stringify(r.exceptionDetails).slice(0, 500)); return r.result?.value; };
 await cdp("Page.enable");
-await cdp("Page.navigate", { url: `http://[::1]:5173/tour.html?loc=${loc}` });
+await cdp("Page.navigate", { url: `http://[::1]:5173/tour.html?loc=${loc}${MOBILE ? "&touch=1" : ""}` });
 for (let i = 0; i < 120; i++) { await sleep(1000); if (await ev("!!(window.__tour && __tour.zone)")) break; }
 await sleep(2000);
 const out = await ev(`(async () => {
@@ -54,6 +58,16 @@ const out = await ev(`(async () => {
       for (let f = 0; f < 240; f++) { if (f % 60 < 20) T.cam.turn(turnRate, 0); sample(); }
       T.keys.clear();
     }
+    // 2b. 直走不拖镜头：从几个随机点出发按住 W 走 3 秒，量镜头自己转了多少
+    ev.sway = 0; ev.swayT = 0; ev.walkCuts = 0;
+    for (let k = 0; k < 6 && pts.length; k++) {
+      phase = "straight" + k; const [x, z] = pts[Math.floor(R() * pts.length)];
+      T.player.position.x = x; T.player.position.z = z; T.step(30);
+      const c0 = T.cam.cuts ?? 0; T.keys.clear(); T.keys.add("KeyW");
+      const dd = pd.clone(), dp0 = pd.clone(); T.camera.getWorldDirection(dp0);
+      for (let f = 0; f < 180; f++) { sample(); T.camera.getWorldDirection(dd); ev.sway += Math.acos(Math.min(1, dd.dot(dp0))) * 180 / Math.PI; dp0.copy(dd); }
+      ev.swayT += 3; ev.walkCuts += (T.cam.cuts ?? 0) - c0; T.keys.clear();
+    }
     // 3. 原地拖一圈
     phase = "spin"; for (let f = 0; f < 200; f++) { T.cam.turn(0.032, 0); sample(); }
     report.push(ev);
@@ -63,7 +77,7 @@ const out = await ev(`(async () => {
 for (const z of out || []) {
   const by = {}; for (const j of z.jumps) { const k = (j.from.cuts !== j.to.cuts ? "切镜头" : j.from.cur !== null && Math.abs(j.to.cur - j.from.cur) > 0.1 ? "撞墙拉近" : "其他"); by[k] = (by[k] || 0) + 1; }
   const hard = z.jumps.filter((j) => j.from.cuts === j.to.cuts && (j.dp > 0.6 || j.da > 6)).length;   // 硬跳：不是有意切镜头，却一帧跳 0.6 米以上或转 6° 以上，就是用户看到的"闪"
-  console.log(`${loc}.${z.zone}  帧 ${z.frames}  跳 ${z.jumps.length}  硬跳 ${hard}`, JSON.stringify(by));
+  console.log(`${loc}.${z.zone}  帧 ${z.frames}  跳 ${z.jumps.length}  硬跳 ${hard}  直走晃 ${(z.sway / z.swayT).toFixed(1)}°/秒  直走切镜头 ${z.walkCuts}`, JSON.stringify(by));
   if (process.env.V) for (const j of z.jumps.slice(0, +process.env.V)) console.log("   ", JSON.stringify(j));
 }
 ws.close(); chrome.kill(); try { fs.rmSync(prof, { recursive: true, force: true }); } catch {}

@@ -46,9 +46,10 @@ export const ROSTER = {   // 每个地点能出哪些；第一只是原作那只
   sakai: ["bakeneko", "bakeneko_shiro", "bakeneko_ko", "nue", "umibozu"],
   wanya: ["zashiki", "zashiki_ao", "noppera", "umibozu"],
   ooku: ["karakasa", "karakasa_kuro", "hinezumi"],
+  fuenokouji: ["nue", "noppera", "bakeneko_shiro"],   // 笛小路家（docs/22）：本命鵺；打完以后随机出无面（"每个人看见的样子不一样"）、白化猫（雪）
 };
 const LEGACY = { sakai: "bakeneko", wanya: "zashiki", ooku: "karakasa" };
-const LOC_NAME = { sakai: "坂井家", wanya: "万屋", ooku: "大奥" };   // 11-04 以前图鉴记的是地点
+const LOC_NAME = { sakai: "坂井家", wanya: "万屋", ooku: "大奥", fuenokouji: "笛小路家" };   // 11-04 以前图鉴记的是地点
 const SINK = new Set(["umibozu"]);   // 消散是沉回去，墨往下散
 // 地板、墙都暗的区块：物怪边缘透一层暖光、身后托一团淡光晕，不然黑猫和地板分不开（11-04 用户截图：坂井家客间；
 // 先做的硬勾边用户嫌生硬，改成光）。其他区块不加
@@ -96,7 +97,9 @@ export function createEncounter(ctx) {
   }
   /** 进地点 / 自测：在后台下好下一只（传 id 就下那只） */
   const preload = (id) => { id ||= pinned; if (!id) nextId ||= choose(); return Promise.all([load(id || nextId), load(roster()[0])]).then(([m]) => m); };
-  const M = () => { const d = MONO[cur] || MONO.bakeneko; return { ...d, kind: MONSTERS[cur]?.mask || "cat", ...(ctx.texts[`mononoke.${d.text || cur}`] || {}) }; };
+  // 字：这个地点的本命（case.mononoke）用地点那份（鵺在笛小路家读 mononoke.fuenokouji，在坂井家随机出时读 mononoke.nue）
+  const textKey = () => { const d = MONO[cur] || MONO.bakeneko; return ctx.loc.case?.mononoke === cur && ctx.texts[`mononoke.${ctx.loc.id}`] ? ctx.loc.id : d.text || cur; };
+  const M = () => { const d = MONO[cur] || MONO.bakeneko; return { ...d, kind: MONSTERS[cur]?.mask || "cat", ...(ctx.texts[`mononoke.${textKey()}`] || {}) }; };
   const has = (clip) => P.has(clip);
   const yawTo = (p) => Math.atan2(p.x - player.position.x, p.z - player.position.z);
   const floorAt = (x, z) => ctx.col()?.floorY(x, z) ?? 0;
@@ -143,7 +146,7 @@ export function createEncounter(ctx) {
     ctx.stopWalk();
     setState("omen");
     P.play(has("sense_k") ? "sense_k" : PLACEHOLDER.sense, 0.3); hold = 1.5;
-    audio.play("omen");
+    audio.play("omen"); audio.play("scaleBell", 4, 0.1);   // 天秤上的小铃跟着抖响
     ctx.stat(`物怪/${ctx.loc.id}/${cur}`, `物怪出没 · ${m.name}`);
     return true;
   }
@@ -438,8 +441,10 @@ export function createEncounter(ctx) {
 
 
   // ---- 每帧 ----
+  let cardIn = 0;   // 上色时晚几秒再掉执念物卡
   function update(dt) {
     if (tutOpen) return;   // 教学卡开着：整个遭遇停住
+    if (cardIn > 0 && (cardIn -= dt) <= 0) dropCard();
     T += dt; hold = Math.max(0, hold - dt); inv = Math.max(0, inv - dt); dodgeCD = Math.max(0, dodgeCD - dt); throwCD = Math.max(0, throwCD - dt); jumpCD = Math.max(0, jumpCD - dt); blinkCD = Math.max(0, blinkCD - dt);
     document.body.classList.toggle("blink-cd", blinkCD > 0);
     const g = st === "idle" || st === "release" ? 0 : st === "omen" ? Math.min(1, T / 1.5) : st === "vanish" ? Math.max(0, 1 - T / 1.5) : 1;   // 魂走的时候屋里亮回来
@@ -546,7 +551,7 @@ export function createEncounter(ctx) {
       case "release":
         mon.fade = Math.max(0, mon.fade - dt * 0.8); mon.hover += dt * 0.25; if (mon.fade <= 0) mon.group.visible = false;   // 褪成光的它慢慢缩没、往上飘，魂光同时升起
         if (!relLine && T > 0.8) { relLine = true; const m = M(); fx.kanji("", m.after || "执念散了。它走了。", mon.group.position.clone().setY(mon.group.position.y + 1.2), 3200); }
-        if (T > Math.max(3.4, relDur - 0.3)) { end("done"); dropCard(); return; }
+        if (T > Math.max(3.4, relDur - 0.3)) { const id = cur; end("done"); ctx.onRelease?.(id); cardIn = ctx.recoloring?.() ? 4.2 : 0; if (!cardIn) dropCard(); return; }   // 要上色的地点等颜色洇满再掉卡
         break;
       case "retreat":
         mon.hover -= dt * 1.2; mon.fade = Math.max(0, 1 - T / 1.2);
@@ -617,6 +622,8 @@ export function createEncounter(ctx) {
     get state() { return st; }, get tutorial() { return tutOpen; }, get tutPage() { return tutPage; }, tutKey, get debug() { return { st, T: +T.toFixed(2), sub, subT: +subT.toFixed(2), pins, hold: +hold.toFixed(2), slide: !!slide, fightT: +fightT.toFixed(1), inv: +inv.toFixed(2), air: !!air, blink: !!blinkS, blinkCD: +blinkCD.toFixed(2), throwCD: +throwCD.toFixed(2), pending: !!pendingThrow }; }, get sub() { return sub; }, get pins() { return pins; }, get monster() { return mon; }, get on() { return on; }, fx,
     /** 正在遭遇（预兆到消散） */
     get active() { return st !== "idle"; },
+    /** 掉执念物卡之前那几秒（上色的地点等颜色洇满）：状态已经回 idle，卡还没出 */
+    get cardPending() { return cardIn > 0; },
     preload,
     /** 药郎现在能不能自己走（察觉、投札、闪避、袖挡、结印的时候不能） */
     get holding() { return tutOpen || (st === "omen" ? hold > 0 : hold > 0 || !!slide); },

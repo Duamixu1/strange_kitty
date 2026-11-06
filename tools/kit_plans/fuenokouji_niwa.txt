@@ -1,0 +1,32 @@
+# 笛小路家·雪庭和外廊（参考 03、04、12）：寝殿造的高廊比雪庭高 0.9 米，外沿一圈高栏，正中三格宽的台阶下到雪庭；
+# 廊柱 o 上挂源氏香纹，出檐盖住外廊。雪庭里半埋的苔石、枯枝、石灯笼、松、枯树；一行小脚印从西南角走过来、变成兽爪、到廊下断了。
+# 观景点（文案线 11-06 第二版）：1 雪庭看高廊（栏杆、宽台阶）、2 外廊上看雪庭（石灯笼、苔石、枯枝、那行脚印）。上面 U 进长廊，下面 E 回门前。
+name: fuenokouji_niwa
+height: 3.2
+doma: 0.9
+ceiling: none
+genji_posts: on
+post_h: 2.6
+wall_cap: 11
+surround: yuki
+eaves: -0.3,15.77,0.455,3.2,2.65,0.75
+zone: 0,3,0,11 | plaster=fue_tsuiji, kokabe=fue_tsuiji
+zone: 16,3,16,11 | plaster=fue_tsuiji, kokabe=fue_tsuiji
+zone: 0,11,16,11 | plaster=fue_tsuiji, kokabe=fue_tsuiji
+mat: wood=fue_wood, frame=fue_frame, plaster=fue_plaster, kokabe=fue_kokabe, tatami=fue_tatami, tatami_side=fue_tatami_side, engawa=fue_boards, shoji=fue_shoji, lattice_win=fue_lattice, ceiling=fue_ceiling, snow=fue_snow, roof=fue_roof, rail=fue_wood, stair=fue_boards, under=fue_under, lacquer=fue_lacquer, censer=fue_censer, genji_plate=fue_genji_plate, genji_line=fue_genji_line, kicho=fue_kicho, dais=fue_dais, dais_side=fue_dais_edge, dais_trim=fue_lacquer, byobu=fue_byobu_budou, fusuma=fue_fusuma_bokuun, fusuma2=fue_fusuma_hane, udoor=fue_fusuma_plain, glassdoor=fue_gate_door, gate_roof=fue_gate_roof, gate_wood=fue_gate_wood, koshi=fue_wood, misu=fue_misu, misu_cord=crimson, kokabe=fue_plaster
+place: pine 1.4,7.0,2.6; pine 13.4,5.6,2.2; baretree 1.4,9.9,4.2; baretree 14.6,9.2,3.8; mossrock 14.0,4.6,1.2; mossrock 14.2,6.6,0.9; mossrock 11.6,8.0,1.3; mossrock 4.6,8.3,1.1; mossrock 5.2,9.3,0.75; twigs 4.2,9.6; twigs 12.4,7.2; foot 2.61,10.16,-102; foot_r 2.70,9.90,-98; foot 2.53,9.67,-94; foot_r 2.66,9.42,-90; foot 2.53,9.18,-87; foot_r 2.69,8.96,-83; foot 2.58,8.70,-80; foot_r 2.77,8.50,-77; foot 2.69,8.22,-74; foot_r 2.90,8.03,-72; foot 2.84,7.77,-70; foot_r 3.06,7.59,-68; foot 3.02,7.31,-67; foot_r 3.24,7.15,-66; foot 3.22,6.87,-65; foot_r 3.45,6.71,-65; foot 3.42,6.44,-65; paw_r 3.65,6.28,-66; paw 3.62,6.00,-66; paw_r 3.84,5.84,-68; paw 3.80,5.56,-69; paw_r 4.01,5.39,-71; paw 3.95,5.12,-74; paw_r 4.15,4.91,-77; paw 4.06,4.66,-81; paw_r 4.23,4.44,-84; paw 4.10,4.18,-89; paw_r 4.24,3.94,-93; paw 4.08,3.71,-98; paw_r 4.18,3.46,-102; paw 3.98,3.26,-107; paw_r 4.04,2.98,-111
+shot: 从雪庭看高廊 | 7.74,0.9,9.6 | 7.74,0.6,1.2 | 15.0,10.4,3.14
+shot: 外廊上看雪庭 | 6.6,1.65,1.2 | 3.0,-0.9,7.6 | 15.0,10.4,-2.4
+---
+####SSSSUSSSS####
+#=====2=========#
+#o===o=====o===o#
+#ssssss^^^ssssss#
+#ssssss^^^ssssss#
+#sssssssssssssss#
+#Lssssssssssssss#
+#ssssssss1ssssss#
+#sssssssssssssss#
+#ssssssss@ssssss#
+#sssssssssssssss#
+#######EE########

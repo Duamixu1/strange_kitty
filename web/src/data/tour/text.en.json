@@ -1,0 +1,548 @@
+{
+  "loc.ooku": {
+    "title": "The Ōoku of Edo Castle",
+    "body": "The innermost palace of Edo Castle, where no man but the shogun may enter. All three films take place here, in long corridors hung with lanterns and purple curtains."
+  },
+  "loc.wanya": {
+    "title": "The Yorozuya on a rainy night",
+    "body": "An old inn in the rain, once a brothel. On the top floor is a large room never given to guests. The first story of the TV series begins here."
+  },
+  "wanya_genkan.1": {
+    "title": "The stained-glass door",
+    "body": "Just inside is a stained-glass door, Western glass set into a wooden Japanese inn. That rainy night a woman pushed it open and asked for a room. Only the one on the top floor was left."
+  },
+  "wanya_rouka.1": {
+    "title": "The octagonal hall upstairs",
+    "body": "Several corridors meet here. Half-moons of stained glass sit above the doorways, and blue Western chairs stand on the floor. The guests have all gone to bed, yet there are footsteps on the boards. Who is running?"
+  },
+  "wanya_rouka.2": {
+    "title": "The pointed katōmado",
+    "body": "This pointed, latticed window is called a katōmado, once used mostly in temples. The deeper the corridor goes, the quieter it gets, until only the rain outside is left."
+  },
+  "wanya_ozashiki.1": {
+    "title": "The room kept from guests",
+    "body": "The largest zashiki on the top floor, a gold screen behind its raised dais. It is never given to guests. That rainy night, a guest with child moved in. What happened in this room before?"
+  },
+  "ooku_corridor.1": {
+    "title": "The red-and-white fan doorway",
+    "body": "The main corridor ends at a doorway painted with red and white fans. The ladies-in-waiting pass here all day, and not one step may break the rules. An old paper umbrella is tucked by the wall. Who left it here?"
+  },
+  "ooku_corridor.2": {
+    "title": "The great mural",
+    "body": "The whole wall is painted with ukiyo-e beauties, their faces many times life size. The films' Ōoku is thick with colour, wall over curtain over lantern. Everyone in the painting is smiling."
+  },
+  "ooku_maids.1": {
+    "title": "The round window",
+    "body": "The ladies-in-waiting sleep here. Peonies and butterflies cover the fusuma on all four sides, with a round window in the middle. New arrivals live here. Where did the things they brought from home go?"
+  },
+  "ooku_utayama.1": {
+    "title": "Crane screen and writing desk",
+    "body": "Finer than the maids' quarters: a screen of pines and cranes, a low writing desk before it. In the Ōoku, the higher the rank, the quieter the room. Does the one who makes the rules have something she couldn't throw away?"
+  },
+  "ooku_yuki.1": {
+    "title": "The empty room",
+    "body": "Peeling walls, worn tatami, a closet door shut tight. The Ōoku is full of people, yet this one room stands empty. Oyuki lived here once. Where did she go?"
+  },
+  "ooku_courtyard.1": {
+    "title": "The courtyard well",
+    "body": "A new lady-in-waiting must drop her most treasured possession into this well, to cut herself off from life outside. So many things thrown down. What does the bottom look like now?"
+  },
+  "wanya_soto.1": {
+    "title": "Arriving at the Yorozuya",
+    "body": "The rain hasn't let up. A canal runs past the front; over the red arched bridge is the main gate, under a curving karahafu roof. Every lantern upstairs is lit except on the top floor. Who is staying there?"
+  },
+  "wanya_soto.2": {
+    "title": "Shadows by the bridge",
+    "body": "A few ink-black figures stand by the red bridge, their faces unclear. They don't come in. They only look up at the floors above."
+  },
+  "wanya_niwa.1": {
+    "title": "A garden indoors",
+    "body": "Step in from the octagonal hall and there is a garden inside the house: white sand, a stream down the middle, a red arched bridge. The rain is outside. In here it is so quiet it hardly feels like part of the building."
+  },
+  "wanya_niwa.2": {
+    "title": "Stones on white sand",
+    "body": "Four garden stones of different sizes sit on the white sand. Behind them, a few small figures peek out. Who are they here for?"
+  },
+  "wanya_soto.3": {
+    "title": "The Yorozuya from the street",
+    "body": "From the street corner the building rises tier on tier, a karahafu gable and a round sign at its centre, stone lanterns on either side. Too grand a front for an ordinary inn. What was this place before?"
+  },
+  "loc.sakai": {
+    "title": "The Sakai samurai house",
+    "body": "A samurai household on the day its daughter marries. Everyone is busy with the wedding, yet there isn't a single cat in the house. The Medicine Seller's first appearance, and the story the Bakeneko name comes from."
+  },
+  "sakai_omote.1": {
+    "title": "The gate dressed for a wedding",
+    "body": "The tiled gatehouse is hung with a great red curtain bearing the white family crest, crest lanterns on either side. It's lively out front. A house this big, and not one cat to be heard."
+  },
+  "sakai_genkan.1": {
+    "title": "The doma at the entrance",
+    "body": "Inside is a stone-paved doma, and only one step up are you really in the house. The guests have been shown to the reception room. The old master sits at the head and says nothing."
+  },
+  "sakai_rouka.1": {
+    "title": "The red corridor",
+    "body": "A long corridor lacquered red runs deep into the house. The farther you walk, the longer it gets. There is a door at the end, and the servants go around it when they carry things."
+  },
+  "sakai_kyakuma.1": {
+    "title": "Round cushions",
+    "body": "The room for receiving guests. A rooster on the fusuma, pines and cranes on the screen, cushions in red and blue. The old master keeps looking at the crane. He looks for a long time."
+  },
+  "sakai_ozashiki.1": {
+    "title": "The wedding zashiki",
+    "body": "The great zashiki for the wedding: curling waves on the fusuma, a carpet patterned with cranes, a gold screen at the far end. Everyone is gathered here laughing. Deep in the house, there isn't a sound."
+  },
+  "sakai_misshitsu.1": {
+    "title": "The room with the shiromuku",
+    "body": "A room deep in the house that no one may enter, green walls and red lattice, a white shiromuku laid out at the front. A family holding a wedding, and the bridal robe is kept this far in?"
+  },
+  "sakai_daidokoro.1": {
+    "title": "A kitchen with no cat",
+    "body": "A doma with a stove, a wooden worktable and a row of clay jars, several mousetraps on the floor. Mice, traps, and not one cat. Do they not keep one, or not dare to?"
+  },
+  "sakai_daidokoro.2": {
+    "title": "The old well out back",
+    "body": "Behind the house is an old well in a wooden frame, a small grave before it. The flowers are fresh. The front is so busy, yet someone keeps remembering to come here. Who is buried in it?"
+  },
+  "mononoke.sakai": {
+    "name": "Bakeneko",
+    "katachi": "In a house with no cats, a Bakeneko appeared.",
+    "makoto": "Years ago, a woman was shut away deep in this house.",
+    "kotowari": "She died there, and her cat remembered this family.",
+    "itemTitle": "A rusted cat bell",
+    "itemBody": "A small bell on an old red cord, its clapper long rusted still. Its owner used to hear it ring every day.",
+    "after": "The bell fades away. It no longer has to guard this house."
+  },
+  "mononoke.wanya": {
+    "name": "Zashiki-warashi",
+    "katachi": "Running all through the rooms: Zashiki-warashi.",
+    "makoto": "In the years this was a brothel, there were children who were never born.",
+    "kotowari": "They only wanted to be born, to have a mother who would keep them.",
+    "itemTitle": "A faded red temari",
+    "itemBody": "The thread has loosened and the colour gone dull. With no one to play with, it has kept rolling about that top-floor room.",
+    "after": "The children stop knocking. They go to find someone who will keep them."
+  },
+  "mononoke.ooku": {
+    "name": "Karakasa",
+    "katachi": "Opening by itself in the rain: a Karakasa.",
+    "makoto": "Everyone who enters the Ōoku throws part of herself into the well.",
+    "kotowari": "What was thrown away won't simply sink.",
+    "itemTitle": "A torn paper umbrella",
+    "itemBody": "Two ribs broken, the paper waterlogged. Old things that are thrown away sometimes open up on their own.",
+    "after": "What was thrown in the well finally lets go."
+  },
+  "mononoke.noppera": {
+    "name": "Noppera-bō",
+    "katachi": "She turned around, and there was nothing on her face.",
+    "makoto": "In this house she had to put on a new face for the guests every day.",
+    "kotowari": "After so long, she couldn't find her own face again.",
+    "itemTitle": "A white mask",
+    "itemBody": "A mask painted white, with no eyes or brows drawn. Wear it, and anyone can be her.",
+    "after": "She no longer has to change faces. She left with her own."
+  },
+  "mononoke.hinezumi": {
+    "name": "Hinezumi",
+    "katachi": "Darting under the lanterns: a Hinezumi.",
+    "makoto": "Someone gave her a fire-rat pelt and said it was like his heart. It would never burn.",
+    "kotowari": "It scorched the moment it touched flame, and she never again believed in a true heart.",
+    "itemTitle": "A scorched pelt",
+    "itemBody": "They say a fire rat's pelt won't burn even in flames. This one is scorched down one side.",
+    "after": "The fire goes out. What was left of that feeling is let go."
+  },
+  "mononoke.umibozu": {
+    "name": "Umibōzu",
+    "katachi": "The rain fell so hard an Umibōzu rose from the water out front.",
+    "makoto": "A boat overturned one rainy night, and no one on shore went to help.",
+    "kotowari": "Those who sank kept waiting for someone on shore to look back.",
+    "itemTitle": "Broken prayer beads",
+    "itemBody": "The cord has rotted through, and half the beads are gone. The night the boat went over, someone held them and prayed to the end.",
+    "after": "The water recedes. He no longer has to wait for the shore to look back."
+  },
+  "mononoke.nue": {
+    "name": "Nue",
+    "katachi": "The cry on the roof at night is a Nue.",
+    "makoto": "This family never said things plainly. They swallowed them into the night.",
+    "kotowari": "The swallowed words ran together into something no one could name.",
+    "itemTitle": "A black feather",
+    "itemBody": "A black feather from a bird no one can name. No one can say what that cry in the night was, either.",
+    "after": "The words left unsaid finally have somewhere to go."
+  },
+  "mononoke.bakeneko_shiro": {
+    "name": "White Bakeneko",
+    "katachi": "Peering out from behind the door: a White Bakeneko.",
+    "makoto": "This family once kept a white cat. Later it was given away.",
+    "kotowari": "It only wanted to come home, to the corner where it used to sleep.",
+    "itemTitle": "The white cat's collar",
+    "itemBody": "A collar sewn from white cloth, a name written inside. The ink has faded.",
+    "after": "It is back in its old corner, sleeping soundly."
+  },
+  "mononoke.bakeneko_ko": {
+    "name": "Little Bakeneko",
+    "katachi": "Three shoot out at once, all Little Bakeneko.",
+    "makoto": "Under the house were three kittens. Their mother never came back.",
+    "kotowari": "They kept waiting for someone to come and feed them.",
+    "itemTitle": "Three little bells",
+    "itemBody": "Three bells the same size, strung on one thread. The bells stayed behind. The kittens' mother came for them.",
+    "after": "Their mother came back, and the three kittens followed her away."
+  },
+  "mononoke.karakasa_kuro": {
+    "name": "Black Karakasa",
+    "katachi": "Opening dark and heavy by the well: another Karakasa.",
+    "makoto": "The rule of the well was set by someone long ago.",
+    "kotowari": "Even the one who made the rule had something she couldn't throw away.",
+    "itemTitle": "Black umbrella ribs",
+    "itemBody": "A few jet-black ribs, the paper long gone. It has lain at the bottom of the well longer than anything.",
+    "after": "The one who made the rule has let hers go too."
+  },
+  "mononoke.zashiki_ao": {
+    "name": "Blue Zashiki",
+    "katachi": "Following behind without a sound: a Blue Zashiki.",
+    "makoto": "A child was born in this house and grew up hidden on the top floor.",
+    "kotowari": "The child didn't want to leave. He only wanted someone to come and play.",
+    "itemTitle": "A blue temari",
+    "itemBody": "A temari wound in blue thread, newer than the red one. Its owner could never bear to take it out and play.",
+    "after": "Someone finally came looking, and the child went out to play."
+  },
+  "npc.sakai.odajima": {
+    "lines": [
+      "I'm on watch tonight. A wedding's a wedding, but I'm uneasy.",
+      "At night this corridor feels like it never ends.",
+      "That door at the back. The master said no one is to open it."
+    ],
+    "clue": null
+  },
+  "npc.sakai.yoshiyuki": {
+    "lines": [
+      "There's a wedding in the house, so even an old man like me comes out to sit.",
+      "Years ago, a girl lived deep in the house. She kept a cat.",
+      "Later the cat went missing. No one went looking for it."
+    ],
+    "clue": 1
+  },
+  "npc.sakai.kayo": {
+    "lines": [
+      "The kitchen's been busy since before dawn. I haven't stopped once.",
+      "No cats in this house. The master's orders.",
+      "However bad the mice get, all we can do is set traps."
+    ],
+    "clue": 1
+  },
+  "hint.sakai.形": "Something seems to be missing in the kitchen.",
+  "hint.sakai.真": "Deepest in the house, there's a door no one has opened.",
+  "hint.sakai.理": "The grave by the well. The old master remembers.",
+  "find.sakai.1": {
+    "title": "Scattered sweet wrappers",
+    "body": "Red and white sweet wrappers, strewn on the flagstones by the gate and trodden on many times. So many have come to offer congratulations, and no one bends to pick them up."
+  },
+  "find.sakai.2": {
+    "title": "Low scratches on a pillar",
+    "body": "A faint scratch at the foot of a red pillar, less than a foot off the ground. The lacquer was redone once, but the mark still shows through."
+  },
+  "find.sakai.3": {
+    "title": "A small upturned bowl",
+    "body": "A small clay bowl lies upside down in the corner, shallow, a chip out of the rim. Turn it over and it's clean inside. No one has filled it in years."
+  },
+  "case.sakai": {
+    "title": "A wedding at the Sakai house",
+    "hook": "Halfway through the wedding, a mononoke appears in the house. Without Form, Truth and Reason, the sword stays sheathed."
+  },
+  "note.sakai": {
+    "daidokoro/view:1": "The kitchen has mice and traps, but no cat.",
+    "daidokoro/npc:kayo": "The maid says no cats is the master's rule.",
+    "misshitsu/view:1": "A shiromuku locked away deep inside, as if someone were shut in.",
+    "daidokoro/view:2": "Someone keeps changing the flowers on the little grave.",
+    "daidokoro/act:grave": "The little grave was made for a cat.",
+    "kyakuma/npc:yoshiyuki": "The old master remembers the girl deep inside kept a cat.",
+    "omote/view:1": "A grand house holding a wedding, and not one cat to be heard.",
+    "genkan/view:1": "The old master sits in the reception room, saying nothing.",
+    "rouka/view:1": "The servants avoid the door at the end of the red corridor.",
+    "kyakuma/view:1": "The old master keeps looking at the crane on the screen.",
+    "ozashiki/view:1": "The livelier the front, the quieter the back.",
+    "rouka/npc:odajima": "The night watchman says the door at the back must not be opened."
+  },
+  "act.sakai.grave": {
+    "label": "Press palms",
+    "line": "Incense smoke circles the grave once, like a cat brushing against your legs."
+  },
+  "hold.sakai.理": "What became of that girl? The answer is deep in the house.",
+  "pre.sakai.ozashiki": "A bell rings once in the distance, then stops.",
+  "npc.wanya.tokuji": {
+    "lines": [
+      "Travelling this late? The rain hasn't eased one bit.",
+      "No children upstairs, but at night someone's always running.",
+      "I've gone up to look a few times. Not a soul."
+    ],
+    "clue": 1
+  },
+  "npc.wanya.hisayo": {
+    "lines": [
+      "In rain like this, only the room upstairs is still free.",
+      "The girls here in the old days couldn't keep a baby if they fell pregnant.",
+      "What this house used to be, guests had better not ask."
+    ],
+    "clue": 1
+  },
+  "npc.wanya.shino": {
+    "lines": [
+      "Thank you for letting me stay tonight.",
+      "I'm going to have this child, no matter what.",
+      "My family doesn't want it. I do."
+    ],
+    "clue": 1
+  },
+  "act.wanya.listen": {
+    "label": "Listen",
+    "line": "A patter of small feet runs overhead. A shadow flickers at the end of the corridor."
+  },
+  "act.wanya.jizo": {
+    "label": "Press palms",
+    "line": "The red bibs are freshly changed. A pinwheel starts turning on its own."
+  },
+  "hint.wanya.形": "On the second-floor corridor, stop and listen.",
+  "hint.wanya.真": "Something seems hidden behind the stones in the indoor garden.",
+  "hint.wanya.理": "In the top-floor room, a guest is still awake.",
+  "hold.wanya.理": "What do these children want? First you need to know what this house used to be.",
+  "pre.wanya.ozashiki": "A child is laughing on the top floor. Come closer, and the laughing stops.",
+  "find.wanya.1": {
+    "title": "A tiny straw sandal",
+    "body": "A straw sandal lies by the red bridge, no bigger than a palm, its cord freshly braided. The rain has soaked it through. The other one is nowhere to be found."
+  },
+  "find.wanya.2": {
+    "title": "A small handprint on the fusuma",
+    "body": "A handprint near the bottom of the fusuma paper, only knee-high. Short fingers, as if someone pressed there while pulling themselves up to stand."
+  },
+  "find.wanya.3": {
+    "title": "A drum toy on the desk",
+    "body": "A little pellet drum sits on the corner of the front desk, half its red lacquer worn away. Ask around, and no one can say which guest left it."
+  },
+  "case.wanya": {
+    "title": "A rainy night at the Yorozuya",
+    "hook": "A woman seeking shelter from the rain takes the top-floor room, and a mononoke follows. Without Form, Truth and Reason, the sword stays sheathed."
+  },
+  "note.wanya": {
+    "rouka/act:listen": "On the second-floor corridor, small feet ran overhead.",
+    "genkan/npc:tokuji": "The clerk says there are no children upstairs, yet someone runs at night.",
+    "niwa/view:2": "Small figures are hidden behind the garden stones.",
+    "niwa/act:jizo": "The little jizō wear new bibs. They are for children never born.",
+    "genkan/npc:hisayo": "The proprietress says the girls here couldn't keep their babies.",
+    "ozashiki/view:1": "The top-floor room is never given to guests.",
+    "ozashiki/npc:shino": "Shino says she will have this child, no matter what.",
+    "soto/view:1": "On the rainy night, only the top-floor windows are dark.",
+    "soto/view:2": "The shadows by the bridge all look up at the floors above.",
+    "soto/view:3": "The front is too grand for an ordinary inn.",
+    "genkan/view:1": "Only the top-floor room was left.",
+    "rouka/view:1": "The guests are asleep, but there are footsteps on the boards.",
+    "rouka/view:2": "The farther down the corridor, the quieter.",
+    "niwa/view:1": "A very quiet garden hidden inside the house."
+  },
+  "npc.ooku.kame": {
+    "lines": [
+      "The new girls cry at night. I can't sleep.",
+      "That umbrella in the corridor opened by itself. No one touched it.",
+      "Whoever I tell, they all say to hold my tongue."
+    ],
+    "clue": 1
+  },
+  "npc.ooku.asa": {
+    "lines": [
+      "I only came this month. I haven't learned all the rules yet.",
+      "The little mirror I brought, does that have to go in the well too?",
+      "My mother gave it to me. I can't bear to."
+    ],
+    "clue": 1
+  },
+  "npc.ooku.utayama": {
+    "lines": [
+      "Once you enter the Ōoku, you forget everything outside.",
+      "What's thrown away is gone. No one is to fish it out.",
+      "I have kept this rule myself for decades."
+    ],
+    "clue": 1
+  },
+  "act.ooku.kasa": {
+    "label": "Look",
+    "line": "The umbrella snaps half open on its own, then slowly folds shut."
+  },
+  "act.ooku.well": {
+    "label": "Look in the well",
+    "line": "A comb, a letter, a small doll float up in the water, then scatter."
+  },
+  "act.ooku.closet": {
+    "label": "Open the closet",
+    "line": "A row of things in the closet, dripping wet, as if just back from the well."
+  },
+  "hint.ooku.形": "That old umbrella by the main corridor wall. Take a closer look.",
+  "hint.ooku.真": "The well in the courtyard. Have you looked in?",
+  "hint.ooku.理": "In Oyuki's empty room, the closet has stayed shut.",
+  "hold.ooku.理": "Why do these things come back? The rule of the well isn't clear yet.",
+  "ready.ooku": "Over in the main corridor, the umbrella makes a sound.",
+  "find.ooku.1": {
+    "title": "A dropped hairpin",
+    "body": "A hairpin on the floor of the main corridor, one red bead missing from its head. Something so easy to see, and everyone passing acts as if it isn't there."
+  },
+  "find.ooku.2": {
+    "title": "A paper crane under the window",
+    "body": "A paper crane tucked under the round window, its folds still crisp. Something was written on one wing, but water has blurred it past reading."
+  },
+  "find.ooku.3": {
+    "title": "An unfinished letter",
+    "body": "A letter lies open on the writing desk. It begins \"Dear Mother\" and stops after one line. The ink is long dry; the brush still rests by the inkstone."
+  },
+  "case.ooku": {
+    "title": "The well of the Ōoku",
+    "hook": "In the corridors of the Ōoku, an umbrella opens with no one touching it. Without Form, Truth and Reason, the sword stays sheathed."
+  },
+  "note.ooku": {
+    "corridor/act:kasa": "The old umbrella by the corridor wall opens on its own.",
+    "maids/npc:kame": "Okame says the umbrella in the corridor opened by itself.",
+    "courtyard/view:1": "New ladies-in-waiting must throw their treasures into the well.",
+    "courtyard/act:well": "Shadows of a comb, a letter and a doll float at the bottom of the well.",
+    "maids/npc:asa": "Oasa can't bear to throw away the mirror her mother gave her.",
+    "yuki/view:1": "So many people in the Ōoku, yet one room has stood empty a long time.",
+    "yuki/act:closet": "In the empty room's closet, a row of dripping-wet things.",
+    "utayama/npc:utayama": "Utayama says no one may fish out what's been thrown away.",
+    "corridor/view:1": "An old umbrella no one uses is tucked by the wall.",
+    "corridor/view:2": "The beauties on the wall are all smiling.",
+    "maids/view:1": "The things the new girls brought have all gone.",
+    "utayama/view:1": "Utayama, who keeps the rules, has a very quiet room."
+  },
+  "loc.fuenokouji": {
+    "title": "The Fuenokōji house",
+    "body": "A noble residence in Kyoto, head house of the Fuenokōji school of incense. The snow keeps falling. Tonight an incense contest will choose the lady a husband. Episodes 8 and 9 of the TV series, \"Nue\", take place here, almost entirely in ink."
+  },
+  "fuenokouji_mon.1": {
+    "title": "The gate in the snow",
+    "body": "Snow lies deep before the gate. White walls edged in ink flank the board-roofed gate. Several guests came tonight, yet there isn't one footprint in the snow."
+  },
+  "fuenokouji_mon.2": {
+    "title": "Earthen wall in the snow",
+    "body": "Seen at an angle, an earthen wall runs off across the snow, bare trees beyond it. The whole house is only ink and white. Not a voice to be heard."
+  },
+  "fuenokouji_niwa.1": {
+    "title": "The raised veranda",
+    "body": "A veranda raised in mid-air, railed all around, its steps wide and steep: a house in the shinden style. Tonight an incense contest inside will choose a husband. What does the winner get?"
+  },
+  "fuenokouji_niwa.2": {
+    "title": "Stone lantern in the snow garden",
+    "body": "Below the outer veranda lies the snow garden. Beside a stone lantern, a few rocks sit half buried, their moss still green. The snow should be untouched. Who left that line of small footprints?"
+  },
+  "fuenokouji_rouka.1": {
+    "title": "Lattice windows and shoji",
+    "body": "Lattice windows on one side of the corridor, a row of shoji on the other, the floorboards running far inside. You've walked a long time, and the snowlight outside hasn't changed. Why does dawn never come?"
+  },
+  "fuenokouji_rouka.2": {
+    "title": "Looking back down the corridor",
+    "body": "Looking back, the lattice and shoji on both sides are exactly alike. The door you came in by is already hard to make out."
+  },
+  "fuenokouji_kou.1": {
+    "title": "The lady behind the blind",
+    "body": "The Incense Room's dais is hung with a bamboo blind. Lady Ruri sits behind it, only her hem showing; no one has seen her face. Incense trays for the contest wait before it. Do the suitors all see the same woman?"
+  },
+  "fuenokouji_kou.2": {
+    "title": "The Tiger Room",
+    "body": "A tiger is painted on the fusuma here. Someone recognises it as a copy of Nagasawa Rosetsu's Tiger. In the old tales, the Nue has a tiger's feet. Looking out from here, the snow hasn't stopped."
+  },
+  "fuenokouji_oku.1": {
+    "title": "The Ink-Cloud Room",
+    "body": "A high ceiling, ink clouds rolling across the fusuma, door pulls in the Genji-kō pattern. Farther in, a vermilion door comes into view. The deeper you go, the heavier the incense."
+  },
+  "fuenokouji_oku.2": {
+    "title": "The Ink-Splash Room",
+    "body": "Look up: walls and ceiling are spattered with ink, running down in streaks, as if someone fell here. Four suitors came to ask for her hand. Why did only three arrive?"
+  },
+  "fuenokouji_oku.3": {
+    "title": "The Red Room",
+    "body": "The whole room is painted vermilion, the only colour in this house of ink. At the far end is a raised seat, empty. This is where the lady sits. Where is she now?"
+  },
+  "mononoke.fuenokouji": {
+    "name": "Nue",
+    "katachi": "Everyone sees it differently. It is a Nue.",
+    "makoto": "For the incense wood called Tōdai-ji, the people of this house died one by one.",
+    "kotowari": "Everyone wanted it, so it became whatever each of them wanted.",
+    "itemTitle": "Rotted incense wood",
+    "itemBody": "Wrapped in many layers of brocade, a length of blackened wood. Once lit, it fills the whole room with scent.",
+    "after": "The scent drifts away, and the snow stops. Outside, it has long been spring."
+  },
+  "npc.fuenokouji.muromachi": {
+    "lines": [
+      "So many rules just to smell some incense. It's stifling.",
+      "Just now there was a little girl in the corridor. She turned around, and she was an old nun.",
+      "This house is cursed. Once I have the Tōdai-ji, I'm leaving."
+    ],
+    "clue": 1
+  },
+  "npc.fuenokouji.nakarai": {
+    "lines": [
+      "This snow has fallen all night. Why won't it stop?",
+      "What becomes of the lady is no concern of mine. I want only the Tōdai-ji.",
+      "Smell that wood once and you never forget it."
+    ],
+    "clue": 1
+  },
+  "npc.fuenokouji.roni": {
+    "lines": [
+      "Please, sit. The incense will be lit shortly.",
+      "The lady you each speak of, why is she different for everyone?",
+      "My eyes are poor. I don't know whom to believe."
+    ],
+    "clue": 1
+  },
+  "npc.fuenokouji.osawa": {
+    "lines": [
+      "An incense contest on a snowy night. How refined, how refined.",
+      "Thirty years I've been smelling incense. I can read this burner too.",
+      "The Tōdai-ji? Naturally, it will be mine."
+    ],
+    "clue": null
+  },
+  "act.fuenokouji.footprints": {
+    "label": "Study the tracks",
+    "line": "The small footprints turn into animal claws as they go, and end at the veranda."
+  },
+  "act.fuenokouji.koubako": {
+    "label": "Open the chest",
+    "line": "Wrapped in many layers of brocade, a length of blackened, rotting wood."
+  },
+  "hint.fuenokouji.形": "Those footprints in the snow garden. Something's off.",
+  "hint.fuenokouji.真": "The rooms deep in the house. No one dares go in.",
+  "hint.fuenokouji.理": "The incense chest in the Incense Room holds the Tōdai-ji.",
+  "hold.fuenokouji.理": "Why must they have it? What happened in this house isn't clear yet.",
+  "find.fuenokouji.1": {
+    "title": "A geta in the snow",
+    "body": "A single geta in the snow by the gate, its thong snapped. The snow around it is smooth. Not one footprint leads toward it."
+  },
+  "find.fuenokouji.2": {
+    "title": "A sachet by the shoji",
+    "body": "A small sachet hangs by the shoji, embroidered with a Genji-kō pattern. In Genji-kō you smell five packets of incense. Each of the 52 possible answers is matched to a chapter of The Tale of Genji, and this pattern is one answer drawn out."
+  },
+  "find.fuenokouji.3": {
+    "title": "A broken incense token",
+    "body": "A small broken slip of wood on the floor, a token for writing answers in the contest. On the back, where the name goes, it has been rubbed out."
+  },
+  "case.fuenokouji": {
+    "title": "The Fuenokōji incense contest",
+    "hook": "An incense contest on a snowy night to choose a husband. Of four suitors, only three arrived. Without Form, Truth and Reason, the sword stays sheathed."
+  },
+  "note.fuenokouji": {
+    "niwa/act:footprints": "The small footprints in the snow turn into animal claws.",
+    "rouka/npc:muromachi": "Muromachi says a little girl turned around and was an old nun.",
+    "oku/view:2": "The Ink-Splash Room looks as if someone fell there.",
+    "oku/view:3": "The raised seat in the Red Room is empty. The lady is gone.",
+    "niwa/npc:nakarai": "Nakarai says the lady is no concern of his. He wants only the Tōdai-ji.",
+    "kou/view:1": "Through the blind, no one has seen the lady's face.",
+    "kou/act:koubako": "The Tōdai-ji everyone fights over is a length of rotten wood.",
+    "kou/npc:roni": "The old nun says each of them describes a different lady.",
+    "mon/view:1": "Several guests came, but there are no footprints in the snow.",
+    "mon/view:2": "Not a voice anywhere in the house.",
+    "niwa/view:1": "Tonight an incense contest here will choose a husband.",
+    "niwa/view:2": "A line of small footprints in the snow garden.",
+    "rouka/view:1": "You've walked a long time, and dawn never comes.",
+    "rouka/view:2": "Looking back, the door you came in by is hard to see.",
+    "kou/view:2": "The tiger in the Tiger Room. They say the Nue has a tiger's feet.",
+    "oku/view:1": "The deeper in, the heavier the incense."
+  },
+  "pre.fuenokouji.kou": "Someone laughs softly behind the blind. The blind doesn't move.",
+  "end.sakai": "The wedding never happened. There are fewer people in the house now, and the door to the innermost room stands open.",
+  "end.wanya": "The rain has stopped, and the Yorozuya opens for guests as usual. Someone has gone up to tidy the top-floor room.",
+  "end.ooku": "The next morning, the ladies-in-waiting comb their hair and go on duty as usual. The same footsteps in the corridor.",
+  "end.fuenokouji": "No husband will be chosen by this contest. No one has lived in the house for a long time. Only a broken gate remains."
+}

@@ -37,6 +37,7 @@ export class PaperOutlinePost {
         uTint: { value: new THREE.Color("#ffffff") }, uTintMix: { value: 0 },   // 整体调色（游览版雨夜：往藏青压一点）
         uRed: { value: new THREE.Color("#B42A47") }, uRedMix: { value: 0 },      // 妖化红描边：0 = 墨色，1 = 深红
         tMask: { value: null }, uUseMask: { value: 0 },                         // 有 maskLayer 时只在这层物体附近变红
+        uReveal: { value: -1 }, uRevealC: { value: new THREE.Vector2(0.5, 0.5) },   // 上色：半径外压成灰（水墨），往外漫开；-1 = 关（笛小路家退魔后，docs/22）
       },
       vertexShader: /* glsl */ `
         varying vec2 vUv;
@@ -47,7 +48,8 @@ export class PaperOutlinePost {
         uniform vec2 uRes;
         uniform float uNear, uFar, uDepthThresh, uNormalThresh, uOuterWidth, uInnerWidth, uPaperScale, uPaperStrength;
         uniform vec3 uOutlineColor, uPaperColor, uTint, uRed;
-        uniform float uTintMix, uRedMix;
+        uniform float uTintMix, uRedMix, uReveal;
+        uniform vec2 uRevealC;
         uniform int uOutline, uPaper, uLetterbox, uUseMask;
         varying vec2 vUv;
 
@@ -93,6 +95,14 @@ export class PaperOutlinePost {
             col = mix(col, mix(uOutlineColor, uRed, uRedMix * mk), edge);
           }
 
+          if (uReveal >= 0.0) {
+            // 颜色从 uRevealC 往外一圈圈洇开：圈外是灰（带一点墨的紫调），圈边用纸纹抖一下，像墨洇在纸上
+            vec2 d = (vUv - uRevealC) * vec2(uRes.x / uRes.y, 1.0);
+            float edgeN = (texture2D(tPaper, vUv * 1.7).r - 0.5) * 0.22;
+            float k = 1.0 - smoothstep(uReveal - 0.18, uReveal, length(d) + edgeN);
+            float gray = dot(col, vec3(0.299, 0.587, 0.114));
+            col = mix(vec3(gray) * vec3(0.97, 0.955, 1.0), col, k);
+          }
           col = mix(col, col * uTint, uTintMix);
 
           if (uPaper == 1) {
@@ -135,6 +145,9 @@ export class PaperOutlinePost {
 
   // 整体调色：col × tint 按 mix 混进去，0 = 关（探案版不用）
   setTint(color = "#ffffff", mix = 0) { this.quadMat.uniforms.uTint.value.set(color); this.quadMat.uniforms.uTintMix.value = mix; }
+
+  // 上色漫开：r 是半径（屏幕高为 1），-1 关；cx / cy 是起点（0..1）
+  setReveal(r, cx = 0.5, cy = 0.5) { this.quadMat.uniforms.uReveal.value = r; this.quadMat.uniforms.uRevealC.value.set(cx, cy); }
 
   // 描边色在墨色和红色之间混：0 = canon 第 12 色，1 = 深红（药郎妖化时用）。设了 maskLayer 只有那层物体变红
   setOutlineMix(t) { this.quadMat.uniforms.uRedMix.value = Math.max(0, Math.min(1, t)); }

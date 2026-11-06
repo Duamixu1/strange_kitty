@@ -2,10 +2,12 @@
 // 测试用的地点放 src/tour/fixtures/（总指挥自己的，不进正式地图）。
 // 区块的可走格子、出生点、观景点、楼梯口来自场景线 kit_build.py 出的 <积木名>_walk.json；
 // 地点 JSON 里同名字段可以覆盖（测试夹具就靠这个，不用 walk 文件也能跑）。
-const LOCS = import.meta.glob("../data/tour/*.json");
+import { LANG } from "./i18n.js";
+const LOCS = import.meta.glob(["../data/tour/*.json", "!../data/tour/text.*.json"]);
 const FIXTURES = import.meta.glob("./fixtures/*.json");
 const WALKS = import.meta.glob("../data/tour/*_walk.json");
 const TEXTS = import.meta.glob("../data/tour/text.json");
+const TEXTS_L = import.meta.glob("../data/tour/text.*.json");   // 英文、日文版（文案w，i18n.js）：同样的键，逐键盖在中文上
 const LEGACY_WALK = import.meta.glob("../data/walkmap.json");   // 探案版的大奥可走图（只读），测试夹具用；正式地点由场景线复制成 data/tour/<名>_walk.json
 
 const base = (p) => p.split("/").pop().replace(/\.json$/, "");
@@ -31,7 +33,12 @@ export async function loadMap() {
 
 export async function loadText() {
   const k = Object.keys(TEXTS)[0];
-  return k ? imp(TEXTS[k]) : {};
+  const zh = k ? await imp(TEXTS[k]) : {};
+  const lk = LANG !== "zh" && Object.keys(TEXTS_L).find((p) => base(p) === `text.${LANG}`);
+  if (!lk) return zh;
+  const tr = await imp(TEXTS_L[lk]), out = { ...zh };
+  for (const [key, v] of Object.entries(tr)) out[key] = v && typeof v === "object" && !Array.isArray(v) && zh[key] && typeof zh[key] === "object" ? { ...zh[key], ...v } : v;
+  return out;
 }
 
 // 把一个矩形 [x0, x1, z0, z1] 变成可走格子（测试夹具用；正式区块用 kit_build 出的 walk 文件）

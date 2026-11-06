@@ -6,7 +6,7 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { PaperOutlinePost } from "../style/post.js";
 import { createCollision } from "../world/collision.js";
 import { createPathfinder } from "../world/pathfind.js";
-import { loadKit } from "./kit.js";
+import { loadKit, setKitMat, recolorKit } from "./kit.js";
 import { loadPlayer, loadNpc, PLAYER_MODEL } from "./player.js";
 import PROPS from "../data/props.json";
 import { createGuide, loadCase } from "./guide.js";
@@ -16,10 +16,12 @@ import { swordShot } from "./sword_cam.js";
 import { locationIds, loadLocation, loadText, loadMap, resolveZone } from "./locations.js";
 import { fusumaWipe, prompt, toast, card, Tags, flash } from "./ui.js";
 import { createRain } from "./rain.js";
+import { createSnow } from "./snow.js";
 import { audio } from "./audio.js";
 import { loading } from "./loading.js";
 import { createEncounter, ROSTER } from "./encounter.js";
 import { createMedbox } from "./medbox.js";
+import { startI18n, mountSettings } from "./i18n.js";   // 语言设置（文案w）：总地图右上「设」选中文 / English / 日本語
 
 // 游览版：药郎在原作地点里走走看看（docs/14_游览版方案.md）。
 //   /tour.html                    绘卷总地图（现在是占位的横向长卷，游5 的图到了再换）
@@ -32,6 +34,7 @@ const params = new URLSearchParams(location.search);
 if (params.has("fresh")) { try { Object.keys(localStorage).filter((k) => k.startsWith("mononoke_tour_")).forEach((k) => localStorage.removeItem(k)); } catch {} }
 const locId = params.get("loc");
 const status = document.getElementById("status");
+startI18n();
 // 手机、平板（手指是主要输入）：底部按钮栏代替键盘，说明换成手指的；?touch=1 在电脑上强开
 const touch = matchMedia("(pointer: coarse)").matches || params.has("touch");
 // 11-05 轻量档（用户："先优化一版加载的问题"）：手机（触屏）、省流量模式、浏览器估计网速低于 3 Mbps 时，泼溅读 lite（点数约一半，
@@ -77,6 +80,7 @@ function progressOf(id) {
 }
 async function showMap() {
   document.body.classList.add("map-mode");
+  mountSettings(document.getElementById("map"));
   audio.setScene("map");
   const { real, test } = locationIds();
   loading.start("map", "绘卷"); loading.step("展开长卷…");
@@ -132,12 +136,34 @@ function preloadFiles(urls) {
 }
 async function startLocation(id) {
   const loc = await loadLocation(id);
+  // 积木材质整套换（笛小路家 "mat": "ink" 水墨，docs/22）；?mat=ink 能在别的地点试，?mat= 空着是原样。
+  // 地点写了 "recolor": "color" 的，本命退过魔以后换成那套（记在本机，下次进来直接是彩色）
+  if (params.get("recolor")) loc.recolor = params.get("recolor");   // 试上色：?mat=ink&recolor=color，控制台 __tour.recolor()
+  if (params.get("sky")) loc.sky = params.get("sky");   // 调试：?sky=名字 先拿别的图看天空球（找 textures/kit/名字.jpg）
+  const COLOR_KEY = `mononoke_tour_color_${loc.id}`;
+  let colored = false; try { colored = !!loc.recolor && localStorage.getItem(COLOR_KEY) === "1"; } catch {}
+  setKitMat(params.get("mat") ?? (colored ? loc.recolor : loc.mat) ?? null);
   loading.start(id, loc.name, loc.splats?.length ? 1 : 0, LITE && loc.splats?.[0]?.lite ? 3.5 : undefined);   // 只等进门那块泼溅 loading.step("搭场景…");
   const texts = await loadText();
   document.title = `${loc.name} · 怪化猫游览`;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(loc.background || "#2A2A4E");
+  const bgColor = new THREE.Color(loc.background || "#2A2A4E");
+  scene.background = bgColor;
+  // 天空球：区块或地点写 "sky": "fue_sky" → textures/kit/fue_sky.jpg（2:1 等距柱状）；上过色换 fue_sky_color.jpg。
+  //   图没到 / 加载失败就还是纯色底；背景不进描边通道（post.js 渲染法线时会先把 background 拿掉）
+  const skyTex = new Map(); let skyWant = null;
+  function setSky(z) {
+    bgColor.set(z?.background || loc.background || "#2A2A4E"); scene.background = bgColor;
+    const name = z && "sky" in z ? z.sky : loc.sky;   // 区块写 "sky": null 就关掉
+    skyWant = name ? `${name}${colored ? "_color" : ""}.jpg` : null;
+    if (!skyWant) return;
+    const file = skyWant, use = (t) => { if (t && skyWant === file) scene.background = t; };
+    if (skyTex.has(file)) return use(skyTex.get(file));
+    new THREE.TextureLoader().load(pub(`textures/kit/${file}`), (t) => {
+      t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace; skyTex.set(file, t); use(t);
+    }, undefined, () => skyTex.set(file, null));
+  }
   const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 200);
   const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
@@ -197,11 +223,13 @@ async function startLocation(id) {
   const splatCam = new SplatCam(camera);
   let cam = follow;   // 积木区块用跟随镜头；camera.mode 是 circle / rail 的泼溅区块用 SplatCam
   const rain = createRain(); scene.add(rain.object); post.exclude.push(rain.object);   // 雨丝不描边
+  const snow = createSnow(); scene.add(snow.object); post.exclude.push(snow.object);   // 雪片也不描边（笛小路家门前、雪庭）
   const stand = () => { player.position.y = col.floorY(player.position.x, player.position.z) ?? 0; };   // 泼溅可走图带地面高度，积木的全平
 
   // ---- 区块 ----
   let Z = null, world = null, col = null, pf = null, path = null, arriveLock = false, busy = false;
   let baseFov = 50;   // 区块定的 fov（横屏），竖屏时 fitFov 在它基础上放大
+  let shotFov = null;   // 拾遗特写时暂存的区块 fov
   const tags = new Tags((tid) => onTag(tid));
   const zoneCache = new Map(), npcCache = new Map(), findCache = new Map();   // findCache：拾遗小物件（guide.js，场景线的 find_*.glb）
   let npcsOn = [], findsOn = null;
@@ -220,7 +248,7 @@ async function startLocation(id) {
       z.npcs?.length && !npcCache.has(zoneId) && Promise.all(z.npcs.map(async (d) => {
         const n = await loadNpc(loader, assetUrl, d).catch((e) => { console.warn("配角加载失败", d.model, e); return null; });
         if (n) {
-          n.group.position.set(d.pos[0], 0, d.pos[1]); n.group.rotation.y = d.yaw || 0; n.pos = [...d.pos]; n.home = { pos: [...d.pos], yaw: d.yaw || 0 }; n.id = d.id; n.height = d.height;
+          n.group.position.set(d.pos[0], 0, d.pos[1]); n.group.rotation.y = d.yaw || 0; n.pos = [...d.pos]; n.home = { pos: [...d.pos], yaw: d.yaw || 0 }; n.id = d.id; n.height = d.height; n.y = d.y || 0;   // y：坐在高台这类不算地面的东西上，比地面高多少（笛小路家瑠璃姫）
           if (d.patrol?.length) n.patrol = { pts: [d.pos, ...d.patrol], i: 0, dir: 1, speed: d.speed ?? 0.7, pause: d.pause ?? 3, hold: 0, yield: 0 };
         }
         return n;
@@ -246,14 +274,14 @@ async function startLocation(id) {
     if (z.kit) { world = zoneCache.get(zoneId); scene.add(world); }
     // 配角站桩：区块的 npcs 列表（格式见 14 第三节），换区块时摘掉上一个区块的；药郎绕着走（挡住半径 0.45 米）
     for (const n of npcsOn) scene.remove(n.group);
-    npcsOn = (npcCache.get(zoneId) || []).filter(Boolean);
+    npcsOn = colored ? [] : (npcCache.get(zoneId) || []).filter(Boolean);   // 上过色的地点（笛小路家）人都散了：原作里宅里的人早就死了，点香以后散去
     for (const n of npcsOn) scene.add(n.group);
     Z = z; col = createCollision(z.walk);
     if (npcsOn.length) {
       const base = col.canStand;
       col.canStand = (x, zz) => base(x, zz) && npcsOn.every((n) => (n.pos[0] - x) ** 2 + (n.pos[1] - zz) ** 2 > 0.45 * 0.45);
     }
-    for (const n of npcsOn) n.group.position.y = col.floorY(n.pos[0], n.pos[1]) ?? 0;
+    for (const n of npcsOn) n.group.position.y = (col.floorY(n.pos[0], n.pos[1]) ?? 0) + (n.y || 0);
     if (findsOn) scene.remove(findsOn);
     findsOn = findCache.get(zoneId) || null;
     if (findsOn) { scene.add(findsOn); for (const g of findsOn.children) { const f = g.userData.find; g.position.set(f.pos[0], (col.floorY(f.pos[0], f.pos[1]) ?? 0) + (f.y || 0), f.pos[1]); g.rotation.y = f.yaw || 0; } }
@@ -291,7 +319,8 @@ async function startLocation(id) {
     // 天气：雨夜区块开雨丝，画面往藏青压一点；区块可以单独写 background
     const wet = z.weather === "rain";
     rain.set(wet); post.setTint(wet ? "#8C8CC8" : "#ffffff", wet ? 0.45 : 0);
-    scene.background.set(z.background || loc.background || "#2A2A4E");
+    snow.set(z.weather === "snow" && !colored);   // 上过色就是春天了，雪停
+    setSky(z);
     status.textContent = `${loc.name} · ${z.name || zoneId}`;
     audio.setScene(loc.id, zoneId); floorSnd = audio.floorOf(loc.id, zoneId);
     stat(`/${loc.id}/${zoneId}`, `${loc.name} · ${z.name || zoneId}`);
@@ -336,7 +365,7 @@ async function startLocation(id) {
     path = { pts, then };
   }
   function onTag(tid) {
-    if (busy || card.isOpen) return;
+    if (busy || card.isOpen || guide.endOpen) return;
     const [kind, n] = tid.split(":");
     if (kind === "view") { const p = Z.views[n]; walkTo(p[0], p[1], () => openView(n)); }
     // 出口：走到 stand 正上方（容差 0.1），保证进触发圈；原来 0.3 的容差会停在圈边上，触不触发看运气（场景线 10-29 查出来的）
@@ -347,6 +376,7 @@ async function startLocation(id) {
   const keys = new Set();
   function act(code) {
     if (box?.key(code)) return;   // 药箱开着：方向键换格、Esc / I 关，别的键不管
+    if (guide.endKey(code)) return;   // 结案卡开着（guide.js，11-06）：E 接着逛、N 去下一处
     if (enc.tutKey(code)) return;   // 物怪出没教学卡开着：翻页 / 跳过，别的键不管
     if (code === "KeyX" || (code === "Escape" && sword)) { if (!sword && enc.act("sword")) return; drawSword(); return; }   // 物怪出没时：形真理齐了才拔得出（encounter.js）
     if (code === "KeyI") { openBox(); return; }
@@ -361,6 +391,7 @@ async function startLocation(id) {
     if (code === "KeyP") photo();
     if (code === "KeyF") setFilter(filterIdx + 1);
     if (code === "KeyO" && !busy && !card.isOpen) cyclePose();
+    if (code === "KeyT" && !busy && !card.isOpen && !enc.active && !sword) guide.castScales();   // 放天秤指路（guide.js，11-06）
     if (code === "KeyM") location.href = pub("tour.html");
   }
   addEventListener("keydown", (e) => {
@@ -393,7 +424,7 @@ async function startLocation(id) {
   });
   const stickEnd = (e) => {
     if (e.pointerId !== stick.id) return;
-    if (e.type === "pointerup" && !stick.moved && performance.now() - stick.t0 < 300 && !busy && !card.isOpen) clickFloor(e.clientX, e.clientY);
+    if (e.type === "pointerup" && !stick.moved && performance.now() - stick.t0 < 300 && !busy && !card.isOpen && !guide.endOpen) clickFloor(e.clientX, e.clientY);
     stick.id = null; stick.x = stick.y = 0; stickKnob.style.transform = ""; stickEl.classList.remove("on");
     Object.assign(stickBase.style, { left: "", top: "", bottom: "" });
   };
@@ -428,12 +459,14 @@ async function startLocation(id) {
   canvas.addEventListener("pointerdown", (e) => {
     fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (fingers.size === 2) { pinch = spread(); drag = null; return; }
-    if (fingers.size === 1) drag = { x: e.clientX, y: e.clientY, moved: false, touch: e.pointerType === "touch" };
+    if (fingers.size === 1) drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false, touch: e.pointerType === "touch" };
   });
+  // 拖动只认按下画布的那根手指（11-06 用户反馈手机上视角频繁切换、晃得头晕）：原来不分手指，
+  // 左手推摇杆、右手搭在画面上时，摇杆那根手指每动一下都按两指之间几百像素的距离转镜头，推 50 像素镜头转了 122°
   addEventListener("pointermove", (e) => {
     if (fingers.has(e.pointerId)) fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinch && fingers.size === 2) { const d = spread(); if (d > 10) { cam.zoomBy(pinch / d); pinch = d; } return; }
-    if (!drag) return;
+    if (!drag || e.pointerId !== drag.id) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
     if (!drag.moved && Math.hypot(dx, dy) > (drag.touch ? 10 : 6)) drag.moved = true;
     if (drag.moved) { const k = drag.touch ? 1.4 : 1; cam.turn(dx * 0.005 * k, dy * 0.004 * k); drag.x = e.clientX; drag.y = e.clientY; }
@@ -441,7 +474,8 @@ async function startLocation(id) {
   const lift = (e) => {
     fingers.delete(e.pointerId);
     if (fingers.size < 2) pinch = null;
-    if (e.type === "pointerup" && drag && !drag.moved && !busy && !card.isOpen) {
+    if (drag && e.pointerId !== drag.id) return;   // 摇杆、按钮那根手指松开：不打断画布上的拖动，也不当成点地面
+    if (e.type === "pointerup" && drag && !drag.moved && !busy && !card.isOpen && !guide.endOpen) {
       const now = performance.now(), dbl = lastTap && now - lastTap.t < 350 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 40;
       lastTap = dbl ? null : { t: now, x: e.clientX, y: e.clientY };
       clickFloor(e.clientX, e.clientY, dbl);
@@ -480,7 +514,7 @@ async function startLocation(id) {
   // 不然一切镜头"前"就变了，药郎被带回原来的范围，镜头又切回去，来回闪（10-31）
   let moveLock = null;
   function move(dt) {
-    if (busy || card.isOpen || enc.holding || box?.isOpen) return;   // 察觉、投札、闪避、袖挡的时候、药箱开着时脚下不走
+    if (busy || card.isOpen || enc.holding || box?.isOpen || guide.endOpen) return;   // 结案卡开着也不走；察觉、投札、闪避、袖挡的时候、药箱开着时脚下不走
     const k = (a, b) => keys.has(a) || keys.has(b);
     const sm = Math.min(1, Math.hypot(stick.x, stick.y)), stickOn = sm > 0.15;   // 手机摇杆推了多少（0~1）
     const sig = ["KeyW", "ArrowUp", "KeyS", "ArrowDown", "KeyA", "ArrowLeft", "KeyD", "ArrowRight"].filter((c) => keys.has(c)).join() + (stickOn ? "|stick" : "");
@@ -621,11 +655,28 @@ async function startLocation(id) {
 
   // ---- 物怪出没（encounter.js，docs/18）----
   let shakeT = 0;
+  // 本命退魔后整片上色（docs/22：原作《鵺》结尾画面从水墨变彩色）：材质先全换成彩色，后期把画面压灰，再从中间往外一圈圈洇开
+  let reveal = null;
+  function recolor() {
+    if (!loc.recolor || colored) return;
+    colored = true; try { localStorage.setItem(COLOR_KEY, "1"); } catch {}
+    const roots = [...new Set([...zoneCache.values(), scene])].filter(Boolean);
+    reveal = { t: -99 };   // 换材质这几百毫秒先占住（recoloring() 为真，执念物卡等着）
+    // 等新一套贴图下好再换（recolorKit 返回 promise；没下好就换会黑一下），换的那一帧把画面压灰，再洇开
+    Promise.all(roots.map((r) => recolorKit(r, loc.recolor))).then(() => {
+      for (const r of roots) r.traverse((o) => { if (o.isMesh && o.material.uniforms?.uCutout) o.material.uniforms.uCutout.value = 1; });
+      post.setReveal(0.05, 0.5, 0.42); reveal = { t: 0 };
+      for (const n of npcsOn) scene.remove(n.group); npcsOn = [];   // 宅里的人跟着香散了
+      snow.set(false); setSky(Z); audio.play("release", 3);
+    });
+  }
   const enc = createEncounter({
     scene, camera, player, P, audio, loc, texts, touch, mode: params.get("mononoke"), loader, assetUrl,
     noRandom: ["selftest", "auto", "walktest"].some((k) => params.has(k)) && !params.has("mononoke"),   // 自测、自动拍图不随机出
     zone: () => Z, col: () => col, cam: () => cam,
     free: () => !busy && !card.isOpen && !sword && !box?.isOpen,
+    onRelease: (id) => { if (id === loc.case?.mononoke || id === loc.recolorOn) recolor(); },   // 本命魂走完（掉卡之前）：有 recolor 的地点上色
+    recoloring: () => !!reveal,
     onCollect: (id) => { boxBtn.classList.add("new"); toast(touch ? "收进药箱了 · 点右上「箱」看" : "收进药箱了 · 按 I 打开", 3200); },
     // 引导（guide.js，docs/19）：看过两处才随机出；本命不随机出；第一次随机出哪只；本命退了盖印
     randomOk: () => guide.randomOk(), allowRandom: (id) => guide.allowRandom(id), firstRandom: () => guide.firstRandom(), onDone: (id) => guide.onExorcised(id),
@@ -648,10 +699,23 @@ async function startLocation(id) {
     nudgeCam: (y, dt) => { follow.yaw += wrap(y - follow.yaw) * (1 - Math.exp(-1.4 * dt)); },
   });
   // 引导与探索（guide.js，docs/19）
+  let mapPlaces = []; loadMap().then((m) => { const { real } = locationIds(); mapPlaces = (m?.places || []).filter((p) => p.open && real.includes(p.id)).map((p) => ({ id: p.id, name: p.name })); }).catch(() => {});
   const guide = createGuide({
     loc, texts, player, P, scene, camera, audio, enc, tags, col: () => col, loader, assetUrl, touch, tex: (f) => pub(`textures/kit/${f}`),
     noOutline: (o) => post.exclude.push(o),
-    shot: (c) => { for (const k of [follow, splatCam]) k.shot = c ? { rect: [-1e9, 1e9, -1e9, 1e9], ...c } : null; },   // act 的临时机位 { pos: [x,y,z], look: [x,y,z] }
+    followCam: () => cam === follow && !follow.fixedOn,   // 放天秤：跟随镜头会转到药郎身后（perform），扫描房间的环绕 / 固定机位不转
+    // act 的临时机位 { pos: [x,y,z], look: [x,y,z] }；拾遗特写另带 close: true（不往药郎身上挪看点）和 fov（收窄，关掉时复位）
+    shot: (c) => {
+      for (const k of [follow, splatCam]) k.shot = c ? { rect: [-1e9, 1e9, -1e9, 1e9], ...c, shot: true } : null;
+      if (c?.fov) { shotFov ??= baseFov; baseFov = c.fov; fitFov(); } else if (!c && shotFov != null) { baseFov = shotFov; shotFov = null; fitFov(); }
+    },
+    findObj: (f) => findsOn?.children.find((g) => g.userData.find === f) || null,   // 拾遗小物件的网格（特写对准它的包围盒）
+    // 镜头射线：from 往 to 方向，碰到墙、柱子（跟随镜头的碰撞网格）返回距离，没碰到或没有碰撞网格返回 null
+    camRay: (from, to) => {
+      if (cam !== follow || !follow.bvh) return null;
+      const d = to.clone().sub(from), len = d.length(), r = new THREE.Ray(from.clone(), d.normalize());
+      return follow.bvh.raycastFirst(r, THREE.DoubleSide, 0.06, len)?.distance ?? null;
+    },
     loadKit: (kit) => loadKit(loader, assetUrl(`processed/kit/${kit}.glb`)), shake: (s) => { shakeT = Math.max(shakeT, s); },   // act 的小积木、镜头一抖（docs/20）
     // 原地做一个动作（坟前合掌）：sec 秒里不能走，转向 yaw，做完回待机
     perform: (clip, sec, yaw) => new Promise((done) => {
@@ -660,6 +724,7 @@ async function startLocation(id) {
     }),
     route: (a, b, tol) => pf?.routeTo(a, b, tol)?.pts || null,
     zone: () => Z, npcs: () => npcsOn, free: () => !busy && !card.isOpen && !sword && !box?.isOpen && !enc.active,
+    places: () => mapPlaces, go: (id) => { location.href = pub("tour.html") + (id ? `?loc=${id}` : ""); },   // 结案卡"去下一处"：总地图上开着的地点按长卷顺序
     stat: (p, t) => stat(p, t, true),
     allViews: async () => Object.fromEntries(await Promise.all(Object.keys(loc.zones || {}).map(async (id) => [id, Object.keys((await resolveZone(loc, id)).views || {})]))),
   });
@@ -700,7 +765,7 @@ async function startLocation(id) {
   }
   function updatePrompt() {
     if (busy || card.isOpen) return;
-    if (enc.active || guide.acting) { prompt.set(""); return; }   // 正在做 act（合掌、开柜子……）：提示条收着
+    if (enc.active || guide.acting || guide.endOpen) { prompt.set(""); return; }   // 正在做 act（合掌、开柜子……）：提示条收着
     const v = nearView();
     prompt.set(v ? `${touch ? "点这里看" : "E 看看"} · ${viewText(v).title}` : guide.promptText(touch));
   }
@@ -795,7 +860,11 @@ async function startLocation(id) {
     cam.update(enc.camTarget(), dt, enc.takeCamSnap());   // 物怪出没时镜头看药郎和物怪之间（偏药郎）
     if (sword) { fitFov(); if (!swordOpts.short) swordShot(camera, cam, player, P.time); }   // 拔剑运镜（sword_cam.js）：每帧从跟随镜头的结果上叠，fov 先复位再乘；短版不带运镜
     if (shakeT > 0) { shakeT -= dt; const a = 0.06 * Math.min(1, shakeT / 0.12); camera.position.x += (Math.random() - 0.5) * a; camera.position.y += (Math.random() - 0.5) * a; camera.updateMatrixWorld(); }   // 袖挡、钉中：镜头一震
-    rain.update(dt, camera);
+    rain.update(dt, camera); snow.update(dt, camera);
+    if (reveal && reveal.t > -99) {   // 退魔后上色：颜色从画面中间往外洇开，4.5 秒铺满
+      reveal.t += dt; const k = Math.min(1, reveal.t / 4.5);
+      post.setReveal(k >= 1 ? -1 : 0.05 + 1.7 * k * k, 0.5, 0.42); if (k >= 1) reveal = null;
+    }
     post.render();
     tags.update(camera, innerWidth, innerHeight, tv);
   }
@@ -830,7 +899,7 @@ async function startLocation(id) {
     const data = renderer.domElement.toDataURL("image/jpeg", 0.92);
     return (await fetch("/__shot", { method: "POST", body: JSON.stringify({ name, data }) })).json();
   }
-  window.__tour = { loc, audio, get zone() { return Z; }, get col() { return col; }, player, P, get cam() { return cam; }, splats, setFilter, composePhoto, cyclePose, get pose() { return pose; }, enc, camera, scene, renderer, post, enterZone, walkTo, openView, takeExit, keys, save, step: (n = 1, dt = 1 / 60) => { for (let i = 0; i < n; i++) frame(dt); }, card, tags, guide, get npcs() { return npcsOn; }, get box() { return box; } };
+  window.__tour = { recolor: () => recolor(), loc, audio, get zone() { return Z; }, get col() { return col; }, player, P, get cam() { return cam; }, splats, setFilter, composePhoto, cyclePose, get pose() { return pose; }, enc, camera, scene, renderer, post, enterZone, walkTo, openView, takeExit, keys, save, step: (n = 1, dt = 1 / 60) => { for (let i = 0; i < n; i++) frame(dt); }, card, tags, guide, get npcs() { return npcsOn; }, get box() { return box; } };
   if (params.get("auto")) autoShots();
   if (params.get("selftest")) selfTest();
   if (params.get("walktest")) walkTest();
@@ -876,7 +945,7 @@ async function startLocation(id) {
       log(card.isOpen, `说明卡打开：${document.querySelector("#card .title").textContent}`);
       run(1); log(["gaze_k", "look_up_k"].includes(P.currentName), `开卡时药郎驻足看（${P.currentName}）`);
       await save(`tour_${loc.id}_动作_驻足看`);
-      card.close(); await wait(50); run(0.5); log(!card.isOpen && P.currentName === "idle_k", `说明卡关掉，回待机（${P.currentName}）`);
+      card.close(); await wait(50); run(0.5); guide.closeEnding("stay");   // 斩的是本命：结案卡（还没弹的也算）关掉再往下测 log(!card.isOpen && P.currentName === "idle_k", `说明卡关掉，回待机（${P.currentName}）`);
     }
     if (Z.exits?.length) {
       const from = Z.id, e = Z.exits[0];
@@ -944,9 +1013,9 @@ async function startLocation(id) {
       if (round === 1) {   // 第一次遭遇：现身后停住弹教学卡，停着的时候物怪不动；空格关卡再开打
         const T0 = enc.debug.T; run(1); const no = () => document.querySelector("#mktut .no")?.textContent;
         const frozen = enc.tutorial && enc.debug.T === T0 && no() === "1 / 6";
-        act("ArrowRight"); const p2 = no() === "2 / 6" && document.querySelector("#mktut .key").textContent === "J";
+        act("ArrowRight"); const p2 = no() === "2 / 6" && document.querySelector("#mktut .key")?.textContent === "J";
         act("KeyX"); const need = document.querySelector("#mk .need.show") === null && !sword;   // 卡开着按 X 不该亮"还差"、不拔剑
-        for (let i = 0; i < 4; i++) act("ArrowRight"); const last = document.querySelector("#mktut .next").textContent === "开打";
+        for (let i = 0; i < 4; i++) act("ArrowRight"); const last = document.querySelector("#mktut .next")?.textContent === "开打";
         act("Space"); for (let i = 0; i < 10; i++) frame(1 / 60);
         log(frozen && p2 && need && last && !enc.tutorial && enc.state === "fight", `物怪出没第 1 次：现身后停住弹教学卡，一页一个键翻到 6 / 6，开打（${enc.state}）`);
         act("KeyX"); log(!!document.querySelector("#mk .need.show") && enc.state === "fight" && !sword, "形真理没齐按 X：中间亮三格提示，剑没拔");
@@ -967,9 +1036,9 @@ async function startLocation(id) {
       log(enc.state === "sealed" && enc.pins === 3 && !!enc.monster?.real, `物怪出没第 ${round} 次：钉齐三张（${enc.monster?.real ? "原作模型" : "墨影"}，${enc.pins} 张，闪避 ${dodged} 次，${enc.debug.fightT} 秒）`);
       run(0.8); if (round === 1) await save(`tour_${loc.id}_物怪_札阵`);
       act("KeyX"); const anim = P.currentName; let grudge = false, cut = false, vis = true;
-      for (let i = 0; i < 60 * 17 && enc.state !== "idle"; i++) { frame(1 / 60); grudge ||= !!enc.fx.grudge; cut ||= enc.fx.grudge?.cut >= 0; if (enc.state === "vanish") vis &&= !!enc.monster?.group.visible || enc.monster?.id === "umibozu"; }   // 退魔 10 秒 + 魂走 3~4 秒
-      log(anim === (round === 1 ? "exorcise_k" : "exorcise_short_k") && grudge && cut && vis && enc.state === "idle" && card.isOpen && !sword, `物怪出没第 ${round} 次：${anim} 退魔，斩的是抽出来的怨念团（抽出 ${grudge}、劈开 ${cut}、本体没被砍没 ${vis}），掉执念物卡（${document.querySelector("#card .title").textContent}）`);
-      card.close(); await wait(50); run(0.5);
+      for (let i = 0; i < 60 * 23 && (enc.state !== "idle" || enc.cardPending); i++) { frame(1 / 60); grudge ||= !!enc.fx.grudge; cut ||= enc.fx.grudge?.cut >= 0; if (enc.state === "vanish") vis &&= !!enc.monster?.group.visible || enc.monster?.id === "umibozu"; }   // 退魔 10 秒 + 魂走 3~4 秒
+      log(anim === (round === 1 ? "exorcise_k" : "exorcise_short_k") && grudge && cut && vis && enc.state === "idle" && card.isOpen && !sword, `物怪出没第 ${round} 次：${anim} 退魔，斩的是抽出来的怨念团（抽出 ${grudge}、劈开 ${cut}、本体没被砍没 ${vis}），掉执念物卡（${document.querySelector("#card .title")?.textContent}）`);
+      card.close(); await wait(50); run(0.5); guide.closeEnding("stay");   // 斩的是本命：结案卡（还没弹的也算）关掉再往下测
     }
     // 送（docs/19 第十节）：没有怨的那几只，形真理齐了剑不出鞘，X 改成送它走（坂井家小化猫、万屋青座敷；大奥没有）
     const okuriId = { sakai: "bakeneko_ko", wanya: "zashiki_ao" }[loc.id];
@@ -981,8 +1050,8 @@ async function startLocation(id) {
         run(0.8); const btn = document.querySelector("#pad .b-sword")?.textContent;
         act("KeyX"); const st0 = enc.state; let drew = false;
         for (let i = 0; i < 60 * 12 && enc.state !== "idle"; i++) { frame(1 / 60); drew ||= sword; }
-        log(btn === "送" && st0 === "okuri" && !drew && enc.state === "idle" && card.isOpen, `送：${okuriId} 形真理齐了钮写「${btn}」，按 X 剑没出鞘（${st0}），送走、掉卡（${document.querySelector("#card .title").textContent}）`);
-        card.close(); await wait(50); run(0.5);
+        log(btn === "送" && st0 === "okuri" && !drew && enc.state === "idle" && card.isOpen, `送：${okuriId} 形真理齐了钮写「${btn}」，按 X 剑没出鞘（${st0}），送走、掉卡（${document.querySelector("#card .title")?.textContent}）`);
+        card.close(); await wait(50); run(0.5); guide.closeEnding("stay");   // 斩的是本命：结案卡（还没弹的也算）关掉再往下测
       } else log(false, `送：${okuriId} 找不到出生点`);
     }
     // 引导与探索（guide.js，docs/19）：有案子的地点（坂井家）走一遍——凑字、提示一档档加、门札、本命现身
@@ -995,9 +1064,16 @@ async function startLocation(id) {
       await enterZone(hz); run(0.5); guide.quiet = 0;
       // 计时直接拨到每档前一点再走一秒（真跑 150 秒，扫描房间的大奥会把 GPU 跑崩）
       guide.quiet = 39.5; run(1); const h1 = guide.hintLv; guide.quiet = 89.5; run(1); const h2 = guide.hintLv; guide.quiet = 149.5; run(1); const h3 = guide.hintLv, ptxt = document.getElementById("prompt").textContent;
-      log(h1 === 1 && h2 === 2 && h3 === 3 && !!ptxt, `引导：${loc.zones[hz].name}站着不动，提示 40 秒第 ${h1} 档、90 秒第 ${h2} 档、150 秒第 ${h3} 档（${ptxt}）`);
+      log(h1 === 1 && h2 === 2 && h3 === 3 && !!ptxt, `引导：${loc.zones[hz].name}站着不动，提示 40 秒第 ${h1} 档、90 秒第 ${h2} 档、150 秒第 ${h3} 档（${ptxt}）${h3 === 3 ? "" : `［busy ${busy} 卡 ${card.isOpen} 剑 ${!!sword} 箱 ${!!box?.isOpen} 物怪 ${enc.active}/${enc.state} 结案 ${guide.endOpen} 做 ${guide.acting}］`}`);
       const fuda = [...document.querySelectorAll(".tag.exit")].map((e) => (e.classList.contains("fuda") ? "札" : e.classList.contains("dim") ? "暗" : "-") + e.textContent);
       log(fuda.some((t) => t.startsWith("札")), `引导：${loc.zones[hz].name}的门札（${fuda.join(" ")}）`);
+      // 放天秤（11-06）：按 T 沿路立起一串天秤指向要找的东西，6 秒多以后收掉，歇 8 秒
+      { for (let t = 0; t < 8000 && busy; t += 200) await wait(200);
+        const st = enterZone(loc.start).then(() => run(0.5)); await st; run(9);   // 前面第二档提示自动放过一次：等它收掉、歇完
+        const tgt = guide.target(), far = !tgt || Math.hypot(tgt.pos[0] - player.position.x, tgt.pos[1] - player.position.z) >= 1.2;   // 就在脚边时不立天秤、只说一句
+        act("KeyT"); run(1.5); const n1 = guide.cast, cd = guide.castCd > 0; run(8); const n2 = guide.cast;
+        for (let t = 0; t < 3000 && busy; t += 100) await wait(100);   // 抬手那 0.9 秒按真时间算：等它做完，后面开说明卡才不被挡
+        log(cd && (far ? n1 >= 1 && n2 === 0 : n1 === 0), `放天秤：按 T ${far ? `立起 ${n1} 只、7 秒后收掉（剩 ${n2}）` : "目标就在脚边，只响铃说一句"}、进入冷却`); }
       // 先后：理的线索先凑齐（真还没亮），理不亮、格子写"等"；真亮了理接着亮
       const li = C.clues.find((c) => c.after);
       if (li) { li.need.forEach((k) => guide.mark(k)); run(0.2); const held = !S0().chars.includes(li.char) && (S0().held || []).includes(li.char) && document.querySelector(`#case .k[data-c="${li.char}"]`)?.dataset.p === "等";
@@ -1007,7 +1083,7 @@ async function startLocation(id) {
         const [z, w] = k.split("/"), [kind, id] = w.split(":");
         if (Z.id !== z) { await enterZone(z); run(0.3); }
         if (kind === "view") { openView(id); await wait(30); card.close(); await wait(30); run(0.3); }
-        else if (kind === "npc" && texts[`npc.${loc.id}.${id}`]) { const n = npcsOn.find((x) => x.id === id); player.position.set(n.pos[0] + 0.8, player.position.y, n.pos[1]); n.said = -1; for (let i = 0; i < 4; i++) { guide.act(); run(0.2); } }
+        else if (kind === "npc" && texts[`npc.${loc.id}.${id}`] && npcsOn.some((x) => x.id === id)) { const n = npcsOn.find((x) => x.id === id); player.position.set(n.pos[0] + 0.8, player.position.y, n.pos[1]); n.said = -1; for (let i = 0; i < 4; i++) { guide.act(); run(0.2); } }
         else if (kind === "act") {   // 能"做"的事：站到那儿按 E，等效果放完、那句话浮完记下（docs/20）
           const a = Z.acts?.find((x) => x.id === id);
           if (a) { player.position.set(a.pos[0], player.position.y, a.pos[1]); run(0.1); const lbl = guide.promptText(false); guide.act(); for (let i = 0; i < 80 && !guide.state.seen.includes(k); i++) { run(0.1); await wait(100); }
@@ -1027,7 +1103,12 @@ async function startLocation(id) {
       await enterZone(C.boss); run(5);
       const boss = enc.current, bst = enc.state;
       log(boss === C.mononoke && ["omen", "appear", "fight"].includes(bst) || enc.tutorial, `引导：形真理齐了进${loc.zones[C.boss].name}，本命现身（${boss}，${bst}）`);
-      enc.reset(); guide.reset(); run(0.5);
+      // 结案卡（11-06）：本命退了 2.2 秒后弹；形真理三句、收尾、两个钮；第一下 E 全亮，第二下 E 接着逛关掉
+      enc.reset(); guide.onExorcised(C.mononoke); await wait(2600);
+      const ce = document.getElementById("case-end"), rowsN = [...ce.querySelectorAll(".ce-row span")].filter((s) => s.textContent.trim()).length, nextBtn = ce.querySelector("button.main")?.textContent.replace(/[EN]$/, "");
+      const opened = guide.endOpen; act("KeyE"); const allOn = ce.querySelector(".ce-btns").classList.contains("on"); act("KeyE"); await wait(50);
+      log(opened && rowsN === 3 && allOn && !guide.endOpen && !!nextBtn, `结案卡：退魔后弹出、形真理 ${rowsN} 句、收尾「${ce.querySelector(".ce-end").textContent.slice(0, 14)}…」、钮「${nextBtn}」、E 全亮再 E 关掉`);
+      guide.reset(); run(0.5);
     }
     // 药箱：前面退过的物怪收进去了。I 打开只有箱子；回车拉开那格出卡（有立绘）；Esc 先收卡、再关箱子；开着时人不走、物怪不出
     {

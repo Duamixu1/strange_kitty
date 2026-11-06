@@ -272,6 +272,13 @@ class Engine {
     f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur);
     this.src(buf, t, { offset: Math.random() }).connect(this.chain(f, out)); return out;
   }
+  scaleBell(t, n = 2, vel = 0.07) {   // 11-06 天秤上挂的小铃（用户："好像天秤没有响"）：细、短、高，几下错开，"叮铃"，不像佛具铃那样嗡很久
+    for (let i = 0; i < n; i++) {
+      const tt = t + i * rnd(0.07, 0.12), f = rnd(2500, 3300), out = this.env(tt, 0.001, vel * (1 - i * 0.18), 0.55, this.pan(rnd(-0.25, 0.25), this.sfxBus));
+      for (const [r, a] of [[1, 1], [2.41, 0.35], [3.9, 0.15]]) { const o = this.ctx.createOscillator(); o.frequency.value = f * r; const g = this.ctx.createGain(); g.gain.value = a * 0.5; o.connect(g); g.connect(out); o.start(tt); o.stop(tt + 0.9); }
+      this.send(out, 0.25);
+    }
+  }
   omen(t) {   // 预兆：铃两下，底下一层低音慢慢涨起来
     this.bell(t, 1320, 0.16); this.bell(t + 0.55, 1250, 0.12);
     const d = this.ctx.createGain(); d.gain.setValueAtTime(0.0001, t); d.gain.linearRampToValueAtTime(0.1, t + 1.6); d.gain.linearRampToValueAtTime(0.0001, t + 3.2); d.connect(this.sfxBus);

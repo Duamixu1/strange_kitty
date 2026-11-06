@@ -1,0 +1,26 @@
+# 笛小路家·长廊（参考 08）：左边一路格子窗 A，右边一排障子；白廊板顺着走，直线透视。拾遗 2 障子边的香包在地点 JSON 里。
+# 下 U 回雪庭，上 U 进香之间，右边中段 U 去深处。
+name: fuenokouji_rouka
+height: 2.6
+ceiling: sao
+timber: 1.4
+mat: wood=fue_wood, frame=fue_frame, plaster=fue_plaster, kokabe=fue_kokabe, tatami=fue_tatami, tatami_side=fue_tatami_side, engawa=fue_boards, shoji=fue_shoji, lattice_win=fue_lattice, ceiling=fue_ceiling, snow=fue_snow, roof=fue_roof, rail=fue_wood, stair=fue_boards, under=fue_under, lacquer=fue_lacquer, censer=fue_censer, genji_plate=fue_genji_plate, genji_line=fue_genji_line, kicho=fue_kicho, dais=fue_dais, dais_side=fue_dais_edge, dais_trim=fue_lacquer, byobu=fue_byobu_budou, fusuma=fue_fusuma_bokuun, fusuma2=fue_fusuma_hane, udoor=fue_fusuma_plain, glassdoor=fue_gate_door, gate_roof=fue_gate_roof, gate_wood=fue_gate_wood, koshi=fue_wood, misu=fue_misu, misu_cord=crimson, ceiling=fue_ceiling
+shot: 顺着长廊 | 1.4,1.55,13.4 | 1.4,1.1,1.0 | 1.15,12.4,3.14
+shot: 回头 | 1.4,1.55,1.6 | 1.4,1.1,13.6 | 1.6,2.6,0
+---
+#U##
+A==S
+A==S
+A==S
+A=2S
+A==S
+A==S
+A==U
+A==S
+A==S
+A==S
+A1=S
+A=@S
+A==S
+A==S
+#U##

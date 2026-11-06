@@ -38,11 +38,13 @@ def recolor(img, rules):
         m = np.ones_like(h)
         if "hue" in r: m *= hue_near(h, *r["hue"])
         if "smin" in r: m *= np.clip((s - r["smin"]) / 0.1, 0, 1)
+        if "smax" in r: m *= np.clip((r["smax"] - s) / 0.08, 0, 1)
         if "vmax" in r: m *= np.clip((r["vmax"] - v) / 0.08, 0, 1)
         if "vmin" in r: m *= np.clip((v - r["vmin"]) / 0.08, 0, 1)
         t = out.copy()
         if "to_hue" in r: t[..., 0] = r["to_hue"]
         if "sat" in r: t[..., 1] = np.clip(x[..., 1] * r["sat"], 0, 1)
+        if "sat_to" in r: t[..., 1] = r["sat_to"]   # 直接定饱和度（黑、白、灰本来没有饱和度，乘不上去）
         if "val" in r: t[..., 2] = np.clip(r["val"][0] + x[..., 2] * r["val"][1], 0, 1)   # 新明度 = 常数 + 原明度 × 倍数
         # 色相按圆周插，饱和度、明度线性插
         dh = (t[..., 0] - out[..., 0] + 180) % 360 - 180

@@ -16,6 +16,7 @@
     // 场景线的积木区块查看器（docs/16_积木平面图格式.md）：不是游戏页面，只用来看积木拼得对不对、和大奥积木走廊是不是一套画风。
     //   /kit_view.html?plan=zashiki_demo   1~9 切平面图里写的 shot 机位，0 是俯视（叠可走格子），拖动环视，S 存图
     //   &auto=1  依次拍完所有机位存到 assets/processed/shots/kitview_<plan>_*.jpg（tools/kit_shots.sh view <plan>）
+    //   &mat=ink  整套换材质（kit.js 的 setKitMat，地点 JSON "mat"），存图名带 _ink
     //   /kit_view.html?glb=map_diorama&cam=x,y,z&look=x,y,z&fov=15&noplayer=1   看不走平面图的积木（手写的 CUSTOM），机位写在网址里
     import * as THREE from "three";
     import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -23,13 +24,14 @@
     import { makeToonMaterial } from "/src/style/toon.js";
     import { PaperOutlinePost } from "/src/style/post.js";
     import { attachProps } from "/src/props.js";
-    import { loadKit } from "/src/tour/kit.js";
+    import { loadKit, setKitMat } from "/src/tour/kit.js";
 
     const params = new URLSearchParams(location.search);
     const glb = params.get("glb");
     const plan = glb || params.get("plan") || "zashiki_demo";
     const vec = (k) => params.get(k).split(",").map(Number);
     const status = document.getElementById("status");
+    const matSet = params.get("mat"); setKitMat(matSet);   // &mat=ink 整套换水墨（游31）
     const walk = glb ? { cell: 0.1, x0: 0, z0: 0, rows: [], size: [1, 1], height: 1, spawn: null, shots: [] } : await (await fetch(`/src/data/tour/${plan}_walk.json`)).json();
 
     const scene = new THREE.Scene();
@@ -104,7 +106,7 @@
     addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); post.resize(); });
 
     function frame() { const top = !!SHOTS[cur].top; ceilings().forEach((o) => (o.visible = !top)); post.render(); }
-    async function save(name = `kitview_${plan}_${cur}_${SHOTS[cur].name}`) {
+    async function save(name = `kitview_${plan}${matSet ? "_" + matSet : ""}_${cur}_${SHOTS[cur].name}`) {
       frame(); const data = renderer.domElement.toDataURL("image/jpeg", 0.92);
       return (await fetch("/__shot", { method: "POST", body: JSON.stringify({ name, data }) })).json();
     }

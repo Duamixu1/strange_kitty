@@ -24,6 +24,7 @@ const CHARS = ["形", "真", "理"];
 const HINT = [40, 90, 150];   // 秒：一档档往上加
 const ls = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+const SCALE_SIDE = 0.3;   // 天秤从腰前往右胯外挪多少米
 
 /** 读某个地点的进度（总地图也用） */
 export function loadCase(locId) {
@@ -81,6 +82,53 @@ export function createGuide(ctx) {
   paintHud();
   const stampEl = document.createElement("div"); stampEl.id = "stamp"; document.body.appendChild(stampEl);
   function stamp(text) { stampEl.textContent = text; stampEl.classList.remove("go"); void stampEl.offsetWidth; stampEl.classList.add("go"); audio.play("pin"); }
+  // ---- 结案卡（11-06 用户："形真理了之后，有个最后结束性的说明吗？"）----
+  //   本命退了、执念物卡关掉以后弹：案名，形 / 真 / 理三句一句句亮（铃一声一声），一句收尾（text.json 的 end.<地点>），
+  //   这一处还剩什么没看，两个钮：接着逛（E / Esc）、去下一处（N；总地图上还没退魔的下一处，都退了就回总地图）
+  const endEl = document.createElement("div"); endEl.id = "case-end"; endEl.className = "paper"; document.body.appendChild(endEl);
+  let endOpen = false, endTimers = [], endNext = null, endPending = 0;
+  const free0 = ctx.free; ctx.free = () => !endOpen && free0();   // 结案卡开着：不冒话、不提示、不放天秤
+  function nextPlace() {
+    const list = ctx.places?.() || [], i = list.findIndex((p) => p.id === loc.id);
+    for (let k = 1; k <= list.length; k++) { const p = list[(i + k + list.length) % list.length]; if (p.id !== loc.id && !loadCase(p.id).done) return p; }
+    return null;
+  }
+  function openEnding() {
+    if (!C) return;
+    const m = texts[`mononoke.${loc.id}`] || {}, cs = texts[`case.${loc.id}`] || {};
+    const end = texts[`end.${loc.id}`] || m.after || "";
+    const views = S.seen.filter((k) => k.includes("/view:")).length, finds = S.seen.filter((k) => k.includes("/find:")).length, T = S.totals || {};
+    const rest = [T.views && views < T.views ? `観 ${views} / ${T.views}` : "", T.finds && finds < T.finds ? `拾遗 ${finds} / ${T.finds}` : ""].filter(Boolean);
+    endNext = nextPlace();
+    endEl.innerHTML = `<div class="ce-place">结案 · ${loc.name}</div><div class="ce-title">${cs.title || loc.name}</div>`
+      + [["形", m.katachi], ["真", m.makoto], ["理", m.kotowari]].map(([c, t]) => `<div class="ce-row"><b>${c}</b><span>${t || ""}</span></div>`).join("")
+      + `<div class="ce-end">${end}</div><div class="ce-prog">${rest.length ? `这里还有没看完的：${rest.join(" · ")}` : "这一处都看遍了。"}</div>`
+      + `<div class="ce-btns"><button data-a="stay">接着逛<kbd>E</kbd></button><button class="main" data-a="next">${endNext ? `去下一处 · ${endNext.name}` : "回总地图"}<kbd>N</kbd></button></div>`;
+    endEl.querySelectorAll("button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); closeEnding(b.dataset.a); }));
+    endEl.addEventListener("pointerdown", (e) => e.stopPropagation());
+    endOpen = true; endEl.classList.add("show"); audio.play("paper");
+    const parts = [...endEl.querySelectorAll(".ce-row")];
+    parts.forEach((r, i) => endTimers.push(setTimeout(() => { r.classList.add("on"); audio.play("scaleBell", 1, 0.05); }, 700 + i * 900)));
+    endTimers.push(setTimeout(() => endEl.querySelectorAll(".ce-end, .ce-prog, .ce-btns").forEach((e) => e.classList.add("on")), 700 + parts.length * 900 + 300));
+    ctx.stat(`结案/${loc.id}`, `结案 · ${loc.name}`);
+  }
+  function showAllEnding() { endTimers.forEach(clearTimeout); endTimers = []; endEl.querySelectorAll(".ce-row, .ce-end, .ce-prog, .ce-btns").forEach((e) => e.classList.add("on")); }
+  function closeEnding(a) {
+    clearTimeout(endPending);   // 还没弹出来的也取消（自测斩完本命接着测别的）
+    if (!endOpen) return;
+    showAllEnding(); endOpen = false; endEl.classList.remove("show");
+    if (a === "next") { ctx.stat(`结案/${loc.id}/下一处`, endNext ? `去 ${endNext.name}` : "回总地图"); ctx.go?.(endNext?.id || null); return; }
+    setTimeout(() => toast(ctx.touch ? "接着逛 · 想走了点右上「地图」" : "接着逛 · 想走了按 M 回总地图", 3600), 300);
+  }
+  // 结案卡开着时的按键：E / Esc / 空格 = 接着逛；N / Enter = 去下一处；字还没亮完先按一下全亮
+  function endKey(code) {
+    if (!endOpen) return false;
+    const btnsOn = endEl.querySelector(".ce-btns")?.classList.contains("on");
+    if (["KeyE", "Escape", "Space", "KeyN", "Enter"].includes(code) && !btnsOn) { showAllEnding(); return true; }
+    if (code === "KeyE" || code === "Escape" || code === "Space") closeEnding("stay");
+    else if (code === "KeyN" || code === "Enter") closeEnding("next");
+    return code !== "KeyM";   // 开着时别的键都不管（M 回总地图照旧）
+  }
   const bark = document.createElement("div"); bark.id = "bark"; bark.className = "paper"; document.body.appendChild(bark);
   let barkOn = null, barkT = 0;
   function say(n, i) {
@@ -178,7 +226,7 @@ export function createGuide(ctx) {
       const bz = loc.zones?.[C.boss]?.name || C.boss, here = zid() === C.boss;
       // 就站在本命那间里凑齐的（万屋最后一样常是大座敷里志乃的话）：不用出去再进来，提示完它就在这儿现身
       const t = here ? `形、真、理都查到了 · 铃声就在这间里` : texts[`ready.${loc.id}`] || `形、真、理都查到了 · 铃声是从${bz}那边来的`;
-      setTimeout(() => { audio.play("omen"); toast(t, 5000); decorateExits(); if (here && zid() === C.boss && bossWait < 0) bossWait = 2.5; }, 3200);
+      setTimeout(() => { audio.play("omen"); audio.play("scaleBell", 5, 0.11); jolt = 1.6; toast(t, 5000); decorateExits(); if (here && zid() === C.boss && bossWait < 0) bossWait = 2.5; }, 3200);
       ctx.stat(`线索/${loc.id}/齐`, "形真理齐了");
     }
   }
@@ -214,6 +262,7 @@ export function createGuide(ctx) {
   const at3 = (it, y = 1.3) => new THREE.Vector3(it.pos[0], (ctx.col()?.floorY(it.pos[0], it.pos[1]) ?? 0) + (it.kind === "find" ? 0.35 : y), it.pos[1]);
   function hint(lv, it) {
     if (lv === 1) { glint.position.copy(at3(it)); glint.visible = true; glintT = 0; audio.play("bell"); ctx.stat(`提示/${loc.id}/1`, "提示 · 亮一下"); }
+    if (lv === 2 && castScales(true)) { ctx.stat(`提示/${loc.id}/2`, "提示 · 天秤自己指"); return; }   // 11-06：第二档改成天秤（小化猫领路留着当后备）
     if (lv === 2 && kittenTo(it)) { ctx.stat(`提示/${loc.id}/2`, "提示 · 小化猫领路"); return; }
     if (lv === 2) { wisp.position.copy(player.position).setY(player.position.y + 1.2); wisp.visible = true; wispTo = at3(it, 1.1); wispT = 0; ctx.stat(`提示/${loc.id}/2`, "提示 · 小光领路"); }
     if (lv === 3) {
@@ -390,18 +439,133 @@ export function createGuide(ctx) {
     const got = S.seen.filter((k) => k.includes("/find:")).length;
     findTags.find((x) => x.f === f)?.it.el.remove();
     audio.play("bell");
+    const cs = closeShot(f);
+    ctx.shot?.(cs);
+    player.rotation.y = Math.atan2(cs.look[0] - player.position.x, cs.look[2] - player.position.z) || player.rotation.y;   // 药郎转过去看着它
+    P.play("gaze", 0.4);
     await card.open({ place: `拾遗 · ${loc.name} ${got} / ${all}`, title: t.title, body: t.body });
+    ctx.shot?.(null); P.play("idle", 0.4);
     audio.play("paper");
+  }
+  // 拾遗特写（11-06 用户："这里其实可以给特写"）：对准小物件的包围盒，从当前镜头那一侧斜着拍，稍微俯看。
+  // 镜头不能穿进柱子、墙（ctx.camRay 打碰撞网格），药郎不能挡在镜头和物件之间；说明卡盖住下半屏，所以把物件放在画面上方
+  const CLOSE_FOV = 34;
+  function closeShot(f) {
+    const g = ctx.findObj?.(f), c = new THREE.Vector3(), size = new THREE.Vector3();
+    if (g) { const b = new THREE.Box3().setFromObject(g); if (!b.isEmpty()) { b.getCenter(c); b.getSize(size); } }
+    if (!size.lengthSq()) { c.copy(at3v(f.pos, (f.y || 0) + 0.15)); size.set(0.3, 0.3, 0.3); }
+    const r = THREE.MathUtils.clamp(Math.max(size.x, size.y, size.z) / 2, 0.12, 0.6), half = THREE.MathUtils.degToRad(CLOSE_FOV / 2);
+    const want = THREE.MathUtils.clamp(r / Math.tan(half) * 1.8, 0.6, 1.6);
+    const pitch = c.y < 1.0 ? 0.5 : 0.2;   // 地上、柱脚的东西多往下看一点
+    const cam = ctx.camera.position, base = Math.atan2(cam.x - c.x, cam.z - c.z), P0 = player.position;
+    let best = null;
+    for (const da of [0.55, -0.55, 0.95, -0.95, 0, 1.35, -1.35, 1.8, -1.8, Math.PI]) {
+      const a = base + da, dir = new THREE.Vector3(Math.sin(a) * Math.cos(pitch), Math.sin(pitch), Math.cos(a) * Math.cos(pitch));
+      let d = want;
+      const hit = ctx.camRay?.(c, c.clone().addScaledVector(dir, want + 0.15));
+      if (hit != null) { if (hit < 0.55) continue; d = Math.min(d, hit - 0.15); }
+      const pos = c.clone().addScaledVector(dir, d);
+      // 药郎挡不挡：镜头到物件这段（水平）离他身体轴线多近，在那个位置上这段线有多高
+      const sx = pos.x - c.x, sz = pos.z - c.z, L2 = sx * sx + sz * sz || 1e-6;
+      const s = THREE.MathUtils.clamp(((P0.x - c.x) * sx + (P0.z - c.z) * sz) / L2, 0, 1);
+      const near = Math.hypot(c.x + sx * s - P0.x, c.z + sz * s - P0.z), yAt = c.y + (pos.y - c.y) * s - P0.y;
+      if (near < 0.35 && yAt < 1.8) continue;
+      best = { pos, d }; break;
+    }
+    if (!best) best = { pos: c.clone().add(new THREE.Vector3(Math.sin(base) * 0.9, 0.6, Math.cos(base) * 0.9)), d: 1 };
+    // 看点往下挪：物件落在画面上方约 1/3 处，避开说明卡
+    const look = c.clone(); look.y -= best.d * Math.tan(half) * 0.42 / Math.cos(pitch);
+    return { pos: best.pos.toArray(), look: look.toArray(), fov: CLOSE_FOV, close: true };
+  }
+
+  // ---- 放天秤（11-06，用户："它作为线索的作用比较弱"）：照原作，药郎把天秤放出去，沿着走得通的路一只接一只立起来，
+  //   都朝下一只歪，最后一只指着要找的东西；铃声从近到远一个个响过去，6 秒后淡掉。指谁：这间里先找跟没亮的字有关的；
+  //   这间查完了指还有东西没查的那扇门；形真理齐了指本命那间的门。T / 「秤」放，歇 8 秒；第二档提示也是它（auto，不做动作）
+  const CAST_CD = 8, CAST_LIFE = 6;
+  let castCd = 0; const cast = [];
+  function castTarget() {
+    const it = left().length ? target() : null;
+    if (it) return { pos: it.pos, what: "here" };
+    const Z = ctx.zone(); if (!Z) return null;
+    const ex = (Z.exits || []).map((e) => ({ e, s: Z.stairs?.[e.stair] })).filter((x) => x.s);
+    const pick = (C && S.ready && !S.done && ex.find((x) => x.e.to === C.boss)) || ex.find((x) => !zoneDone(x.e.to));
+    return pick ? { pos: pick.s.stand, what: pick.e.to === C?.boss && S.ready ? "boss" : "door" } : null;
+  }
+  function castScales(auto = false) {
+    const scaleProp = P.props.find((p) => p.id === "scale")?.prop;
+    if (!scaleProp || (!auto && castCd > 0)) return false;
+    const tg = castTarget();
+    if (!tg) { if (!auto) toast("天秤一动不动 · 这一带没有要找的了", 2600); return false; }
+    const from = [player.position.x, player.position.z];
+    let pts = ctx.route?.(from, [tg.pos[0], tg.pos[1]], 0.6);
+    if (!pts || pts.length < 2) pts = [from, [tg.pos[0], tg.pos[1]]];
+    // 沿路每隔 1.1 米一只，最多 5 只；最后一只停在离目标 0.6 米处
+    const seg = []; let total = 0;
+    for (let i = 1; i < pts.length; i++) { const L = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(L); total += L; }
+    const at = (d) => { let k = 0; while (k < seg.length - 1 && d > seg[k]) { d -= seg[k]; k++; } const t = seg[k] ? Math.min(1, d / seg[k]) : 0; return [pts[k][0] + (pts[k + 1][0] - pts[k][0]) * t, pts[k][1] + (pts[k + 1][1] - pts[k][1]) * t]; };
+    // 从药郎前方 1.4 米起（近了会和他叠在一起），每隔约 1.2 米一只，最多 5 只；最后一只停在离目标 0.6 米处
+    if (tg.what === "here" && total < 1.2) {   // 就在脚边（提示条已经能按 E）：不放了，铃一响、说一句
+      audio.play("scaleBell", 2, 0.07); toast(ctx.touch ? "天秤指着跟前 · 点提示条看看" : "天秤指着跟前 · 按 E 看看", 2600);
+      if (!auto) castCd = 2; return true;
+    }
+    const near = total < 2.2;   // 就在跟前：只在那样东西正上方立一只
+    const end = Math.max(0.6, total - 0.6), first = Math.min(1.4, end), n = near ? 1 : Math.max(1, Math.min(5, Math.round((end - first) / 1.2) + 1));
+    const spots = near ? [[tg.pos[0], tg.pos[1]]] : Array.from({ length: n }, (_, i) => at(n === 1 ? end : first + (end - first) * (i / (n - 1))));
+    clearCast();
+    // 天秤模型自己的坐标就是端正的（横梁沿 X 摊开、秤盘往下垂）：正面朝镜头立着，横梁才看得清；
+    //   往下一只在画面哪一侧就往哪侧歪（绕自身 Z），一路直直往里走时只微微晃。
+    //   自己放的：镜头会转到药郎身后、朝第一只看（perform 的 camAim），所以按那个方向摆正面
+    const f = new THREE.Vector3(); ctx.camera.getWorldDirection(f);
+    if (!auto && ctx.followCam?.()) f.set(spots[0][0] - player.position.x, 0, spots[0][1] - player.position.z);
+    f.y = 0; if (f.lengthSq() < 1e-6) ctx.camera.getWorldDirection(f).setY(0); f.normalize();
+    const yaw = Math.atan2(-f.x, -f.z), right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+    spots.forEach((p, i) => {
+      const nx = i < n - 1 ? spots[i + 1] : tg.pos, d = new THREE.Vector3(nx[0] - p[0], 0, nx[1] - p[1]);
+      const lat = d.lengthSq() > 1e-6 ? d.normalize().dot(right) : 0;
+      const g = scaleProp.clone(true); g.position.set(0, 0, 0); g.rotation.set(0, 0, 0); g.scale.setScalar(2.6);
+      const tilter = new THREE.Group(), holder = new THREE.Group(); tilter.add(g); holder.add(tilter); ctx.scene.add(holder);
+      // 身后衬一团淡淡的暖光（不进描边），屋里花样多的地方也看得出一只只
+      const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, transparent: true, depthWrite: false, opacity: 0, color: "#FFF1CF" })); halo.scale.setScalar(0.9); fxRoot.add(halo);
+      holder.updateMatrixWorld(true);
+      const c = new THREE.Box3().setFromObject(g).getCenter(new THREE.Vector3()); g.position.sub(c);   // 绕天秤中心歪
+      holder.position.set(p[0], floorAt(p[0], p[1]) + (near ? 1.7 : 1.3), p[1]);
+      holder.rotation.y = yaw;
+      tilter.scale.setScalar(0.001);
+      halo.position.copy(holder.position).addScaledVector(f, 0.15);
+      cast.push({ holder, g: tilter, halo, t: -i * 0.35 - (auto ? 0 : 0.5), i, rang: false, axis: "z", tilt: -0.5 * lat });
+    });
+    if (!auto) {
+      castCd = CAST_CD; document.body.classList.add("cast-cd");
+      ctx.perform(P.has("reach_k") ? "reach_k" : "nod_k", 0.9, Math.atan2(spots[0][0] - player.position.x, spots[0][1] - player.position.z));
+      audio.play("paper");
+    }
+    if (!auto) quiet = 0;   // 自己放的才重新计时；第二档自动放的不清零，不然第三档要再等 150 秒
+    ctx.stat(`天秤/${loc.id}/${auto ? "auto" : "T"}`, auto ? "天秤 · 自己指" : "天秤 · 放出");
+    return true;
+  }
+  function clearCast() { for (const c of cast) { ctx.scene.remove(c.holder); fxRoot.remove(c.halo); c.halo.material.dispose(); } cast.length = 0; }
+  function castTick(dt) {
+    if (castCd > 0 && (castCd -= dt) <= 0) document.body.classList.remove("cast-cd");
+    for (const c of cast) {
+      c.t += dt; if (c.t < 0) continue;
+      const k = c.t, grow = Math.min(1, k / 0.25), fade = k > CAST_LIFE ? Math.max(0, 1 - (k - CAST_LIFE) / 0.6) : 1;
+      if (!c.rang) { c.rang = true; audio.play("scaleBell", 1, 0.06 + c.i * 0.008); }
+      c.g.scale.setScalar(Math.max(0.001, grow * fade));
+      c.halo.material.opacity = 0.55 * grow * fade * (0.85 + 0.15 * Math.sin(k * 3 + c.i));
+      c.g.rotation[c.axis] = c.tilt * Math.min(1, k / 0.6) + Math.sin(k * 5 + c.i) * 0.05;   // 立起来以后往下一只那边歪，微微晃
+    }
+    if (cast.length && cast.every((c) => c.t > CAST_LIFE + 0.6)) clearCast();
   }
 
   // ---- 本命：形真理齐了、走进 boss 区块，2.5 秒后它在那儿现身（"怪"开关关着也出：这是故事） ----
   let bossWait = -1, entered = 0;
+  let jolt = 0; const rung = new Map();   // 天秤：齐了那一下猛抖；这次进区块已经为哪样东西响过
 
   const G = {
     get state() { return S; }, get hasCase() { return !!C; },
     /** 进区块（tags 建好以后调） */
     enterZone() {
-      quiet = 0; hintLv = 0; clearHints(); barkOn = null; bark.classList.remove("show");
+      quiet = 0; hintLv = 0; clearHints(); barkOn = null; bark.classList.remove("show"); rung.clear(); clearCast();
       for (const n of ctx.npcs()) n.said = -1;
       noteZone(); addFindTags(); decorateExits(); mountProps();
       entered++;
@@ -418,6 +582,7 @@ export function createGuide(ctx) {
       const t = texts[`case.${loc.id}`] || { title: "这里出了物怪", hook: "要斩物怪，先得知道它的形、真、理。到处看看，问问这家的人。" };
       await card.open({ place: loc.name, title: t.title, body: t.hook });
       toast("右上角三格：查到一样亮一格", 3600);
+      setTimeout(() => toast(ctx.touch ? "不知道往哪走：点「秤」放天秤，它会指路" : "不知道往哪走：按 T 放天秤，它会指路", 4200), 4000);
     },
     onView(n) { mark(`${zid()}/view:${n}`); },
     /** E：没有観在旁边时，问配角 / 捡拾遗。用掉了返回 true */
@@ -454,6 +619,7 @@ export function createGuide(ctx) {
       S.done = true; save(); decorateExits();
       setTimeout(() => stamp("退魔"), 400);
       ctx.stat(`本命/${loc.id}`, `本命 · ${loc.name}`);
+      endPending = setTimeout(openEnding, 2200);   // 「退魔」印盖完再弹结案卡
     },
     update(dt) {
       const free = ctx.free();
@@ -472,6 +638,16 @@ export function createGuide(ctx) {
       document.body.classList.toggle("photo-spot", free && photoAt() >= 0);
       // 天秤：朝还没找的东西倾，越近晃得越快；区块查完就停
       const scale = P.props.find((p) => p.id === "scale")?.prop;
+      // 11-06（用户："看不到天秤的晃动"）：天秤原来挂在腰正前方，跟随镜头在身后，身子整个挡住它。
+      //   第一帧把它往右胯外挪（在腰挂点自己的坐标里算一次，之后跟着腰动），从身后、斜后方都看得见
+      if (scale && !scale.userData.side) {
+        scale.userData.side = true;
+        player.updateMatrixWorld(true);
+        const yaw = player.rotation.y, right = new THREE.Vector3(-Math.cos(yaw), 0, Math.sin(yaw)), back = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+        const w = scale.getWorldPosition(new THREE.Vector3()).addScaledVector(right, SCALE_SIDE).addScaledVector(back, 0.06);
+        scale.position.copy(scale.parent.worldToLocal(w));
+        scale.scale.multiplyScalar(1.25);   // 本身只有巴掌大、颜色深，挂在胯边再放大一点才看得出倾
+      }
       const it = left().length ? target() : null;
       if (scale && !ctx.enc.active) {
         let rz = 0;
@@ -479,9 +655,16 @@ export function createGuide(ctx) {
           const a = Math.atan2(it.pos[0] - player.position.x, it.pos[1] - player.position.z), side = Math.sin(wrap(a - player.rotation.y));
           const d = Math.hypot(it.pos[0] - player.position.x, it.pos[1] - player.position.z), near = Math.max(0, 1 - d / 7);
           G._t = (G._t || 0) + dt * (2 + near * 8);
-          rz = -side * 0.28 + Math.sin(G._t) * (0.03 + near * 0.06);
+          rz = -side * 0.42 + Math.sin(G._t) * (0.05 + near * 0.09);
         }
-        scale.rotation.z += (rz - scale.rotation.z) * Math.min(1, dt * 4);
+        // 形真理齐了：剧烈抖一阵（docs/19 第三节）
+        if (jolt > 0) { jolt -= dt; rz = Math.sin(jolt * 40) * 0.22 * Math.min(1, jolt / 0.6); scale.rotation.z = rz; }
+        else scale.rotation.z += (rz - scale.rotation.z) * Math.min(1, dt * 4);
+        // 11-06 天秤会响（用户："好像天秤没有响"）：走进那样东西 3 米内叮铃一声，再走近到 1.3 米轻响一下；每样东西每次进区块各一次
+        if (it) {
+          const d = Math.hypot(it.pos[0] - player.position.x, it.pos[1] - player.position.z), lv = d < 1.3 ? 2 : d < 3 ? 1 : 0, was = rung.get(it.key) || 0;
+          if (lv > was && free) { rung.set(it.key, lv); audio.play("scaleBell", lv === 1 ? 2 : 1, lv === 1 ? 0.07 : 0.045); }
+        }
       }
       // 本命
       if (bossWait >= 0 && free && !ctx.enc.active) { if ((bossWait -= dt) < 0) { const Z = ctx.zone(); if (!ctx.enc.startBoss(C.mononoke, Z.bossAt)) bossWait = 1; } }
@@ -491,7 +674,7 @@ export function createGuide(ctx) {
         wispT += dt; wisp.position.lerp(wispTo, 1 - Math.exp(-1.2 * dt)); wisp.position.y += Math.sin(wispT * 3) * 0.002;
         wisp.material.opacity = Math.min(0.95, wispT) * (0.75 + 0.25 * Math.sin(wispT * 5)); if (wispT > 12) { wisp.visible = false; wispTo = null; }
       }
-      kitTick(dt); moteTick(dt); tweenTick(dt);
+      kitTick(dt); moteTick(dt); tweenTick(dt); castTick(dt);
       if (!free || !it) return;
       quiet += dt;
       if (hintLv < 3 && quiet >= HINT[hintLv]) { hintLv++; hint(hintLv, it); }
@@ -563,6 +746,8 @@ export function createGuide(ctx) {
     /** 自测、调试 */
     get kitten() { return kitRun ? { phase: kitRun.phase, at: kit.group.position.toArray().map((v) => +v.toFixed(2)), n: kitRun.pts.length } : kit ? "ready" : "not loaded"; },
     get kitObj() { return kit; },
+    /** T / 「秤」：放天秤指路 */
+    castScales: () => castScales(false), get endOpen() { return endOpen; }, endKey, openEnding, closeEnding, get cast() { return cast.length; }, get castCd() { return castCd; },
     get acting() { return acting; },
     get quiet() { return quiet; }, set quiet(v) { quiet = v; }, get hintLv() { return hintLv; }, mark, itemsOf, left, target,
     reset() { try { localStorage.removeItem(KEY(loc.id)); } catch {} const t = S.totals; for (const k of Object.keys(S)) delete S[k]; Object.assign(S, loadCase(loc.id), { totals: t }); paintHud(); noteZone(); decorateExits(); },

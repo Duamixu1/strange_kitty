@@ -1,0 +1,159 @@
+[
+ {
+  "name": "music_dark",
+  "secs": 100,
+  "music": "dark"
+ },
+ {
+  "name": "music_sakai",
+  "secs": 24,
+  "music": "sakai"
+ },
+ {
+  "name": "amb_rain",
+  "secs": 30,
+  "amb": [
+   "rain"
+  ]
+ },
+ {
+  "name": "amb_rain_in",
+  "secs": 20,
+  "amb": [
+   "rain_in"
+  ]
+ },
+ {
+  "name": "amb_crowd",
+  "secs": 16,
+  "amb": [
+   "crowd",
+   "wind_soft"
+  ]
+ },
+ {
+  "name": "amb_crowd_in",
+  "secs": 12,
+  "amb": [
+   "crowd_in"
+  ]
+ },
+ {
+  "name": "amb_wind",
+  "secs": 30,
+  "amb": [
+   "wind_soft"
+  ]
+ },
+ {
+  "name": "amb_room",
+  "secs": 20,
+  "amb": [
+   "room"
+  ]
+ },
+ {
+  "name": "sfx_hyoshigi",
+  "secs": 1.8,
+  "events": [
+   [
+    0.3,
+    "hyoshigi"
+   ]
+  ]
+ },
+ {
+  "name": "sfx_slide",
+  "secs": 1.8,
+  "events": [
+   [
+    0.3,
+    "slide",
+    0.6
+   ]
+  ]
+ },
+ {
+  "name": "sfx_unsheathe",
+  "secs": 3.3,
+  "events": [
+   [
+    0.3,
+    "unsheathe"
+   ]
+  ]
+ },
+ {
+  "name": "sfx_awaken",
+  "secs": 5.3,
+  "events": [
+   [
+    0.3,
+    "awaken"
+   ]
+  ]
+ },
+ {
+  "name": "sfx_slash",
+  "secs": 2.3,
+  "events": [
+   [
+    0.3,
+    "slash"
+   ]
+  ]
+ },
+ {
+  "name": "sfx_sheath",
+  "secs": 1.8,
+  "events": [
+   [
+    0.3,
+    "sheath"
+   ]
+  ]
+ },
+ {
+  "name": "sfx_paper",
+  "secs": 1.8,
+  "events": [
+   [
+    0.3,
+    "paper"
+   ]
+  ]
+ },
+ {
+  "name": "sfx_tick",
+  "secs": 0.8999999999999999,
+  "events": [
+   [
+    0.3,
+    "tick"
+   ]
+  ]
+ },
+ {
+  "name": "sfx_taiko",
+  "secs": 3.3,
+  "events": [
+   [
+    0.3,
+    "taiko",
+    0.9
+   ]
+  ]
+ },
+ {
+  "name": "sfx_bell",
+  "secs": 4.3,
+  "events": [
+   [
+    0.3,
+    "bell",
+    880,
+    0.3
+   ]
+  ]
+ }
+]

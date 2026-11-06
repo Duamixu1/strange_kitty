@@ -1,0 +1,24 @@
+# 笛小路家·深处（参考 09、10、11、14）：一间比一间怪的三间，中间拉门开着：
+#   墨云之间（墨云襖 F）→ 墨溅之间（墨溅襖 N，墙和天花也溅满墨、往下淌）→ 红色之间（整间朱红，后面高座 P 和两架几帐 v，高座上没人）。
+#   观景点（按走的顺序）：1 墨云之间（看得到最里面的朱红）、2 墨溅之间仰视、3 红色之间（高座空着）。拾遗 3 红色之间地上的碎香札在地点 JSON 里。左墙 U 回长廊。
+name: fuenokouji_oku
+height: 3.2
+ceiling: sao
+timber: 1.4
+hikite: genji
+dais_h: 0.3
+mat: wood=fue_wood, frame=fue_frame, plaster=fue_plaster, kokabe=fue_kokabe, tatami=fue_tatami, tatami_side=fue_tatami_side, engawa=fue_boards, shoji=fue_shoji, lattice_win=fue_lattice, ceiling=fue_ceiling, snow=fue_snow, roof=fue_roof, rail=fue_wood, stair=fue_boards, under=fue_under, lacquer=fue_lacquer, censer=fue_censer, genji_plate=fue_genji_plate, genji_line=fue_genji_line, kicho=fue_kicho, dais=fue_dais, dais_side=fue_dais_edge, dais_trim=fue_lacquer, byobu=fue_byobu_budou, fusuma=fue_fusuma_bokuun, fusuma2=fue_fusuma_hane, udoor=fue_fusuma_plain, glassdoor=fue_gate_door, gate_roof=fue_gate_roof, gate_wood=fue_gate_wood, koshi=fue_wood, misu=fue_misu, misu_cord=crimson
+zone: 7,0,13,7 | ceiling=fue_ceiling_hane, plaster=fue_wall_hane, kokabe=fue_wall_hane
+zone: 15,0,21,7 | fusuma=fue_aka_fusuma, fusuma2=fue_aka_fusuma, tatami=fue_aka_tatami, tatami_side=fue_aka_wall, plaster=fue_aka_wall, kokabe=fue_aka_wall, wood=fue_aka_wood, frame=fue_aka_wood, ceiling=fue_aka_ceiling, dais=fue_aka_dais, dais_side=fue_aka_dais_edge, kicho=fue_aka_kicho, genji_plate=fue_aka_wood
+shot: 墨云之间看进去 | 0.9,1.5,3.2 | 12.0,1.0,3.2 | 2.6,3.6,1.5708
+shot: 墨溅之间仰视 | 8.4,1.1,5.8 | 12.4,2.9,1.0 | 11.6,5.4,0.6
+shot: 红色之间 | 14.3,1.6,6.4 | 17.6,0.9,1.0 | 15.2,5.0,2.6
+---
+#FFFFFF#NNNNNN#FFFFFF#
+F......N......N.vPPv.F
+F......N......N..PP..F
+U..1...D...2..D...3..F
+F..@...D......D......F
+F......N......N......F
+F......N......N......F
+#FFFFFF#NNNNNN#FFFFFF#
