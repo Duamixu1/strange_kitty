@@ -15,7 +15,7 @@ const DRAFT = [
 function artImg(name) {
   const path = pub(`textures/intro/intro_${name}`);
   return `<img src="${path}.webp" srcset="${path}.webp 680w, ${path}_1600.webp 1600w"
-    sizes="(orientation: landscape) and (max-width: 900px) 54vw, (orientation: landscape) 64vw, 100vw" alt="" data-art="${name}" draggable="false" decoding="async">`;
+    sizes="(orientation: landscape) 54vw, 89vw" alt="" data-art="${name}" draggable="false" decoding="async">`;
 }
 
 /** 后台先下的东西（进浏览器缓存；进地点时 GLTFLoader 再取就快了） */
@@ -35,14 +35,15 @@ export function storyIntro(texts, warmUrls = []) {
   const n = cards.length;
   const el = document.createElement("dialog"); el.id = "story-intro";
   el.setAttribute("aria-label", "缘起");
-  const pages = cards.map((c, k) => `<section class="si-page" style="z-index:${n - k}">
-      <div class="si-art">${artImg(c.art || ORDER[k % ORDER.length])}</div>
+  const pages = cards.map((c, k) => `<section class="si-page" data-art="${esc(c.art)}" style="z-index:${n - k}">
+      <div class="si-art"><div class="si-print">${artImg(c.art || ORDER[k % ORDER.length])}</div></div>
       <div class="si-copy">
-        <h2 class="si-k">${esc(c.k)}</h2>
-        <p class="si-t">${esc(c.t)}</p>${c.b ? `<p class="si-b">${esc(c.b)}</p>` : ""}
+        <div class="si-verse"><h2 class="si-k">${esc(c.k)}</h2>
+        <p class="si-t">${esc(c.t)}</p></div>${c.b ? `<p class="si-b">${esc(c.b)}</p>` : ""}
         ${k === n - 1 ? `<button class="si-go">${esc(c.go || "展开长卷")}</button>` : ""}
       </div></section>`).join("");
   el.innerHTML = `${DEFS}<div class="si-book" tabindex="-1" autofocus>${pages}</div>
+    <div class="si-series"><span aria-hidden="true">❀</span>缘起</div>
     <button class="si-skip">跳过<small>Esc</small></button>
     <footer class="si-footer"><span class="si-load"></span>
       <div class="si-nav"><button class="si-prev" aria-label="上一张">‹</button>

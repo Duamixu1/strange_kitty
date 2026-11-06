@@ -1,9 +1,10 @@
 #story-intro {
-  --art-width: 64%;
-  --gutter: clamp(24px, 4vw, 88px);
+  --mount-width: 61%;
+  --inset: clamp(20px, 3.2vw, 62px);
   --bottom: max(12px, env(safe-area-inset-bottom));
-  --left: max(var(--gutter), env(safe-area-inset-left));
-  --right: max(var(--gutter), env(safe-area-inset-right));
+  --edge: max(var(--inset), env(safe-area-inset-right));
+  --paper-tone: #ede3cb;
+  --lacquer: #943c37;
   position: fixed;
   inset: 0;
   box-sizing: border-box;
@@ -16,8 +17,8 @@
   padding: 0;
   border: 0;
   overflow: hidden;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--paper-tone);
+  color: #362e30;
   font-family: "Songti SC", "Noto Serif CJK SC", "Hiragino Mincho ProN", serif;
   opacity: 0;
   transition: opacity .4s;
@@ -31,102 +32,175 @@ body.lang-ja #story-intro { font-family: "Hiragino Mincho ProN", "Yu Mincho", se
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: var(--art-width) minmax(0, 1fr);
-  background: var(--paper);
+  grid-template-columns: var(--mount-width) minmax(0, 1fr);
+  background: var(--paper-tone);
   transform-origin: left center;
-  transition: transform .55s ease-in-out, opacity .55s;
+  transition: transform .6s ease-in-out, opacity .6s;
   backface-visibility: hidden;
   user-select: none;
   touch-action: pan-y;
 }
 .si-page.gone { transform: rotateY(-98deg); opacity: 0; pointer-events: none; }
-.si-art { min-width: 0; min-height: 0; overflow: hidden; background: #ded2b8; }
-.si-art img, .si-art svg { width: 100%; height: 100%; display: block; object-fit: cover; }
+
+/* 装裱的织地与画心分开，横竖屏都保留原画四边。 */
+.si-art {
+  --cloth: #303c48;
+  --motif: url("/textures/patterns/asanoha.png");
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+  isolation: isolate;
+  background: radial-gradient(ellipse at 45% 35%, transparent 25%, #090c1e52), var(--cloth);
+  box-shadow: inset -8px 0 14px -12px #090a12;
+}
+.si-page[data-art="sumi"] .si-art { --cloth: #404747; --motif: url("/textures/patterns/shippo.png"); }
+.si-page[data-art="klimt"] .si-art { --cloth: #2d4140; --motif: url("/textures/patterns/seigaiha.png"); }
+.si-page[data-art="taisho"] .si-art { --cloth: #493b40; --motif: url("/textures/patterns/shippo.png"); }
+.si-art::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--motif) 0 0 / 145px auto repeat;
+  mix-blend-mode: screen;
+  opacity: .095;
+}
+.si-art::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid #d6bd8252;
+  pointer-events: none;
+}
+.si-print {
+  position: relative;
+  width: min(86cqw, 107cqh, 1120px);
+  aspect-ratio: 2048 / 1456;
+  background: #d9c79f;
+  box-shadow: 0 0 0 2px #352f32, 0 0 0 3px #ae905f, 0 0 0 7px #d7c59f, 0 0 0 8px #817254, 1px 5px 16px 7px #14152052;
+}
+.si-print img, .si-print svg { display: block; width: 100%; height: 100%; object-fit: contain; }
 .si-copy {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: safe center;
-  overflow-y: auto;
-  padding: max(70px, env(safe-area-inset-top)) var(--right) calc(62px + var(--bottom)) var(--gutter);
-  background: linear-gradient(90deg, #322d4819, transparent 14px);
-}
-.si-k {
-  display: flex;
   align-items: center;
-  gap: .85em;
-  width: 100%;
-  margin: 0 0 clamp(16px, 3.5vh, 40px);
-  color: var(--crimson);
-  font-size: clamp(16px, 1.45vw, 28px);
-  font-weight: 600;
-  letter-spacing: .14em;
+  justify-content: safe center;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding: max(66px, env(safe-area-inset-top)) var(--edge) calc(64px + var(--bottom)) var(--inset);
+  background: linear-gradient(90deg, #7964474f, #af9c7533 1%, transparent 5%, transparent 98%, #a08a6245), var(--paper-tone);
 }
-.si-k::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: .45; }
-.si-t { margin: 0; font-size: clamp(20px, 2.25vw, 46px); line-height: 1.65; white-space: pre-line; text-wrap: pretty; }
-.si-b { margin: 1.2em 0 0; font-size: clamp(13px, 1.05vw, 19px); line-height: 1.6; color: #635a60; }
+.si-copy::before, .si-copy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.si-copy::before { background: url("/textures/paper.jpg") 50% / 460px; mix-blend-mode: multiply; opacity: .13; }
+.si-copy::after {
+  background: url("/textures/patterns/seigaiha.png") bottom right / 180px 90px repeat;
+  mix-blend-mode: multiply;
+  opacity: .09;
+  mask-image: radial-gradient(ellipse 115% 48% at 105% 104%, black 16%, transparent 78%);
+}
+.si-verse {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(20px, 3vw, 60px);
+}
+.si-k, .si-t { writing-mode: vertical-rl; margin: 0; }
+.si-k {
+  color: var(--lacquer);
+  border: 1px solid currentColor;
+  outline: 1px solid #a8615073;
+  outline-offset: 3px;
+  padding: .58em .26em .48em;
+  font-weight: 500;
+  font-size: clamp(17px, 1.65vw, 30px);
+  letter-spacing: .11em;
+  line-height: 1.2;
+}
+.si-t { font-size: clamp(20px, 2vw, 38px); letter-spacing: .08em; line-height: 1.85; white-space: pre-line; }
+.si-b { margin: 2em 0 0; font-size: clamp(12px, 1vw, 17px); line-height: 1.6; text-align: center; color: #685951; }
 #story-intro button { font: inherit; color: inherit; cursor: pointer; }
 #story-intro .si-go {
-  margin-top: 1.2em;
-  min-height: 44px;
+  margin: 1.5em 0 0;
   padding: 8px 1.4em;
-  background: var(--crimson);
-  border: 1px solid var(--ink);
-  color: var(--paper);
-  box-shadow: 2px 2px var(--ink);
-  letter-spacing: .1em;
-}
-#story-intro .si-skip {
-  position: absolute;
-  top: max(12px, env(safe-area-inset-top));
-  right: var(--right);
   min-height: 44px;
-  border: 0;
-  background: var(--paper);
-  padding: 0 14px;
-  font-size: 14px;
+  border: 3px double var(--paper-tone);
+  outline: 1px solid var(--lacquer);
+  background: var(--lacquer);
+  color: #fff0da;
+  letter-spacing: .12em;
 }
-.si-skip small { margin-left: .5em; opacity: .65; }
-@media (pointer: coarse) { .si-skip small { display: none; } }
+.si-series, #story-intro .si-skip {
+  position: absolute;
+  top: max(18px, env(safe-area-inset-top));
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+.si-series { left: max(var(--inset), env(safe-area-inset-left)); gap: .7em; color: #ecdcb9; font-size: 16px; letter-spacing: .26em; pointer-events: none; }
+.si-series span { font-size: 25px; letter-spacing: 0; }
+#story-intro .si-skip { right: var(--edge); padding: 0 3px; border: 0; background: none; font-size: 14px; color: #64554b; }
+.si-skip small { margin-left: .6em; opacity: .7; }
 .si-footer {
   position: absolute;
   bottom: var(--bottom);
-  left: calc(var(--art-width) + var(--gutter));
-  right: var(--right);
+  left: calc(var(--mount-width) + var(--inset));
+  right: var(--edge);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  border-top: 1px solid #322d4840;
-  padding-top: 4px;
+  border-top: 1px solid #765e3f4d;
+  color: #67594c;
   font-size: 13px;
-  color: #635a60;
 }
 .si-nav { display: flex; align-items: center; white-space: nowrap; }
 .si-no { font-variant-numeric: tabular-nums; letter-spacing: .12em; }
-#story-intro .si-nav button { width: 44px; height: 44px; font: 28px/1 serif; background: transparent; border: 0; }
+#story-intro .si-nav button { width: 44px; height: 44px; font: 24px/1 serif; background: transparent; border: 0; }
 #story-intro .si-nav button:disabled { opacity: .24; cursor: default; }
-#story-intro button:focus-visible { outline: 2px solid var(--crimson); outline-offset: -3px; }
+#story-intro button:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 
+body.lang-en .si-verse { flex-direction: column; gap: 16px; }
+body.lang-en .si-k, body.lang-en .si-t { writing-mode: horizontal-tb; }
+body.lang-en .si-t { font-size: clamp(18px, 1.9vw, 32px); letter-spacing: 0; line-height: 1.45; }
+@media (pointer: coarse) { .si-skip small { display: none; } }
 @media (orientation: portrait) {
-  .si-page { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
-  .si-copy {
-    box-sizing: border-box;
-    min-height: min(68dvh, max(43dvh, calc(100dvh - 105vw)));
-    max-height: 68dvh;
-    padding: clamp(16px, 3vh, 38px) var(--right) calc(60px + var(--bottom)) var(--left);
-    background: linear-gradient(#322d4819, transparent 9px);
-  }
-  .si-k { margin-bottom: .7em; }
-  .si-t { font-size: clamp(20px, 5.7vw, 36px); line-height: 1.5; }
-  .si-b { margin-top: .7em; }
-  .si-footer { left: var(--left); }
-  #story-intro .si-skip { right: max(12px, env(safe-area-inset-right)); box-shadow: 2px 2px var(--ink); }
+  .si-page { grid-template-columns: 1fr; grid-template-rows: min(47%, calc(70vw + 90px)) minmax(0, 1fr); }
+  .si-art::after { inset: 8px; }
+  .si-print { width: min(86cqw, calc((100cqh - 80px) * 1.4)); transform: translateY(17px); }
+  .si-series, #story-intro .si-skip { top: max(7px, env(safe-area-inset-top)); }
+  #story-intro .si-skip { color: #ecdcb9; }
+  .si-copy { padding: 18px var(--edge) calc(52px + var(--bottom)) var(--inset); background: linear-gradient(#7e684638, transparent 12px), var(--paper-tone); }
+  .si-t { font-size: clamp(18px, min(5.6vw, 2.75dvh), 32px); }
+  .si-b { margin-top: 1.1em; }
+  .si-footer { left: var(--inset); }
 }
-@media (orientation: landscape) and (max-width: 900px) {
-  #story-intro { --art-width: 54%; --gutter: 18px; }
-  .si-t { font-size: 20px; line-height: 1.45; }
-  .si-k { margin-bottom: 10px; }
+@media (max-height: 680px) {
+  .si-k { font-size: 16px; }
+  .si-t { font-size: 18px; line-height: 1.6; }
+  .si-b { margin-top: .75em; }
+  #story-intro .si-go { margin-top: .75em; }
+  body.lang-en .si-verse { gap: 10px; }
+}
+@media (orientation: landscape) and (max-height: 540px) {
+  #story-intro { --mount-width: 55%; }
+  .si-copy { padding-top: 48px; padding-bottom: calc(45px + var(--bottom)); }
+  .si-series, #story-intro .si-skip { top: max(5px, env(safe-area-inset-top)); }
+  .si-print { width: min(86cqw, calc((100cqh - 80px) * 1.4)); transform: translateY(13px); }
+  .si-art::after { inset: 7px; }
+  body:not(.lang-en) .si-verse { max-height: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   #story-intro, .si-page { transition: none; }
