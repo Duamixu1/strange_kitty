@@ -22,7 +22,8 @@ export class PaperOutlinePost {
       // 法线材质的片元着色器里没有 <common>，声明直接放在 main 前面
       sh.fragmentShader = sh.fragmentShader.replace("void main() {", `varying vec3 vBurnW;\nuniform float uBurnOn, uBurnY, uBurnR, uBurnFloor; uniform vec2 uBurnC;\n${BURN_GLSL}\nvoid main() {\n  if (uBurnOn > 0.5 && vBurnW.y > uBurnFloor + 0.04 && length(vBurnW.xz - uBurnC) < uBurnR && burnD(vBurnW, uBurnY) < 0.0) discard;`);
     };
-    const paper = new THREE.TextureLoader().load(pub(paperFile));
+    // 11-06：同一张纸纹 CSS 背景也在用；带 crossorigin 的请求和不带的浏览器当两个资源，会下两次（353 KB）。同源就不带
+    const paper = new THREE.TextureLoader().setCrossOrigin(/^https?:/.test(pub(paperFile)) ? "anonymous" : undefined).load(pub(paperFile));
     paper.wrapS = paper.wrapT = THREE.RepeatWrapping;
     paper.colorSpace = THREE.NoColorSpace;
 

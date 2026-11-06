@@ -64,6 +64,17 @@ function stat(path, title, event = false) {
 }
 if (statOn) { const t = setInterval(() => { if (window.goatcounter?.count) { clearInterval(t); statQ.splice(0).forEach((f) => f()); } }, 500); setTimeout(() => clearInterval(t), 30000); }
 if (!locId) stat("/", "总地图");
+// 下过的别再下（docs/23 C1）：发布版注册 Service Worker（public/sw.js），构建号变了浏览器会换新的；开发时不装
+const swReady = !import.meta.env.DEV && "serviceWorker" in navigator && window.__BUILD ? navigator.serviceWorker.register(pub("sw.js") + "?v=" + window.__BUILD).catch(() => null) : Promise.resolve(null);
+// 加载时长上报（docs/23 D）：到"准备好了"用了多少秒，分档报进访问统计 load/<地点>/<m 手机 | d 电脑>[c 公共部分来自缓存]/<档>，
+//   在 duami.goatcounter.com 里看国内真实情况。顺手把这次用到的文件告诉 SW 存起来
+function reportLoad(where, name) {
+  const sec = performance.now() / 1000, bucket = sec < 10 ? "<10" : sec < 30 ? "10-30" : sec < 60 ? "30-60" : sec < 120 ? "60-120" : ">120";
+  const res = performance.getEntriesByType("resource").filter((r) => r.name.startsWith(location.origin + pub("")));
+  const cached = res.some((r) => /kusuriuri_v2/.test(r.name) && r.transferSize === 0 && r.decodedBodySize > 0);
+  stat(`load/${where}/${touch ? "m" : "d"}${cached ? "c" : ""}/${bucket}`, `加载 ${name} · ${touch ? "手机" : "电脑"}${cached ? "（缓存）" : ""} · ${bucket} 秒（${sec.toFixed(0)}）`, true);
+  swReady.then((reg) => reg && navigator.serviceWorker.ready.then((r) => r.active?.postMessage({ warm: res.map((r) => r.name) }))).catch(() => {});
+}
 
 // 加载失败：失败页上写出错在哪（哪个文件），也报一条访问统计事件（duami.goatcounter.com 里看 err/<地点>），手机上出错好查
 function failed(where, e) {
@@ -108,7 +119,7 @@ async function showMap() {
     const [W, H] = map.size;
     paper.style.aspectRatio = `${W} / ${H}`;
     const img = paper.querySelector("img");
-    img.addEventListener("load", () => loading.done(), { once: true }); img.addEventListener("error", () => loading.fail("长卷图片没加载出来"), { once: true });
+    img.addEventListener("load", () => { loading.done(); reportLoad("map", "总地图"); }, { once: true }); img.addEventListener("error", () => loading.fail("长卷图片没加载出来"), { once: true });
     // 用 fetch 下长卷图再显示（直接设 src 的话加载提示数不到字节，进度条不动）
     fetch(asset(map.image)).then((r) => r.blob()).then((b) => (img.src = URL.createObjectURL(b))).catch(() => (img.src = asset(map.image)));
     for (const P of map.places) {
@@ -982,6 +993,7 @@ async function startLocation(id) {
     for (let n = 0; n < 30 || performance.now() - t0 < (splatOf.size ? 1200 : 300); n++) await new Promise((r) => requestAnimationFrame(r));
   })(), new Promise((r) => setTimeout(r, 3000))]);
   loading.done();   // 进门那块泼溅 enterZone 里已经等过了
+  reportLoad(id, loc.name);
   if (splatOf.size) splatQueue();
   prefetchNext(Z.id);
   // 进去以后再在后台下这个地点的物怪（0.4~0.8 MB），不拖慢首次加载；11-05 再往后排：等隔壁几间先下好（物怪要看过两处才出，不急），

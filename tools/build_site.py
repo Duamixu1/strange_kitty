@@ -81,6 +81,24 @@ def optimize_textures():
     print(f"贴图压缩：{before / 1e6:.1f} MB → {after / 1e6:.1f} MB（{len(jpg_list)} 张 PNG 换成 JPG）")
 
 
+def write_manifest():
+    """11-06 docs/23 C1：发布时给 game-assets / textures / draco / icons 每个文件算内容 hash 写进 manifest.json，
+    Service Worker（public/sw.js）按它判缓存里的文件新不新；构建号写进 tour.html 的 window.__BUILD（变了浏览器装新 SW、重取清单）"""
+    import hashlib, time
+    m = {}
+    for sub in ("game-assets", "textures", "draco", "icons"):
+        d = DIST / sub
+        if not d.exists(): continue
+        for f in sorted(d.rglob("*")):
+            if f.is_file(): m[str(f.relative_to(DIST))] = hashlib.sha1(f.read_bytes()).hexdigest()[:12]
+    (DIST / "manifest.json").write_text(json.dumps(m, separators=(",", ":")))
+    try: sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    except Exception: sha = ""
+    build = f"{sha or 'x'}-{int(time.time())}"
+    page = DIST / "tour.html"; page.write_text(page.read_text().replace('window.__BUILD = "";', f'window.__BUILD = "{build}";'))
+    print(f"manifest {len(m)} 个文件，构建号 {build}")
+
+
 def build(base):
     env = dict(os.environ, SITE="1", SITE_BASE=base)
     subprocess.run(["npx", "vite", "build"], cwd=WEB, env=env, check=True)
@@ -94,6 +112,7 @@ def build(base):
         total += src.stat().st_size
     (DIST / "index.html").write_text('<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=tour.html"><a href="tour.html">进入怪化猫游览版</a>\n')
     (DIST / ".nojekyll").write_text("")
+    write_manifest()   # 要在 game-assets 复制完以后算
     size = sum(p.stat().st_size for p in DIST.rglob("*") if p.is_file())
     print(f"→ {DIST}  模型和泼溅 {total / 1e6:.0f} MB，整个站点 {size / 1e6:.0f} MB")
 
