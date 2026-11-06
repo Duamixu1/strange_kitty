@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="zh">
 <head>
+  <script>window.__TEX_JPG = [];</script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>怪化猫游览</title>
@@ -134,6 +135,20 @@
     #loading .tip { margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(50, 45, 72, .35); font-size: 14px; line-height: 1.7; min-height: 2.4em; transition: opacity .3s; }
     #loading .tip b { color: var(--crimson); font-weight: normal; margin-right: 6px; }
     #loading.failed .bar, #loading.failed .tip, #loading.failed .meta { display: none; }
+    /* 进门前的铺垫（loading.js prelude）：几页故事 + 小图，读的时候后台在下场景 */
+    #loading.has-pre .card { width: min(520px, 100%); }
+    #loading.has-pre .tip, #loading.has-pre .note, #loading.has-pre .big { display: none; }
+    #loading .pre { cursor: pointer; user-select: none; -webkit-user-select: none; }
+    #loading .pimg { aspect-ratio: 16 / 9; background: rgba(50, 45, 72, .12); border: 1px solid var(--ink); overflow: hidden; margin-bottom: 12px; }
+    #loading .pimg img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(.25) saturate(.9); }
+    #loading .pt { font-size: 18px; letter-spacing: .15em; margin-bottom: 6px; }
+    #loading .pb { font-size: 15px; line-height: 1.9; min-height: 5.7em; }
+    #loading .pnav { display: flex; align-items: center; justify-content: space-between; margin: 10px 0 14px; }
+    #loading .pd { font-size: 10px; letter-spacing: .3em; opacity: .6; }
+    #loading .pgo { padding: 7px 18px; font: 15px serif; color: #fff; background: var(--crimson); border: 0; border-radius: 3px; cursor: pointer; }
+    #loading .pgo:disabled { background: rgba(50, 45, 72, .35); cursor: default; }
+    #loading .pskip { display: block; margin: 10px auto 0; padding: 4px 10px; font: 12px -apple-system, sans-serif; color: var(--ink); background: none; border: 0; opacity: .6; text-decoration: underline; cursor: pointer; }
+    #loading.pre-ready .bar i { background: #6E8F5E; }
     /* 物怪出没（encounter.js）："怪"开关在"音"下面；遭遇时屋角渗墨（#mkink），形真理的字浮在物怪头上、一句话在下方（#mk）；
        手机遭遇时多"札"（占拍照的大圆位置）、"闪"（占姿势的位置）、"跳"（闪右边）、"瞬"（拔剑上面），拍照挪到右上角，形真理齐了拔剑钮发亮 */
     #mkbtn { position: fixed; right: max(12px, env(safe-area-inset-right)); top: 50px; z-index: 6; width: 34px; height: 34px; border-radius: 50%; padding: 0; font: 15px/1 "Hiragino Mincho ProN", "Songti SC", serif; background: var(--paper); color: var(--crimson); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }

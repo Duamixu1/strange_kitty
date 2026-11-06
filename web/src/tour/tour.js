@@ -6,7 +6,7 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { PaperOutlinePost } from "../style/post.js";
 import { createCollision } from "../world/collision.js";
 import { createPathfinder } from "../world/pathfind.js";
-import { loadKit, setKitMat, recolorKit } from "./kit.js";
+import { loadKit, kitReady, setKitMat, recolorKit } from "./kit.js";
 import { loadPlayer, loadNpc, PLAYER_MODEL } from "./player.js";
 import PROPS from "../data/props.json";
 import { createGuide, loadCase } from "./guide.js";
@@ -162,23 +162,36 @@ async function startLocation(id) {
   loading.start(id, loc.name, loc.splats?.length ? 1 : 0, LITE && loc.splats?.[0]?.lite ? 3.5 : undefined);   // 只等进门那块泼溅 loading.step("搭场景…");
   const texts = await loadText();
   document.title = `${loc.name} · 怪化猫游览`;
+  // 进门前的铺垫（loading.js prelude）：每个地点第一次进来时翻几页故事，读的时候后台下场景；?prelude=1 每次都看
+  {
+    const PRE_KEY = `mononoke_prelude_${id}`, pages = texts[`prelude.${id}`];
+    let seen = false; try { seen = localStorage.getItem(PRE_KEY) === "1"; } catch {}
+    if (Array.isArray(pages) && pages.length && (!seen || params.get("prelude") === "1") && params.get("prelude") !== "0" && !params.has("selftest") && !params.has("auto")) {
+      loading.prelude(pages.map((p, i) => ({ ...p, img: pub(`textures/prelude/${id}_${i + 1}.jpg`) })), loc.name);
+      try { localStorage.setItem(PRE_KEY, "1"); } catch {}
+    }
+  }
 
   const scene = new THREE.Scene();
   const bgColor = new THREE.Color(loc.background || "#2A2A4E");
   scene.background = bgColor;
   // 天空球：区块或地点写 "sky": "fue_sky" → textures/kit/fue_sky.jpg（2:1 等距柱状）；上过色换 fue_sky_color.jpg。
   //   图没到 / 加载失败就还是纯色底；背景不进描边通道（post.js 渲染法线时会先把 background 拿掉）
+  // 11-06：天空图也算进"这间准备好了"（prepZone 先下、enterZone 等它），不再进门以后才从纯色底换成天
   const skyTex = new Map(); let skyWant = null;
+  const skyFile = (z) => { const name = z && "sky" in z ? z.sky : loc.sky; return name ? `${name}${colored ? "_color" : ""}.jpg` : null; };   // 区块写 "sky": null 就关掉
+  function loadSky(file) {
+    if (!skyTex.has(file)) skyTex.set(file, new Promise((r) => new THREE.TextureLoader().load(pub(`textures/kit/${file}`), (t) => {
+      t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace; r(t);
+    }, undefined, () => r(null))));
+    return skyTex.get(file);
+  }
   function setSky(z) {
     bgColor.set(z?.background || loc.background || "#2A2A4E"); scene.background = bgColor;
-    const name = z && "sky" in z ? z.sky : loc.sky;   // 区块写 "sky": null 就关掉
-    skyWant = name ? `${name}${colored ? "_color" : ""}.jpg` : null;
-    if (!skyWant) return;
-    const file = skyWant, use = (t) => { if (t && skyWant === file) scene.background = t; };
-    if (skyTex.has(file)) return use(skyTex.get(file));
-    new THREE.TextureLoader().load(pub(`textures/kit/${file}`), (t) => {
-      t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace; skyTex.set(file, t); use(t);
-    }, undefined, () => skyTex.set(file, null));
+    skyWant = skyFile(z);
+    if (!skyWant) return Promise.resolve();
+    const file = skyWant;
+    return loadSky(file).then((t) => { if (t && skyWant === file) scene.background = t; });
   }
   const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 200);
   const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
@@ -259,10 +272,12 @@ async function startLocation(id) {
     if (prepping.has(zoneId)) return prepping.get(zoneId);
     const z = loc.zones?.[zoneId] || {};
     const job = Promise.all([
+      skyFile(z) && loadSky(skyFile(z)),   // 这间的天空图（没有就跳过）
       z.kit && !zoneCache.has(zoneId) && loadKit(loader, assetUrl(`processed/kit/${z.kit}.glb`)).then((g) => {
         g.traverse((o) => { if (o.isMesh && o.material.uniforms?.uCutout) o.material.uniforms.uCutout.value = 1; });   // 积木参与遮挡淡出
         if (z.offset) g.position.set(...z.offset);
-        zoneCache.set(zoneId, g);
+        // 11-06 用户："进去之后还有很多装饰性的图都没有及时放上去"：贴图也下完才算这间好了（最多等 40 秒，网太慢就先进去）
+        return kitReady(g, 40000).then(() => zoneCache.set(zoneId, g));
       }),
       // 配角不在这里下：等这间的积木和贴图到齐再下（attachNpcs / prefetchNext），不跟它们抢网速
       z.finds?.some((f) => f.kit) && !findCache.has(zoneId) && Promise.all(z.finds.filter((f) => f.kit).map((f) => loadKit(loader, assetUrl(`processed/kit/${f.kit}.glb`)).then((g) => { g.userData.find = f; return g; }).catch(() => null)))
@@ -359,7 +374,7 @@ async function startLocation(id) {
     const wet = z.weather === "rain";
     rain.set(wet); post.setTint(wet ? "#8C8CC8" : "#ffffff", wet ? 0.45 : 0);
     snow.set(z.weather === "snow" && !colored);   // 上过色就是春天了，雪停
-    setSky(z);
+    await Promise.race([setSky(z), new Promise((r) => setTimeout(r, 30000))]);
     status.textContent = `${loc.name} · ${z.name || zoneId}`;
     audio.setScene(loc.id, zoneId); floorSnd = audio.floorOf(loc.id, zoneId);
     stat(`/${loc.id}/${zoneId}`, `${loc.name} · ${z.name || zoneId}`);
@@ -414,6 +429,7 @@ async function startLocation(id) {
   // ---- 输入 ----
   const keys = new Set();
   function act(code) {
+    if (loading.holding) return;   // 铺垫页还开着：键盘留给翻页
     if (box?.key(code)) return;   // 药箱开着：方向键换格、Esc / I 关，别的键不管
     if (guide.endKey(code)) return;   // 结案卡开着（guide.js，11-06）：E 接着逛、N 去下一处
     if (enc.tutKey(code)) return;   // 物怪出没教学卡开着：翻页 / 跳过，别的键不管

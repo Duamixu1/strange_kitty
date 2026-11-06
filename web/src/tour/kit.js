@@ -209,13 +209,16 @@ export async function recolorKit(root, name) {
 }
 
 const texCache = new Map();
+// 11-06 手机加载慢：发布时（tools/build_site.py）把大的不透明 PNG 另存成 JPG，清单写进 tour.html 的 window.__TEX_JPG；本机开发时清单是空的，照旧读 PNG
+const TEX_JPG = new Set(window.__TEX_JPG || []);
+const texUrl = (file) => pub(`textures/kit/${TEX_JPG.has(file) ? file.replace(/\.png$/, ".jpg") : file}`);
 function tex(file, gray = null) {
   const id = gray ? `${file}#gray` : file;
   if (!texCache.has(id)) {
     let t, done; const ready = new Promise((r) => (done = () => r()));   // 下完（或失败）就 resolve，recolorKit 等它
     if (gray) {   // 按亮度压成墨—纸白之间的灰，红（朱红、深红、珊瑚）保留成朱红
       t = new THREE.Texture();
-      new THREE.ImageLoader().load(pub(`textures/kit/${file}`), (img) => {
+      new THREE.ImageLoader().load(texUrl(file), (img) => {
         const cv = document.createElement("canvas"); cv.width = img.width; cv.height = img.height;
         const g = cv.getContext("2d"); g.drawImage(img, 0, 0);
         const px = g.getImageData(0, 0, cv.width, cv.height), d = px.data, a = hex(C.ink), b = hex(C.paper), cr = hex(C.crimson);
@@ -227,7 +230,7 @@ function tex(file, gray = null) {
         }
         g.putImageData(px, 0, 0); t.image = cv; t.needsUpdate = true; done();
       }, undefined, done);
-    } else t = new THREE.TextureLoader().load(pub(`textures/kit/${file}`), done, undefined, done);
+    } else t = new THREE.TextureLoader().load(texUrl(file), done, undefined, done);
     t.userData.ready = ready;
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
     t.flipY = false;   // glTF 的 UV 原点在左上，和 GLTFLoader 自己加载的贴图一样不翻
@@ -264,6 +267,11 @@ export function kitMaterial(key) {
 }
 
 // 加载一个积木场景 GLB，换好材质返回根节点
+/** 积木的贴图都下完（或失败）了：等 ms 毫秒封顶 */
+export function kitReady(g, ms = 30000) {
+  const set = new Set(); g.traverse((o) => { if (o.isMesh && o.material?.userData?.ready) set.add(o.material.userData.ready); });
+  return Promise.race([Promise.all(set), new Promise((r) => setTimeout(r, ms))]);
+}
 export async function loadKit(loader, url) {
   const gltf = await loader.loadAsync(url);
   const mats = new Map();

@@ -1084,5 +1084,103 @@
   "prison_yume.2": {
     "title": "A door on its own",
     "body": "Looking back, a black board door stands alone among the blossoms, just like the one in the kitchen. The kitchen can no longer be seen from here."
-  }
+  },
+  "prelude.ooku": [
+    {
+      "title": "The depths of Edo Castle",
+      "body": "At the innermost part of Edo Castle lies the Ōoku, the shogun's inner palace. Several hundred women live here, and no man but the shogun may enter. Rule is pressed upon rule. The corridors are always quiet."
+    },
+    {
+      "title": "The well in the courtyard",
+      "body": "A maid newly come to the Ōoku must throw a treasured thing from home into the courtyard well, and so cut her ties with the world outside. Of late, an old umbrella lies in the main corridor. No one touches it. It opens on its own."
+    },
+    {
+      "title": "The door no man passes",
+      "body": "The Medicine Seller, his chest on his back, passes through the door no man may pass. Why the umbrella opens, what lies at the bottom of the well, the maids dare not say. The paintings on the walls and the old things in the rooms are more honest than people."
+    }
+  ],
+  "prelude.wanya": [
+    {
+      "title": "Rain at the Yorozuya",
+      "body": "An old inn, floor stacked on floor, its front far grander than any ordinary inn's. Years ago, it was a brothel. Tonight the rain has not let up."
+    },
+    {
+      "title": "The top-floor room",
+      "body": "The largest zashiki on the top floor is never given to guests. Tonight a woman with child comes through the rain seeking a room, and it is the only one left. Overhead, on the floorboards, small footsteps begin."
+    },
+    {
+      "title": "One night, one roof",
+      "body": "The Medicine Seller also takes a room at the Yorozuya tonight. No child is staying upstairs, yet something runs there. Neither the clerk nor the proprietress can say why. The furnishings, the small things in the corners, wait for someone to look closely."
+    }
+  ],
+  "prelude.sakai": [
+    {
+      "title": "The Sakai wedding",
+      "body": "A respectable samurai household. Today its daughter marries. A great curtain bearing the family crest on red hangs at the gate. Guests arrive wave after wave, and the whole house is busy from top to bottom."
+    },
+    {
+      "title": "A house without cats",
+      "body": "So large a house, and not one cat's cry. When mice get into the kitchen, there are only traps. Deep inside the house is a door, and the servants carrying things go the long way around it."
+    },
+    {
+      "title": "A medicine seller calls",
+      "body": "On the wedding day, a medicine seller with a chest on his back comes to the door, and is in no hurry to leave. Kitchen, corridor, guest room: whatever this family hides will have left some trace."
+    }
+  ],
+  "prelude.fuenokouji": [
+    {
+      "title": "A noble house in snow",
+      "body": "A noble residence in Kyoto, head house of the Fuenokōji school of incense. The snow keeps falling. Nothing is left of the house but ink and white."
+    },
+    {
+      "title": "Incense to choose a husband",
+      "body": "Tonight an incense contest will choose the lady a husband. The winner will also receive a piece of incense wood called Tōdai-ji. Of four suitors, only three have come."
+    },
+    {
+      "title": "No footprints in the snow",
+      "body": "There is not one footprint in the snow, yet the Medicine Seller already stands at the gate. This night seems never to reach dawn. Everyone in the house has something on their mind, and what is said aloud is not always true."
+    }
+  ],
+  "prelude.solaris": [
+    {
+      "title": "Pavilions on the sea",
+      "body": "The Solaris Maru, a great ship of the Mikuniya, built up tier on tier with pavilions in pink, blue-green and yellow, like a small town afloat on the sea. This voyage is bound for Edo."
+    },
+    {
+      "title": "The Dragon's Triangle",
+      "body": "In the night someone tampered with the compass, and the ship strayed into the Dragon's Triangle. No ship that enters has ever come out. The fog grows thicker. Something is moving on the water."
+    },
+    {
+      "title": "Those aboard",
+      "body": "Aboard are a high priest and his disciple, a shugendō ascetic, a samurai with his sword, and Kayo, a maid who left the Sakai house. The Medicine Seller is aboard too. Whatever lies in the fog must be asked of these people."
+    }
+  ],
+  "prelude.subway": [
+    {
+      "title": "The Taishō subway",
+      "body": "In the last years of Taishō, the city's first subway line opens. The platform at Fukuju Station is packed. Passengers who drew first-ride tickets board the first train."
+    },
+    {
+      "title": "The first train never stops",
+      "body": "Once it pulls out, it never stops again. Beyond the windows, only black. A few months ago, a woman reporter fell from the overpass. The papers said she jumped."
+    },
+    {
+      "title": "The same carriage",
+      "body": "The mayor, a detective, a newspaperman, a café waitress, a milk boy. The Medicine Seller is in this carriage too. Between these people seems to run a thread no one can see."
+    }
+  ],
+  "prelude.prison": [
+    {
+      "title": "Ochō's cell",
+      "body": "In the dark green cell, Ochō kneels on a straw mat, her back perfectly straight. She married into the Sasaki house. Now, condemned for killing her husband's family, she waits to be beheaded."
+    },
+    {
+      "title": "The man in the fox mask",
+      "body": "Sentenced to death, she has not once cried that she was wronged. In the night, a man in a fox mask comes to the cell and says he will take her out of here and marry her."
+    },
+    {
+      "title": "The cell next door",
+      "body": "The Medicine Seller is held in the cell to the north. To understand Ochō, one must walk into the house she remembers, and into the dream she dreams."
+    }
+  ]
 }

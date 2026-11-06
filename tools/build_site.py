@@ -43,9 +43,48 @@ def needed_assets():
     return sorted(need)
 
 
+def optimize_textures():
+    """11-06 手机加载慢（国内连 GitHub 每秒几十 KB，进そらりす丸要两三分钟）：只改 dist 里的副本，源文件不动。
+    - 大 JPG：最长边压到 2048（天空球 2560），质量 72，变小才换
+    - textures/kit 里的大 PNG（不透明）：另存一份 JPG（质量 78），小于原来六成才用；清单写进 tour.html 的 window.__TEX_JPG，kit.js 照清单读 JPG
+    """
+    def dims(f):
+        o = subprocess.run(["sips", "-g", "pixelWidth", "-g", "pixelHeight", "-g", "hasAlpha", str(f)], capture_output=True, text=True).stdout
+        g = lambda k: (re.search(k + r": (\S+)", o) or [None, ""])[1]
+        return int(g("pixelWidth") or 0), int(g("pixelHeight") or 0), g("hasAlpha") == "yes"
+    before = after = 0; jpg_list = []
+    tex = DIST / "textures"
+    for f in sorted(tex.rglob("*.jpg")):
+        if f.stat().st_size < 150_000: continue
+        w, h, _ = dims(f); cap = 2560 if "_sky" in f.name else 2048
+        tmp = f.with_suffix(".tmp.jpg"); args = ["sips", "-s", "format", "jpeg", "-s", "formatOptions", "72"]
+        if max(w, h) > cap: args += ["-Z", str(cap)]
+        subprocess.run(args + [str(f), "--out", str(tmp)], capture_output=True)
+        b0 = f.stat().st_size; before += b0
+        if tmp.exists() and tmp.stat().st_size < b0 * 0.9: tmp.replace(f)
+        else: tmp.unlink(missing_ok=True)
+        after += f.stat().st_size
+    for f in sorted((tex / "kit").glob("*.png")):
+        if f.stat().st_size < 120_000: continue
+        w, h, alpha = dims(f)
+        if alpha: continue
+        j = f.with_suffix(".jpg")
+        if j.exists(): continue   # 同名 JPG 已经有了（别的用途），不碰
+        args = ["sips", "-s", "format", "jpeg", "-s", "formatOptions", "78"] + (["-Z", "2048"] if max(w, h) > 2048 else [])
+        subprocess.run(args + [str(f), "--out", str(j)], capture_output=True)
+        b0 = f.stat().st_size; before += b0
+        if j.exists() and j.stat().st_size < b0 * 0.6: jpg_list.append(f.name); after += j.stat().st_size
+        else: j.unlink(missing_ok=True); after += b0
+    page = DIST / "tour.html"; html = page.read_text()
+    html = html.replace("window.__TEX_JPG = [];", "window.__TEX_JPG = " + json.dumps(jpg_list) + ";")
+    page.write_text(html)
+    print(f"贴图压缩：{before / 1e6:.1f} MB → {after / 1e6:.1f} MB（{len(jpg_list)} 张 PNG 换成 JPG）")
+
+
 def build(base):
     env = dict(os.environ, SITE="1", SITE_BASE=base)
     subprocess.run(["npx", "vite", "build"], cwd=WEB, env=env, check=True)
+    optimize_textures()
     out = DIST / "game-assets"
     total = 0
     for rel in needed_assets():
