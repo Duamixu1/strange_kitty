@@ -4,11 +4,14 @@
 // 这里按发布时生成的 manifest.json（每个文件的内容 hash）判新旧：hash 没变直接从缓存给，不碰网络；变了才重下。
 // 页面（tour.html）、manifest 本身走网络。带 Range 的请求（泼溅库分段下）和别的域名不管。
 // 注册：tour.js 在发布版里 register("sw.js?v=<构建号>")，构建号变了浏览器会装新的 SW，新 SW 第一次启动重新取 manifest。
-const CACHE = "mononoke-tour-v1";
+const CACHE = "mononoke-tour-v2";   // 11-07 v1→v2：v1 里可能存着浏览器 HTTP 缓存给的旧文件（见下面 fresh），换个名字整个清掉重下
 const BASE = new URL(self.registration.scope).pathname;   // "/strange_kitty/"
 const V = new URL(self.location.href).searchParams.get("v") || "0";
 const TRACKED = /^(game-assets|textures|draco|icons)\//;
 let manifestP = null;
+// 重下时绕过浏览器 HTTP 缓存（no-cache = 先问服务器）：GitHub Pages 给 10 分钟 max-age，刚发布完直接 fetch 会拿到浏览器缓存里的旧文件，
+// 再按新 hash 存进来，以后就一直给旧的（11-07 实测：长卷去金霞后线上仍显示金霞）
+const fresh = (u) => fetch(u, { cache: "no-cache" });
 // 存进缓存时只留 content-type：服务器给的是 gzip 过的，body 到这里已经解开了，连 content-encoding / content-length 一起存进去，
 // 下次取出来浏览器会再解一遍，模型就读坏了（11-06 本机测出来：第二处卡住不进）
 const keep = (headers, hash) => { const h = new Headers(); const ct = headers.get("content-type"); if (ct) h.set("content-type", ct); if (hash) h.set("x-hash", hash); return h; };
@@ -26,7 +29,7 @@ function manifest() {
   return manifestP;
 }
 self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(manifest()); });
-self.addEventListener("activate", (e) => { e.waitUntil(self.clients.claim()); });
+self.addEventListener("activate", (e) => { e.waitUntil((async () => { for (const k of await caches.keys()) if (k.startsWith("mononoke-tour-") && k !== CACHE) await caches.delete(k); await self.clients.claim(); })()); });
 self.addEventListener("fetch", (e) => {
   const req = e.request; if (req.method !== "GET" || req.headers.has("range")) return;
   const url = new URL(req.url); if (url.origin !== self.location.origin || !url.pathname.startsWith(BASE)) return;
@@ -38,7 +41,7 @@ self.addEventListener("fetch", (e) => {
     const want = hashed ? null : (await manifest())[rel] || null;
     if (hit && (hashed || (want && hit.headers.get("x-hash") === want))) return hit;
     let res;
-    try { res = await fetch(req); } catch (err) { if (hit) return hit; throw err; }   // 断网：有旧的先给旧的
+    try { res = hashed ? await fetch(req) : await fresh(req.url); } catch (err) { if (hit) return hit; throw err; }   // 断网：有旧的先给旧的
     if (res.ok && res.type === "basic" && (hashed || want)) {
       e.waitUntil(c.put(key, new Response(res.clone().body, { status: 200, headers: keep(res.headers, want) })).catch(() => {}));
     }
@@ -57,7 +60,7 @@ self.addEventListener("message", (e) => {
         if (!hashed && !want) continue;
         const key = url.origin + url.pathname, hit = await c.match(key);
         if (hit && (hashed || hit.headers.get("x-hash") === want)) continue;
-        const r = await fetch(key); if (!r.ok || r.type !== "basic") continue;
+        const r = await (hashed ? fetch(key) : fresh(key)); if (!r.ok || r.type !== "basic") continue;
         await c.put(key, new Response(r.body, { status: 200, headers: keep(r.headers, want) }));
       } catch {}
     }
