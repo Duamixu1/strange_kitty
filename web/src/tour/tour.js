@@ -96,7 +96,7 @@ function progressOf(id) {
   if (cs.done) parts.push("已退魔"); else if (cs.chars.length || cs.intro) parts.push(`形真理 ${cs.chars.length} / 3`);
   parts.push(`観 ${views}${cs.totals?.views ? ` / ${cs.totals.views}` : ""}`);
   if (mons.length) parts.push(`物怪 ${got} / ${mons.length}`);
-  return `<span class="prog">${parts.join(" · ")}</span>`;
+  return `<span class="prog">${parts.map((x) => `<i>${x}</i>`).join("")}</span>`;   // 一项一行，小屏上不跟隔壁地点的字叠在一起
 }
 async function showMap() {
   document.body.classList.add("map-mode");
@@ -112,7 +112,7 @@ async function showMap() {
   if ((!introSeen() || params.get("intro") === "1") && !params.has("selftest") && !params.has("auto")) playIntro();
   const replay = document.createElement("button"); replay.className = "intro-btn"; replay.textContent = "缘起"; replay.title = "再看一遍故事介绍";
   replay.addEventListener("click", (e) => { e.stopPropagation(); playIntro(); });
-  document.querySelector("#map h1")?.appendChild(replay);
+  document.getElementById("map")?.appendChild(replay);   // 11-07 用户：总地图不要标题，长卷占满全屏；「缘起」浮在左上角
   const scroll = document.querySelector("#map .scroll"), paper = document.querySelector("#map .paper-roll");
   if (map) {
     // 长卷：图按窗口高度缩放，热区按图的像素比例换成百分比，图换成重画版也不用改
