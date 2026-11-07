@@ -2,6 +2,19 @@ import { asset, pub } from "../paths.js";
 
 import { ORDER, DEFS, svg } from "./story_art.js";
 import "./story_intro.css";
+import { LANG } from "./i18n.js";
+
+// 毛笔字体（11-07 用户："正文用刘建毛草，其他你决定"）：中文正文刘建毛草（草书）、标题和按钮志莽行书、日文祐字肅、英文 Cormorant 斜体。
+// 只含手册用到的字的小 woff2（tools/intro_fonts.py 生成，改了 intro.cards 的字要重跑），按当前语言只下需要的那一两个。
+const FONT_FILES = { zh: [["IntroZhBody", "intro_zh_body"], ["IntroZhTitle", "intro_zh_title"]], ja: [["IntroJa", "intro_ja"]], en: [["IntroEn", "intro_en", "italic"]] };
+let fontsAsked = false;
+function loadFonts() {
+  if (fontsAsked || typeof FontFace === "undefined") return; fontsAsked = true;
+  for (const [family, file, style] of FONT_FILES[LANG] || FONT_FILES.zh) {
+    new FontFace(family, `url(${pub(`fonts/${file}.woff2`)}) format("woff2")`, { display: "swap", style: style || "normal" })
+      .load().then((f) => document.fonts.add(f)).catch(() => {});   // 下不来就用原来的宋体
+  }
+}
 
 const SEEN = "mononoke_tour_intro";
 const DRAFT = [
@@ -15,7 +28,7 @@ const DRAFT = [
 function artImg(name) {
   const path = pub(`textures/intro/intro_${name}`);
   return `<img src="${path}.webp" srcset="${path}.webp 680w, ${path}_1600.webp 1600w"
-    sizes="(orientation: landscape) 54vw, 89vw" alt="" data-art="${name}" draggable="false" decoding="async">`;
+    sizes="(orientation: landscape) 58vw, 92vh" alt="" data-art="${name}" draggable="false" decoding="async">`;
 }
 
 /** 后台先下的东西（进浏览器缓存；进地点时 GLTFLoader 再取就快了） */
@@ -31,6 +44,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<
 
 /** 放缘起手册；关掉时 resolve。warmUrls：翻页时顺手先下的文件（相对资源路径） */
 export function storyIntro(texts, warmUrls = []) {
+  loadFonts();
   const cards = texts?.["intro.cards"]?.length ? texts["intro.cards"] : DRAFT;
   const n = cards.length;
   const el = document.createElement("dialog"); el.id = "story-intro";
@@ -45,7 +59,7 @@ export function storyIntro(texts, warmUrls = []) {
   el.innerHTML = `${DEFS}<div class="si-book" tabindex="-1" autofocus>${pages}</div>
     <div class="si-series"><span aria-hidden="true">❀</span>缘起</div>
     <button class="si-skip">跳过<small>Esc</small></button>
-    <footer class="si-footer"><span class="si-load"></span>
+    <footer class="si-footer"><p class="si-plain" aria-hidden="true"></p>
       <div class="si-nav"><button class="si-prev" aria-label="上一张">‹</button>
         <span class="si-no" aria-live="polite"></span>
         <button class="si-next" aria-label="下一张">›</button></div></footer>`;
@@ -53,8 +67,9 @@ export function storyIntro(texts, warmUrls = []) {
   el.showModal();
   el.querySelectorAll(".si-art img").forEach((im) => im.addEventListener("error", () => { im.outerHTML = svg(im.dataset.art); }, { once: true }));   // 图片挂了用 SVG 顶上
   const $ = (s) => el.querySelector(s), all = [...el.querySelectorAll(".si-page")];
-  const w = warm(warmUrls.filter((u) => typeof u === "string").map((u) => asset(u)));
-  const loadTick = setInterval(() => { $(".si-load").textContent = w.done >= w.total ? "行李备好了" : `正在备行李 ${w.done} / ${w.total}`; }, 300);
+  warm(warmUrls.filter((u) => typeof u === "string").map((u) => asset(u)));
+  // 底栏原来写"正在备行李 n / m"，11-07 用户说"这里可以换成正文，因为草书确实看不明白"：改成这一页诗句的宋体版（英文本来就好认，不重复）
+  const plain = (c) => (LANG === "en" ? "" : String(c?.t || "").replace(/\n+/g, "　"));
   let i = 0;
   return new Promise((resolve) => {
     function show(k) {
@@ -64,12 +79,13 @@ export function storyIntro(texts, warmUrls = []) {
         p.inert = j !== i;
       });
       $(".si-no").textContent = `${i + 1} / ${n}`;
+      $(".si-plain").textContent = plain(cards[i]);
       $(".si-prev").disabled = i === 0;
       $(".si-next").disabled = i === n - 1;
     }
     function close() {
       try { localStorage.setItem(SEEN, "1"); } catch {}
-      removeEventListener("keydown", onKey, true); clearInterval(loadTick);
+      removeEventListener("keydown", onKey, true);
       el.classList.remove("show"); setTimeout(() => { el.close(); el.remove(); }, 450); resolve();
     }
     const next = () => (i === n - 1 ? close() : show(i + 1));

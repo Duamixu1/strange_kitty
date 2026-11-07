@@ -1,10 +1,15 @@
+/* 缘起手册（11-07 第五版，文案w；用户在四种版式里选了 C "挂轴"，并说"去掉红色的字，只介绍故事，考虑好 PC 和手机的区别"）
+   每页是一幅挂在纸墙上的挂轴：上下两根轴杆、织锦装裱（每篇一种织地纹）、中间是画；故事竖排写在挂轴左边。
+   手机竖屏：挂轴是竖长的，横图按每页的重点裁成竖条（object-position）。
+   电脑横屏：挂轴放宽成"横物"，整幅画不裁，故事仍竖排在左边。
+   红色标题（.si-k）和地名小字（.si-b）不显示。 */
 #story-intro {
-  --mount-width: 61%;
-  --inset: clamp(20px, 3.2vw, 62px);
-  --bottom: max(12px, env(safe-area-inset-bottom));
+  --inset: clamp(18px, 3vw, 56px);
+  --bottom: max(10px, env(safe-area-inset-bottom));
   --edge: max(var(--inset), env(safe-area-inset-right));
   --paper-tone: #ede3cb;
   --lacquer: #943c37;
+  --ink: #362e30;
   position: fixed;
   inset: 0;
   box-sizing: border-box;
@@ -18,7 +23,7 @@
   border: 0;
   overflow: hidden;
   background: var(--paper-tone);
-  color: #362e30;
+  color: var(--ink);
   font-family: "Songti SC", "Noto Serif CJK SC", "Hiragino Mincho ProN", serif;
   opacity: 0;
   transition: opacity .4s;
@@ -31,177 +36,191 @@ body.lang-ja #story-intro { font-family: "Hiragino Mincho ProN", "Yu Mincho", se
 .si-page {
   position: absolute;
   inset: 0;
-  display: grid;
-  grid-template-columns: var(--mount-width) minmax(0, 1fr);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 4vw, 72px);
+  box-sizing: border-box;
+  padding: calc(56px + env(safe-area-inset-top)) var(--edge) calc(58px + var(--bottom)) var(--inset);
   background: var(--paper-tone);
   transform-origin: left center;
   transition: transform .6s ease-in-out, opacity .6s;
   backface-visibility: hidden;
   user-select: none;
   touch-action: pan-y;
+  isolation: isolate;
+}
+/* 纸墙：纸纹 + 角上一点青海波 */
+.si-page::before, .si-page::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.si-page::before { background: url("/textures/paper.jpg") 50% / 460px; mix-blend-mode: multiply; opacity: .14; }
+.si-page::after {
+  background: url("/textures/patterns/seigaiha.png") bottom right / 180px 90px repeat;
+  mix-blend-mode: multiply;
+  opacity: .08;
+  mask-image: radial-gradient(ellipse 80% 40% at 100% 100%, black 16%, transparent 78%);
 }
 .si-page.gone { transform: rotateY(-98deg); opacity: 0; pointer-events: none; }
 
-/* 装裱的织地与画心分开，横竖屏都保留原画四边。 */
+/* ---- 挂轴：画在右，故事在左 ---- */
 .si-art {
   --cloth: #303c48;
   --motif: url("/textures/patterns/asanoha.png");
+  order: 2;
   position: relative;
-  display: grid;
-  place-items: center;
-  min-width: 0;
-  min-height: 0;
-  container-type: size;
-  isolation: isolate;
-  background: radial-gradient(ellipse at 45% 35%, transparent 25%, #090c1e52), var(--cloth);
-  box-shadow: inset -8px 0 14px -12px #090a12;
-}
-.si-page[data-art="sumi"] .si-art { --cloth: #404747; --motif: url("/textures/patterns/shippo.png"); }
-.si-page[data-art="klimt"] .si-art { --cloth: #2d4140; --motif: url("/textures/patterns/seigaiha.png"); }
-.si-page[data-art="taisho"] .si-art { --cloth: #493b40; --motif: url("/textures/patterns/shippo.png"); }
-.si-art::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--motif) 0 0 / 145px auto repeat;
-  mix-blend-mode: screen;
-  opacity: .095;
-}
-.si-art::after {
-  content: "";
-  position: absolute;
-  inset: 12px;
-  border: 1px solid #d6bd8252;
-  pointer-events: none;
-}
-.si-print {
-  position: relative;
-  width: min(86cqw, 107cqh, 1120px);
-  aspect-ratio: 2048 / 1456;
-  background: #d9c79f;
-  box-shadow: 0 0 0 2px #352f32, 0 0 0 3px #ae905f, 0 0 0 7px #d7c59f, 0 0 0 8px #817254, 1px 5px 16px 7px #14152052;
-}
-.si-print img, .si-print svg { display: block; width: 100%; height: 100%; object-fit: contain; }
-.si-copy {
-  position: relative;
-  isolation: isolate;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: safe center;
-  min-height: 0;
-  box-sizing: border-box;
-  overflow-y: auto;
-  padding: max(66px, env(safe-area-inset-top)) var(--edge) calc(64px + var(--bottom)) var(--inset);
-  background: linear-gradient(90deg, #7964474f, #af9c7533 1%, transparent 5%, transparent 98%, #a08a6245), var(--paper-tone);
+  filter: drop-shadow(2px 8px 10px #2a20183d);
 }
-.si-copy::before, .si-copy::after {
+.si-page[data-art="sumi"] .si-art { --cloth: #404747; --motif: url("/textures/patterns/shippo.png"); }
+.si-page[data-art="klimt"] .si-art { --cloth: #2d4140; --motif: url("/textures/patterns/seigaiha.png"); }
+.si-page[data-art="noh"] .si-art { --cloth: #5a2f2f; --motif: url("/textures/patterns/asanoha.png"); }
+.si-page[data-art="taisho"] .si-art { --cloth: #493b40; --motif: url("/textures/patterns/shippo.png"); }
+/* 上下轴杆（比装裱宽一点，两头是轴头） */
+.si-art::before, .si-art::after {
   content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
+  display: block;
+  width: calc(100% + 18px);
+  height: 11px;
+  border-radius: 6px;
+  background: linear-gradient(#7a5a48, #3a2a22 70%);
+  box-shadow: 0 1px 0 #1c140f;
+  flex: none;
 }
-.si-copy::before { background: url("/textures/paper.jpg") 50% / 460px; mix-blend-mode: multiply; opacity: .13; }
-.si-copy::after {
-  background: url("/textures/patterns/seigaiha.png") bottom right / 180px 90px repeat;
-  mix-blend-mode: multiply;
-  opacity: .09;
-  mask-image: radial-gradient(ellipse 115% 48% at 105% 104%, black 16%, transparent 78%);
+.si-art::after { height: 15px; border-radius: 8px; }
+/* 装裱：织地 + 一圈细金边，画心在里面（上留天、下留地） */
+.si-print {
+  position: relative;
+  box-sizing: border-box;
+  padding: var(--ten, 26px) var(--side, 12px) var(--chi, 38px);
+  background: radial-gradient(ellipse at 45% 35%, transparent 30%, #090c1e40), var(--cloth);
+  isolation: isolate;
 }
-.si-verse {
+.si-print::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--motif) 0 0 / 120px auto repeat; mix-blend-mode: screen; opacity: .1; }
+.si-print img, .si-print svg {
+  display: block;
+  box-sizing: border-box;
+  width: var(--w);
+  height: var(--h);
+  object-fit: cover;
+  object-position: var(--focus, 50%) 50%;
+  border: 1px solid #c9a96a;
+  outline: 3px solid #e3d2a6;
+  outline-offset: 0;
+  box-shadow: 0 0 0 4px #7d6a48;
+}
+/* 每页裁竖条时保住的重点（只在手机竖屏起作用） */
+.si-page[data-art="yorozu"] { --focus: 12%; }
+.si-page[data-art="sumi"] { --focus: 40%; }
+.si-page[data-art="klimt"] { --focus: 48%; }
+.si-page[data-art="noh"] { --focus: 50%; }
+.si-page[data-art="taisho"] { --focus: 6%; }
+
+/* ---- 故事：竖排，在挂轴左边 ---- */
+.si-copy {
+  order: 1;
+  flex: 0 1 auto;
   display: flex;
-  flex-direction: row-reverse;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: clamp(20px, 3vw, 60px);
+  min-width: 0;
+  max-height: 100%;
 }
-.si-k, .si-t { writing-mode: vertical-rl; margin: 0; }
-.si-k {
-  color: var(--lacquer);
-  border: 1px solid currentColor;
-  outline: 1px solid #a8615073;
-  outline-offset: 3px;
-  padding: .58em .26em .48em;
-  font-weight: 500;
-  font-size: clamp(17px, 1.65vw, 30px);
-  letter-spacing: .11em;
-  line-height: 1.2;
-}
-.si-t { font-size: clamp(20px, 2vw, 38px); letter-spacing: .08em; line-height: 1.85; white-space: pre-line; }
-.si-b { margin: 2em 0 0; font-size: clamp(12px, 1vw, 17px); line-height: 1.6; text-align: center; color: #685951; }
+.si-verse { display: flex; justify-content: center; }
+.si-k, .si-b { display: none; }   /* 用户：去掉红色的字，只介绍故事 */
+.si-t { writing-mode: vertical-rl; margin: 0; font-size: clamp(20px, 2.1vw, 38px); letter-spacing: .1em; line-height: 1.9; white-space: pre-line; }
 #story-intro button { font: inherit; color: inherit; cursor: pointer; }
 #story-intro .si-go {
-  margin: 1.5em 0 0;
-  padding: 8px 1.4em;
+  margin: 1.4em 0 0;
+  padding: 8px 1.2em;
   min-height: 44px;
   border: 3px double var(--paper-tone);
   outline: 1px solid var(--lacquer);
   background: var(--lacquer);
   color: #fff0da;
   letter-spacing: .12em;
+  writing-mode: horizontal-tb;
+  white-space: nowrap;
 }
+
+/* ---- 顶栏、底栏 ---- */
 .si-series, #story-intro .si-skip {
   position: absolute;
-  top: max(18px, env(safe-area-inset-top));
+  top: max(10px, env(safe-area-inset-top));
   display: flex;
   align-items: center;
   min-height: 44px;
+  z-index: 2;
 }
-.si-series { left: max(var(--inset), env(safe-area-inset-left)); gap: .7em; color: #ecdcb9; font-size: 16px; letter-spacing: .26em; pointer-events: none; }
-.si-series span { font-size: 25px; letter-spacing: 0; }
+.si-series { left: max(var(--inset), env(safe-area-inset-left)); gap: .7em; color: #6a5a4c; font-size: 15px; letter-spacing: .26em; pointer-events: none; }
+.si-series span { font-size: 22px; letter-spacing: 0; }
 #story-intro .si-skip { right: var(--edge); padding: 0 3px; border: 0; background: none; font-size: 14px; color: #64554b; }
 .si-skip small { margin-left: .6em; opacity: .7; }
 .si-footer {
   position: absolute;
+  z-index: 2;
   bottom: var(--bottom);
-  left: calc(var(--mount-width) + var(--inset));
+  left: var(--inset);
   right: var(--edge);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  border-top: 1px solid #765e3f4d;
+  border-top: 1px solid #765e3f40;
   color: #67594c;
   font-size: 13px;
 }
+.si-plain { margin: 0; padding: 8px 0; flex: 1 1 auto; min-width: 0; font-family: "Songti SC", "Noto Serif CJK SC", "Hiragino Mincho ProN", serif; font-size: clamp(14px, 1.15vw, 18px); line-height: 1.6; letter-spacing: .06em; color: var(--ink); word-break: keep-all; text-wrap: balance; }
+body.lang-ja .si-plain { font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; }
 .si-nav { display: flex; align-items: center; white-space: nowrap; }
 .si-no { font-variant-numeric: tabular-nums; letter-spacing: .12em; }
 #story-intro .si-nav button { width: 44px; height: 44px; font: 24px/1 serif; background: transparent; border: 0; }
 #story-intro .si-nav button:disabled { opacity: .24; cursor: default; }
 #story-intro button:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
-
-body.lang-en .si-verse { flex-direction: column; gap: 16px; }
-body.lang-en .si-k, body.lang-en .si-t { writing-mode: horizontal-tb; }
-body.lang-en .si-t { font-size: clamp(18px, 1.9vw, 32px); letter-spacing: 0; line-height: 1.45; }
 @media (pointer: coarse) { .si-skip small { display: none; } }
-@media (orientation: portrait) {
-  .si-page { grid-template-columns: 1fr; grid-template-rows: min(47%, calc(70vw + 90px)) minmax(0, 1fr); }
-  .si-art::after { inset: 8px; }
-  .si-print { width: min(86cqw, calc((100cqh - 80px) * 1.4)); transform: translateY(17px); }
-  .si-series, #story-intro .si-skip { top: max(7px, env(safe-area-inset-top)); }
-  #story-intro .si-skip { color: #ecdcb9; }
-  .si-copy { padding: 18px var(--edge) calc(52px + var(--bottom)) var(--inset); background: linear-gradient(#7e684638, transparent 12px), var(--paper-tone); }
-  .si-t { font-size: clamp(18px, min(5.6vw, 2.75dvh), 32px); }
-  .si-b { margin-top: 1.1em; }
-  .si-footer { left: var(--inset); }
+
+/* ---- 电脑 / 横屏：横物挂轴，整幅画不裁 ---- */
+@media (orientation: landscape) {
+  .si-art { --w: min(58vw, calc((100dvh - 230px) * 1.4066)); --h: calc(var(--w) / 1.4066); }
+  .si-print { --ten: clamp(18px, 3.2vh, 34px); --side: clamp(12px, 1.4vw, 22px); --chi: clamp(26px, 5vh, 52px); }
 }
-@media (max-height: 680px) {
-  .si-k { font-size: 16px; }
-  .si-t { font-size: 18px; line-height: 1.6; }
-  .si-b { margin-top: .75em; }
-  #story-intro .si-go { margin-top: .75em; }
-  body.lang-en .si-verse { gap: 10px; }
+/* ---- 手机 / 竖屏：竖长挂轴，横图裁成竖条 ---- */
+@media (orientation: portrait) {
+  .si-page { gap: clamp(10px, 3.5vw, 26px); padding-top: calc(50px + env(safe-area-inset-top)); }
+  .si-art { --w: min(58vw, 400px); --h: min(calc(100dvh - 250px), calc(var(--w) * 1.9)); }
+  .si-print { --ten: 20px; --side: 9px; --chi: 30px; }
+  .si-t { font-size: clamp(17px, min(5.2vw, 2.6dvh), 30px); line-height: 1.75; }
+}
+@media (orientation: portrait) and (max-width: 360px) {
+  .si-art { --w: 54vw; }
+  .si-t { font-size: 16px; }
 }
 @media (orientation: landscape) and (max-height: 540px) {
-  #story-intro { --mount-width: 55%; }
-  .si-copy { padding-top: 48px; padding-bottom: calc(45px + var(--bottom)); }
-  .si-series, #story-intro .si-skip { top: max(5px, env(safe-area-inset-top)); }
-  .si-print { width: min(86cqw, calc((100cqh - 80px) * 1.4)); transform: translateY(13px); }
-  .si-art::after { inset: 7px; }
-  body:not(.lang-en) .si-verse { max-height: 100%; }
+  .si-page { padding-top: 46px; padding-bottom: calc(46px + var(--bottom)); }
+  .si-art { --w: min(54vw, calc((100dvh - 150px) * 1.4066)); }
+  .si-print { --ten: 12px; --chi: 18px; }
+  .si-t { font-size: 17px; line-height: 1.6; }
+  #story-intro .si-go { margin-top: .6em; }
 }
+
+/* 英文：横排在挂轴左边 */
+body.lang-en .si-t { writing-mode: horizontal-tb; font-size: clamp(17px, 1.8vw, 30px); letter-spacing: 0; line-height: 1.5; max-width: 26ch; text-align: left; }
+@media (orientation: portrait) {
+  body.lang-en .si-page { flex-direction: column; justify-content: center; }
+  body.lang-en .si-art { order: 1; --h: min(calc(100dvh - 360px), calc(var(--w) * 1.7)); --w: min(78vw, 420px); }
+  body.lang-en .si-copy { order: 2; }
+  body.lang-en .si-t { text-align: center; max-width: 30ch; font-size: 17px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #story-intro, .si-page { transition: none; }
 }
+
+/* 毛笔字体（11-07，文案w）：字体文件由 story_intro.js 的 loadFonts() 按语言加载，下不来就退回上面的宋体 */
+.si-t { font-family: "IntroZhBody", "Songti SC", "Noto Serif CJK SC", serif; }
+#story-intro .si-go { font-family: "IntroZhTitle", "Songti SC", "Noto Serif CJK SC", serif; font-weight: normal; }
+body.lang-ja .si-t, body.lang-ja #story-intro .si-go { font-family: "IntroJa", "Hiragino Mincho ProN", "Yu Mincho", serif; }
+body.lang-en .si-t, body.lang-en #story-intro .si-go { font-family: "IntroEn", "Cormorant Garamond", Georgia, serif; font-style: italic; }
