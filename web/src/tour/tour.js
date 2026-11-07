@@ -119,21 +119,29 @@ async function showMap() {
     const [W, H] = map.size;
     paper.style.aspectRatio = `${W} / ${H}`;
     const img = paper.querySelector("img");
-    img.addEventListener("load", () => { loading.done(); reportLoad("map", "总地图"); }, { once: true }); img.addEventListener("error", () => loading.fail("长卷图片没加载出来"), { once: true });
+    // 回到总地图时停在上次进的地点（没进过就停最左边）
+    const LAST = "mononoke_tour_lastloc";
+    const goLast = () => { let id = null; try { id = localStorage.getItem(LAST); } catch {} const P = map.places.find((q) => q.id === id); if (!P) return;
+      scroll.scrollLeft = paper.offsetLeft + (P.label[0] / W) * paper.offsetWidth - scroll.clientWidth / 2; };
+    paper.addEventListener("click", (e) => { const a = e.target.closest?.(".spot.open, .tag-name.open"); const id = a?.dataset.loc; if (id) try { localStorage.setItem(LAST, id); } catch {} }, true);
+    img.addEventListener("load", () => { loading.done(); reportLoad("map", "总地图"); // 图出来时窗口可能还没排版（宽度 0），等长卷真有宽度了再定位一次；用户自己拖过就不再动
+      let userMoved = false; scroll.addEventListener("pointerdown", () => (userMoved = true), { once: true });
+      const ro = new ResizeObserver(() => { if (userMoved || !paper.offsetWidth) return; goLast(); ro.disconnect(); }); ro.observe(paper); }, { once: true });
+    img.addEventListener("error", () => loading.fail("长卷图片没加载出来"), { once: true });
     // 用 fetch 下长卷图再显示（直接设 src 的话加载提示数不到字节，进度条不动）
     fetch(asset(map.image)).then((r) => r.blob()).then((b) => (img.src = URL.createObjectURL(b))).catch(() => (img.src = asset(map.image)));
     for (const P of map.places) {
       const open = P.open && real.includes(P.id);
       const [x0, y0, x1, y1] = P.rect, pct = (v, t) => `${(v / t) * 100}%`;
       const el = document.createElement(open ? "a" : "div");
-      el.className = "spot" + (open ? " open" : " locked");
+      el.className = "spot" + (open ? " open" : " locked"); el.dataset.loc = P.id;
       Object.assign(el.style, { left: pct(x0, W), top: pct(y0, H), width: pct(x1 - x0, W), height: pct(y1 - y0, H) });
       if (open) el.href = `?loc=${P.id}`;
       const intro = texts[`loc.${P.id}`]?.body;
       el.title = open ? `${P.name} · ${P.sub}${intro ? "\n" + intro : ""}` : `${P.name}（未开放）`;
       paper.appendChild(el);
       const tag = document.createElement("div");
-      tag.className = "tag-name" + (open ? " open" : "");
+      tag.className = "tag-name" + (open ? " open" : ""); tag.dataset.loc = P.id;
       Object.assign(tag.style, { left: pct(P.label[0], W), top: pct(P.label[1], H) });
       tag.innerHTML = `<span class="name">${P.name}</span><span class="sub">${P.sub}</span>${open ? progressOf(P.id) : '<span class="seal">未开放</span>'}`;
       if (open) { tag.addEventListener("click", () => (location.href = `?loc=${P.id}`)); el.addEventListener("mouseenter", () => tag.classList.add("hover")); el.addEventListener("mouseleave", () => tag.classList.remove("hover")); }
