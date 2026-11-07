@@ -1184,6 +1184,42 @@
         "assets/concept/00_色板.png"
       ],
       "prompt": "Book illustration, horizontal. Taisho-era (1920s) Japanese poster art with Picasso-like cubist figures: an old subway platform under a black marble arch with white tile edging, a mustard-yellow train car with a dark wine-red roof and gold-framed windows. On the left wall a framed cubist portrait of a white-haired woman, her face split into a coral-pink profile half and a teal front half, holding a black cat. Checkered black-and-white floor. Aged grey-brown paper with scratches, strong geometric shapes, muted colours with accents of wine red and mustard."
+    },
+    {
+      "id": "90_总地图长卷_上下填充",
+      "size": "3840x1280",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "_说明": "11-07 用户在场景线会话说长卷\"可以上下填充\"，选了出图重画上下两条。拿现长卷 map_scroll_painted.jpg 当底稿重出整张，只取上（y 0~520）下（y 930~1280）两条用 kit_map_patch.py 羽化贴回，中间建筑和热区不动",
+      "refs": [
+        "web/public/textures/kit/map_scroll_painted.jpg",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Redraw image[1] as the same long emakimono scroll: keep the middle exactly as it is - the row of seven buildings, pines, stone embankment and the blue river at the same positions and sizes. Fill the empty top and bottom. Top: behind the patterned mountains add a paler second range of distant peaks, a pale full moon with a thin gold rim near the upper right, a few small flights of birds, gold cloud bands threading between peaks; no empty cream. Bottom, below the river: the far bank - a low stone wall, a winding earth footpath with tiny wooden fences, rice paddies drawn as flat green and ochre patterned plots, rows of small pines, reeds at the water's edge, gold cloud bands at the very bottom. Under each building, small on the far bank, one hidden object: at 9% from the left a red-and-white paper umbrella; at 23% a coloured temari ball; at 36% a black cat; at 50% a swirl of black cloud; at 63% a wooden ladle floating; at 77% an old paper train ticket; at 91% a white noh mask hanging on a plum branch. Same flat style, ink outlines, washi texture and seigaiha/asanoha patterns as image[1], colours of image[2]. No text, no people."
+    },
+    {
+      "id": "91_总地图长卷_金霞",
+      "size": "3840x1280",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "_说明": "11-07 用户在场景线会话说长卷上的金条“优化一下”，选了出图重画：照 90 版长卷重出，只把胶囊形金条改成正经的すやり霞；建筑、河、彩蛋、热区都不动",
+      "refs": [
+        "web/public/textures/kit/map_scroll_painted.jpg",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Redraw image[1] exactly: same mountains, moon, birds, the row of seven buildings, pines, river, far bank with its hidden objects and rice paddies, all at the same positions and sizes. Change only the gold cloud bands: they are now clumsy uniform pill shapes with thick black outlines. Redraw them as proper Japanese suyari-gasumi gold mist bands from Edo-period picture scrolls: long flat horizontal bands whose ends step in and out in rectangular notches, several bands overlapping in staggered layers, different lengths and thicknesses, some thin wisps; covered in square gold-leaf foil with faint grid seams and sprinkled gold dust, thin dark-ochre outlines (not black), a few bands fading softly into the paper. Fewer bands than now across the buildings so nothing is hidden; keep them mostly in the sky gaps, between mountains and village, and along the very bottom. Same flat style, washi texture and colours as image[1], colours of image[2]. No text, no people."
+    },
+    {
+      "id": "92_总地图长卷_无金霞",
+      "size": "3840x1280",
+      "model": "chat_image_2.5_sunburst",
+      "quality": "high",
+      "_说明": "11-07 用户在场景线会话说金霞太多，选了重出图“把金霞都去掉吧”：照 91 版重出，去掉全部金色云带，其余不动",
+      "refs": [
+        "assets/concept/scenes/91_总地图长卷_金霞.png",
+        "assets/concept/00_色板.png"
+      ],
+      "prompt": "Redraw image[1] exactly, with one change: remove every gold cloud band and gold-leaf strip, all of them, top, middle and bottom, including scattered gold dust. Where a gold band was, show what lies behind it: plain cream washi sky in the sky, the distant lavender mountain range and the patterned mountains continuing complete, and the green and ochre rice paddies with their earth dikes continuing complete at the bottom down to the edge. Keep everything else identical and at the same positions and sizes: the pale moon, the birds, all mountains, the row of seven buildings, pines, the river and red bridge, the far bank with its reeds, fences, path and the seven small hidden objects. Same flat style, ink outlines, washi texture and patterns as image[1], colours of image[2]. No text, no people, no gold clouds."
     }
   ],
   "model_suffix": "Style: 2D cel sheet for 3D modelling reference: entirely flat colours, no gradients, no lighting, no cast shadows, NO paper texture, clean thin reddish-brown outlines, plain flat cream background. No text, no logos, no watermark.",
